@@ -110,7 +110,7 @@ These are hard constraints from `00_GOUVERNANCE/02_CHANTIER_TECHNIQUE_V1_0_6.md`
 
 When in doubt, consult in this order:
 1. `00_GOUVERNANCE/00_NOYAU_VERITE_V2_5_0.md` — Supreme source of truth
-2. `00_GOUVERNANCE/01_JOURNAL_DECISIONS_V1_19_0.md` — Append-only decision log
+2. `00_GOUVERNANCE/01_JOURNAL_DECISIONS_V1_20_0.md` — Append-only decision log
 3. `00_GOUVERNANCE/02_CHANTIER_TECHNIQUE_V1_0_6.md` — Technical rules
 4. `00_GOUVERNANCE/05_CTX_SYSTEM_ARCHITECTURE_V2_2_0.md` — Architecture contract
 5. `00_GOUVERNANCE/CTX/CTX_[MODULE].md` — Per-module contracts
@@ -118,7 +118,7 @@ When in doubt, consult in this order:
 
 **Session state:** Read `SESSION_STATE.md` first for current module compliance status and active violations.
 
-**Decision log:** Any technical decision must be appended to `JOURNAL_DECISIONS_V1_19_0.md` (never amend past entries). Format: `DATE . MODULE . DECISION . MOTIF . SCOPE . HORS SCOPE . IMPACT . RESULTAT . STATUT`
+**Decision log:** Any technical decision must be appended to `JOURNAL_DECISIONS_V1_20_0.md` (never amend past entries). Format: `DATE . MODULE . DECISION . MOTIF . SCOPE . HORS SCOPE . IMPACT . RESULTAT . STATUT`
 
 ## Key Data Model Notes
 
