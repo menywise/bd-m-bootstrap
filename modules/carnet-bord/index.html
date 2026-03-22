@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carnet de Bord | Bible de Bloc</title>
+
+  <!-- 1 · Bootstrap 5.3.2 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- 2 · Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <!-- 3 · CDS tokens — ⚠ V2 : fixer le tag avant déploiement OVH (violation V2 CTX) -->
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <!-- 4 · CDS print -->
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <!-- 5 · CDS overrides globaux -->
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <!-- 6 · CSS module -->
+  <link href="../../css/carnet-bord-ui.css" rel="stylesheet"/>
+</head>
+
+<body class="d-flex min-vh-100">
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+  <!-- SHELL — INTERDIT-E1 : premier enfant de <main> obligatoire -->
+  <div id="bdb-shell"
+       data-module-title="Carnet de Bord"
+       data-module-icon="bi-journal-bookmark">
+  </div>
+
+  <!-- CONTENEUR PRINCIPAL MODULE -->
+  <div class="container-fluid p-4 bg-light flex-grow-1" id="cbMain">
+
+    <!-- TOOLBAR -->
+    <div class="card border-0 shadow-sm mb-3" id="cbToolbar">
+      <div class="card-body p-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-md">
+            <p class="mb-0 text-muted small">
+              <i class="bi bi-journal-medical me-1 text-danger"></i>
+              Suivi personnel de progression — auto-déclaré, confidentiel.
+            </p>
+          </div>
+          <!-- SLOT ADMIN — INTERDIT-C4 / BLOC C.6 : masqué par défaut, affiché via window.bdbUser.isAdmin -->
+          <div class="col-12 col-md-auto d-none" id="cbToolbarAdminSlot">
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-outline-secondary btn-sm" id="btnAdminCat" type="button">
+                <i class="bi bi-folder-plus me-1"></i>Catégorie
+              </button>
+              <button class="btn btn-danger btn-sm" id="btnAdminItem" type="button">
+                <i class="bi bi-plus-lg me-1"></i>Nouvel item
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BANNIÈRE HORS SERVICE -->
+    <div id="cbOfflineBanner" class="cds-offline-banner" role="alert" aria-live="polite">
+      <i class="bi bi-wifi-off me-2"></i>
+      Connexion Supabase indisponible — les données ne peuvent pas être chargées.
+    </div>
+
+    <!-- DASHBOARD STATISTIQUES -->
+    <div id="cbDashboard" class="d-none"></div>
+
+    <!-- ═══════════════════════════════════════════════════
+         ÉTATS UI — BLOC C.7 : Skeleton Loaders (violation V1 corrigée)
+         ═══════════════════════════════════════════════════ -->
+
+    <!-- ÉTAT : CHARGEMENT (skeleton) -->
+    <div id="cbLoading" aria-hidden="false">
+      <!-- Skeleton dashboard -->
+      <div class="d-flex gap-3 mb-3 placeholder-glow">
+        <div class="cb-stat-card flex-fill"><span class="placeholder col-6 rounded"></span><div class="cb-stat-label mt-2"><span class="placeholder col-8 rounded"></span></div></div>
+        <div class="cb-stat-card flex-fill"><span class="placeholder col-6 rounded"></span><div class="cb-stat-label mt-2"><span class="placeholder col-8 rounded"></span></div></div>
+        <div class="cb-stat-card flex-fill"><span class="placeholder col-6 rounded"></span><div class="cb-stat-label mt-2"><span class="placeholder col-8 rounded"></span></div></div>
+        <div class="cb-stat-card flex-fill"><span class="placeholder col-6 rounded"></span><div class="cb-stat-label mt-2"><span class="placeholder col-8 rounded"></span></div></div>
+      </div>
+      <!-- Skeleton onglets -->
+      <div class="placeholder-glow d-flex gap-2 mb-0">
+        <span class="placeholder rounded-top" style="width:110px;height:36px"></span>
+        <span class="placeholder rounded-top" style="width:130px;height:36px"></span>
+        <span class="placeholder rounded-top" style="width:100px;height:36px"></span>
+      </div>
+      <!-- Skeleton lignes -->
+      <div class="cb-skeleton-pane placeholder-glow p-3 d-flex flex-column gap-2">
+        <span class="placeholder col-12 rounded" style="height:38px"></span>
+        <span class="placeholder col-11 rounded" style="height:38px"></span>
+        <span class="placeholder col-12 rounded" style="height:38px"></span>
+        <span class="placeholder col-10 rounded" style="height:38px"></span>
+        <span class="placeholder col-12 rounded" style="height:38px"></span>
+        <span class="placeholder col-9  rounded" style="height:38px"></span>
+      </div>
+    </div>
+
+    <!-- ÉTAT : VIDE -->
+    <div id="cbEmpty" class="d-none cds-error-state" role="status">
+      <i class="bi bi-journal-medical cds-error-icon"></i>
+      <div class="cds-error-title">Carnet vide</div>
+      <p class="cds-error-msg">Aucune catégorie configurée. Un administrateur doit initialiser le carnet.</p>
+    </div>
+
+    <!-- ÉTAT : ERREUR -->
+    <div id="cbError" class="d-none cds-error-state" role="alert">
+      <i class="bi bi-exclamation-triangle cds-error-icon"></i>
+      <div class="cds-error-title">Erreur de chargement</div>
+      <p class="cds-error-msg" id="cbErrorMsg">Une erreur est survenue.</p>
+      <button class="btn btn-outline-secondary btn-sm cds-error-retry" id="cbBtnRetry" type="button">
+        <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
+      </button>
+    </div>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div id="cbContent" class="d-none">
+      <ul class="nav nav-tabs" id="cbTabList" role="tablist"></ul>
+      <div class="tab-content" id="cbTabContent"></div>
+    </div>
+
+  </div><!-- /#cbMain -->
+
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 Bible de Bloc — CDS Compliant v2.0.0</small>
+  </footer>
+</main>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALE PROGRESSION (membre)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalProgression" tabindex="-1"
+     aria-labelledby="modalProgressionLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalProgressionLabel">
+          <i class="bi bi-journal-check me-2 text-danger"></i>
+          <span id="mpItemLabel">—</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+
+        <p class="text-muted small mb-3" id="mpItemContext"></p>
+
+        <div class="card border-0 bg-light rounded-3 p-3 mb-3">
+          <p class="fw-semibold small text-uppercase text-muted mb-2">
+            <i class="bi bi-calendar3 me-1"></i>Dates de progression
+          </p>
+          <div class="cb-phase-row">
+            <div>
+              <label class="form-label small fw-semibold" for="mpDateDemo">
+                <span class="badge bg-secondary me-1">1</span>Vu / Démo
+              </label>
+              <input type="date" class="form-control form-control-sm" id="mpDateDemo"/>
+            </div>
+            <div>
+              <label class="form-label small fw-semibold" for="mpDateAccompagne">
+                <span class="badge cb-badge-phase2 me-1">2</span>Fait accompagné
+              </label>
+              <input type="date" class="form-control form-control-sm" id="mpDateAccompagne"/>
+            </div>
+            <div>
+              <label class="form-label small fw-semibold" for="mpDateSolo">
+                <span class="badge bg-success me-1">3</span>Fait seul / Solo
+              </label>
+              <input type="date" class="form-control form-control-sm" id="mpDateSolo"/>
+            </div>
+            <div>
+              <label class="form-label small fw-semibold" for="mpNiveau">Niveau de maîtrise</label>
+              <select class="form-select form-select-sm" id="mpNiveau">
+                <option value="">— Non renseigné —</option>
+                <option value="debutant">Débutant</option>
+                <option value="intermediaire">Intermédiaire</option>
+                <option value="expert">Expert</option>
+                <option value="na">NA — Non applicable</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold" for="mpNote">
+            Note personnelle <span class="text-muted fw-normal">(optionnel)</span>
+          </label>
+          <textarea class="form-control form-control-sm" id="mpNote"
+                    rows="2" placeholder="Remarque, rappel, contexte…"></textarea>
+        </div>
+
+        <div id="mpResourcesSection" class="d-none mb-3">
+          <p class="fw-semibold small text-uppercase text-muted mb-2">
+            <i class="bi bi-link-45deg me-1"></i>Ressources disponibles
+          </p>
+          <div id="mpResourcesList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+
+        <div id="mpMentorsSection" class="d-none">
+          <p class="fw-semibold small text-uppercase text-muted mb-2">
+            <i class="bi bi-person-check me-1"></i>Mentors reconnus sur cet item
+          </p>
+          <div id="mpMentorsList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger" id="mpBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALE ADMIN — Catégorie
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalAdminCat" tabindex="-1"
+     aria-labelledby="modalAdminCatLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdminCatLabel">Catégorie</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="macError" class="alert alert-danger d-none" role="alert"></div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="macLabel">
+            Libellé <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control" id="macLabel"
+                 placeholder="Ex : Chirurgie Vasculaire"/>
+        </div>
+        <div class="row g-2 mb-3">
+          <div class="col">
+            <label class="form-label fw-semibold">Couleur</label>
+            <div class="d-flex gap-2 align-items-center">
+              <div class="cb-color-preview" id="macColorPreview"></div>
+              <input type="color" class="form-control form-control-color"
+                     id="macColor" value="#6c757d"/>
+            </div>
+          </div>
+          <div class="col">
+            <label class="form-label fw-semibold" for="macIcon">Icône Bootstrap Icons</label>
+            <input type="text" class="form-control" id="macIcon"
+                   placeholder="heart-pulse"/>
+            <div class="form-text">Sans le préfixe "bi-"</div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="macPosition">Position</label>
+          <input type="number" class="form-control" id="macPosition"
+                 value="0" min="0"/>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="macActive" checked/>
+          <label class="form-check-label" for="macActive">Catégorie active</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger d-none" id="macBtnDelete">
+          <i class="bi bi-trash3 me-1"></i>Supprimer
+        </button>
+        <button type="button" class="btn btn-outline-secondary ms-auto"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger" id="macBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALE ADMIN — Item
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalAdminItem" tabindex="-1"
+     aria-labelledby="modalAdminItemLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdminItemLabel">Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="maiError" class="alert alert-danger d-none" role="alert"></div>
+        <div class="row g-3 mb-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="maiLabel">
+              Libellé <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="maiLabel"
+                   placeholder="Ex : Arthroscopie de genou"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold" for="maiCategory">
+              Catégorie <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" id="maiCategory"></select>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold" for="maiSousGroupe">Sous-groupe</label>
+            <input type="text" class="form-control" id="maiSousGroupe"
+                   placeholder="ACTES ou MATERIEL SPECIFIQUE"/>
+          </div>
+          <div class="col-4">
+            <label class="form-label fw-semibold" for="maiPosition">Position</label>
+            <input type="number" class="form-control" id="maiPosition"
+                   value="0" min="0"/>
+          </div>
+          <div class="col-4 d-flex align-items-end pb-1">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="maiRequired"/>
+              <label class="form-check-label fw-semibold" for="maiRequired">Requis ★</label>
+            </div>
+          </div>
+          <div class="col-4 d-flex align-items-end pb-1">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="maiActive" checked/>
+              <label class="form-check-label" for="maiActive">Actif</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Ressources liées</label>
+          <div id="maiResourcesEditor" class="mb-2"></div>
+          <button type="button" class="btn btn-outline-secondary btn-sm"
+                  id="maiBtnAddResource">
+            <i class="bi bi-plus-lg me-1"></i>Ajouter une ressource
+          </button>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Mentors reconnus</label>
+          <div id="maiMentorsList" class="d-flex flex-wrap gap-2 mb-2"></div>
+          <select class="form-select form-select-sm" id="maiMentorSelect">
+            <option value="">— Ajouter un mentor —</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger d-none" id="maiBtnDelete">
+          <i class="bi bi-trash3 me-1"></i>Supprimer
+        </button>
+        <button type="button" class="btn btn-outline-secondary ms-auto"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger" id="maiBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="cbToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi me-2" id="cbToastIcon"></i>
+      <strong class="me-auto" id="cbToastTitle">Info</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"
+              aria-label="Fermer"></button>
+    </div>
+    <div class="toast-body" id="cbToastMsg"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CHAÎNE JS — ordre immuable BLOC E
+     ═══════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+
+<script>
+/* =============================================================
+   MODULE CARNET_BORD — BDB v2.0.0
+   CTX     : CTX_CARNET_BORD_V2_0_0.md
+   CHANTIER: CHANTIER_TECHNIQUE_V1_0_5
+   Tables  : carnet_categories · carnet_items · carnet_progressions
+   Auth    : window.bdbUser (source unique — INTERDIT-B2)
+   ============================================================= */
+
+'use strict';
+
+const DB = window.bdb;
+
+/* ── État applicatif ─────────────────────────────────────────── */
+const state = {
+  isAdmin      : false,
+  userId       : null,
+  categories   : [],
+  items        : [],
+  progressions : {},
+  members      : [],
+  editing      : { itemId: null, progId: null },
+  editingCat   : null,
+  editingItem  : null,
+  itemMentors  : [],
+  itemResources: [],
+};
+
+let modalProg, modalCat, modalItem;
+
+/* ── Utilitaires ─────────────────────────────────────────────── */
+function esc(str) {
+  return String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'info') {
+  const icons = {
+    success : 'bi-check-circle-fill text-success',
+    error   : 'bi-x-circle-fill text-danger',
+    info    : 'bi-info-circle-fill text-primary',
+  };
+  document.getElementById('cbToastIcon').className    = 'bi me-2 ' + (icons[type] || icons.info);
+  document.getElementById('cbToastTitle').textContent = type === 'error' ? 'Erreur' : type === 'success' ? 'Succès' : 'Info';
+  document.getElementById('cbToastMsg').textContent   = msg;
+  bootstrap.Toast.getOrCreateInstance(document.getElementById('cbToast')).show();
+}
+
+function showState(s) {
+  ['cbLoading','cbEmpty','cbError','cbContent'].forEach(id =>
+    document.getElementById(id)?.classList.toggle('d-none', id !== s)
+  );
+  /* Skeleton : aria-hidden inversé pour accessibilité */
+  const loading = document.getElementById('cbLoading');
+  if (loading) loading.setAttribute('aria-hidden', s !== 'cbLoading');
+}
+
+function showError(msg) {
+  document.getElementById('cbErrorMsg').textContent = msg;
+  showState('cbError');
+}
+
+/* ── Badges niveau ───────────────────────────────────────────── */
+function niveauBadge(niveau) {
+  const map = {
+    debutant      : ['Débutant',      'cb-niveau-debutant'],
+    intermediaire : ['Intermédiaire', 'cb-niveau-intermediaire'],
+    expert        : ['Expert',        'cb-niveau-expert'],
+    na            : ['NA',            'cb-niveau-na'],
+  };
+  const [label, cls] = map[niveau] || [];
+  return label ? `<span class="cb-niveau-badge ${esc(cls)}">${esc(label)}</span>` : '';
+}
+
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+}
+
+/* ── Statistiques catégorie ──────────────────────────────────── */
+function catStats(categoryId) {
+  const catItems = state.items.filter(i => i.category_id === categoryId);
+  const nonNA    = catItems.filter(i => {
+    const p = state.progressions[i.id];
+    return !p || p.niveau !== 'na';
+  });
+  const done     = nonNA.filter(i => state.progressions[i.id]?.date_solo).length;
+  const required = catItems.filter(i => i.required && !state.progressions[i.id]?.date_solo).length;
+  const pct      = nonNA.length ? Math.round((done / nonNA.length) * 100) : 0;
+  return { total: catItems.length, done, required, pct };
+}
+
+/* ── Dashboard ───────────────────────────────────────────────── */
+function renderDashboard() {
+  if (!state.userId) return;
+  const dash = document.getElementById('cbDashboard');
+  dash.classList.remove('d-none');
+
+  const total    = state.items.length;
+  const doneSolo = state.items.filter(i => state.progressions[i.id]?.date_solo).length;
+  const reqLeft  = state.items.filter(i => i.required && !state.progressions[i.id]?.date_solo).length;
+  const progs    = Object.values(state.progressions);
+  let inactHtml  = '';
+  if (progs.length) {
+    const latest = progs.reduce((a, b) =>
+      new Date(a.last_activity_at) > new Date(b.last_activity_at) ? a : b
+    );
+    const days = daysSince(latest.last_activity_at);
+    if (days !== null && days > 30) {
+      inactHtml = `<br><span class="cb-inactivity-warn small"><i class="bi bi-clock-history me-1"></i>${days}j sans activité</span>`;
+    }
+  }
+
+  dash.innerHTML = `
+    <div class="cb-stat-card">
+      <div class="cb-stat-value">${doneSolo}</div>
+      <div class="cb-stat-label">Items solo</div>
+    </div>
+    <div class="cb-stat-card">
+      <div class="cb-stat-value">${total}</div>
+      <div class="cb-stat-label">Total items</div>
+    </div>
+    <div class="cb-stat-card">
+      <div class="cb-stat-value">${reqLeft > 0
+        ? `<span class="text-danger">${reqLeft}</span>`
+        : '<span class="text-success">0</span>'}</div>
+      <div class="cb-stat-label">Requis restants ★</div>
+    </div>
+    <div class="cb-stat-card flex-grow-1">
+      <div class="cb-stat-value">${Math.round((doneSolo / (total || 1)) * 100)}%</div>
+      <div class="cb-stat-label">Progression globale${inactHtml}</div>
+    </div>`;
+}
+
+/* ── Rendu onglets ───────────────────────────────────────────── */
+function renderTabs() {
+  const tabList    = document.getElementById('cbTabList');
+  const tabContent = document.getElementById('cbTabContent');
+  tabList.innerHTML    = '';
+  tabContent.innerHTML = '';
+  /* Listener attaché une seule fois dans DOMContentLoaded — ne pas ajouter ici */
+
+  state.categories.forEach((cat, idx) => {
+    const active = idx === 0;
+    const stats  = catStats(cat.id);
+    const iconId = cat.icon ? cat.icon.replace(/^bi-/,'') : 'journal-medical';
+
+    /* ── Onglet ── */
+    const li = document.createElement('li');
+    li.className = 'nav-item';
+    /* RÈGLE-CB-05 : style dynamique couleur DB — toléré INTERDIT-C3 */
+    li.innerHTML = `
+      <button class="nav-link${active ? ' active' : ''}"
+              id="tab-${esc(cat.id)}"
+              data-bs-toggle="tab"
+              data-bs-target="#pane-${esc(cat.id)}"
+              type="button" role="tab"
+              aria-controls="pane-${esc(cat.id)}"
+              aria-selected="${active}">
+        <i class="bi bi-${esc(iconId)} me-1" style="color:${esc(cat.color)}"></i>
+        ${esc(cat.label)}
+        <span class="badge ms-1 rounded-pill"
+              style="background:${esc(cat.color)}20;color:${esc(cat.color)};border:1px solid ${esc(cat.color)}">
+          ${stats.done}/${stats.total}
+        </span>
+      </button>`;
+    tabList.appendChild(li);
+
+    /* ── Panneau ── */
+    const pane = document.createElement('div');
+    pane.className = `tab-pane fade${active ? ' show active' : ''} cb-tab-pane`;
+    pane.id        = `pane-${cat.id}`;
+    pane.setAttribute('role', 'tabpanel');
+    pane.setAttribute('aria-labelledby', `tab-${cat.id}`);
+
+    /* En-tête panneau */
+    const header = document.createElement('div');
+    header.className = 'p-3 border-bottom d-flex align-items-center justify-content-between gap-3 flex-wrap';
+    header.innerHTML = `
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between small text-muted mb-1">
+          <span>Progression</span><span>${stats.pct}% solo</span>
+        </div>
+        <div class="cb-cat-progress" role="progressbar"
+             aria-valuenow="${stats.pct}" aria-valuemin="0" aria-valuemax="100">
+          <div class="cb-cat-progress-fill" style="width:${stats.pct}%"></div>
+        </div>
+        ${stats.required > 0
+          ? `<div class="small text-danger mt-1"><i class="bi bi-exclamation-circle me-1"></i>${stats.required} item${stats.required > 1 ? 's requis non complétés' : ' requis non complété'}</div>`
+          : ''}
+      </div>
+      ${state.isAdmin
+        ? `<button class="btn btn-outline-secondary btn-sm" type="button"
+                   data-action="edit-cat" data-cat-id="${esc(cat.id)}">
+             <i class="bi bi-pencil me-1"></i>Modifier
+           </button>`
+        : ''}`;
+    pane.appendChild(header);
+
+    /* Items par sous-groupe */
+    const catItems    = state.items.filter(i => i.category_id === cat.id);
+    const sousGroupes = [...new Set(catItems.map(i => i.sous_groupe || ''))];
+
+    sousGroupes.forEach(sg => {
+      if (sg) {
+        const sgHeader = document.createElement('div');
+        sgHeader.className   = 'cb-subgroup-header';
+        sgHeader.textContent = sg;
+        pane.appendChild(sgHeader);
+      }
+      catItems.filter(i => (i.sous_groupe || '') === sg)
+              .forEach(item => pane.appendChild(buildItemRow(item)));
+    });
+
+    tabContent.appendChild(pane);
+  });
+}
+
+/* ── Ligne item ─────────────────────────────────────────────── */
+function buildItemRow(item) {
+  const prog = state.progressions[item.id];
+  const ph   = [prog?.date_demo, prog?.date_accompagne, prog?.date_solo];
+  const cls  = ph.map((d, i) => d ? 'done' : (i > 0 && ph[i-1] ? 'partial' : ''));
+
+  const row = document.createElement('div');
+  row.className      = 'cb-item-row';
+  row.dataset.itemId = item.id;
+  row.innerHTML = `
+    <div class="cb-item-label${item.required ? ' cb-item-required' : ''}">${esc(item.label)}</div>
+    ${state.userId ? `
+      <div class="cb-progress-badges">
+        <span class="cb-badge-phase ${esc(cls[0])}"
+              title="Vu / Démo${prog?.date_demo ? ' — ' + prog.date_demo : ''}">D</span>
+        <span class="cb-badge-phase ${esc(cls[1])}"
+              title="Fait accompagné${prog?.date_accompagne ? ' — ' + prog.date_accompagne : ''}">A</span>
+        <span class="cb-badge-phase ${esc(cls[2])}"
+              title="Fait seul${prog?.date_solo ? ' — ' + prog.date_solo : ''}">S</span>
+        ${niveauBadge(prog?.niveau)}
+      </div>
+      <button class="cb-btn-open" type="button"
+              data-action="open-prog" data-item-id="${esc(item.id)}"
+              title="Saisir / voir">
+        <i class="bi bi-pencil-square"></i>
+      </button>`
+    : '<span class="text-muted small fst-italic">Connexion requise</span>'}
+    ${state.isAdmin ? `
+      <button class="cb-btn-open" type="button"
+              data-action="edit-item" data-item-id="${esc(item.id)}"
+              title="Modifier l'item">
+        <i class="bi bi-gear"></i>
+      </button>` : ''}`;
+  return row;
+}
+
+/* ── Délégation clics ────────────────────────────────────────── */
+function handleContentClick(e) {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const { action, itemId, catId } = btn.dataset;
+  if (action === 'open-prog' && state.userId)  openProgressionModal(itemId);
+  if (action === 'edit-cat'  && state.isAdmin) openAdminCatModal(catId);
+  if (action === 'edit-item' && state.isAdmin) openAdminItemModal(itemId);
+}
+
+/* ── Icônes ressources ───────────────────────────────────────── */
+function resourceIcon(type) {
+  return {
+    fiche        : 'bi-file-earmark-medical',
+    cours        : 'bi-mortarboard',
+    materiel     : 'bi-box-seam',
+    installation : 'bi-hospital',
+    anatomie     : 'bi-activity',
+    externe      : 'bi-box-arrow-up-right',
+  }[type] || 'bi-link-45deg';
+}
+
+function buildInternalUrl(type) {
+  return {
+    fiche        : '../../modules/fiches/index.html',
+    cours        : '../../modules/cours/index.html',
+    materiel     : '../../modules/arsenal/index.html',
+    installation : '../../modules/installation/index.html',
+    anatomie     : '../../modules/anatomie/index.html',
+  }[type] || null;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODALE PROGRESSION
+   ═══════════════════════════════════════════════════════════════ */
+function openProgressionModal(itemId) {
+  const item = state.items.find(i => i.id === itemId);
+  if (!item) return;
+  const cat  = state.categories.find(c => c.id === item.category_id);
+  const prog = state.progressions[itemId] || {};
+
+  state.editing = { itemId, progId: prog.id || null };
+
+  document.getElementById('mpItemLabel').textContent   = item.label;
+  document.getElementById('mpItemContext').textContent =
+    [cat?.label, item.sous_groupe].filter(Boolean).join(' › ');
+  document.getElementById('mpDateDemo').value       = prog.date_demo       || '';
+  document.getElementById('mpDateAccompagne').value = prog.date_accompagne || '';
+  document.getElementById('mpDateSolo').value       = prog.date_solo       || '';
+  document.getElementById('mpNiveau').value         = prog.niveau          || '';
+  document.getElementById('mpNote').value           = prog.note            || '';
+
+  /* Ressources */
+  const resources  = item.resources || [];
+  document.getElementById('mpResourcesList').innerHTML = resources.map(r => {
+    const url  = r.url || buildInternalUrl(r.type);
+    const icon = resourceIcon(r.type);
+    return url
+      ? `<a href="${esc(url)}" target="_blank" rel="noopener" class="cb-resource-link">
+           <i class="bi ${esc(icon)}"></i>${esc(r.label)}
+         </a>`
+      : `<span class="cb-resource-link text-muted">
+           <i class="bi ${esc(icon)}"></i>${esc(r.label)}
+         </span>`;
+  }).join('');
+  document.getElementById('mpResourcesSection').classList.toggle('d-none', !resources.length);
+
+  /* Mentors */
+  const mentorIds = item.mentor_ids || [];
+  document.getElementById('mpMentorsList').innerHTML = mentorIds.map(uid => {
+    const m     = state.members.find(mem => mem.user_id === uid);
+    const label = m ? `${m.prenom || ''} ${m.nom || ''}`.trim() || m.initials
+                    : uid.substring(0, 8) + '…';
+    return `<span class="cb-mentor-chip">
+      <i class="bi bi-person-check"></i>${esc(label)}
+    </span>`;
+  }).join('');
+  document.getElementById('mpMentorsSection').classList.toggle('d-none', !mentorIds.length);
+
+  modalProg.show();
+}
+
+async function saveProgression() {
+  const btn = document.getElementById('mpBtnSave');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Enregistrement…';
+
+  const payload = {
+    user_id         : state.userId,
+    item_id         : state.editing.itemId,
+    date_demo       : document.getElementById('mpDateDemo').value       || null,
+    date_accompagne : document.getElementById('mpDateAccompagne').value || null,
+    date_solo       : document.getElementById('mpDateSolo').value       || null,
+    niveau          : document.getElementById('mpNiveau').value         || null,
+    note            : document.getElementById('mpNote').value.trim()    || null,
+    last_activity_at: new Date().toISOString(),
+    updated_at      : new Date().toISOString(),
+  };
+
+  try {
+    const { error } = state.editing.progId
+      ? await DB.from('carnet_progressions').update(payload)
+               .eq('id', state.editing.progId).eq('user_id', state.userId)
+      : await DB.from('carnet_progressions').insert([payload]);
+    if (error) throw error;
+    await loadProgressions();
+    renderDashboard();
+    renderTabs();
+    modalProg.hide();
+    showToast('Progression enregistrée.', 'success');
+  } catch (err) {
+    showToast('Erreur : ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODALE ADMIN — Catégorie
+   ═══════════════════════════════════════════════════════════════ */
+function openAdminCatModal(catId = null) {
+  state.editingCat = catId;
+  const cat = catId ? state.categories.find(c => c.id === catId) : null;
+  document.getElementById('modalAdminCatLabel').textContent = cat ? 'Modifier la catégorie' : 'Nouvelle catégorie';
+  document.getElementById('macLabel').value    = cat?.label    || '';
+  document.getElementById('macColor').value    = cat?.color    || '#6c757d';
+  document.getElementById('macIcon').value     = cat ? cat.icon.replace(/^bi-/,'') : '';
+  document.getElementById('macPosition').value = cat?.position ?? 0;
+  document.getElementById('macActive').checked = cat ? cat.is_active : true;
+  document.getElementById('macColorPreview').style.background = cat?.color || '#6c757d';
+  document.getElementById('macError').classList.add('d-none');
+  document.getElementById('macBtnDelete').classList.toggle('d-none', !cat);
+  modalCat.show();
+}
+
+async function saveAdminCat() {
+  const label = document.getElementById('macLabel').value.trim();
+  if (!label) {
+    const el = document.getElementById('macError');
+    el.textContent = 'Le libellé est obligatoire.';
+    el.classList.remove('d-none');
+    return;
+  }
+  const btn = document.getElementById('macBtnSave');
+  btn.disabled = true;
+  const payload = {
+    label,
+    color     : document.getElementById('macColor').value,
+    icon      : 'bi-' + document.getElementById('macIcon').value.replace(/^bi-/,''),
+    position  : parseInt(document.getElementById('macPosition').value, 10) || 0,
+    is_active : document.getElementById('macActive').checked,
+    updated_at: new Date().toISOString(),
+  };
+  try {
+    const { error } = state.editingCat
+      ? await DB.from('carnet_categories').update(payload).eq('id', state.editingCat)
+      : await DB.from('carnet_categories').insert([{ ...payload, created_by: state.userId }]);
+    if (error) throw error;
+    await loadAll();
+    modalCat.hide();
+    showToast(state.editingCat ? 'Catégorie mise à jour.' : 'Catégorie créée.', 'success');
+  } catch (err) {
+    const el = document.getElementById('macError');
+    el.textContent = err.message;
+    el.classList.remove('d-none');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteAdminCat() {
+  /* INTERDIT-C5 : pas d'Optimistic Update sur DELETE */
+  if (!state.editingCat || !confirm('Supprimer cette catégorie et tous ses items ?')) return;
+  const { error } = await DB.from('carnet_categories').delete().eq('id', state.editingCat);
+  if (error) { showToast(error.message, 'error'); return; }
+  await loadAll();
+  modalCat.hide();
+  showToast('Catégorie supprimée.', 'success');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODALE ADMIN — Item
+   ═══════════════════════════════════════════════════════════════ */
+function openAdminItemModal(itemId = null) {
+  state.editingItem = itemId;
+  const item = itemId ? state.items.find(i => i.id === itemId) : null;
+  document.getElementById('modalAdminItemLabel').textContent = item ? "Modifier l'item" : 'Nouvel item';
+  document.getElementById('maiLabel').value      = item?.label       || '';
+  document.getElementById('maiSousGroupe').value = item?.sous_groupe || '';
+  document.getElementById('maiPosition').value   = item?.position    ?? 0;
+  document.getElementById('maiRequired').checked = item?.required    || false;
+  document.getElementById('maiActive').checked   = item ? item.is_active : true;
+  document.getElementById('maiError').classList.add('d-none');
+  document.getElementById('maiBtnDelete').classList.toggle('d-none', !item);
+
+  document.getElementById('maiCategory').innerHTML = state.categories.map(c =>
+    `<option value="${esc(c.id)}"${item?.category_id === c.id ? ' selected' : ''}>${esc(c.label)}</option>`
+  ).join('');
+
+  state.itemResources = item ? [...(item.resources   || [])] : [];
+  state.itemMentors   = item ? [...(item.mentor_ids  || [])] : [];
+  renderResourceEditor();
+  renderMentorEditor();
+  modalItem.show();
+}
+
+function renderResourceEditor() {
+  const container = document.getElementById('maiResourcesEditor');
+  container.innerHTML = state.itemResources.map((r, idx) => `
+    <div class="cb-resource-editor-row mb-2">
+      <select class="form-select form-select-sm" data-res-idx="${idx}" data-res-field="type">
+        ${['fiche','cours','materiel','installation','anatomie','externe'].map(t =>
+          `<option value="${t}"${r.type === t ? ' selected' : ''}>${t}</option>`
+        ).join('')}
+      </select>
+      <input type="text" class="form-control form-control-sm" placeholder="Libellé"
+             value="${esc(r.label)}" data-res-idx="${idx}" data-res-field="label"/>
+      <input type="text" class="form-control form-control-sm" placeholder="URL si externe"
+             value="${esc(r.url || '')}" data-res-idx="${idx}" data-res-field="url"/>
+      <button class="btn btn-outline-danger btn-sm" type="button"
+              data-action="remove-res" data-res-idx="${idx}">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>`).join('');
+
+  container.querySelectorAll('[data-res-idx]').forEach(el => {
+    el.addEventListener('input',  e => {
+      state.itemResources[+e.target.dataset.resIdx][e.target.dataset.resField] = e.target.value;
+    });
+    el.addEventListener('change', e => {
+      state.itemResources[+e.target.dataset.resIdx][e.target.dataset.resField] = e.target.value;
+    });
+  });
+  container.querySelectorAll('[data-action="remove-res"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.itemResources.splice(+btn.dataset.resIdx, 1);
+      renderResourceEditor();
+    });
+  });
+}
+
+function renderMentorEditor() {
+  const list = document.getElementById('maiMentorsList');
+  list.innerHTML = state.itemMentors.map(uid => {
+    const m     = state.members.find(mem => mem.user_id === uid);
+    const label = m ? `${m.prenom || ''} ${m.nom || ''}`.trim() || m.initials
+                    : uid.substring(0, 8) + '…';
+    return `<span class="cb-mentor-chip">
+      <i class="bi bi-person-check"></i>${esc(label)}
+      <button class="btn-close ms-1 cds-text-micro" type="button"
+              data-action="remove-mentor" data-uid="${esc(uid)}"
+              aria-label="Retirer ${esc(label)}"></button>
+    </span>`;
+  }).join('');
+  list.querySelectorAll('[data-action="remove-mentor"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.itemMentors = state.itemMentors.filter(u => u !== btn.dataset.uid);
+      renderMentorEditor();
+    });
+  });
+
+  const sel = document.getElementById('maiMentorSelect');
+  sel.innerHTML = '<option value="">— Ajouter un mentor —</option>' +
+    state.members
+      .filter(m => !state.itemMentors.includes(m.user_id))
+      .map(m => `<option value="${esc(m.user_id)}">${esc(`${m.prenom || ''} ${m.nom || ''}`.trim() || m.initials)}</option>`)
+      .join('');
+}
+
+async function saveAdminItem() {
+  const label = document.getElementById('maiLabel').value.trim();
+  if (!label) {
+    const el = document.getElementById('maiError');
+    el.textContent = 'Le libellé est obligatoire.';
+    el.classList.remove('d-none');
+    return;
+  }
+  const btn = document.getElementById('maiBtnSave');
+  btn.disabled = true;
+  const payload = {
+    category_id : document.getElementById('maiCategory').value,
+    label,
+    sous_groupe : document.getElementById('maiSousGroupe').value.trim() || null,
+    position    : parseInt(document.getElementById('maiPosition').value, 10) || 0,
+    required    : document.getElementById('maiRequired').checked,
+    is_active   : document.getElementById('maiActive').checked,
+    resources   : state.itemResources,
+    mentor_ids  : state.itemMentors,
+    updated_at  : new Date().toISOString(),
+  };
+  try {
+    const { error } = state.editingItem
+      ? await DB.from('carnet_items').update(payload).eq('id', state.editingItem)
+      : await DB.from('carnet_items').insert([{ ...payload, created_by: state.userId }]);
+    if (error) throw error;
+    await loadAll();
+    modalItem.hide();
+    showToast(state.editingItem ? 'Item mis à jour.' : 'Item créé.', 'success');
+  } catch (err) {
+    const el = document.getElementById('maiError');
+    el.textContent = err.message;
+    el.classList.remove('d-none');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteAdminItem() {
+  /* INTERDIT-C5 : confirm + await côté serveur — pas d'Optimistic Update */
+  if (!state.editingItem || !confirm('Supprimer cet item ? Les progressions associées seront perdues.')) return;
+  const { error } = await DB.from('carnet_items').delete().eq('id', state.editingItem);
+  if (error) { showToast(error.message, 'error'); return; }
+  await loadAll();
+  modalItem.hide();
+  showToast('Item supprimé.', 'success');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CHARGEMENT
+   ═══════════════════════════════════════════════════════════════ */
+async function loadCategories() {
+  const { data, error } = await DB.from('carnet_categories')
+    .select('*').order('position').order('label');
+  if (error) throw error;
+  state.categories = data || [];
+}
+
+async function loadItems() {
+  const { data, error } = await DB.from('carnet_items')
+    .select('*').order('position').order('label');
+  if (error) throw error;
+  state.items = data || [];
+}
+
+async function loadProgressions() {
+  if (!state.userId) { state.progressions = {}; return; }
+  const { data, error } = await DB.from('carnet_progressions')
+    .select('*').eq('user_id', state.userId);
+  if (error) throw error;
+  state.progressions = {};
+  (data || []).forEach(p => { state.progressions[p.item_id] = p; });
+}
+
+async function loadMembers() {
+  /* RÈGLE-CB-06 + E9 : lecture profiles_directory autorisée pour listing mentors (admin only) */
+  const { data } = await DB.from('profiles_directory')
+    .select('user_id, prenom, nom, initials').order('nom');
+  state.members = data || [];
+}
+
+async function loadAll() {
+  showState('cbLoading');
+  await Promise.all([loadCategories(), loadItems()]);
+  await loadProgressions();
+  if (state.isAdmin) await loadMembers();
+  if (!state.categories.length) { showState('cbEmpty'); return; }
+  renderDashboard();
+  renderTabs();
+  showState('cbContent');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+
+  await window.bdbShellReady;
+
+  /* Auth — source unique window.bdbUser (INTERDIT-B2) */
+  state.isAdmin = window.bdbUser?.isAdmin || false;
+  state.userId  = window.bdbUser?.id      || null;
+
+  /* Slot admin toolbar — BLOC C.6 / INTERDIT-C4 */
+  if (state.isAdmin) {
+    document.getElementById('cbToolbarAdminSlot').classList.remove('d-none');
+  }
+
+  /* Instances modales */
+  modalProg = new bootstrap.Modal(document.getElementById('modalProgression'));
+  modalCat  = new bootstrap.Modal(document.getElementById('modalAdminCat'));
+  modalItem = new bootstrap.Modal(document.getElementById('modalAdminItem'));
+
+  /* Délégation clics contenu — une seule fois ici (évite duplication à chaque renderTabs) */
+  document.getElementById('cbTabContent').addEventListener('click', handleContentClick);
+
+  /* Listeners toolbar admin */
+  document.getElementById('btnAdminCat').addEventListener('click',  () => openAdminCatModal());
+  document.getElementById('btnAdminItem').addEventListener('click', () => openAdminItemModal());
+
+  /* Retry */
+  document.getElementById('cbBtnRetry').addEventListener('click', () =>
+    loadAll().catch(err => showError(err.message))
+  );
+
+  /* Modale progression */
+  document.getElementById('mpBtnSave').addEventListener('click', saveProgression);
+
+  /* Modale admin catégorie */
+  document.getElementById('macBtnSave').addEventListener('click', saveAdminCat);
+  document.getElementById('macBtnDelete').addEventListener('click', deleteAdminCat);
+  document.getElementById('macColor').addEventListener('input', e => {
+    document.getElementById('macColorPreview').style.background = e.target.value;
+  });
+
+  /* Modale admin item */
+  document.getElementById('maiBtnSave').addEventListener('click', saveAdminItem);
+  document.getElementById('maiBtnDelete').addEventListener('click', deleteAdminItem);
+  document.getElementById('maiBtnAddResource').addEventListener('click', () => {
+    state.itemResources.push({ type: 'cours', id: null, label: '', url: null });
+    renderResourceEditor();
+  });
+  document.getElementById('maiMentorSelect').addEventListener('change', e => {
+    const uid = e.target.value;
+    if (uid && !state.itemMentors.includes(uid)) {
+      state.itemMentors.push(uid);
+      renderMentorEditor();
+    }
+    e.target.value = '';
+  });
+
+  /* Chargement initial */
+  try {
+    await loadAll();
+  } catch (err) {
+    console.error('[CARNET_BORD] init error:', err);
+    if (err?.message?.includes('fetch') || err?.code === 'PGRST301') {
+      document.getElementById('cbOfflineBanner').classList.add('show');
+    }
+    showError('Impossible de charger le carnet de bord.');
+  }
+});
+</script>
+</body>
+</html>

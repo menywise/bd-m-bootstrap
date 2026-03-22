@@ -1,0 +1,141 @@
+/* =============================================================
+   objectifs-ui.css — Module Intégration IDE (unifié)
+   BDB / CDS — Bootstrap 5.3.2
+   VERSION : 2.0.0 — 2026-03-19
+   SCOPE   : Toutes les règles scopées à #objectifsContainer
+   ============================================================= */
+
+/* ── Nav pills ────────────────────────────────────────────── */
+#objectifsContainer .obj-nav .nav-link {
+  font-size: .82rem; padding: .38rem .75rem;
+  font-weight: 500; white-space: nowrap;
+}
+
+/* ── Hero bienvenue ───────────────────────────────────────── */
+#objectifsContainer .obj-hero {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, #0a3d62 100%);
+  border-radius: 12px; color: #fff; padding: 2rem 2.5rem;
+}
+#objectifsContainer .obj-hero-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -.3px; }
+#objectifsContainer .obj-hero-sub   { opacity: .85; font-size: .95rem; }
+
+/* ── Contact card ─────────────────────────────────────────── */
+#objectifsContainer .obj-contact-card { border-left: 4px solid var(--bs-primary); }
+
+/* ── Sector cards ─────────────────────────────────────────── */
+#objectifsContainer .obj-sector-card {
+  border-radius: 10px; border: 1px solid var(--bs-border-color);
+  overflow: hidden; transition: box-shadow .2s;
+}
+#objectifsContainer .obj-sector-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.09); }
+#objectifsContainer .obj-sector-header {
+  font-weight: 700; font-size: .82rem; letter-spacing: .3px;
+  text-transform: uppercase; padding: .6rem 1rem; color: #fff;
+}
+#objectifsContainer .obj-sector-header.light-text { color: #212529; }
+
+/* ── Role cards ───────────────────────────────────────────── */
+#objectifsContainer .obj-role-card { border-radius: 10px; height: 100%; }
+
+/* ── Patient cards ────────────────────────────────────────── */
+#objectifsContainer .obj-patient-card {
+  border-radius: 10px; border: 0; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  transition: transform .15s;
+}
+#objectifsContainer .obj-patient-card:hover { transform: translateY(-2px); }
+
+/* ── Semaine card ─────────────────────────────────────────── */
+#objectifsContainer .obj-semaine-card { border-radius: 10px; overflow: hidden; }
+#objectifsContainer .obj-semaine-header {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, #0a3d62 100%);
+}
+
+/* ── Critère table ────────────────────────────────────────── */
+#objectifsContainer .obj-table th.obj-col-num              { width: 44px; }
+#objectifsContainer .obj-table th.obj-col-oui,
+#objectifsContainer .obj-table th.obj-col-non              { width: 72px; }
+#objectifsContainer .obj-table td                          { vertical-align: middle; font-size: .875rem; }
+#objectifsContainer .obj-table td.obj-num                  { font-weight: 700; text-align: center; }
+#objectifsContainer .obj-table .obj-detail                 { font-size: .74rem; color: var(--bs-secondary-color); font-style: italic; }
+
+/* ── Boutons OUI / NON ────────────────────────────────────── */
+#objectifsContainer .obj-btn-eval {
+  font-size: .74rem; padding: .28rem .4rem;
+  min-width: 48px; min-height: 36px;
+  font-weight: 600; border-width: 2px;
+  transition: background-color .12s, color .12s;
+}
+#objectifsContainer .obj-btn-eval.is-oui { background-color: var(--bs-success); border-color: var(--bs-success); color: #fff; }
+#objectifsContainer .obj-btn-eval.is-non { background-color: var(--bs-danger);  border-color: var(--bs-danger);  color: #fff; }
+#objectifsContainer td.obj-cell-oui.is-checked { background-color: #d1e7dd; }
+#objectifsContainer td.obj-cell-non.is-checked { background-color: #f8d7da; }
+
+/* ── Progression semaine ──────────────────────────────────── */
+#objectifsContainer .obj-prog-wrap  { width: 120px; }
+#objectifsContainer .obj-prog-bar   { height: 8px; }
+#objectifsContainer .obj-prog-mini  { height: 6px; }
+#objectifsContainer .obj-prog-label { font-size: .77rem; font-weight: 500; }
+
+/* ── Accordion objectifs A/ECA/NA ─────────────────────────── */
+#objectifsContainer .obj-domain-title { font-size: .88rem; font-weight: 600; cursor: pointer; user-select: none; }
+#objectifsContainer .obj-item-row {
+  display: flex; align-items: flex-start; gap: .75rem;
+  padding: .55rem .75rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+#objectifsContainer .obj-item-row:last-child { border-bottom: none; }
+#objectifsContainer .obj-item-label  { font-size: .87rem; font-weight: 500; flex-grow: 1; line-height: 1.4; }
+#objectifsContainer .obj-item-detail { font-size: .76rem; color: var(--bs-secondary-color); margin-top: .1rem; }
+
+/* ── Boutons A / ECA / NA ─────────────────────────────────── */
+#objectifsContainer .obj-btn-statut {
+  font-size: .72rem; padding: .22rem .38rem;
+  min-width: 36px; line-height: 1.2; font-weight: 600; border-width: 2px;
+  transition: background-color .12s, color .12s;
+}
+#objectifsContainer .obj-btn-statut.is-acquis     { background-color: var(--bs-success);   border-color: var(--bs-success);   color: #fff; }
+#objectifsContainer .obj-btn-statut.is-en_cours   { background-color: var(--bs-warning);   border-color: var(--bs-warning);   color: #212529; }
+#objectifsContainer .obj-btn-statut.is-non_acquis { background-color: var(--bs-secondary); border-color: var(--bs-secondary); color: #fff; }
+
+/* ── Résumé badges ────────────────────────────────────────── */
+#objectifsContainer .obj-badge-acquis   { background-color: #d1e7dd; color: #0a3622; }
+#objectifsContainer .obj-badge-en-cours { background-color: #fff3cd; color: #664d03; }
+#objectifsContainer .obj-badge-na       { background-color: #f8f9fa; color: #6c757d; }
+
+/* ── Skeleton ─────────────────────────────────────────────── */
+#objectifsContainer .obj-skel { height: 2.4rem; border-radius: 6px; }
+
+/* ── Admin ────────────────────────────────────────────────── */
+#objectifsContainer .obj-admin-section { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--bs-secondary-color); }
+#objectifsContainer .obj-admin-col-num { width: 44px; }
+#objectifsContainer .obj-admin-col-key { width: 110px; }
+#objectifsContainer .obj-admin-col-act { width: 80px; }
+#objectifsContainer .obj-select-auto   { width: auto; }
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+  #objectifsContainer .obj-nav,
+  #objectifsContainer .obj-toolbar,
+  #objectifsContainer .obj-btn-eval,
+  #objectifsContainer .obj-btn-statut    { display: none !important; }
+  #objectifsContainer .obj-semaine-header { background: #0d6efd !important; -webkit-print-color-adjust: exact; }
+  #objectifsContainer td.obj-cell-oui.is-checked::after { content: "✓"; font-weight: 700; color: #198754; }
+  #objectifsContainer td.obj-cell-non.is-checked::after { content: "✗"; font-weight: 700; color: #dc3545; }
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  #objectifsContainer .obj-hero        { padding: 1.25rem 1rem; }
+  #objectifsContainer .obj-hero-title  { font-size: 1.15rem; }
+  #objectifsContainer .obj-btn-eval    { min-width: 40px; font-size: .68rem; padding: .22rem .28rem; }
+  #objectifsContainer .obj-btn-statut  { min-width: 30px; font-size: .67rem; }
+  #objectifsContainer .obj-table td    { font-size: .8rem; }
+  #objectifsContainer .obj-table th.obj-col-oui,
+  #objectifsContainer .obj-table th.obj-col-non { width: 52px; }
+}
+
+/* ── Skeleton pill widths ─────────────────────────────────── */
+#objectifsContainer .obj-skel-w1 { width: 90px; }
+#objectifsContainer .obj-skel-w2 { width: 80px; }
+#objectifsContainer .obj-skel-w3 { width: 70px; }
+#objectifsContainer .obj-skel-w4 { width: 85px; }

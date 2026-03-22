@@ -1,0 +1,369 @@
+<!--
+  PROJECT  : Bible de Bloc (BDB)
+  FILE     : audiences.html v4.0.0
+  MODULE   : modules/site/
+  DATE     : 2026-03-14
+  AUTEUR   : Manu + Claude
+  DELTA    : v3→v4 — Réécriture contenu DISC/Spirale compliant.
+             Règle de voix : tu pour Nouveau/Ancien/Équipe, vous pour Direction/Chirurgiens.
+             Correction violations vous dans tabs terrain (v3.0.0).
+             Nouveau/Ancien : VIOLET chaleur, reconnaissance avant bénéfices.
+             Équipe : VIOLET cohésion, collectif.
+             Direction : BLEU/ORANGE, vous, résultats mesurables.
+             Chirurgiens : BLEU/ORANGE, vous, sécurité opératoire.
+             Header subtitle : correction "votre profil" → "ton profil".
+             Structure tabs préservée. CSS inchangé.
+-->
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pour qui | Présentation BDB</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="../../css/site-ui.css" rel="stylesheet"/>
+</head>
+<body class="d-flex min-vh-100 site-module">
+
+<div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mainMenu">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title d-flex align-items-center"><i class="bi bi-hospital fs-4 me-2 text-primary"></i><span class="fs-5 fw-bold">Bible de Bloc</span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body">
+    <small class="text-uppercase text-white-50 mb-2 d-block">Présentation</small>
+    <hr class="border-secondary my-3"/>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item"><a href="index.html" class="nav-link text-white"><i class="bi bi-house me-2"></i>Accueil</a></li>
+      <li class="nav-item"><a href="vision.html" class="nav-link text-white"><i class="bi bi-eye me-2"></i>Vision</a></li>
+      <li class="nav-item"><a href="pas-app.html" class="nav-link text-white"><i class="bi bi-x-circle me-2"></i>Ce que ce n'est pas</a></li>
+      <li class="nav-item"><a href="audiences.html" class="nav-link text-white active"><i class="bi bi-people me-2"></i>Pour qui</a></li>
+      <li class="nav-item"><a href="fonctionnalites.html" class="nav-link text-white"><i class="bi bi-gear me-2"></i>Fonctions</a></li>
+      <li class="nav-item"><a href="risques.html" class="nav-link text-white"><i class="bi bi-exclamation-triangle me-2"></i>Risques</a></li>
+      <li class="nav-item"><a href="adoption.html" class="nav-link text-white"><i class="bi bi-graph-up me-2"></i>Adoption</a></li>
+      <li class="nav-item"><a href="faq.html" class="nav-link text-white"><i class="bi bi-question-circle me-2"></i>FAQ</a></li>
+      <li class="nav-item"><a href="glossaire.html" class="nav-link text-white"><i class="bi bi-journal-text me-2"></i>Glossaire</a></li>
+    </ul>
+    <div class="mt-auto pt-3 border-top border-secondary"><a href="../../index.html" class="nav-link text-white-50 small"><i class="bi bi-arrow-left me-1"></i>Retour au portail BDB</a></div>
+  </div>
+</div>
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">Pour qui ?</span>
+    </div>
+    <a href="../../index.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1"><i class="bi bi-grid-3x3-gap me-1"></i>Portail</a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <div class="container py-4">
+      <div class="doc-header-primary text-white">
+        <h1 class="mb-2"><i class="bi bi-people me-2"></i>Pour qui ?</h1>
+        <p class="mb-0 opacity-75">Clique sur ton profil — ou sur celui de ton équipe</p>
+      </div>
+    </div>
+
+    <section class="py-4 section-white" id="audiences-tabs">
+      <div class="container">
+        <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="nouveau-tab" data-bs-toggle="tab" data-bs-target="#nouveau" type="button" role="tab">
+              <i class="bi bi-person-plus me-1"></i><span class="d-none d-sm-inline">Tu arrives</span><span class="d-sm-none">Nv.</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="ancien-tab" data-bs-toggle="tab" data-bs-target="#ancien" type="button" role="tab">
+              <i class="bi bi-person-check me-1"></i><span class="d-none d-sm-inline">Tu sais</span><span class="d-sm-none">Anc.</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="equipe-tab" data-bs-toggle="tab" data-bs-target="#equipe" type="button" role="tab">
+              <i class="bi bi-people me-1"></i><span class="d-none d-sm-inline">Ton équipe</span><span class="d-sm-none">Éq.</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="direction-tab" data-bs-toggle="tab" data-bs-target="#direction" type="button" role="tab">
+              <i class="bi bi-building me-1"></i><span class="d-none d-sm-inline">Direction</span><span class="d-sm-none">Dir.</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="chirurgiens-tab" data-bs-toggle="tab" data-bs-target="#chirurgiens" type="button" role="tab">
+              <i class="bi bi-heart-pulse me-1"></i><span class="d-none d-sm-inline">Chirurgiens</span><span class="d-sm-none">Chir.</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="profileTabsContent">
+
+          <!-- TAB NOUVEAU — P1/P2 — VIOLET/BEIGE — tu -->
+          <div class="tab-pane fade show active" id="nouveau" role="tabpanel" id="nouveau">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-person-plus text-primary fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Tu arrives</h2>
+                <p class="text-muted mb-0">Trouver ce dont tu as besoin — sans avoir à le demander</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              Les premiers mois, tout semble aller de soi pour les autres.
+              Toi, tu cherches — où c'est rangé, comment ça fonctionne, qui fait quoi.
+              BDB est là pour ça.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-shield-check text-success me-2"></i>Tu cherches seul</h5>
+                  <p class="mb-0 text-muted">
+                    Tu tapes un mot, tu trouves.
+                    Pas besoin de déranger quelqu'un pour chaque question.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-eye-slash text-success me-2"></i>Personne ne juge</h5>
+                  <p class="mb-0 text-muted">
+                    Tu cherches à ton rythme, discrètement.
+                    Ne pas savoir quelque chose n'est pas exposé.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-graph-up text-success me-2"></i>Tu progresses</h5>
+                  <p class="mb-0 text-muted">
+                    Les informations clés sont accessibles quand tu en as besoin.
+                    Tu montes en compétence sans attendre l'occasion de demander.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB ANCIEN — P3 — BLEU/ORANGE — tu -->
+          <div class="tab-pane fade" id="ancien" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-person-check text-success fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Tu sais</h2>
+                <p class="text-muted mb-0">Partager une fois — ne plus avoir à répéter</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              Tu as répondu aux mêmes questions des dizaines de fois.
+              Tu as essayé de transmettre — les classeurs, les formations, les explications.
+              BDB te permet d'écrire une fois ce que tu sais.
+              Après, l'app répond à ta place.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-clock text-success me-2"></i>Moins de répétitions</h5>
+                  <p class="mb-0 text-muted">
+                    Les questions simples trouvent réponse sans toi.
+                    Tu gardes du temps pour ce qui mérite vraiment une conversation.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-award text-success me-2"></i>Ton nom reste</h5>
+                  <p class="mb-0 text-muted">
+                    Ce que tu écris est signé. Ton expertise est attribuée.
+                    Ton savoir survit à ton départ.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-heart text-success me-2"></i>Tu choisis quand</h5>
+                  <p class="mb-0 text-muted">
+                    Tu contribues quand tu veux, si tu veux.
+                    Une entrée utile vaut mieux que dix contributions vides.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB ÉQUIPE — VIOLET cohésion — tu -->
+          <div class="tab-pane fade" id="equipe" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-people text-info fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Ton équipe</h2>
+                <p class="text-muted mb-0">Moins de frictions. Plus de fluidité.</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              Les tensions au quotidien viennent souvent de petites choses —
+              une question posée au mauvais moment, une information qu'on n'avait pas,
+              une habitude que personne n'a pris le temps d'écrire.
+              BDB réduit ce bruit de fond.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-info h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-people text-info me-2"></i>L'ambiance s'allège</h5>
+                  <p class="mb-0 text-muted">
+                    Moins de questions répétitives, moins d'impatiences.
+                    L'atmosphère s'améliore naturellement.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-info h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-arrow-repeat text-info me-2"></i>Les départs ne font plus peur</h5>
+                  <p class="mb-0 text-muted">
+                    Le savoir de l'équipe ne part plus avec les individus.
+                    Les nouvelles arrivées s'intègrent plus vite.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-info h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-shield text-info me-2"></i>La mémoire collective existe</h5>
+                  <p class="mb-0 text-muted">
+                    Ce que l'équipe a construit ensemble
+                    est consultable — pas perdu dans les têtes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB DIRECTION — P6 — BLEU/ORANGE — vous -->
+          <div class="tab-pane fade" id="direction" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-building text-secondary fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Direction</h2>
+                <p class="text-muted mb-0">Initiative terrain — résultats mesurables</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              BDB est porté par l'équipe, pour l'équipe.
+              Zéro coût IT, zéro données patient, zéro risque juridique.
+              Pour la direction, c'est un levier RH à coût nul
+              avec des effets concrets sur l'intégration et la qualité.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-graph-up-arrow text-secondary me-2"></i>Intégration accélérée</h5>
+                  <p class="mb-0 text-muted">
+                    Les nouveaux arrivants trouvent l'information sans attendre.
+                    Le temps d'autonomie opérationnelle se réduit.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-shield-check text-secondary me-2"></i>Continuité assurée</h5>
+                  <p class="mb-0 text-muted">
+                    Le départ d'un expert ne détruit plus son savoir.
+                    La continuité de service ne dépend plus des individus seuls.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-emoji-smile text-secondary me-2"></i>Climat amélioré</h5>
+                  <p class="mb-0 text-muted">
+                    Réduction des tensions liées aux questions répétitives.
+                    Un indicateur bien-être qui se mesure dans les retours terrain.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="alert alert-secondary mt-4 mb-0 small">
+              <i class="bi bi-info-circle me-2"></i>
+              BDB ne contient aucune donnée patient. Aucun protocole médical opposable.
+              L'app est portée bénévolement — elle ne génère pas de coût IT.
+            </div>
+          </div>
+
+          <!-- TAB CHIRURGIENS — BLEU/ORANGE sécurité — vous -->
+          <div class="tab-pane fade" id="chirurgiens" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-heart-pulse text-danger fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Chirurgiens</h2>
+                <p class="text-muted mb-0">Des équipes qui arrivent préparées</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              Une équipe qui a cherché avant d'entrer en salle
+              hésite moins, interrompt moins, attend moins.
+              BDB documente ce que vous attendez de votre équipe —
+              pour que ce ne soit plus une surprise à chaque nouvelle arrivée.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-danger h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-check2-all text-danger me-2"></i>Moins d'hésitations</h5>
+                  <p class="mb-0 text-muted">
+                    Les IDE arrivent mieux préparés.
+                    Moins d'interruptions pendant l'intervention.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-danger h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-person-heart text-danger me-2"></i>Vos préférences documentées</h5>
+                  <p class="mb-0 text-muted">
+                    Ce que vous utilisez, comment vous travaillez —
+                    l'équipe sait, même quand elle n'a pas encore travaillé avec vous.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-danger h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-clock-history text-danger me-2"></i>Fluidité opératoire</h5>
+                  <p class="mb-0 text-muted">
+                    Le bon matériel, au bon endroit, connu par tous.
+                    Moins d'attente, plus de concentration sur l'acte.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="py-4 site-nav-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6"><a href="pas-app.html" class="text-primary text-decoration-none fw-semibold"><i class="bi bi-arrow-left me-2"></i>Ce que ce n'est pas</a></div>
+          <div class="col-6 text-end"><a href="fonctionnalites.html" class="text-primary text-decoration-none fw-semibold">Fonctions<i class="bi bi-arrow-right ms-2"></i></a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <footer class="py-3 text-center text-muted bg-white"><small>&copy; 2026 Bible de Bloc — Consensus Design System — <span class="badge bg-light text-dark border">CDS Compliant</span></small></footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/utils.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el)); });</script>
+</body>
+</html>

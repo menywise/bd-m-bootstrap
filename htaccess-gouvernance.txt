@@ -1,0 +1,6 @@
+# ══════════════════════════════════════════════════════════
+# .htaccess — 00_GOUVERNANCE
+# Emplacement : bdb/00_GOUVERNANCE/.htaccess
+# DENY ALL — aucun fichier ne doit être accessible par HTTP
+# ══════════════════════════════════════════════════════════
+Require all denied

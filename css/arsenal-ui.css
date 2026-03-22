@@ -1,0 +1,120 @@
+/* ============================================================
+   arsenal-ui.css — Module Arsenal BDB
+   VERSION : 2.2.1 — 2026-03-17
+   CTX     : CTX_ARSENAL_V2_2_1.md
+   CHANTIER: CHANTIER_TECHNIQUE_V1_0_5
+
+   INTERDIT-17 : TOUTES les règles scopées à #arsenalMain
+                 ou aux sélecteurs .ars-* dédiés au module.
+   Zéro règle globale non scopée.
+   ============================================================ */
+
+
+/* ── Cartes ─────────────────────────────────────────────────── */
+#arsenalMain .ars-card {
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+#arsenalMain .ars-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+
+/* ── Zone upload ─────────────────────────────────────────────── */
+.ars-upload-area {
+  transition: background 0.15s, border-color 0.15s;
+  border-color: #dee2e6 !important;
+  cursor: pointer;
+}
+.ars-upload-area:hover,
+.ars-upload-area.ars-upload-active {
+  background: #f0f4ff !important;
+  border-color: #0d6efd !important;
+}
+
+
+/* ── Onglets ─────────────────────────────────────────────────── */
+#arsenalMain #arsenalTabs .nav-link {
+  color: #6c757d;
+  border-bottom: 2px solid transparent;
+}
+#arsenalMain #arsenalTabs .nav-link.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+  background: transparent;
+}
+#arsenalMain #arsenalTabs .nav-link:hover:not(.active) {
+  color: #0d6efd;
+  border-bottom-color: #dee2e6;
+  background: transparent;
+}
+
+
+/* ── Skeleton zone filtre ────────────────────────────────────── */
+/* Le skeleton #arsenalSkeletonMateriel utilise les classes Bootstrap
+   .placeholder-glow / .placeholder — aucune règle supplémentaire requise. */
+
+
+/* ── Badges Famille 4D ───────────────────────────────────────── */
+/* DMI — implant → bleu primaire */
+.ars-badge-dmi {
+  background-color: #0d6efd;
+  color: #fff;
+}
+/* Ancillaires — boîte métal chirurgien → orange/ambre */
+.ars-badge-ancillaires {
+  background-color: #fd7e14;
+  color: #fff;
+}
+/* DM — sachet/blister → cyan */
+.ars-badge-dm {
+  background-color: #0dcaf0;
+  color: #000;
+}
+/* Packs — multi-items → vert */
+.ars-badge-packs {
+  background-color: #198754;
+  color: #fff;
+}
+/* Pliages — papier bleu → indigo */
+.ars-badge-pliages {
+  background-color: #6610f2;
+  color: #fff;
+}
+/* Doubles sachets — papier rose → rose */
+.ars-badge-doubles-sachets {
+  background-color: #d63384;
+  color: #fff;
+}
+
+
+/* ── Bannière suggestion de zone §6 ─────────────────────────── */
+/* Jamais silencieuse — toujours visible + justifiée (CTX §6/§10) */
+#modalMateriel .ars-zone-suggestion {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+#modalMateriel .ars-zone-suggestion strong {
+  font-weight: 600;
+}
+
+
+/* ── Bannière offline (injectée dynamiquement) ───────────────── */
+#cdsOfflineBanner.cds-offline-banner {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: #fff3cd;
+  border-bottom: 1px solid #ffc107;
+  color: #856404;
+  font-size: 0.875rem;
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+}
+#cdsOfflineBanner.cds-offline-banner.show {
+  display: flex;
+}

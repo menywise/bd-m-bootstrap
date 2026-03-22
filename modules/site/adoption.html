@@ -1,0 +1,290 @@
+<!--
+  PROJECT  : Bible de Bloc (BDB)
+  FILE     : adoption.html v4.0.0
+  MODULE   : modules/site/
+  DATE     : 2026-03-14
+  AUTEUR   : Manu + Claude
+  DELTA    : v3→v4 — Réécriture contenu DISC/Spirale compliant.
+             Personas : P7 (VERT — adopteur), P5 (ORANGE — sceptique).
+             Titre : "Stratégie d'adoption" → "Comment BDB s'installe dans une équipe".
+             Ouverture VERT : collectif, organique, sans pression.
+             Rogers : conservé mais en second plan, contextualisé en situations.
+             Stepper : humanisé — étapes vécues, pas jalons techniques.
+             Alerte "phases techniques" supprimée — jargon interne inutile.
+             Métriques : humanisées, P7 et P5 adressés.
+             Règle de voix : tu partout. CSS inchangé.
+-->
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comment ça s'adopte | Présentation BDB</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="../../css/site-ui.css" rel="stylesheet"/>
+</head>
+<body class="d-flex min-vh-100 site-module">
+
+<div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mainMenu">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title d-flex align-items-center"><i class="bi bi-hospital fs-4 me-2 text-primary"></i><span class="fs-5 fw-bold">Bible de Bloc</span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body">
+    <small class="text-uppercase text-white-50 mb-2 d-block">Présentation</small>
+    <hr class="border-secondary my-3"/>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item"><a href="index.html" class="nav-link text-white"><i class="bi bi-house me-2"></i>Accueil</a></li>
+      <li class="nav-item"><a href="vision.html" class="nav-link text-white"><i class="bi bi-eye me-2"></i>Vision</a></li>
+      <li class="nav-item"><a href="pas-app.html" class="nav-link text-white"><i class="bi bi-x-circle me-2"></i>Ce que ce n'est pas</a></li>
+      <li class="nav-item"><a href="audiences.html" class="nav-link text-white"><i class="bi bi-people me-2"></i>Pour qui</a></li>
+      <li class="nav-item"><a href="fonctionnalites.html" class="nav-link text-white"><i class="bi bi-gear me-2"></i>Fonctions</a></li>
+      <li class="nav-item"><a href="risques.html" class="nav-link text-white"><i class="bi bi-exclamation-triangle me-2"></i>Risques</a></li>
+      <li class="nav-item"><a href="adoption.html" class="nav-link text-white active"><i class="bi bi-graph-up me-2"></i>Adoption</a></li>
+      <li class="nav-item"><a href="faq.html" class="nav-link text-white"><i class="bi bi-question-circle me-2"></i>FAQ</a></li>
+      <li class="nav-item"><a href="glossaire.html" class="nav-link text-white"><i class="bi bi-journal-text me-2"></i>Glossaire</a></li>	  
+    </ul>
+    <div class="mt-auto pt-3 border-top border-secondary"><a href="../../index.html" class="nav-link text-white-50 small"><i class="bi bi-arrow-left me-1"></i>Retour au portail BDB</a></div>
+  </div>
+</div>
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">Comment ça s'adopte</span>
+    </div>
+    <a href="../../index.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1"><i class="bi bi-grid-3x3-gap me-1"></i>Portail</a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <div class="container py-4">
+      <div class="doc-header-primary text-white">
+        <h1 class="mb-2">Comment BDB s'installe dans une équipe</h1>
+        <p class="mb-0 opacity-75">Pas d'imposition. Pas de formation obligatoire. Juste de l'utilité.</p>
+      </div>
+    </div>
+
+    <!-- PRINCIPES — VERT : organique, collectif, sans pression -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <h2 class="fw-bold mb-4"><i class="bi bi-heart me-2 text-primary"></i>Ce qui fait qu'un outil s'adopte vraiment</h2>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="panel text-center h-100">
+              <div class="site-circle-lg bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                <i class="bi bi-hand-thumbs-up text-primary fs-3"></i>
+              </div>
+              <h5 class="fw-semibold mb-2">Personne n'est forcé</h5>
+              <p class="mb-0 text-muted">
+                BDB n'est pas imposé. Ceux qui le trouvent utile l'utilisent.
+                Les autres font leur choix — sans pression, sans compte à rendre.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel text-center h-100">
+              <div class="site-circle-lg bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                <i class="bi bi-people text-primary fs-3"></i>
+              </div>
+              <h5 class="fw-semibold mb-2">Plus c'est utilisé, plus c'est utile</h5>
+              <p class="mb-0 text-muted">
+                Chaque contribution enrichit l'app pour tout le monde.
+                Ce n'est pas un effort individuel — c'est un bien commun qui grandit.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel text-center h-100">
+              <div class="site-circle-lg bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                <i class="bi bi-lightning text-primary fs-3"></i>
+              </div>
+              <h5 class="fw-semibold mb-2">La valeur doit être immédiate</h5>
+              <p class="mb-0 text-muted">
+                Si tu n'as pas trouvé quelque chose d'utile en 10 secondes,
+                c'est l'app qui a un problème. Pas toi.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMENT ÇA SE PASSE — VERT : progression naturelle, stepper humanisé -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-calendar-check me-2 text-primary"></i>Comment ça se passe, concrètement</h2>
+        <p class="text-muted mb-4">
+          BDB ne se déploie pas du jour au lendemain. Il grandit avec l'équipe.
+        </p>
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="site-stepper">
+              <div class="site-stepper-item">
+                <h5 class="fw-semibold mb-1">D'abord, quelques personnes qui y croient</h5>
+                <p class="text-muted mb-0">
+                  2 ou 3 personnes motivées créent les premières fiches essentielles —
+                  ce qui revient le plus souvent, ce qui coûte le plus à expliquer.
+                  Elles testent. Elles ajustent. Elles valident que ça marche.
+                </p>
+              </div>
+              <div class="site-stepper-item">
+                <h5 class="fw-semibold mb-1">Puis des collègues qui font confiance</h5>
+                <p class="text-muted mb-0">
+                  5 à 10 personnes respectées dans l'équipe testent et en parlent autour d'elles.
+                  Leurs retours améliorent BDB. Leur adoption crée l'envie d'essayer
+                  chez ceux qui hésitaient.
+                </p>
+              </div>
+              <div class="site-stepper-item">
+                <h5 class="fw-semibold mb-1">BDB devient normal</h5>
+                <p class="text-muted mb-0">
+                  On entend parler de BDB dans les couloirs.
+                  Ceux qui n'avaient pas encore essayé commencent à l'utiliser
+                  — pas parce qu'on leur a demandé, mais parce que ça devient évident.
+                </p>
+              </div>
+              <div class="site-stepper-item">
+                <h5 class="fw-semibold mb-1">La mémoire collective vit</h5>
+                <p class="text-muted mb-0">
+                  BDB fait partie du quotidien. Les nouveaux arrivants le découvrent
+                  naturellement. Ce que l'équipe sait ne disparaît plus quand quelqu'un part.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOUS NE PARTENT PAS EN MÊME TEMPS — ORANGE : contextualiser Rogers sans % en avant -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-diagram-3 me-2 text-primary"></i>Tout le monde n'adopte pas au même moment</h2>
+        <p class="text-muted mb-4">
+          C'est normal. Dans n'importe quelle équipe, les profils sont différents.
+          BDB ne cible pas tout le monde en même temps.
+        </p>
+        <div class="panel" id="adoptionBars">
+          <div class="d-flex flex-column gap-3">
+            <div>
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted fw-semibold">Les curieux — ils essaient tout ce qui est nouveau</small>
+                <small class="text-muted">2.5%</small>
+              </div>
+              <div class="progress" role="progressbar" aria-valuenow="3" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-secondary site-bar-w3">2.5%</div>
+              </div>
+            </div>
+            <div class="p-3 bg-warning bg-opacity-10 rounded">
+              <div class="d-flex justify-content-between mb-1">
+                <small class="fw-bold"><i class="bi bi-star-fill text-warning me-1"></i>Les influenceurs — ils testent et en parlent</small>
+                <small class="fw-bold text-dark">13.5% — À atteindre en premier</small>
+              </div>
+              <div class="progress" role="progressbar" aria-valuenow="14" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-warning text-dark site-bar-w14">13.5%</div>
+              </div>
+              <p class="text-muted small mb-0 mt-2">
+                Ce sont eux qui font la différence. Si 2 ou 3 personnes respectées
+                dans l'équipe utilisent BDB et en parlent — les autres suivent naturellement.
+              </p>
+            </div>
+            <div>
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted fw-semibold">Les pragmatiques — ils adoptent quand ils voient que ça marche</small>
+                <small class="text-muted">34%</small>
+              </div>
+              <div class="progress" role="progressbar" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-primary site-bar-w34">34%</div>
+              </div>
+            </div>
+            <div>
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted fw-semibold">Les prudents — ils adoptent quand c'est devenu la norme</small>
+                <small class="text-muted">34%</small>
+              </div>
+              <div class="progress" role="progressbar" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-info site-bar-w34">34%</div>
+              </div>
+            </div>
+            <div>
+              <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted fw-semibold">Ceux qui n'adopteront pas — et c'est accepté</small>
+                <small class="text-muted">16%</small>
+              </div>
+              <div class="progress" role="progressbar" aria-valuenow="16" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-secondary site-bar-w16">16%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MÉTRIQUES — ce qui compte vraiment -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-speedometer2 me-2 text-primary"></i>Comment savoir si ça marche</h2>
+        <p class="text-muted mb-4">
+          Le nombre de connexions ne dit rien. Ce qui compte, c'est le changement de comportement.
+        </p>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="panel panel-accent-success h-100">
+              <h5 class="text-success fw-semibold mb-3"><i class="bi bi-check-circle me-2"></i>Les vrais signes que ça marche</h5>
+              <ul class="mb-0 text-muted">
+                <li class="mb-2">Les mêmes questions reviennent moins souvent</li>
+                <li class="mb-2">Les nouveaux s'intègrent plus vite</li>
+                <li class="mb-2">L'ambiance dans l'équipe s'améliore</li>
+                <li>On cherche avant de demander</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-accent-danger h-100">
+              <h5 class="text-danger fw-semibold mb-3"><i class="bi bi-x-circle me-2"></i>Ce qui ne veut rien dire</h5>
+              <ul class="mb-0 text-muted">
+                <li class="mb-2">Le nombre de fois où on ouvre l'app</li>
+                <li class="mb-2">Le temps passé sur l'écran</li>
+                <li class="mb-2">Le nombre d'entrées créées</li>
+                <li>Qui a contribué le plus</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-accent-warning h-100">
+              <h5 class="text-warning fw-semibold mb-3"><i class="bi bi-eye me-2"></i>Les signaux à surveiller</h5>
+              <ul class="mb-0 text-muted">
+                <li class="mb-2">Des recherches qui ne trouvent rien — il manque du contenu</li>
+                <li class="mb-2">Des fiches jamais consultées — elles ne servent peut-être à rien</li>
+                <li class="mb-2">Des informations contestées — quelque chose est faux ou périmé</li>
+                <li>Une baisse d'activité soudaine — quelque chose a changé</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-4 site-nav-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6"><a href="risques.html" class="text-primary text-decoration-none fw-semibold"><i class="bi bi-arrow-left me-2"></i>Ce qui pourrait mal tourner</a></div>
+          <div class="col-6 text-end"><a href="faq.html" class="text-primary text-decoration-none fw-semibold">Questions fréquentes<i class="bi bi-arrow-right ms-2"></i></a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <footer class="py-3 text-center text-muted bg-white"><small>&copy; 2026 Bible de Bloc — Consensus Design System — <span class="badge bg-light text-dark border">CDS Compliant</span></small></footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/utils.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el)); });</script>
+</body>
+</html>

@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║  PAXIS LOOP v1.0.0                                                           ║
+    ║  Interview réflexive des pratiques de bloc opératoire                        ║
+    ║  DATE: 2025-12-29 | STACK: HTML5/CSS3/Vanilla JS                            ║
+    ║  MODE: Standalone (Consensus Framework V6 - Mode A)                          ║
+    ║  LEAD: Gemini | ARCHITECT: Claude                                            ║
+    ║  OFFLINE-FIRST | ZERO-BACKEND | ZERO-SCORING                                ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+    
+    USAGE:
+    1. Ouvrir ce fichier dans un navigateur (file:// ou serveur local)
+    2. Commencer l'interview depuis la page d'accueil
+    3. Répondre aux questions à son rythme
+    4. Exporter les réponses en .md ou .json
+    
+    PRINCIPES:
+    - Le terrain précède l'outil
+    - Le réel prime sur le prescrit
+    - La contradiction est une information
+    - L'absence de réponse est un signal
+    -->
+    
+    <title>PAXIS LOOP — Interview Réflexive Bloc Opératoire</title>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Theme Consensus (Mode Parachute) -->
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print">
+    <link href="../../css/cds-overrides.css" rel="stylesheet">
+    <link href="../../css/paxis-ui.css" rel="stylesheet">
+</head>
+
+<!-- OFFCANVAS MENU -->
+<body class="d-flex min-vh-100">
+
+<!-- ── OFFCANVAS ──────────────────────────────────────────────── -->
+<div class="offcanvas offcanvas-start bdb-offcanvas" tabindex="-1" id="bdbMainMenu" aria-labelledby="bdbMenuLabel">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <a href="../../index.html" class="d-flex align-items-center gap-2 text-decoration-none">
+      <i class="bi bi-hospital fs-4 text-primary"></i>
+      <div>
+        <div class="fw-bold text-white lh-1">Bible de Bloc</div>
+        <div class="bdb-offcanvas-sub">Ortho-Neuro · CDS</div>
+      </div>
+    </a>
+    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column p-0">
+    <nav class="flex-grow-1 py-2" aria-label="Navigation BDB">
+      <ul class="nav flex-column px-2 gap-1">
+        <li><a href="../../index.html"                        class="nav-link bdb-nav-link"><i class="bi bi-house me-2"></i>Accueil</a></li>
+        <li><a href="../../modules/planning/dashboard.html"  class="nav-link bdb-nav-link"><i class="bi bi-calendar2-week me-2"></i>Planning</a></li>
+        <li><a href="../../modules/annuaire/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-people me-2"></i>Annuaire</a></li>
+        <li><a href="../../modules/transmissions/index.html" class="nav-link bdb-nav-link"><i class="bi bi-arrow-left-right me-2"></i>Transmissions</a></li>
+        <li><a href="../../modules/arsenal/index.html"       class="nav-link bdb-nav-link"><i class="bi bi-box-seam me-2"></i>Arsenal</a></li>
+        <li><a href="../../modules/fiches/index.html"        class="nav-link bdb-nav-link"><i class="bi bi-file-earmark-medical me-2"></i>Fiches</a></li>
+        <li><a href="../../modules/preferences/index.html"   class="nav-link bdb-nav-link"><i class="bi bi-person-gear me-2"></i>Préférences</a></li>
+        <li><a href="../../modules/cours/index.html"         class="nav-link bdb-nav-link"><i class="bi bi-mortarboard me-2"></i>Cours</a></li>
+        <li><a href="../../modules/anatomie/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-activity me-2"></i>Anatomie</a></li>
+        <li><a href="../../modules/installation/index.html"  class="nav-link bdb-nav-link"><i class="bi bi-hospital me-2"></i>Installation</a></li>
+        <li class="bdb-nav-admin d-none"><hr class="border-secondary my-1"/></li>
+        <li><a href="../../modules/admin/index.html" class="nav-link bdb-nav-link bdb-nav-admin d-none"><i class="bi bi-shield-check me-2"></i>Administration</a></li>
+      </ul>
+    </nav>
+    <div class="bdb-offcanvas-footer border-top border-secondary">
+      <div class="d-flex align-items-center gap-2">
+        <span class="bdb-sync-dot" role="status" aria-label="Statut connexion"></span>
+        <small class="text-white-50">Système OK</small>
+      </div>
+      <div class="d-flex align-items-center gap-2 mt-2">
+        <div class="bdb-avatar-xs bdb-offcanvas-avatar" id="offcanvasAvatarInitials">?</div>
+        <small class="text-white-50" id="offcanvasUserName">…</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+<!-- ── HEADER BDB ──────────────────────────────────────────────── -->
+<header class="bdb-module-header sticky-top d-flex align-items-center justify-content-between px-3 px-md-4" id="bdbHeader">
+  <div class="d-flex align-items-center gap-3">
+    <button class="btn btn-sm bdb-menu-btn" data-bs-toggle="offcanvas" data-bs-target="#bdbMainMenu" aria-label="Ouvrir le menu" aria-controls="bdbMainMenu">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-infinity bdb-module-header-icon"></i>
+      <h1 class="bdb-module-header-title mb-0">PAXIS Loop</h1>
+    </div>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <div id="headerActions" class="d-flex align-items-center gap-2"></div>
+    <span id="bdbBadgeAdmin" class="badge bg-danger d-none">Admin</span>
+    <div class="position-relative">
+      <button class="bdb-avatar-btn" id="bdbAvatarBtn" aria-label="Menu utilisateur" aria-expanded="false" aria-haspopup="true">
+        <span id="bdbAvatarInitials">?</span>
+      </button>
+      <div class="bdb-user-menu" id="bdbUserMenu" role="menu">
+        <div class="bdb-user-menu-header">
+          <div class="fw-semibold small" id="bdbMenuName">…</div>
+          <div class="bdb-user-menu-email" id="bdbMenuEmail"></div>
+        </div>
+        <a href="../../modules/profile/index.html" class="bdb-user-menu-item" role="menuitem">
+          <i class="bi bi-person-circle"></i>Mon profil
+        </a>
+        <a href="../../admin-memo.html" class="bdb-user-menu-item bdb-admin-only d-none" role="menuitem">
+          <i class="bi bi-journal-bookmark-fill"></i>Mémo admin
+        </a>
+        <div class="bdb-menu-sep"></div>
+        <button class="bdb-user-menu-item danger w-100" id="bdbBtnLogout" role="menuitem">
+          <i class="bi bi-box-arrow-right"></i>Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SECTION: ACCUEIL
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <section id="section-home" class="paxis-section active">
+        <div class="container">
+            <div class="paxis-hero">
+                <h1>Interview Réflexive</h1>
+                <p class="lead">
+                    Explorer, documenter et comprendre les pratiques réelles d'un bloc opératoire 
+                    avant toute transformation numérique.
+                </p>
+                
+                <ul class="paxis-principes-list">
+                    <li>Le terrain précède l'outil</li>
+                    <li>Le réel prime sur le prescrit</li>
+                    <li>La contradiction est une information</li>
+                    <li>L'absence de réponse est un signal</li>
+                    <li>La numérisation est une conséquence, pas un objectif</li>
+                </ul>
+                
+                <div class="mt-4">
+                    <button class="btn btn-primary btn-lg px-4" id="btn-start-interview">
+                        <i class="bi bi-play-circle me-2"></i>Commencer l'interview
+                    </button>
+                </div>
+                
+                <div class="mt-4 d-none" id="resume-session">
+                    <p class="text-muted small mb-2">Session en cours détectée</p>
+                    <button class="btn btn-outline-secondary" id="btn-resume-interview">
+                        <i class="bi bi-arrow-repeat me-2"></i>Reprendre
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm ms-2" id="btn-reset-session">
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SECTION: SÉLECTION RÔLE
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <section id="section-role" class="paxis-section">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h2 class="mb-4">Quel est votre rôle ?</h2>
+                    <p class="text-muted mb-4">Cette information permet d'adapter les questions à votre perspective terrain.</p>
+                    
+                    <div class="row g-3" id="role-grid">
+                        <div class="col-md-6">
+                            <div class="card h-100 paxis-role-card" data-role="responsable">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-person-badge me-2"></i>Responsable de bloc</h6>
+                                    <small class="text-muted">Porteur de projet, vision globale</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 paxis-role-card" data-role="chirurgien">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-heart-pulse me-2"></i>Chirurgien</h6>
+                                    <small class="text-muted">Pratiques opératoires, cas concrets</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 paxis-role-card" data-role="ibode">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-clipboard2-pulse me-2"></i>IBODE</h6>
+                                    <small class="text-muted">Instrumentiste, panseur, contrôles</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 paxis-role-card" data-role="preparateur">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-box-seam me-2"></i>Préparateur matériel</h6>
+                                    <small class="text-muted">Logistique, préparation, flux</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 paxis-role-card" data-role="qualite">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-shield-check me-2"></i>Contrôle / Qualité</h6>
+                                    <small class="text-muted">Conformité, risques, écarts</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 paxis-role-card" data-role="cadre">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-diagram-3 me-2"></i>Cadre de service</h6>
+                                    <small class="text-muted">Organisation, ressources humaines</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SECTION: INTERVIEW
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <section id="section-interview" class="paxis-section">
+        <div class="container py-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    
+                    <!-- Progress -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Question <span id="current-index">1</span> / <span id="total-questions">0</span></small>
+                        <small class="text-muted" id="current-role-display"></small>
+                    </div>
+                    <div class="paxis-progress-bar">
+                        <div class="paxis-progress-fill" id="progress-fill"></div>
+                    </div>
+                    
+                    <!-- Question Container -->
+                    <div id="question-container">
+                        <!-- Dynamique -->
+                    </div>
+                    
+                    <!-- Navigation -->
+                    <div class="paxis-nav-buttons">
+                        <button class="btn btn-outline-secondary" id="btn-prev">
+                            <i class="bi bi-chevron-left me-1"></i>Précédent
+                        </button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" id="btn-skip-question">
+                                <i class="bi bi-skip-forward me-1"></i>Plus tard
+                            </button>
+                            <button class="btn btn-primary" id="btn-next">
+                                Suivant<i class="bi bi-chevron-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SECTION: HISTORIQUE
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <section id="section-history" class="paxis-section">
+        <div class="container py-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3>Historique des réponses</h3>
+                        <button class="btn btn-outline-primary" id="btn-history-back">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </button>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="paxis-stats-grid" id="stats-container">
+                        <!-- Dynamique -->
+                    </div>
+
+                    <!-- Filtres -->
+                    <div class="paxis-role-selector mb-4">
+                        <button class="paxis-role-btn active" data-filter="all">Tout</button>
+                        <button class="paxis-role-btn" data-filter="answered">Répondues</button>
+                        <button class="paxis-role-btn" data-filter="skipped">À approfondir</button>
+                        <button class="paxis-role-btn" data-filter="unclear">Je ne sais pas</button>
+                    </div>
+                    
+                    <!-- Liste -->
+                    <div id="history-list">
+                        <!-- Dynamique -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         SECTION: EXPORT
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <section id="section-export" class="paxis-section">
+        <div class="container py-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3>Export des données</h3>
+                        <button class="btn btn-outline-primary" id="btn-export-back">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </button>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="bi bi-file-text me-2"></i>Export Markdown</h5>
+                                    <p class="text-muted small">Format lisible, structuré par sections. Idéal pour documentation humaine.</p>
+                                    <button class="btn btn-primary w-100" id="btn-export-md">
+                                        <i class="bi bi-download me-1"></i>Télécharger .md
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="bi bi-braces me-2"></i>Export JSON</h5>
+                                    <p class="text-muted small">Format structuré, exploitable par IA ou système externe.</p>
+                                    <button class="btn btn-outline-primary w-100" id="btn-export-json">
+                                        <i class="bi bi-download me-1"></i>Télécharger .json
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h5 class="mb-3">Aperçu</h5>
+                        <div class="paxis-export-preview" id="paxis-export-preview">
+                            Sélectionnez un format pour voir l'aperçu...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ── FOOTER BDB ──────────────────────────────────────────────── -->
+<footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+  <small>PAXIS Loop v1.0.0 — Interview Réflexive Bloc Opératoire · BDB</small>
+</footer>
+</main>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    
+    <script>
+    /* ═══════════════════════════════════════════════════════════════════════════════
+       PAXIS LOOP v1.0.0 - JavaScript Engine
+       
+       ARCHITECTURE:
+       1. DATA: Questions initiales, types, règles
+       2. STATE: Session, réponses, historique
+       3. ENGINE: Logique d'itération, génération questions
+       4. UI: Rendu, navigation, export
+       
+       RÈGLES D'ITÉRATION:
+       - Réponse vague → Question de clarification
+       - Réponse courte → Approfondissement
+       - Contradiction détectée → Question de tension
+       - Risque mentionné → Question de criticité
+       - Silence répété → Exploration ciblée
+       ═══════════════════════════════════════════════════════════════════════════════ */
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 1. DATA: Questions initiales par type et rôle
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    const QUESTION_TYPES = {
+        exploration: {
+            label: 'Exploration',
+            description: 'Décrire le réel',
+            color: 'exploration'
+        },
+        clarification: {
+            label: 'Clarification',
+            description: 'Réduire l\'ambiguïté',
+            color: 'clarification'
+        },
+        tension: {
+            label: 'Tension',
+            description: 'Révéler les contradictions',
+            color: 'tension'
+        },
+        criticite: {
+            label: 'Criticité',
+            description: 'Identifier le risque',
+            color: 'criticite'
+        },
+        informel: {
+            label: 'Informel',
+            description: 'Révéler le non-dit',
+            color: 'informel'
+        }
+    };
+    
+    const ROLES = {
+        responsable: 'Responsable de bloc',
+        chirurgien: 'Chirurgien',
+        ibode: 'IBODE',
+        preparateur: 'Préparateur matériel',
+        qualite: 'Contrôle / Qualité',
+        cadre: 'Cadre de service'
+    };
+    
+    /**
+     * QUESTIONS INITIALES
+     * Structurées par type, adaptables par rôle
+     * depth: 1 = initial, 2 = approfondissement, 3 = avancé
+     */
+    const INITIAL_QUESTIONS = [
+        // EXPLORATION
+        {
+            id: 'EXP001',
+            type: 'exploration',
+            text: 'Comment se passe concrètement la préparation d\'une intervention standard ?',
+            roles: ['responsable', 'chirurgien', 'ibode', 'preparateur'],
+            depth: 1
+        },
+        {
+            id: 'EXP002',
+            type: 'exploration',
+            text: 'Qui fait quoi, réellement, lors de la phase de contrôle pré-opératoire ?',
+            roles: ['ibode', 'chirurgien', 'qualite'],
+            depth: 1
+        },
+        {
+            id: 'EXP003',
+            type: 'exploration',
+            text: 'Quand les décisions d\'ordonnancement sont-elles prises ? Par qui ?',
+            roles: ['responsable', 'cadre'],
+            depth: 1
+        },
+        {
+            id: 'EXP004',
+            type: 'exploration',
+            text: 'Comment circule l\'information entre la préparation et la salle d\'opération ?',
+            roles: ['preparateur', 'ibode', 'cadre'],
+            depth: 1
+        },
+        {
+            id: 'EXP005',
+            type: 'exploration',
+            text: 'Décrivez une journée type au bloc, depuis votre perspective.',
+            roles: ['responsable', 'chirurgien', 'ibode', 'preparateur', 'qualite', 'cadre'],
+            depth: 1
+        },
+        
+        // CLARIFICATION
+        {
+            id: 'CLA001',
+            type: 'clarification',
+            text: 'Que signifie "en général" quand vous décrivez une procédure ? Quelles sont les exceptions ?',
+            roles: ['responsable', 'chirurgien', 'ibode', 'preparateur', 'qualite', 'cadre'],
+            depth: 2
+        },
+        {
+            id: 'CLA002',
+            type: 'clarification',
+            text: 'Dans quels cas précis cette règle s\'applique-t-elle ? Et dans lesquels non ?',
+            roles: ['qualite', 'ibode', 'chirurgien'],
+            depth: 2
+        },
+        {
+            id: 'CLA003',
+            type: 'clarification',
+            text: 'Qui décide vraiment quand il y a un doute sur le matériel ?',
+            roles: ['ibode', 'preparateur', 'chirurgien'],
+            depth: 2
+        },
+        
+        // TENSION
+        {
+            id: 'TEN001',
+            type: 'tension',
+            text: 'Que se passe-t-il quand le protocole standard est impossible à suivre ?',
+            roles: ['ibode', 'chirurgien', 'qualite'],
+            depth: 2
+        },
+        {
+            id: 'TEN002',
+            type: 'tension',
+            text: 'Que faites-vous quand la règle officielle contredit la pratique efficace ?',
+            roles: ['chirurgien', 'ibode', 'responsable'],
+            depth: 2
+        },
+        {
+            id: 'TEN003',
+            type: 'tension',
+            text: 'Qui compense quand un maillon de la chaîne ne fonctionne pas ?',
+            roles: ['cadre', 'ibode', 'preparateur'],
+            depth: 2
+        },
+        {
+            id: 'TEN004',
+            type: 'tension',
+            text: 'Y a-t-il des situations où deux règles se contredisent ? Comment gérez-vous ?',
+            roles: ['qualite', 'ibode', 'responsable'],
+            depth: 2
+        },
+        
+        // CRITICITÉ
+        {
+            id: 'CRI001',
+            type: 'criticite',
+            text: 'Qu\'est-ce qui serait inacceptable d\'oublier lors d\'une préparation ?',
+            roles: ['ibode', 'preparateur', 'chirurgien'],
+            depth: 1
+        },
+        {
+            id: 'CRI002',
+            type: 'criticite',
+            text: 'Qu\'est-ce qui a déjà posé un problème grave dans votre expérience ?',
+            roles: ['responsable', 'chirurgien', 'ibode', 'qualite'],
+            depth: 2
+        },
+        {
+            id: 'CRI003',
+            type: 'criticite',
+            text: 'Qu\'est-ce qui est toléré aujourd\'hui malgré le risque que cela représente ?',
+            roles: ['qualite', 'responsable', 'cadre'],
+            depth: 3
+        },
+        {
+            id: 'CRI004',
+            type: 'criticite',
+            text: 'Quel serait le pire scénario si un contrôle était manqué ?',
+            roles: ['qualite', 'ibode', 'chirurgien'],
+            depth: 2
+        },
+        
+        // INFORMEL
+        {
+            id: 'INF001',
+            type: 'informel',
+            text: 'Qu\'est-ce qui n\'est jamais écrit mais que tout le monde sait ?',
+            roles: ['ibode', 'preparateur', 'chirurgien', 'cadre'],
+            depth: 2
+        },
+        {
+            id: 'INF002',
+            type: 'informel',
+            text: 'Qui détient la mémoire du fonctionnement réel du bloc ?',
+            roles: ['cadre', 'responsable', 'ibode'],
+            depth: 2
+        },
+        {
+            id: 'INF003',
+            type: 'informel',
+            text: 'Que se passe-t-il quand cette personne est absente ?',
+            roles: ['cadre', 'responsable', 'preparateur'],
+            depth: 3
+        },
+        {
+            id: 'INF004',
+            type: 'informel',
+            text: 'Y a-t-il des "trucs" qui ne sont transmis qu\'oralement ?',
+            roles: ['ibode', 'chirurgien', 'preparateur'],
+            depth: 2
+        },
+        {
+            id: 'INF005',
+            type: 'informel',
+            text: 'Comment les nouveaux apprennent-ils ce qui n\'est pas dans les procédures ?',
+            roles: ['cadre', 'ibode', 'responsable'],
+            depth: 2
+        }
+    ];
+    
+    /**
+     * RÈGLES DE GÉNÉRATION DE QUESTIONS SUIVANTES
+     * Analyse la réponse pour déterminer le type de question suivante
+     */
+    const ITERATION_RULES = {
+        // Mots-clés détectant une réponse vague
+        vagueKeywords: ['parfois', 'souvent', 'en général', 'normalement', 'ça dépend', 'plus ou moins'],
+        
+        // Mots-clés détectant un risque
+        riskKeywords: ['risque', 'danger', 'erreur', 'oubli', 'problème', 'incident', 'grave', 'critique'],
+        
+        // Mots-clés détectant une contradiction
+        contradictionKeywords: ['mais', 'cependant', 'pourtant', 'en théorie', 'officiel', 'réalité'],
+        
+        // Mots-clés détectant de l'informel
+        informalKeywords: ['entre nous', 'officieusement', 'tout le monde sait', 'jamais écrit', 'tradition']
+    };
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 2. STATE: Gestion de l'état de la session
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    const STORAGE_KEY = 'paxis_loop_session';
+    
+    let state = {
+        sessionId: null,
+        role: null,
+        startedAt: null,
+        currentIndex: 0,
+        questions: [],
+        responses: {},  // { questionId: { text, status, timestamp } }
+        generatedQuestions: [],  // Questions générées dynamiquement
+        iteration: 1
+    };
+    
+    /**
+     * Sauvegarde l'état dans LocalStorage
+     */
+    function saveState() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            console.log('💾 État sauvegardé');
+        } catch (e) {
+            console.error('❌ Erreur sauvegarde:', e);
+        }
+    }
+    
+    /**
+     * Charge l'état depuis LocalStorage
+     */
+    function loadState() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                state = JSON.parse(saved);
+                console.log('📦 État chargé, session:', state.sessionId);
+                return true;
+            }
+        } catch (e) {
+            console.error('❌ Erreur chargement:', e);
+        }
+        return false;
+    }
+    
+    /**
+     * Réinitialise la session
+     */
+    function resetSession() {
+        if (confirm('Réinitialiser toutes les réponses ? Cette action est irréversible.')) {
+            localStorage.removeItem(STORAGE_KEY);
+            state = {
+                sessionId: null,
+                role: null,
+                startedAt: null,
+                currentIndex: 0,
+                questions: [],
+                responses: {},
+                generatedQuestions: [],
+                iteration: 1
+            };
+            showSection('home');
+            checkExistingSession();
+        }
+    }
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 3. ENGINE: Logique d'itération et génération de questions
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    /**
+     * Filtre les questions initiales selon le rôle
+     */
+    function getQuestionsForRole(role) {
+        return INITIAL_QUESTIONS.filter(q => q.roles.includes(role));
+    }
+    
+    /**
+     * Analyse une réponse pour déterminer les questions de suivi
+     * @param {string} responseText - Texte de la réponse
+     * @param {object} question - Question d'origine
+     * @returns {string|null} - Type de question suivante recommandé
+     */
+    function analyzeResponse(responseText, question) {
+        if (!responseText || responseText.length < 10) {
+            return null;  // Réponse trop courte, pas d'analyse
+        }
+        
+        const textLower = responseText.toLowerCase();
+        
+        // Détection réponse vague → Clarification
+        for (const keyword of ITERATION_RULES.vagueKeywords) {
+            if (textLower.includes(keyword)) {
+                return 'clarification';
+            }
+        }
+        
+        // Détection risque → Criticité
+        for (const keyword of ITERATION_RULES.riskKeywords) {
+            if (textLower.includes(keyword)) {
+                return 'criticite';
+            }
+        }
+        
+        // Détection contradiction → Tension
+        for (const keyword of ITERATION_RULES.contradictionKeywords) {
+            if (textLower.includes(keyword)) {
+                return 'tension';
+            }
+        }
+        
+        // Détection informel → Informel
+        for (const keyword of ITERATION_RULES.informalKeywords) {
+            if (textLower.includes(keyword)) {
+                return 'informel';
+            }
+        }
+        
+        // Réponse courte (< 50 caractères) → Exploration approfondie
+        if (responseText.length < 50) {
+            return 'exploration';
+        }
+        
+        return null;  // Réponse complète, pas de suivi immédiat
+    }
+    
+    /**
+     * Génère une question de suivi basée sur l'analyse
+     * @param {string} type - Type de question
+     * @param {object} originalQuestion - Question d'origine
+     * @param {string} responseText - Réponse de l'utilisateur
+     * @returns {object|null} - Nouvelle question ou null
+     */
+    function generateFollowUp(type, originalQuestion, responseText) {
+        const templates = {
+            clarification: [
+                `Vous avez mentionné "${extractKeyPhrase(responseText)}". Pouvez-vous préciser dans quels cas exactement ?`,
+                `Quand vous dites "en général", quelles sont les exceptions notables ?`,
+                `Qui décide concrètement dans cette situation ?`
+            ],
+            criticite: [
+                `Vous mentionnez un risque. Qu'est-ce qui serait la conséquence la plus grave ?`,
+                `Ce problème a-t-il déjà eu des conséquences réelles ? Lesquelles ?`,
+                `Que faudrait-il absolument éviter dans cette situation ?`
+            ],
+            tension: [
+                `Vous semblez décrire un écart entre théorie et pratique. Comment gérez-vous ce décalage ?`,
+                `Qui arbitre quand ces deux logiques s'affrontent ?`,
+                `Cette contradiction est-elle connue de tous ? Documentée ?`
+            ],
+            informel: [
+                `Ce que vous décrivez est-il transmis aux nouveaux ? Comment ?`,
+                `Qui d'autre connaît cette pratique non-écrite ?`,
+                `Que se passerait-il si cette personne-clé partait ?`
+            ],
+            exploration: [
+                `Pouvez-vous détailler davantage cette étape ?`,
+                `Qu'est-ce qui se passe concrètement à ce moment-là ?`,
+                `Qui intervient précisément dans ce processus ?`
+            ]
+        };
+        
+        const typeTemplates = templates[type];
+        if (!typeTemplates) return null;
+        
+        const template = typeTemplates[Math.floor(Math.random() * typeTemplates.length)];
+        
+        return {
+            id: `GEN${Date.now()}`,
+            type: type,
+            text: template,
+            roles: [state.role],
+            depth: originalQuestion.depth + 1,
+            parentId: originalQuestion.id,
+            generated: true
+        };
+    }
+    
+    /**
+     * Extrait une phrase-clé de la réponse pour personnaliser les questions de suivi
+     */
+    function extractKeyPhrase(text) {
+        // Extraction simplifiée: premiers mots significatifs
+        const words = text.split(' ').slice(0, 5);
+        return words.join(' ').substring(0, 30) + (text.length > 30 ? '...' : '');
+    }
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 4. UI: Rendu, navigation, export
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    /**
+     * Affiche une section
+     */
+    function showSection(sectionName) {
+        document.querySelectorAll('.paxis-section').forEach(s => s.classList.remove('active'));
+        const section = document.getElementById(`section-${sectionName}`);
+        if (section) {
+            section.classList.add('active');
+            
+            // Actions spécifiques par section
+            if (sectionName === 'history') {
+                renderHistory();
+            } else if (sectionName === 'export') {
+                renderExportPreview('md');
+            }
+        }
+    }
+    
+    /**
+     * Vérifie si une session existe
+     */
+    function checkExistingSession() {
+        if (loadState() && state.sessionId) {
+            document.getElementById('resume-session').classList.remove('d-none');
+        } else {
+            document.getElementById('resume-session').classList.add('d-none');
+        }
+    }
+    
+    /**
+     * Démarre une nouvelle interview
+     */
+    function startInterview() {
+        showSection('role');
+    }
+    
+    /**
+     * Reprend une interview existante
+     */
+    function resumeInterview() {
+        if (state.sessionId) {
+            document.getElementById('current-role-display').textContent = ROLES[state.role] || '';
+            showSection('interview');
+            renderCurrentQuestion();
+        }
+    }
+    
+    /**
+     * Sélectionne un rôle et initialise la session
+     */
+    function selectRole(role) {
+        state = {
+            sessionId: `PAXIS_${Date.now()}`,
+            role: role,
+            startedAt: new Date().toISOString(),
+            currentIndex: 0,
+            questions: getQuestionsForRole(role),
+            responses: {},
+            generatedQuestions: [],
+            iteration: 1
+        };
+        
+        saveState();
+        
+        document.getElementById('current-role-display').textContent = ROLES[role];
+        document.getElementById('total-questions').textContent = state.questions.length;
+        
+        showSection('interview');
+        renderCurrentQuestion();
+    }
+    
+    /**
+     * Rend la question courante
+     */
+    function renderCurrentQuestion() {
+        const container = document.getElementById('question-container');
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        
+        if (state.currentIndex >= allQuestions.length) {
+            // Fin du questionnaire
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-check-circle text-success paxis-complete-icon"></i>
+                    <h3 class="mt-3">Interview complète</h3>
+                    <p class="text-muted">Vous avez parcouru toutes les questions disponibles.</p>
+                    <div class="mt-4">
+                        <button class="btn btn-primary me-2 paxis-goto" data-section="export">
+                            <i class="bi bi-download me-1"></i>Exporter les réponses
+                        </button>
+                        <button class="btn btn-outline-secondary paxis-goto" data-section="history">
+                            <i class="bi bi-clock-history me-1"></i>Voir l'historique
+                        </button>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        const question = allQuestions[state.currentIndex];
+        const existingResponse = state.responses[question.id] || {};
+        const typeInfo = QUESTION_TYPES[question.type];
+        
+        container.innerHTML = `
+            <div class="paxis-question-card type-${question.type}">
+                <div class="paxis-question-meta">
+                    <span class="paxis-question-badge paxis-badge-${question.type}">${typeInfo.label}</span>
+                    ${question.generated ? '<span class="paxis-question-badge paxis-badge-neutral">Question de suivi</span>' : ''}
+                    <span class="paxis-question-badge paxis-badge-neutral">Profondeur ${question.depth}</span>
+                </div>
+                
+                <p class="paxis-question-text">${escapeHtml(question.text)}</p>
+                
+                <textarea 
+                    class="paxis-response-area" 
+                    id="response-text"
+                    placeholder="Votre réponse..."
+                >${existingResponse.text || ''}</textarea>
+                
+                <div class="paxis-response-options">
+                    <label>
+                        <input type="checkbox" id="opt-unclear" ${existingResponse.status === 'unclear' ? 'checked' : ''}>
+                        Je ne sais pas
+                    </label>
+                    <label>
+                        <input type="checkbox" id="opt-later" ${existingResponse.status === 'later' ? 'checked' : ''}>
+                        À approfondir plus tard
+                    </label>
+                </div>
+            </div>
+        `;
+        
+        // Update progress
+        document.getElementById('current-index').textContent = state.currentIndex + 1;
+        document.getElementById('total-questions').textContent = allQuestions.length;
+        
+        const progress = ((state.currentIndex + 1) / allQuestions.length) * 100;
+        document.getElementById('progress-fill').style.width = `${progress}%`;
+        
+        // Update nav buttons
+        document.getElementById('btn-prev').style.visibility = state.currentIndex > 0 ? 'visible' : 'hidden';
+    }
+    
+    /**
+     * Sauvegarde la réponse courante
+     */
+    function saveCurrentResponse() {
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        if (state.currentIndex >= allQuestions.length) return;
+        
+        const question = allQuestions[state.currentIndex];
+        const text = document.getElementById('response-text')?.value || '';
+        const isUnclear = document.getElementById('opt-unclear')?.checked || false;
+        const isLater = document.getElementById('opt-later')?.checked || false;
+        
+        let status = 'answered';
+        if (isUnclear) status = 'unclear';
+        else if (isLater) status = 'later';
+        else if (!text.trim()) status = 'skipped';
+        
+        state.responses[question.id] = {
+            text: text,
+            status: status,
+            timestamp: new Date().toISOString(),
+            questionText: question.text,
+            questionType: question.type
+        };
+        
+        // Analyse pour génération de questions de suivi
+        if (text.trim().length > 10 && status === 'answered') {
+            const suggestedType = analyzeResponse(text, question);
+            if (suggestedType) {
+                const followUp = generateFollowUp(suggestedType, question, text);
+                if (followUp) {
+                    // Éviter les doublons
+                    const exists = state.generatedQuestions.some(q => q.parentId === question.id);
+                    if (!exists) {
+                        state.generatedQuestions.push(followUp);
+                        console.log('🔄 Question de suivi générée:', followUp.type);
+                    }
+                }
+            }
+        }
+        
+        saveState();
+    }
+    
+    /**
+     * Question suivante
+     */
+    function nextQuestion() {
+        saveCurrentResponse();
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        if (state.currentIndex < allQuestions.length - 1) {
+            state.currentIndex++;
+            saveState();
+            renderCurrentQuestion();
+        } else {
+            // Dernière question
+            renderCurrentQuestion();
+        }
+    }
+    
+    /**
+     * Question précédente
+     */
+    function prevQuestion() {
+        saveCurrentResponse();
+        if (state.currentIndex > 0) {
+            state.currentIndex--;
+            saveState();
+            renderCurrentQuestion();
+        }
+    }
+    
+    /**
+     * Passer la question (à approfondir plus tard)
+     */
+    function skipQuestion() {
+        document.getElementById('opt-later').checked = true;
+        nextQuestion();
+    }
+    
+    /**
+     * Rendu de l'historique
+     */
+    function renderHistory() {
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        const statsContainer = document.getElementById('stats-container');
+        const historyList = document.getElementById('history-list');
+        
+        // Calcul stats
+        const answered = Object.values(state.responses).filter(r => r.status === 'answered').length;
+        const skipped = Object.values(state.responses).filter(r => r.status === 'skipped' || r.status === 'later').length;
+        const unclear = Object.values(state.responses).filter(r => r.status === 'unclear').length;
+        const total = allQuestions.length;
+        
+        statsContainer.innerHTML = `
+            <div class="paxis-stat-card">
+                <div class="paxis-stat-value">${total}</div>
+                <div class="paxis-stat-label">Total</div>
+            </div>
+            <div class="paxis-stat-card">
+                <div class="paxis-stat-value text-success">${answered}</div>
+                <div class="paxis-stat-label">Répondues</div>
+            </div>
+            <div class="paxis-stat-card">
+                <div class="paxis-stat-value text-warning">${skipped}</div>
+                <div class="paxis-stat-label">À approfondir</div>
+            </div>
+            <div class="paxis-stat-card">
+                <div class="paxis-stat-value text-muted">${unclear}</div>
+                <div class="paxis-stat-label">Incertain</div>
+            </div>
+            <div class="paxis-stat-card">
+                <div class="paxis-stat-value">${state.generatedQuestions.length}</div>
+                <div class="paxis-stat-label">Générées</div>
+            </div>
+        `;
+        
+        // Liste des réponses
+        let html = '';
+        for (const question of allQuestions) {
+            const response = state.responses[question.id];
+            const statusClass = response?.status === 'answered' ? 'answered' : 
+                               response?.status === 'skipped' || response?.status === 'later' ? 'skipped' : '';
+            
+            html += `
+                <div class="paxis-history-item ${statusClass}" data-status="${response?.status || 'pending'}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="paxis-history-question">${escapeHtml(question.text)}</div>
+                        <span class="paxis-question-badge paxis-badge-${question.type} paxis-badge-type">${QUESTION_TYPES[question.type].label}</span>
+                    </div>
+                    ${response?.text ? `<div class="paxis-history-response">${escapeHtml(response.text)}</div>` : '<div class="paxis-history-response">Pas de réponse</div>'}
+                </div>
+            `;
+        }
+        
+        historyList.innerHTML = html || '<p class="text-muted">Aucune question parcourue.</p>';
+    }
+    
+    /**
+     * Filtre l'historique
+     */
+    function filterHistory(filter) {
+        document.querySelectorAll('.paxis-history-item').forEach(item => {
+            const status = item.dataset.status;
+            if (filter === 'all') {
+                item.style.display = 'block';
+            } else if (filter === 'answered' && status === 'answered') {
+                item.style.display = 'block';
+            } else if (filter === 'skipped' && (status === 'skipped' || status === 'later')) {
+                item.style.display = 'block';
+            } else if (filter === 'unclear' && status === 'unclear') {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    
+    /**
+     * Rendu preview export
+     */
+    function renderExportPreview(format) {
+        const preview = document.getElementById('paxis-export-preview');
+        if (format === 'md') {
+            preview.textContent = generateMarkdown();
+        } else {
+            preview.textContent = JSON.stringify(generateExportData(), null, 2);
+        }
+    }
+    
+    /**
+     * Génère les données d'export
+     */
+    function generateExportData() {
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        
+        return {
+            meta: {
+                version: '1.0.0',
+                sessionId: state.sessionId,
+                role: state.role,
+                roleLabel: ROLES[state.role],
+                startedAt: state.startedAt,
+                exportedAt: new Date().toISOString(),
+                iteration: state.iteration,
+                totalQuestions: allQuestions.length,
+                generatedQuestions: state.generatedQuestions.length
+            },
+            responses: allQuestions.map(q => ({
+                questionId: q.id,
+                questionText: q.text,
+                questionType: q.type,
+                depth: q.depth,
+                generated: q.generated || false,
+                response: state.responses[q.id] || null
+            })),
+            statistics: {
+                answered: Object.values(state.responses).filter(r => r.status === 'answered').length,
+                skipped: Object.values(state.responses).filter(r => r.status === 'skipped' || r.status === 'later').length,
+                unclear: Object.values(state.responses).filter(r => r.status === 'unclear').length
+            }
+        };
+    }
+    
+    /**
+     * Génère le Markdown
+     */
+    function generateMarkdown() {
+        const data = generateExportData();
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        
+        let md = `# PAXIS LOOP — Export Interview\n\n`;
+        md += `---\n\n`;
+        md += `**Session** : ${data.meta.sessionId}\n`;
+        md += `**Rôle** : ${data.meta.roleLabel}\n`;
+        md += `**Date début** : ${new Date(data.meta.startedAt).toLocaleString('fr-FR')}\n`;
+        md += `**Date export** : ${new Date(data.meta.exportedAt).toLocaleString('fr-FR')}\n`;
+        md += `**Itération** : ${data.meta.iteration}\n\n`;
+        md += `---\n\n`;
+        
+        md += `## Statistiques\n\n`;
+        md += `- Questions totales : ${data.meta.totalQuestions}\n`;
+        md += `- Questions générées : ${data.meta.generatedQuestions}\n`;
+        md += `- Répondues : ${data.statistics.answered}\n`;
+        md += `- À approfondir : ${data.statistics.skipped}\n`;
+        md += `- Incertain : ${data.statistics.unclear}\n\n`;
+        
+        md += `---\n\n`;
+        md += `## Réponses\n\n`;
+        
+        // Grouper par type
+        const byType = {};
+        for (const q of allQuestions) {
+            if (!byType[q.type]) byType[q.type] = [];
+            byType[q.type].push(q);
+        }
+        
+        for (const [type, questions] of Object.entries(byType)) {
+            md += `### ${QUESTION_TYPES[type].label}\n\n`;
+            
+            for (const q of questions) {
+                const response = state.responses[q.id];
+                md += `**Q: ${q.text}**\n\n`;
+                
+                if (response?.text) {
+                    md += `> ${response.text.replace(/\n/g, '\n> ')}\n\n`;
+                } else if (response?.status === 'unclear') {
+                    md += `_Je ne sais pas_\n\n`;
+                } else if (response?.status === 'later') {
+                    md += `_À approfondir plus tard_\n\n`;
+                } else {
+                    md += `_Pas de réponse_\n\n`;
+                }
+            }
+        }
+        
+        md += `---\n\n`;
+        md += `_Généré par PAXIS LOOP v1.0.0_\n`;
+        
+        return md;
+    }
+    
+    /**
+     * Export Markdown
+     */
+    function exportMarkdown() {
+        const content = generateMarkdown();
+        const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+        const filename = `paxis_loop_${state.role}_${new Date().toISOString().split('T')[0]}.md`;
+        downloadBlob(blob, filename);
+    }
+    
+    /**
+     * Export JSON
+     */
+    function exportJSON() {
+        const data = generateExportData();
+        const content = JSON.stringify(data, null, 2);
+        const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+        const filename = `paxis_loop_${state.role}_${new Date().toISOString().split('T')[0]}.json`;
+        downloadBlob(blob, filename);
+    }
+    
+    /**
+     * Télécharge un blob
+     */
+    function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    
+    /**
+     * Échappe le HTML
+     */
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+    
+    // ─────────────────────────────────────────────────────────────────────────────
+    // INITIALISATION
+    // ─────────────────────────────────────────────────────────────────────────────
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+          // ── Auth + Header universel BDB ────────────────────────────────
+  (async () => {
+    const _s = await window.bdbGetSession();
+    if (!_s) { window.location.href = '../../login.html'; return; }
+    try {
+      const { data: _p } = await window.bdb.from('profiles_directory')
+        .select('prenom, nom, initials').eq('user_id', _s.user.id).maybeSingle();
+      const ini  = (_p?.initials || ((_p?.prenom?.[0]||'') + (_p?.nom?.[0]||'')) || _s.user.email.substring(0,2)).toUpperCase();
+      const name = [_p?.prenom, _p?.nom].filter(Boolean).join(' ') || _s.user.email;
+      document.getElementById('bdbAvatarInitials').textContent      = ini;
+      document.getElementById('offcanvasAvatarInitials').textContent = ini;
+      document.getElementById('offcanvasUserName').textContent      = name;
+      document.getElementById('bdbMenuName').textContent            = name;
+      document.getElementById('bdbMenuEmail').textContent           = _s.user.email;
+    } catch(_) {}
+    try {
+      const { data: _r } = await window.bdb.from('user_roles')
+        .select('role').eq('user_id', _s.user.id).maybeSingle();
+      if (_r?.role === 'admin') {
+        document.getElementById('bdbBadgeAdmin').classList.remove('d-none');
+        document.querySelectorAll('.bdb-nav-admin').forEach(el => el.classList.remove('d-none'));
+        document.querySelectorAll('.bdb-admin-only').forEach(el => el.classList.remove('d-none'));
+      }
+    } catch(_) {}
+    document.getElementById('bdbBtnLogout').addEventListener('click', async () => {
+      await window.bdb.auth.signOut();
+      window.location.href = '../../login.html';
+    });
+    const _btn  = document.getElementById('bdbAvatarBtn');
+    const _menu = document.getElementById('bdbUserMenu');
+    _btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = _menu.classList.toggle('open');
+      _btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', () => {
+      _menu.classList.remove('open');
+      _btn.setAttribute('aria-expanded', 'false');
+    });
+    _menu.addEventListener('click', e => e.stopPropagation());
+  })();
+  // ── Fin Header universel ───────────────────────────────────────
+
+        console.log('🚀 PAXIS LOOP v1.0.0 initialisé');
+        checkExistingSession();
+
+        // ── Header navigation ──────────────────────────────────────────────
+        document.getElementById('btn-header-history').addEventListener('click', () => showSection('history'));
+        document.getElementById('btn-header-export').addEventListener('click', () => showSection('export'));
+        document.getElementById('btn-header-home').addEventListener('click', () => showSection('home'));
+
+        // ── Accueil ────────────────────────────────────────────────────────
+        document.getElementById('btn-start-interview').addEventListener('click', startInterview);
+        document.getElementById('btn-resume-interview').addEventListener('click', resumeInterview);
+        document.getElementById('btn-reset-session').addEventListener('click', resetSession);
+
+        // ── Sélection rôle (délégation sur #role-grid) ────────────────────
+        document.getElementById('role-grid').addEventListener('click', function(e) {
+            const card = e.target.closest('[data-role]');
+            if (card) selectRole(card.dataset.role);
+        });
+
+        // ── Navigation interview ───────────────────────────────────────────
+        document.getElementById('btn-prev').addEventListener('click', prevQuestion);
+        document.getElementById('btn-skip-question').addEventListener('click', skipQuestion);
+        document.getElementById('btn-next').addEventListener('click', nextQuestion);
+
+        // ── Historique ─────────────────────────────────────────────────────
+        document.getElementById('btn-history-back').addEventListener('click', () => showSection('interview'));
+
+        // Filtres historique (délégation sur .paxis-role-selector)
+        document.querySelector('#section-history .paxis-role-selector').addEventListener('click', function(e) {
+            const btn = e.target.closest('[data-filter]');
+            if (!btn) return;
+            this.querySelectorAll('.paxis-role-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterHistory(btn.dataset.filter);
+        });
+
+        // ── Export ─────────────────────────────────────────────────────────
+        document.getElementById('btn-export-back').addEventListener('click', () => showSection('interview'));
+        document.getElementById('btn-export-md').addEventListener('click', exportMarkdown);
+        document.getElementById('btn-export-json').addEventListener('click', exportJSON);
+
+        // ── Boutons dynamiques fin de questionnaire (délégation) ──────────
+        document.getElementById('question-container').addEventListener('click', function(e) {
+            const btn = e.target.closest('.paxis-goto[data-section]');
+            if (btn) showSection(btn.dataset.section);
+        });
+    });
+
+    </script>
+</body>
+</html>

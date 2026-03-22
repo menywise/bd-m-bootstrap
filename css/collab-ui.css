@@ -1,0 +1,35 @@
+/*
+ * collab-ui.css — Module CollabKit
+ * CSS spécifique au module COLLAB uniquement.
+ * Ne pas importer depuis un autre module.
+ * CDS compliant — zéro style inline dans collab/index.html
+ *
+ * NOTE : Le module utilise des icônes Font Awesome (fas fa-*)
+ * issues de la migration Lovable. FA n'est pas chargé en CDN
+ * (violation CDS : Bootstrap Icons uniquement).
+ * Ces icônes sont silencieusement absentes. À corriger dans une
+ * session dédiée : remplacer tous les fas fa-* par bi bi-*.
+ */
+
+/* Bouton menu flottant (position fixe) */
+.collab-menu-btn {
+  top: 1rem;
+  left: 1rem;
+  z-index: 1030;
+}
+
+/* Emoji taille normale dans les listes de catégories */
+.collab-emoji-sm {
+  font-size: 1.2em;
+}
+
+/* Emoji grande taille dans les rapports */
+.collab-emoji-lg {
+  font-size: 2em;
+}
+
+/* Colonnes fixes du tableau de résultats vote */
+.collab-col-rank  { width: 50px; }
+.collab-col-votes { width: 100px; }
+.collab-col-pct   { width: 80px; }
+.collab-col-note  { width: 150px; }

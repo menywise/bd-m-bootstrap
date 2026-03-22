@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Page introuvable | Bible de Bloc</title>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <!-- Chaîne CSS BLOC E (racine bdb/ → chemins absolus) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <link href="/bdb/css/cds-overrides.css" rel="stylesheet"/>
+</head>
+
+<body class="d-flex min-vh-100">
+
+  <main class="d-flex flex-column flex-grow-1 main-content">
+
+    <!-- Header statique (pas de bdb-shell → pas de redirect login) -->
+    <header class="bdb-module-header sticky-top d-flex align-items-center justify-content-between px-3 px-md-4">
+      <div class="d-flex align-items-center gap-3">
+        <a href="/bdb/index.html" class="d-flex align-items-center gap-2 text-decoration-none">
+          <i class="bi bi-hospital fs-5 text-primary"></i>
+          <span class="fw-bold text-white lh-1">Bible de Bloc</span>
+        </a>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-danger d-none" id="badgeAdmin">Admin</span>
+        <span class="badge bg-success d-none" id="badgeLogged"><i class="bi bi-check-circle me-1"></i>Connecté</span>
+      </div>
+    </header>
+
+    <div class="container-fluid p-4 bg-light flex-grow-1">
+
+      <!-- ── EN-TÊTE 404 ─────────────────────────────────── -->
+      <div class="text-center py-4 mb-4">
+        <div class="display-1 fw-bold text-primary opacity-25 lh-1 mb-2">404</div>
+        <h1 class="h4 fw-bold mb-2">Page introuvable</h1>
+        <p class="text-muted mb-3">Cette page n'existe pas ou a été déplacée.</p>
+        <code class="d-inline-block px-3 py-2 bg-white border rounded small text-muted" id="e404Url" style="word-break:break-all;max-width:500px"></code>
+        <div class="mt-3 d-flex justify-content-center gap-2">
+          <a href="/bdb/index.html" class="btn btn-primary btn-sm">
+            <i class="bi bi-house me-1"></i>Portail BDB
+          </a>
+          <button class="btn btn-outline-secondary btn-sm" id="btnBack">
+            <i class="bi bi-arrow-left me-1"></i>Page précédente
+          </button>
+        </div>
+      </div>
+
+      <!-- ── SUGGESTIONS CONTEXTUELLES ────────────────────── -->
+      <div class="d-none mb-4" id="suggestions">
+        <h6 class="text-muted small fw-bold text-uppercase mb-2">
+          <i class="bi bi-lightbulb me-1"></i>Vous cherchiez peut-être
+        </h6>
+        <div class="row g-2" id="suggestLinks"></div>
+      </div>
+
+      <!-- ── PLAN DE SITE : ACCÈS LIBRE ───────────────────── -->
+      <div class="mb-4">
+        <h6 class="text-muted small fw-bold text-uppercase mb-2">
+          <i class="bi bi-globe me-1"></i>Accès libre
+        </h6>
+        <div class="row g-2">
+          <div class="col-6 col-md-4 col-lg-3"><a href="/bdb/modules/site/index.html" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi bi-info-circle text-primary"></i><span class="small fw-medium text-dark">Présentation</span></div></a></div>
+          <div class="col-6 col-md-4 col-lg-3"><a href="/bdb/modules/site/fonctionnalites.html" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi bi-grid-3x3-gap text-primary"></i><span class="small fw-medium text-dark">Fonctionnalités</span></div></a></div>
+          <div class="col-6 col-md-4 col-lg-3"><a href="/bdb/modules/site/faq.html" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi bi-question-circle text-primary"></i><span class="small fw-medium text-dark">FAQ</span></div></a></div>
+          <div class="col-6 col-md-4 col-lg-3"><a href="/bdb/modules/site/glossaire.html" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi bi-book text-primary"></i><span class="small fw-medium text-dark">Glossaire</span></div></a></div>
+          <div class="col-6 col-md-4 col-lg-3" id="loginCard"><a href="/bdb/login.html" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi bi-box-arrow-in-right text-primary"></i><span class="small fw-medium text-dark">Se connecter</span></div></a></div>
+        </div>
+      </div>
+
+      <!-- ── PLAN DE SITE : MODULES (masqué, affiché si connecté) ── -->
+      <div class="d-none mb-4" id="memberSection">
+        <h6 class="text-muted small fw-bold text-uppercase mb-2">
+          <i class="bi bi-person-check me-1"></i>Modules BDB
+        </h6>
+        <div class="row g-2" id="memberLinks"></div>
+      </div>
+
+      <!-- ── PLAN DE SITE : ADMIN (masqué, affiché si admin) ── -->
+      <div class="d-none mb-4" id="adminSection">
+        <h6 class="text-muted small fw-bold text-uppercase mb-2">
+          <i class="bi bi-shield-check me-1"></i>Administration
+        </h6>
+        <div class="row g-2">
+          <div class="col-6 col-md-4 col-lg-3"><a href="/bdb/modules/admin/index.html" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi bi-shield-check text-danger"></i><span class="small fw-medium text-dark">Administration</span></div></a></div>
+          <div class="col-6 col-md-4 col-lg-3"><a href="/bdb/admin-memo.html" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi bi-journal-bookmark text-danger"></i><span class="small fw-medium text-dark">Mémo admin</span></div></a></div>
+        </div>
+      </div>
+
+      <!-- ── TRACKING (footer discret) ────────────────────── -->
+      <div class="border-top pt-3 mt-4 d-flex flex-wrap gap-3 align-items-center" style="font-size:.75rem;color:#94a3b8">
+        <span><i class="bi bi-clock me-1"></i><code class="small" id="trackTs"></code></span>
+        <span><i class="bi bi-link-45deg me-1"></i>Depuis : <code class="small" id="trackRef">direct</code></span>
+        <span class="d-none" id="trackStatusWrap"><i class="bi bi-database me-1"></i><code class="small" id="trackStatus">—</code></span>
+      </div>
+
+    </div>
+
+    <!-- Footer CDS -->
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 Bible de Bloc — Consensus Design System —
+      <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+    </footer>
+  </main>
+
+<!-- JS BLOC E -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/bdb/js/supabase-client.js"></script>
+
+<script>
+/* ─── 404 — Progressive enhancement ─────────────────────
+   Sans JS : plan de site invité visible (HTML statique)
+   Avec JS : suggestions + modules dynamiques + tracking
+   ────────────────────────────────────────────────────── */
+(async () => {
+
+  const requestedUrl = window.location.href;
+  const referrer = document.referrer || null;
+  const tsLocal = new Date().toLocaleString('fr-FR', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+
+  document.getElementById('e404Url').textContent = requestedUrl;
+  document.getElementById('trackTs').textContent = tsLocal;
+  if (referrer) document.getElementById('trackRef').textContent = referrer;
+
+  document.getElementById('btnBack').addEventListener('click', () => {
+    if (referrer && referrer.includes(window.location.hostname)) {
+      window.location.href = referrer;
+    } else {
+      window.location.href = '/bdb/index.html';
+    }
+  });
+
+  /* ── Suggestions contextuelles ──────────────────────── */
+  const SUGGEST = [
+    { kw:['planning','slot','salle'],        href:'/bdb/modules/planning/dashboard.html', icon:'bi-calendar2-week',      label:'Planning' },
+    { kw:['annuaire','equipe','membre'],      href:'/bdb/modules/annuaire/index.html',     icon:'bi-people',              label:'Annuaire' },
+    { kw:['fiche','intervention','chirur'],    href:'/bdb/modules/fiches/index.html',       icon:'bi-file-earmark-medical', label:'Fiches' },
+    { kw:['transmission','releve','trans'],    href:'/bdb/modules/transmissions/index.html', icon:'bi-arrow-left-right',   label:'Transmissions' },
+    { kw:['arsenal','materiel','instru'],      href:'/bdb/modules/arsenal/index.html',      icon:'bi-box-seam',            label:'Arsenal' },
+    { kw:['preference','chirurgien','pref'],   href:'/bdb/modules/preferences/index.html',  icon:'bi-person-gear',         label:'Préférences' },
+    { kw:['cours','formation','learn'],        href:'/bdb/modules/cours/index.html',        icon:'bi-mortarboard',         label:'Cours' },
+    { kw:['anatomie','zone','corps'],          href:'/bdb/modules/anatomie/index.html',     icon:'bi-activity',            label:'Anatomie' },
+    { kw:['install','position','patient'],     href:'/bdb/modules/installation/index.html', icon:'bi-hospital',            label:'Installation' },
+    { kw:['admin','gestion','config'],         href:'/bdb/modules/admin/index.html',        icon:'bi-shield-check',        label:'Administration' },
+    { kw:['disc','profil','communi'],          href:'/bdb/modules/disc/index.html',         icon:'bi-diagram-3',           label:'DISC' },
+    { kw:['site','present','vision','faq'],    href:'/bdb/modules/site/index.html',         icon:'bi-info-circle',         label:'Présentation' },
+    { kw:['glossaire','terme','definit'],      href:'/bdb/modules/site/glossaire.html',     icon:'bi-book',                label:'Glossaire' },
+    { kw:['login','connexion','auth'],         href:'/bdb/login.html',                      icon:'bi-box-arrow-in-right',  label:'Connexion' },
+  ];
+
+  const urlLower = requestedUrl.toLowerCase();
+  const matches = SUGGEST.filter(s => s.kw.some(k => urlLower.includes(k)));
+  if (matches.length) {
+    document.getElementById('suggestLinks').innerHTML = matches.map(s =>
+      `<div class="col-6 col-md-4 col-lg-3"><a href="${s.href}" class="card border-0 shadow-sm text-decoration-none h-100 border-start border-3 border-primary"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi ${s.icon} text-primary"></i><span class="small fw-medium text-dark">${s.label}</span></div></a></div>`
+    ).join('');
+    document.getElementById('suggestions').classList.remove('d-none');
+  }
+
+  /* ── Détection session → plan de site adaptatif ─────── */
+  let userId = null;
+  const DB = window.bdb;
+
+  try {
+    if (!DB) throw new Error('no client');
+    const { data: { session } } = await DB.auth.getSession();
+    if (!session) throw new Error('no session');
+
+    userId = session.user.id;
+    document.getElementById('badgeLogged').classList.remove('d-none');
+    document.getElementById('loginCard')?.remove();
+
+    // Modules depuis app_modules
+    try {
+      const { data: modules } = await DB
+        .from('app_modules')
+        .select('key, path, label, icon, visibility')
+        .eq('status', 'active')
+        .order('position');
+
+      if (modules?.length) {
+        document.getElementById('memberLinks').innerHTML =
+          modules.filter(m => m.visibility !== 'admin').map(m =>
+            `<div class="col-6 col-md-4 col-lg-3"><a href="/bdb/${m.path}" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi ${m.icon || 'bi-app'} text-primary"></i><span class="small fw-medium text-dark">${m.label}</span></div></a></div>`
+          ).join('');
+      }
+    } catch (_) {
+      // Fallback statique
+      const fallback = [
+        { s:'annuaire', i:'bi-people', l:'Annuaire' },
+        { s:'fiches', i:'bi-file-earmark-medical', l:'Fiches' },
+        { s:'transmissions', i:'bi-arrow-left-right', l:'Transmissions' },
+        { s:'arsenal', i:'bi-box-seam', l:'Arsenal' },
+        { s:'cours', i:'bi-mortarboard', l:'Cours' },
+        { s:'anatomie', i:'bi-activity', l:'Anatomie' },
+        { s:'installation', i:'bi-hospital', l:'Installation' },
+        { s:'preferences', i:'bi-person-gear', l:'Préférences' },
+      ];
+      document.getElementById('memberLinks').innerHTML = fallback.map(m =>
+        `<div class="col-6 col-md-4 col-lg-3"><a href="/bdb/modules/${m.s}/index.html" class="card border-0 shadow-sm text-decoration-none h-100"><div class="card-body d-flex align-items-center gap-2 py-2"><i class="bi ${m.i} text-primary"></i><span class="small fw-medium text-dark">${m.l}</span></div></a></div>`
+      ).join('');
+    }
+    document.getElementById('memberSection').classList.remove('d-none');
+
+    // Admin
+    try {
+      const { data: roleRow } = await DB
+        .from('user_roles').select('role').eq('user_id', userId).maybeSingle();
+      if (roleRow?.role === 'admin') {
+        document.getElementById('badgeAdmin').classList.remove('d-none');
+        document.getElementById('adminSection').classList.remove('d-none');
+        document.getElementById('trackStatusWrap').classList.remove('d-none');
+      }
+    } catch (_) {}
+
+  } catch (_) {
+    // Mode invité — plan libre déjà visible
+  }
+
+  /* ── Tracking 404 → Supabase ────────────────────────── */
+  try {
+    if (!DB) throw new Error('no client');
+    const { error } = await DB.from('error_404_logs').insert([{
+      requested_url: requestedUrl.substring(0, 2000),
+      referrer: referrer ? referrer.substring(0, 2000) : null,
+      user_agent: navigator.userAgent.substring(0, 500),
+      user_id: userId,
+    }]);
+    document.getElementById('trackStatus').textContent = error ? 'table absente' : '✓ logged';
+  } catch (_) {
+    document.getElementById('trackStatus').textContent = 'offline';
+  }
+
+})();
+</script>
+</body>
+</html>

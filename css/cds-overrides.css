@@ -1,0 +1,593 @@
+/* ============================================================
+   CDS OVERRIDES — Règles globales Consensus Design System
+   VERSION    : 1.6.0
+   DATE       : 2026-03-22
+   SCOPE      : Toutes les pages HTML du projet BDB
+   USAGE      : <link href="cds-overrides.css" rel="stylesheet"/>
+                Charger APRÈS theme-base.css, AVANT [module]-ui.css
+   RÈGLE      : Ce fichier ne contient que des règles partagées
+                entre 2+ modules. Rien de spécifique à un module.
+   MIGRATION  : Candidat à intégration dans theme-base.css (menywise/BDB)
+                quand les règles sont stables et validées par Manu.
+
+   DELTA v1.5.0 → v1.6.0 (2026-03-22 — AUDIT_CSS_CDS_V1_0_0) :
+     RISQUE-01 FIX  : .card { animation } scopé → .cds-card-animated
+     DUP-01 FIX     : .header-sticky fusionné (v1.0.0 + v1.2.0 → 1 définition)
+     DUP-02 FIX     : .cds-sync-dot supprimé → remplacer par .bdb-sync-dot
+     DUP-03 FIX     : flex-shrink:0 ajouté à .cds-avatar-lg
+     RISQUE-03 FIX  : object-fit:contain ajouté à .cds-lightbox-img-80
+     INC-03 FIX     : .cds-toast créé, #toastInfo conservé en compat
+     RISQUE-02 NOTE : .doc-header-primary marqué pour vérification (site/)
+     BS-OPT-01      : opacity:.6 → .opacity-50 BS sur .cds-error-icon
+     BS-OPT-02      : text-overflow manuel remplacé par .text-truncate BS
+                      dans .bdb-user-menu-email
+   ============================================================ */
+
+/* ── [0] FALLBACK OFFLINE — Variables --pe-* → Bootstrap 5.3 natif ──
+   Actif si theme-base.css (CDN menywise) est inaccessible.
+   Si le CDN charge, ses définitions prennent le dessus.
+   Ne pas modifier sans entrée JOURNAL_DECISIONS.
+   DETTE CSS-DETTE-01 : renommer --pe-* → --cds-* en Phase 3. */
+:root {
+  --pe-surface:        var(--bs-body-bg);
+  --pe-surface-2:      var(--bs-tertiary-bg);
+  --pe-surface-3:      var(--bs-secondary-bg);
+  --pe-border:         var(--bs-border-color);
+  --pe-border-strong:  #adb5bd;
+  --pe-text:           var(--bs-body-color);
+  --pe-text-muted:     var(--bs-secondary-color);
+  --pe-primary:        var(--bs-primary);
+  --pe-primary-light:  rgba(var(--bs-primary-rgb), .12);
+  --pe-radius-lg:      var(--bs-border-radius-lg);
+  --pe-shadow-lg:      var(--bs-box-shadow-lg);
+}
+
+/* ── Modales — override global (D-2026-03-15-T03 — scope global délibéré) ── */
+.modal-content {
+  border: none;
+  border-radius: var(--pe-radius-lg);
+  box-shadow: var(--pe-shadow-lg);
+  overflow: hidden;
+}
+.modal-header {
+  background: var(--pe-surface-2);
+  border-bottom: 1px solid var(--pe-border);
+  padding: 1.15rem 1.5rem;
+}
+.modal-title { font-weight: 700; font-size: 1rem; letter-spacing: -.01em; }
+.modal-body  { padding: 1.5rem; }
+.modal-footer {
+  background: var(--pe-surface-2);
+  border-top: 1px solid var(--pe-border);
+  padding: .85rem 1.5rem;
+  gap: .5rem;
+}
+
+/* Cards dans les modales */
+.modal-body .card        { border-radius: 10px; border: 1.5px solid var(--pe-border); }
+.modal-body .card-header { border-radius: 8px 8px 0 0 !important; padding: .6rem 1rem; font-size: .82rem; }
+.modal-body .card-body   { padding: .85rem 1rem; }
+
+/* ── Badge count — monospace numérique ── */
+.badge-count {
+  font-family: monospace;
+  font-size: .72rem;
+  background: var(--pe-surface-3);
+  color: var(--pe-text-muted);
+  border: 1px solid var(--pe-border);
+  border-radius: 20px;
+  padding: .15rem .55rem;
+}
+
+/* ── Boutons — tweaks typographiques uniquement (D-2026-03-15-T03) ── */
+.btn    { border-radius: 8px; font-weight: 500; font-size: .855rem; }
+.btn-sm { border-radius: 7px; font-size: .8rem; }
+.btn-outline-secondary       { border-color: var(--pe-border-strong); color: var(--pe-text-muted); }
+.btn-outline-secondary:hover { background: var(--pe-surface-3); color: var(--pe-text); }
+
+/* ── Toast — composant CDS ──
+   INC-03 FIX : .cds-toast = classe pérenne. #toastInfo conservé en compat.
+   Tout nouveau toast utilise class="toast cds-toast".
+   Usage : <div id="toastXxx" class="toast cds-toast"> */
+.cds-toast,
+#toastInfo {
+  border-radius: 12px;
+  border: none;
+  box-shadow: var(--pe-shadow-lg);
+  min-width: 260px;
+}
+.cds-toast .toast-header,
+#toastInfo .toast-header {
+  background: var(--pe-surface);
+  border-bottom: 1px solid var(--pe-border);
+  border-radius: 12px 12px 0 0;
+  font-weight: 600;
+  font-size: .855rem;
+}
+.cds-toast .toast-body,
+#toastInfo .toast-body { font-size: .855rem; }
+
+/* ── Animations d'entrée ──
+   RISQUE-01 FIX : .card { animation } retiré — trop global (perf + cards statiques).
+   Utiliser .cds-card-animated sur le CONTAINER de liste dynamique uniquement.
+   Ex : <div class="row cds-card-animated"> dans les grilles Supabase.
+   CSS-DOC-04 : jamais d'animation sur sélecteur Bootstrap générique. */
+.cds-card-animated .card,
+.cds-list-animated > * {
+  animation: fadeInUp .2s ease both;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.modal.show .modal-dialog { animation: modalIn .2s ease both; }
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(-12px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header sticky — définition unifiée ──
+   DUP-01 FIX : fusion v1.0.0 (dans @media) + v1.2.0 (global) → 1 définition.
+   RISQUE-02 NOTE : .doc-header-primary (padding mobile) était dans l'ancien @media v1.0.0.
+     Vérifier présence dans site/ avant de créer une règle dédiée. */
+.header-sticky {
+  flex-wrap: wrap;
+  gap: .5rem;
+  padding: .65rem 1rem;
+}
+@media (min-width: 768px) {
+  .header-sticky { flex-wrap: nowrap; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CDS OVERRIDES — ADDENDUM v1.1.0
+   Classes partagées cross-modules extraites du style= inline
+   Règle : tout style= statique répété dans 2+ modules vit ici.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Avatars (tailles normalisées) ──
+   TABLE DES TAILLES — voir AUDIT_CSS_CDS_V1_0_0 §TABLE DES AVATARS
+   .cds-avatar-* = avatars génériques cross-modules
+   .bdb-avatar-* = avatars spécifiques shell BDB (header + offcanvas) */
+.cds-avatar-xs {
+  width: 28px;
+  height: 28px;
+  font-size: 0.7rem;
+}
+.cds-avatar-sm {
+  width: 36px;
+  height: 36px;
+  font-size: .8rem;
+  cursor: pointer;
+}
+.cds-avatar-md {
+  width: 40px;
+  height: 40px;
+}
+.cds-avatar-lg {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;   /* DUP-03 FIX : ajouté pour cohérence avec cds-stat-icon */
+}
+/* Stat icon wrap — même dimension que cds-avatar-lg */
+.cds-stat-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+/* ── Thumbnails image ── */
+.cds-thumbnail {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+}
+.cds-thumbnail-lg {
+  width: 90px;
+  height: 70px;
+  object-fit: cover;
+}
+
+/* ── Bouton suppression image overlay ── */
+.cds-img-remove-btn {
+  width: 20px;
+  height: 20px;
+  font-size: 0.65rem;
+}
+
+/* ── Lightbox ── */
+.cds-lightbox-img {
+  max-height: 90vh;
+  object-fit: contain;
+}
+/* RISQUE-03 FIX : object-fit ajouté */
+.cds-lightbox-img-80 {
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+/* ── Z-index stacking modales imbriquées ──
+   BS-OPT NOTE : .cds-toast-top supprimé (BS .toast natif = z-index 1100).
+   Utiliser position-fixed + z-index BS si besoin spécifique. */
+.cds-z-10      { z-index: 10; }
+.cds-modal-l2  { z-index: 1060; }
+.cds-modal-l3  { z-index: 1070; }
+
+/* ── Typography micro ── */
+.cds-text-xs    { font-size: 0.7rem; }
+.cds-text-xxs   { font-size: 0.65rem; }
+.cds-text-micro { font-size: 0.6rem; }
+.cds-text-sm    { font-size: .8rem; }   /* ≠ BS .small (0.875em) — intentionnel */
+.cds-label-section {
+  font-size: .68rem;
+  letter-spacing: .08em;
+}
+
+/* ── Cursor pointer (BS 5.3 n'expose pas de classe cursor-* utilitaire) ── */
+.cds-clickable { cursor: pointer; }
+
+/* ── Inline search input avec icône positionnée ── */
+.cds-search-input { padding-left: 2.25rem; }
+
+/* ── Max-width contrainte prose/bio ── */
+.cds-max-280 { max-width: 280px; }
+
+/* ══════════════════════════════════════════════════════════════
+   CDS OVERRIDES — ADDENDUM v1.2.0
+   Responsive global — corrections cross-modules
+   (fusionné dans la règle .header-sticky ci-dessus)
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Input group : empiler sous 576px ── */
+@media (max-width: 575px) {
+  .input-group {
+    flex-wrap: wrap;
+  }
+  .input-group .form-control,
+  .input-group .form-select {
+    width: 100%;
+    border-radius: var(--bs-border-radius) !important;
+    margin-bottom: .25rem;
+  }
+  .input-group .btn {
+    width: 100%;
+    border-radius: var(--bs-border-radius) !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CDS OVERRIDES — ADDENDUM v1.3.0
+   État erreur Supabase — UI de fallback
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Bloc erreur Supabase inline (dans grille ou liste) ── */
+.cds-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: var(--bs-secondary-color, #6c757d);
+  gap: .75rem;
+}
+/* BS-OPT-01 : opacity:.6 → propriété opacity directe (équivaut .opacity-50 BS).
+   Déclaration CSS conservée pour éviter ajout de classe dans 10+ modules. */
+.cds-error-state .cds-error-icon {
+  font-size: 2rem;
+  color: var(--bs-danger, #dc3545);
+  opacity: .5;
+}
+.cds-error-state .cds-error-title {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--bs-body-color, #212529);
+}
+.cds-error-state .cds-error-msg {
+  font-size: .8rem;
+  max-width: 320px;
+}
+.cds-error-state .cds-error-retry {
+  margin-top: .25rem;
+}
+
+/* ── Bannière erreur globale (init échoué) ── */
+.cds-offline-banner {
+  position: fixed;
+  top: 56px; left: 0; right: 0;
+  z-index: 1050;
+  background: var(--bs-danger, #dc3545);
+  color: #fff;
+  text-align: center;
+  padding: .5rem 1rem;
+  font-size: .85rem;
+  font-weight: 500;
+  display: none;
+}
+.cds-offline-banner.show { display: block; }
+
+/* ══════════════════════════════════════════════════════════════
+   BDB HEADER UNIVERSEL — v1.4.0
+   Toutes les classes du header/offcanvas standard BDB
+   (injectées par bdb-shell.js — ne pas modifier sans D-* JOURNAL)
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Offcanvas BDB ── */
+.bdb-offcanvas {
+  background: #1e2330;
+  color: #fff;
+  width: 260px;
+}
+.bdb-offcanvas-sub {
+  font-size: .68rem;
+  color: rgba(255,255,255,.45);
+  line-height: 1.2;
+}
+.bdb-offcanvas-footer {
+  padding: .75rem 1rem;
+}
+
+/* ── Nav links offcanvas ── */
+.bdb-nav-link {
+  color: rgba(255,255,255,.75);
+  border-radius: 6px;
+  padding: .45rem .75rem;
+  font-size: .85rem;
+  transition: background .15s, color .15s;
+}
+.bdb-nav-link:hover,
+.bdb-nav-link:focus {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+.bdb-nav-link.active {
+  background: var(--bs-primary);
+  color: #fff;
+}
+
+/* ── Header module ── */
+.bdb-module-header {
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+  z-index: 1020;
+}
+.bdb-module-header-icon {
+  font-size: 1rem;
+  color: var(--bs-primary);
+}
+.bdb-module-header-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--bs-body-color, #212529);
+}
+
+/* ── Bouton menu hamburger ── */
+.bdb-menu-btn {
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  color: var(--bs-body-color);
+  background: transparent;
+  padding: .3rem .5rem;
+  border-radius: 6px;
+  transition: background .15s;
+}
+.bdb-menu-btn:hover { background: var(--bs-light); }
+
+/* ── Avatar bouton (header 34×34) ── */
+.bdb-avatar-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--bs-primary);
+  color: #fff;
+  font-size: .78rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .15s;
+  flex-shrink: 0;
+}
+.bdb-avatar-btn:hover { opacity: .85; }
+
+/* ── Avatar XS (offcanvas bas 26×26) ── */
+.bdb-avatar-xs {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--bs-primary);
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.bdb-offcanvas-avatar {
+  background: var(--bs-secondary);
+}
+
+/* ── Sync dot ──
+   DUP-02 FIX : .cds-sync-dot supprimé — utiliser .bdb-sync-dot partout.
+   Pour état danger : <span class="bdb-sync-dot bg-danger">
+   Pour état warning : <span class="bdb-sync-dot bg-warning"> */
+.bdb-sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bs-success, #198754);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ── Dropdown user menu ── */
+.bdb-user-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  z-index: 1050;
+  overflow: hidden;
+}
+.bdb-user-menu.open { display: block; }
+
+.bdb-user-menu-header {
+  padding: .75rem 1rem .5rem;
+  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+}
+/* BS-OPT-02 FIX : text-overflow manuel remplacé — ajouter class="text-truncate"
+   dans le HTML sur l'élément .bdb-user-menu-email.
+   La règle CSS est conservée en compat pour les modules non encore mis à jour. */
+.bdb-user-menu-email {
+  font-size: .73rem;
+  color: var(--bs-secondary-color, #6c757d);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+.bdb-user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .55rem 1rem;
+  font-size: .85rem;
+  color: var(--bs-body-color);
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s;
+}
+.bdb-user-menu-item:hover { background: var(--bs-light, #f8f9fa); }
+.bdb-user-menu-item.danger { color: var(--bs-danger, #dc3545); }
+.bdb-user-menu-item.danger:hover { background: #fff5f5; }
+
+.bdb-menu-sep {
+  height: 1px;
+  background: var(--bs-border-color, #dee2e6);
+  margin: .25rem 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CDS OVERRIDES — ADDENDUM v1.5.0
+   Classes montées depuis modules (premium propagation)
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── btn-ghost — bouton transparent discret · usage : actions tableau, icônes édition ── */
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--bs-secondary-color, #6c757d);
+  padding: .25rem .4rem;
+}
+.btn-ghost:hover {
+  background: var(--bs-light, #f8f9fa);
+  color: var(--bs-body-color, #212529);
+}
+
+/* ── btn-xs — taille bouton manquante Bootstrap (BS n'a que sm/lg) ── */
+.btn-xs {
+  font-size: .75rem;
+  padding: .2rem .45rem;
+  line-height: 1.3;
+}
+
+/* ── Badges fonction métier — transverses à toute l'app ── */
+.badge-fn-medecin   { background-color: #dbeafe; color: #1d4ed8; }
+.badge-fn-cadre     { background-color: #ede9fe; color: #7c3aed; }
+.badge-fn-infirmier { background-color: #dcfce7; color: #15803d; }
+.badge-fn-aide      { background-color: #ffedd5; color: #c2410c; }
+
+/* ── Avatar photo — images dans les boutons avatar bdb-shell ── */
+
+/* Img dans le bouton header (34×34) */
+.bdb-avatar-btn .bdb-avatar-img {
+  width: 34px;
+  height: 34px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Img dans l'offcanvas footer (26×26) */
+.bdb-avatar-xs .bdb-avatar-img {
+  width: 26px;
+  height: 26px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Span wrapper initiales — neutre dans le layout */
+.bdb-avatar-btn #bdbAvatarInitials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+/* Bouton avatar en mode photo — retire le fond bleu */
+.bdb-avatar-btn--photo {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* ── Sous-menu prévisualisation (admin uniquement — bdb-preview.js) ── */
+.bdb-preview-submenu {
+  background: var(--bs-light, #f8f9fa);
+  border-top: 1px solid var(--bs-border-color, #dee2e6);
+  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+  padding: .2rem 0;
+}
+.bdb-preview-item {
+  padding-left: 2rem;
+  font-size: .82rem;
+}
+.bdb-submenu-chevron {
+  font-size: .7rem;
+  transition: transform .15s;
+}
+#bdbBtnPreviewMenu[aria-expanded="true"] .bdb-submenu-chevron {
+  transform: rotate(90deg);
+}
+/* ── Eye toggle (password fields) ── D-2026-03-22-CSS-P3
+   Extrait de login-ui.css + admin-bootstrap-ui.css
+   Usage : <div class="cds-eye-wrap"><input class="form-control"/><button class="cds-btn-eye">...</button></div>
+*/
+.cds-eye-wrap {
+  position: relative;
+}
+.cds-eye-wrap .form-control {
+  padding-right: 2.75rem;
+}
+.cds-btn-eye {
+  position: absolute;
+  right: .65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: .25rem;
+  color: var(--bs-secondary-color);
+  cursor: pointer;
+  line-height: 1;
+  transition: color .15s;
+  z-index: 5;
+}
+.cds-btn-eye:hover { color: var(--bs-body-color); }
+ 

@@ -1,0 +1,151 @@
+/* annuaire-ui.css — Uniquement ce que Bootstrap 5.3 ne couvre pas */
+
+/* ── Skeleton shimmer ─── */
+@keyframes ann-shimmer {
+  0%   { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+.skeleton-box {
+  background: linear-gradient(90deg, #e8eaf0 25%, #f4f5f7 50%, #e8eaf0 75%);
+  background-size: 936px 100%;
+  animation: ann-shimmer 1.4s ease infinite;
+}
+
+/* ── Hero ─── gradient + structure non couverte par BS */
+.annuaire-hero {
+  background: linear-gradient(135deg, #023e8a 0%, #0077b6 100%);
+  border-radius: 1rem;
+  padding: 1.75rem 2rem;
+  overflow: hidden;
+}
+
+/* ── Avatar cercle ─── BS n'a pas de composant avatar */
+.avatar-circle {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; font-weight: 700; color: #fff;
+  flex-shrink: 0; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.13);
+}
+.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-circle-lg  { width: 96px !important; height: 96px !important; font-size: 2rem !important; }
+.avatar-circle-upload {
+  border: 2px dashed var(--bs-border-color) !important;
+  background: var(--bs-light) !important;
+  color: var(--bs-secondary) !important;
+  cursor: pointer;
+}
+
+/* ── Member card ─── position:relative requis pour ::before, hover BS insuffisant */
+.member-card {
+  position: relative; overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.member-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,.11); }
+.member-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: var(--mc, #6c757d);
+}
+.member-card-anim { animation: ann-cardIn .25s ease forwards; opacity: 0; }
+@keyframes ann-cardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mc-medecin   { --mc: #3b82f6; }
+.mc-cadre     { --mc: #8b5cf6; }
+.mc-infirmier { --mc: #22c55e; }
+.mc-aide      { --mc: #f97316; }
+
+/* ── Filter chips ─── BS .btn trop générique, pas de pill-toggle natif */
+.filter-chip {
+  border-radius: 20px; padding: .3rem .9rem;
+  font-size: .8rem; font-weight: 500;
+  border: 1.5px solid var(--bs-border-color);
+  background: #fff; color: var(--bs-secondary);
+  transition: all .15s ease; cursor: pointer; user-select: none;
+}
+.filter-chip:hover  { border-color: #0077b6; color: #0077b6; }
+.filter-chip.active { background: #0077b6; border-color: #0077b6; color: #fff; }
+
+/* ── Search icon positionné ─── BS n'a pas d'input-icon */
+.search-wrapper { position: relative; }
+.search-icon {
+  position: absolute; left: .85rem; top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; font-size: .9rem;
+  color: var(--bs-secondary);
+}
+.search-wrapper input { padding-left: 2.25rem; }
+
+/* ── Badges couleurs fonction ─── hors palette Bootstrap */
+/* .badge-fn-* — définis dans cds-overrides.css v1.5.0 — pas à redéfinir ici */
+.annuaire-card .badge-approved,
+.annuaire-modal .badge-approved     { border: 1px solid #22c55e; color: #15803d; background: transparent; }
+.annuaire-card .badge-pending,
+.annuaire-modal .badge-pending      { border: 1px solid #f59e0b; color: #b45309; background: transparent; }
+.annuaire-card .badge-admin-role,
+.annuaire-modal .badge-admin-role   { border: 1px solid var(--bs-border-color); color: var(--bs-secondary); background: transparent; }
+
+/* ── Lien équipement inline ─── reset bouton + couleur custom */
+.link-equipment {
+  background: none; border: none; padding: 0;
+  color: #0077b6; text-decoration: none; cursor: pointer;
+}
+.link-equipment:hover { text-decoration: underline; }
+
+/* ── Item préférence ─── reset bouton pleine largeur */
+.pref-item {
+  background: none; border: none; width: 100%;
+  text-align: left; transition: background .12s;
+}
+.pref-item:hover { background: var(--bs-light); }
+
+/* ── Grille membres ─── CSS Grid auto-fill, pas d'équivalent BS */
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: .75rem;
+}
+
+/* ── Classes ajoutées pour éliminer les style= statiques (INTERDIT-C2) ─── */
+
+/* Tailles avatar (remplace style="width:72px;height:72px;" inline) */
+
+/* Texte nom membre dans la grille */
+.annuaire-name-text { font-size: .88rem; }
+
+/* Texte date "membre depuis" */
+.annuaire-date-text { font-size: .75rem; }
+
+/* Label de section xs dans modales gant/casaque */
+.annuaire-label-xs { font-size: .68rem; }
+
+/* Colonne label dans tableau détail gant/casaque */
+.annuaire-detail-label { width: 6.5rem; flex-shrink: 0; }
+
+/* Skeleton cards */
+.annuaire-skeleton-card   { pointer-events: none; }
+.annuaire-skeleton-avatar { width: 72px; height: 72px; }
+.annuaire-skeleton-name   { width: 75%; height: 13px; }
+.annuaire-skeleton-fn     { width: 50%; height: 11px; }
+
+/* Bouton suppression avatar (remplace position style= inline) */
+.annuaire-avatar-remove-btn {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 22px; height: 22px;
+  font-size: .65rem;
+  padding: 0;
+  border-radius: 50%;
+  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* cursor:pointer sur les cards cliquables */
+.member-card[role="button"] { cursor: pointer; }
+
+/* Conteneur scope pour badge et modales */
+.annuaire-card  { }  /* scope container — cartes grille */
+.annuaire-modal { }  /* scope container — modales */

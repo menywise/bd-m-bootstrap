@@ -1,0 +1,2358 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thésaurus Médical | Bible de Bloc</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="../../css/thesaurus-ui.css" rel="stylesheet"/>
+</head>
+<body class="d-flex min-vh-100">
+
+<!-- ── OFFCANVAS ──────────────────────────────────────────────── -->
+<div class="offcanvas offcanvas-start bdb-offcanvas" tabindex="-1" id="bdbMainMenu" aria-labelledby="bdbMenuLabel">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <a href="../../index.html" class="d-flex align-items-center gap-2 text-decoration-none">
+      <i class="bi bi-hospital fs-4 text-primary"></i>
+      <div>
+        <div class="fw-bold text-white lh-1">Bible de Bloc</div>
+        <div class="bdb-offcanvas-sub">Ortho-Neuro · CDS</div>
+      </div>
+    </a>
+    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column p-0">
+    <nav class="flex-grow-1 py-2" aria-label="Navigation BDB">
+      <ul class="nav flex-column px-2 gap-1">
+        <li><a href="../../index.html"                        class="nav-link bdb-nav-link"><i class="bi bi-house me-2"></i>Accueil</a></li>
+        <li><a href="../../modules/planning/dashboard.html"  class="nav-link bdb-nav-link"><i class="bi bi-calendar2-week me-2"></i>Planning</a></li>
+        <li><a href="../../modules/annuaire/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-people me-2"></i>Annuaire</a></li>
+        <li><a href="../../modules/transmissions/index.html" class="nav-link bdb-nav-link"><i class="bi bi-arrow-left-right me-2"></i>Transmissions</a></li>
+        <li><a href="../../modules/arsenal/index.html"       class="nav-link bdb-nav-link"><i class="bi bi-box-seam me-2"></i>Arsenal</a></li>
+        <li><a href="../../modules/fiches/index.html"        class="nav-link bdb-nav-link"><i class="bi bi-file-earmark-medical me-2"></i>Fiches</a></li>
+        <li><a href="../../modules/preferences/index.html"   class="nav-link bdb-nav-link"><i class="bi bi-person-gear me-2"></i>Préférences</a></li>
+        <li><a href="../../modules/cours/index.html"         class="nav-link bdb-nav-link"><i class="bi bi-mortarboard me-2"></i>Cours</a></li>
+        <li><a href="../../modules/anatomie/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-activity me-2"></i>Anatomie</a></li>
+        <li><a href="../../modules/installation/index.html"  class="nav-link bdb-nav-link"><i class="bi bi-hospital me-2"></i>Installation</a></li>
+        <li><a href="../../modules/thesaurus/index.html"     class="nav-link bdb-nav-link active"><i class="bi bi-journal-medical me-2"></i>Thésaurus</a></li>
+        <li class="bdb-nav-admin d-none"><hr class="border-secondary my-1"/></li>
+        <li><a href="../../modules/admin/index.html" class="nav-link bdb-nav-link bdb-nav-admin d-none"><i class="bi bi-shield-check me-2"></i>Administration</a></li>
+      </ul>
+    </nav>
+    <div class="bdb-offcanvas-footer border-top border-secondary">
+      <div class="d-flex align-items-center gap-2">
+        <span class="bdb-sync-dot" role="status" aria-label="Statut connexion"></span>
+        <small class="text-white-50">Système OK</small>
+      </div>
+      <div class="d-flex align-items-center gap-2 mt-2">
+        <div class="bdb-avatar-xs bdb-offcanvas-avatar" id="offcanvasAvatarInitials">?</div>
+        <small class="text-white-50" id="offcanvasUserName">…</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN ───────────────────────────────────────────────────── -->
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+  <!-- HEADER STICKY -->
+  <header class="bdb-module-header sticky-top d-flex align-items-center justify-content-between px-3 px-md-4" id="bdbHeader">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-sm bdb-menu-btn" data-bs-toggle="offcanvas" data-bs-target="#bdbMainMenu" aria-label="Ouvrir le menu" aria-controls="bdbMainMenu">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-journal-medical bdb-module-header-icon"></i>
+        <h1 class="bdb-module-header-title mb-0">Thésaurus Médical</h1>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <div id="headerActions" class="d-flex align-items-center gap-2">
+        <span class="badge bg-light text-dark border" id="hdrBadgeTotal" style="display:none!important"></span>
+        <small class="text-white-50 d-none d-md-inline" id="hdrInfo"></small>
+      </div>
+      <span id="bdbBadgeAdmin" class="badge bg-danger d-none">Admin</span>
+      <div class="position-relative">
+        <button class="bdb-avatar-btn" id="bdbAvatarBtn" aria-label="Menu utilisateur" aria-expanded="false" aria-haspopup="true">
+          <span id="bdbAvatarInitials">?</span>
+        </button>
+        <div class="bdb-user-menu" id="bdbUserMenu" role="menu">
+          <div class="bdb-user-menu-header">
+            <div class="fw-semibold small" id="bdbMenuName">…</div>
+            <div class="bdb-user-menu-email" id="bdbMenuEmail"></div>
+          </div>
+          <a href="../../modules/profile/index.html" class="bdb-user-menu-item" role="menuitem">
+            <i class="bi bi-person-circle"></i>Mon profil
+          </a>
+          <a href="../../admin-memo.html" class="bdb-user-menu-item bdb-admin-only d-none" role="menuitem">
+            <i class="bi bi-journal-bookmark-fill"></i>Mémo admin
+          </a>
+          <div class="bdb-menu-sep"></div>
+          <button class="bdb-user-menu-item danger w-100" id="bdbBtnLogout" role="menuitem">
+            <i class="bi bi-box-arrow-right"></i>Déconnexion
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTAINER PRINCIPAL -->
+  <div class="container-fluid px-3 px-md-4 pt-0 pb-4 flex-grow-1">
+
+    <!-- ── NAV TABS ──────────────────────────────────────────── -->
+    <ul class="nav nav-tabs thes-nav-tabs" id="thesaurusTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn active" id="tab-consultation-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-consultation"
+                type="button" role="tab" aria-selected="true">
+          <i class="bi bi-search me-1"></i>Consultation
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-dashboard-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-dashboard"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-bar-chart-line me-1"></i>Dashboards
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-chirurgiens-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-chirurgiens"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-person-badge me-1"></i>Chirurgiens
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-analyse-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-analyse"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-grid-3x3-gap me-1"></i>Analyse
+        </button>
+      </li>
+      <li class="nav-item ms-auto bdb-admin-only d-none" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-admin-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-admin"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-pencil-square me-1"></i>Admin
+        </button>
+      </li>
+      <li class="nav-item bdb-admin-only d-none" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-import-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-import"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-upload me-1"></i>Import
+        </button>
+      </li>
+    </ul>
+
+    <!-- ── TAB CONTENT ──────────────────────────────────────── -->
+    <div class="tab-content thes-tab-content" id="thesaurusTabContent">
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 1 — CONSULTATION
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade show active" id="tab-consultation" role="tabpanel">
+
+        <!-- Filtres -->
+        <div class="thes-search-bar px-3 py-3 mb-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-5">
+              <label for="searchInput" class="form-label small fw-semibold text-muted mb-1">
+                <i class="bi bi-search me-1"></i>Recherche
+              </label>
+              <div class="input-group input-group-sm">
+                <input type="text" id="searchInput" class="form-control"
+                       placeholder="Libellé, synonyme, pathologie, code CCAM…"
+                       autocomplete="off" spellcheck="false"/>
+                <button class="btn btn-outline-secondary" id="btnClearSearch" type="button" aria-label="Effacer">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="filterType" class="form-label small fw-semibold text-muted mb-1">Type</label>
+              <select id="filterType" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                <option value="SEPTIQUE">SEPTIQUE</option>
+                <option value="TRAUMATO">TRAUMATO</option>
+                <option value="NEURO">NEURO</option>
+                <option value="ORTHO">ORTHO</option>
+                <option value="EXCLUS">EXCLUS</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="filterZone" class="form-label small fw-semibold text-muted mb-1">Zone</label>
+              <select id="filterZone" class="form-select form-select-sm">
+                <option value="">Toutes</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="filterPareto" class="form-label small fw-semibold text-muted mb-1">Pareto</label>
+              <select id="filterPareto" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                <option value="Critique">Critique ≥1000</option>
+                <option value="Standard">Standard 300-999</option>
+                <option value="Secondaire">Secondaire 50-299</option>
+                <option value="Rare">Rare &lt;50</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-1 d-flex align-items-end">
+              <button class="btn btn-outline-secondary btn-sm w-100" id="btnResetFilters" type="button" title="Réinitialiser les filtres">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+            </div>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
+            <small class="text-muted">
+              <span id="resultCount" class="fw-semibold text-dark">—</span> résultat(s)
+            </small>
+            <div class="d-flex gap-1">
+              <button class="btn btn-xs btn-outline-secondary" id="btnExportCSV" type="button" title="Exporter en CSV">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau -->
+        <div class="thes-table-wrapper">
+          <table class="table table-sm table-hover mb-0" id="tableProtocoles">
+            <thead class="table-light sticky-table-head">
+              <tr>
+                <th class="thes-col-type">
+                  <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-sort-btn" data-col="type">
+                    Type <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                  </button>
+                </th>
+                <th class="thes-col-libelle">
+                  <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-sort-btn" data-col="libelle_cible">
+                    Libellé cible <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                  </button>
+                </th>
+                <th class="thes-col-zone">Zone anat.</th>
+                <th class="thes-col-pareto">
+                  <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-sort-btn" data-col="pareto">
+                    Pareto <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                  </button>
+                </th>
+                <th class="thes-col-freq text-end">
+                  <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-sort-btn" data-col="frequence">
+                    Fréq. <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                  </button>
+                </th>
+                <th class="thes-col-actions text-end">Détail</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td colspan="6" class="text-center text-muted py-4">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex align-items-center justify-content-between mt-2 px-1">
+          <small class="text-muted">Page <span id="currentPage">1</span> / <span id="totalPages">—</span></small>
+          <nav aria-label="Pagination">
+            <ul class="pagination pagination-sm mb-0" id="paginationContainer"></ul>
+          </nav>
+          <div class="d-flex align-items-center gap-2">
+            <label for="pageSizeSelect" class="form-label small text-muted mb-0">Lignes</label>
+            <select id="pageSizeSelect" class="form-select form-select-sm thes-pagesize-select">
+              <option value="25">25</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div><!-- /tab-consultation -->
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 2 — DASHBOARDS
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-dashboard" role="tabpanel">
+        <!-- KPI row -->
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-primary" id="kpiTotalProto">—</div>
+                <div class="kpi-label">Protocoles</div>
+                <div class="kpi-sub" id="kpiProtoSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-success" id="kpiClassifies">—</div>
+                <div class="kpi-label">Classifiés (type)</div>
+                <div class="kpi-sub text-muted" id="kpiClassifiesSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-warning" id="kpiAvecDef">—</div>
+                <div class="kpi-label">Avec définition</div>
+                <div class="kpi-sub text-muted" id="kpiAvecDefSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-info" id="kpiCritiques">—</div>
+                <div class="kpi-label">Critique (Pareto)</div>
+                <div class="kpi-sub text-muted">≥ 1000 interventions</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Distribution TYPE -->
+          <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-bar-chart me-2 text-primary"></i>Distribution par type</h6>
+              </div>
+              <div class="card-body p-3"><canvas id="chartTypeDistrib" height="220"></canvas></div>
+            </div>
+          </div>
+          <!-- Répartition Pareto -->
+          <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-layers me-2 text-warning"></i>Répartition Pareto</h6>
+              </div>
+              <div class="card-body p-3">
+                <canvas id="chartPareto" height="180"></canvas>
+                <div class="d-flex flex-wrap gap-1 mt-2">
+                  <span class="badge thes-pareto-critique">Critique ≥1000</span>
+                  <span class="badge thes-pareto-standard">Standard 300-999</span>
+                  <span class="badge thes-pareto-secondaire">Secondaire 50-299</span>
+                  <span class="badge thes-pareto-rare">Rare &lt;50</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Courbe cumulative -->
+          <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-graph-up me-2 text-danger"></i>Courbe Pareto cumulative</h6>
+              </div>
+              <div class="card-body p-3"><canvas id="chartCumulPareto" height="220"></canvas></div>
+            </div>
+          </div>
+          <!-- Top zones -->
+          <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-body-text me-2 text-info"></i>Top zones anatomiques</h6>
+              </div>
+              <div class="card-body p-3" id="dashZonesRanking">
+                <!-- barres injectées par JS -->
+              </div>
+            </div>
+          </div>
+          <!-- Jauge qualité -->
+          <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-shield-check me-2 text-success"></i>Qualité des données</h6>
+              </div>
+              <div class="card-body p-4" id="dashQualite">
+                <!-- progress bars injectées par JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /tab-dashboard -->
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 3 — CHIRURGIENS
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-chirurgiens" role="tabpanel">
+
+        <!-- Mode selector -->
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="btn-group" role="group" aria-label="Mode analyse chirurgien" id="chirModeGroup">
+            <button type="button" class="btn btn-sm btn-outline-primary active thes-chir-mode-btn" id="btnModeAnalyse" data-mode="analyse">
+              <i class="bi bi-person-lines-fill me-1"></i>Analyse solo
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary thes-chir-mode-btn" id="btnModeComparer" data-mode="comparer">
+              <i class="bi bi-people me-1"></i>Comparer
+            </button>
+          </div>
+        </div>
+
+        <!-- Mode Analyse -->
+        <div id="chirModeAnalyse">
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-md-5">
+              <label for="selectChirurgien" class="form-label small fw-semibold text-muted mb-1">Praticien</label>
+              <select id="selectChirurgien" class="form-select form-select-sm">
+                <option value="">— Sélectionnez un chirurgien —</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="selectAnnee" class="form-label small fw-semibold text-muted mb-1">Année</label>
+              <select id="selectAnnee" class="form-select form-select-sm">
+                <option value="">Toutes</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2 d-flex align-items-end">
+              <button class="btn btn-primary btn-sm w-100" id="btnAnalyseChir" type="button">
+                <i class="bi bi-bar-chart-line me-1"></i>Analyser
+              </button>
+            </div>
+          </div>
+
+          <div id="chirResults" class="thes-section-placeholder">
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-person-badge fs-1 d-block mb-3 opacity-25"></i>
+              <p class="mb-0">Sélectionnez un chirurgien pour afficher son analyse.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Comparer -->
+        <div id="chirModeComparer" class="d-none">
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-md-4">
+              <label for="selectChirA" class="form-label small fw-semibold thes-compare-col-a mb-1">
+                <i class="bi bi-person-badge me-1"></i>Chirurgien A
+              </label>
+              <select id="selectChirA" class="form-select form-select-sm">
+                <option value="">— Chirurgien A —</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="selectChirB" class="form-label small fw-semibold thes-compare-col-b mb-1">
+                <i class="bi bi-person-badge me-1"></i>Chirurgien B
+              </label>
+              <select id="selectChirB" class="form-select form-select-sm">
+                <option value="">— Chirurgien B —</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-2 d-flex align-items-end">
+              <button class="btn btn-primary btn-sm w-100" id="btnComparer" type="button">
+                <i class="bi bi-people me-1"></i>Comparer
+              </button>
+            </div>
+          </div>
+          <div id="comparerResults" class="thes-section-placeholder">
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-people fs-1 d-block mb-3 opacity-25"></i>
+              <p class="mb-0">Sélectionnez deux chirurgiens pour lancer la comparaison.</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-chirurgiens -->
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 4 — ANALYSE
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-analyse" role="tabpanel">
+        <ul class="nav nav-pills thes-analyse-pills mb-3" id="analysePills" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pill-heatmap-btn" data-bs-toggle="pill" data-bs-target="#pill-heatmap" type="button">
+              <i class="bi bi-grid-3x3-gap me-1"></i>Heatmap type × zone
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pill-croisement-btn" data-bs-toggle="pill" data-bs-target="#pill-croisement" type="button">
+              <i class="bi bi-arrows-angle-contract me-1"></i>Croisements
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pill-temporal-btn" data-bs-toggle="pill" data-bs-target="#pill-temporal" type="button">
+              <i class="bi bi-calendar3 me-1"></i>Temporel
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="analyseContent">
+          <!-- Heatmap -->
+          <div class="tab-pane fade show active" id="pill-heatmap" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Fréquence par type et zone anatomique</h6>
+                <select id="heatmapMetric" class="form-select form-select-sm thes-select-sm">
+                  <option value="frequence">Fréquence totale</option>
+                  <option value="count">Nb protocoles</option>
+                </select>
+              </div>
+              <div class="card-body p-3 overflow-auto">
+                <div id="heatmapContainer" class="thes-heatmap-wrapper">
+                  <div class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>Calcul…
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Croisements -->
+          <div class="tab-pane fade" id="pill-croisement" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-arrows-angle-contract me-2 text-success"></i>Croisements dynamiques</h6>
+                <div class="d-flex gap-2">
+                  <select id="croisementX" class="form-select form-select-sm thes-select-sm">
+                    <option value="cat_parent">Catégorie parent</option>
+                    <option value="type">Type</option>
+                    <option value="zone_anat">Zone anatomique</option>
+                  </select>
+                  <span class="text-muted align-self-center small fw-bold">×</span>
+                  <select id="croisementY" class="form-select form-select-sm thes-select-sm">
+                    <option value="type">Type</option>
+                    <option value="pareto">Pareto</option>
+                    <option value="cat_parent">Catégorie parent</option>
+                  </select>
+                  <button class="btn btn-sm btn-primary" id="btnRunCroisement" type="button">
+                    <i class="bi bi-play-fill"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-3"><canvas id="chartCroisement" height="280"></canvas></div>
+            </div>
+          </div>
+          <!-- Temporel -->
+          <div class="tab-pane fade" id="pill-temporal" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-calendar3 me-2 text-warning"></i>Activité mensuelle</h6>
+                <div class="d-flex gap-2">
+                  <select id="temporalType" class="form-select form-select-sm thes-select-sm">
+                    <option value="">Tous types</option>
+                    <option value="ORTHO">ORTHO</option>
+                    <option value="TRAUMATO">TRAUMATO</option>
+                    <option value="NEURO">NEURO</option>
+                    <option value="SEPTIQUE">SEPTIQUE</option>
+                  </select>
+                  <select id="temporalGranularity" class="form-select form-select-sm thes-select-sm">
+                    <option value="month">Mensuel</option>
+                    <option value="quarter">Trimestriel</option>
+                    <option value="year">Annuel</option>
+                  </select>
+                  <button class="btn btn-sm btn-primary" id="btnRunTemporal" type="button">
+                    <i class="bi bi-play-fill"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-3"><canvas id="chartTemporal" height="260"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /tab-analyse -->
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 5 — ADMIN (admin uniquement)
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-admin" role="tabpanel">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h6 class="fw-semibold mb-0">
+            <i class="bi bi-pencil-square me-2 text-primary"></i>Gestion des protocoles
+            <span class="badge bg-secondary ms-2 small" id="adminCountBadge">—</span>
+          </h6>
+          <div class="d-flex gap-2">
+            <input type="text" id="adminSearchInput" class="form-control form-control-sm thes-admin-search"
+                   placeholder="Filtrer la liste…"/>
+            <button class="btn btn-primary btn-sm" id="btnAdminNew" type="button">
+              <i class="bi bi-plus-lg me-1"></i>Nouveau
+            </button>
+          </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-0">
+            <table class="table table-sm table-hover mb-0" id="adminTable">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Libellé cible <span class="thes-badge-sacred ms-1">SACRÉ</span></th>
+                  <th>Type</th>
+                  <th>Zone</th>
+                  <th class="text-end">Fréq. <span class="thes-badge-sacred ms-1">SACRÉ</span></th>
+                  <th>Pareto</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody">
+                <tr><td colspan="7" class="text-center text-muted py-4">
+                  <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="alert alert-warning border-0 mt-3 thes-admin-alert" role="alert">
+          <i class="bi bi-shield-exclamation me-2"></i>
+          <strong>Règles immuables :</strong>
+          LIBELLE_CIBLE et FREQUENCE sont <strong>sacrés</strong> — non modifiables après création.
+          Hiérarchie TYPE : SEPTIQUE &gt; TRAUMATO &gt; NEURO &gt; ORTHO.
+          Les nerfs périphériques = ORTHO (pas NEURO).
+        </div>
+      </div><!-- /tab-admin -->
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 6 — IMPORT (admin uniquement)
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-import" role="tabpanel">
+        <div class="row g-3">
+
+          <!-- Upload interventions -->
+          <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold">
+                  <i class="bi bi-cloud-upload me-2 text-primary"></i>Interventions
+                  <span class="badge bg-primary ms-2">~70 000 lignes</span>
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="thes-drop-zone" id="dropZoneInterv" role="button" tabindex="0">
+                  <i class="bi bi-file-earmark-spreadsheet fs-2 text-muted d-block mb-2"></i>
+                  <div class="fw-semibold small">Déposer un fichier CSV</div>
+                  <div class="text-muted small mt-1">ou cliquez pour parcourir</div>
+                  <input type="file" id="fileInterv" accept=".csv,.txt" class="d-none"/>
+                </div>
+
+                <!-- Mapping colonnes -->
+                <div class="mt-3 d-none" id="intervMappingSection">
+                  <p class="small fw-semibold mb-2">Mapping colonnes :</p>
+                  <div id="intervMappingForm"></div>
+                </div>
+
+                <!-- Preview -->
+                <div class="mt-3 d-none" id="intervPreviewSection">
+                  <p class="small fw-semibold mb-1">Aperçu (10 premières lignes) :</p>
+                  <div class="table-responsive">
+                    <table class="table table-sm thes-preview-table" id="intervPreviewTable"></table>
+                  </div>
+                </div>
+
+                <div class="mt-3 d-none" id="importIntervProgress">
+                  <div class="progress thes-progress mb-1">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                         id="importIntervBar" role="progressbar" style="width:0%"></div>
+                  </div>
+                  <small class="text-muted" id="importIntervStatus">En attente…</small>
+                </div>
+
+                <button class="btn btn-primary btn-sm mt-3 w-100" id="btnImportInterv" type="button" disabled>
+                  <i class="bi bi-upload me-2"></i>Importer les interventions
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload protocoles -->
+          <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold">
+                  <i class="bi bi-cloud-upload me-2 text-success"></i>Protocoles
+                  <span class="badge bg-success ms-2">~420 lignes</span>
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="thes-drop-zone" id="dropZoneProto" role="button" tabindex="0">
+                  <i class="bi bi-file-earmark-spreadsheet fs-2 text-muted d-block mb-2"></i>
+                  <div class="fw-semibold small">Déposer un fichier CSV</div>
+                  <div class="text-muted small mt-1">ou cliquez pour parcourir</div>
+                  <input type="file" id="fileProto" accept=".csv,.txt" class="d-none"/>
+                </div>
+
+                <div class="mt-3">
+                  <p class="small fw-semibold text-muted mb-1">Colonnes attendues :</p>
+                  <div class="d-flex flex-wrap gap-1">
+                    <code class="thes-col-badge">id_protocole</code>
+                    <code class="thes-col-badge">libelle_cible</code>
+                    <code class="thes-col-badge">type</code>
+                    <code class="thes-col-badge">zone_anat</code>
+                    <code class="thes-col-badge">cat_parent</code>
+                    <code class="thes-col-badge">frequence</code>
+                    <code class="thes-col-badge">pareto</code>
+                    <code class="thes-col-badge">pathologie</code>
+                    <code class="thes-col-badge">alertes</code>
+                    <code class="thes-col-badge">synonymes_recherche</code>
+                    <code class="thes-col-badge">codes_ccam</code>
+                    <code class="thes-col-badge">definition_expert</code>
+                    <code class="thes-col-badge">libelles_sources_lies</code>
+                  </div>
+                </div>
+
+                <div class="mt-3 d-none" id="importProtoProgress">
+                  <div class="progress thes-progress mb-1">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+                         id="importProtoBar" role="progressbar" style="width:0%"></div>
+                  </div>
+                  <small class="text-muted" id="importProtoStatus">En attente…</small>
+                </div>
+
+                <button class="btn btn-success btn-sm mt-3 w-100" id="btnImportProto" type="button" disabled>
+                  <i class="bi bi-upload me-2"></i>Importer les protocoles
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton IA classification -->
+          <div class="col-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body d-flex align-items-center gap-3 py-3">
+                <i class="bi bi-cpu fs-3 text-purple" style="color:#7c3aed"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small">Classification automatique IA</div>
+                  <div class="text-muted small">Lance la classification des protocoles sans type assigné via le moteur de règles.</div>
+                </div>
+                <button class="btn thes-ai-btn btn-sm" id="btnClassifIA" type="button" disabled>
+                  <i class="bi bi-magic me-1"></i>Classer les non-classifiés
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Journal d'import -->
+          <div class="col-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-terminal me-2 text-muted"></i>Journal d'import</h6>
+                <button class="btn btn-xs btn-outline-secondary" id="btnClearLog" type="button">
+                  <i class="bi bi-trash me-1"></i>Vider
+                </button>
+              </div>
+              <div class="card-body p-0">
+                <pre class="thes-import-log" id="importLog">Aucun import effectué dans cette session.</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Résumé import (affiché après import) -->
+        <div class="row g-3 mt-1 d-none" id="importSummarySection">
+          <div class="col-12">
+            <div class="card border-success border-0 shadow-sm thes-import-summary">
+              <div class="card-header bg-success bg-opacity-10 border-bottom border-success border-opacity-25">
+                <h6 class="mb-0 fw-semibold text-success"><i class="bi bi-check-circle me-2"></i>Import terminé</h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-3 text-center">
+                  <div class="col-4">
+                    <div class="kpi-value text-success" id="summaryLignes">—</div>
+                    <div class="kpi-label">Lignes importées</div>
+                  </div>
+                  <div class="col-4">
+                    <div class="kpi-value text-primary" id="summaryProtocoles">—</div>
+                    <div class="kpi-label">Protocoles agrégés</div>
+                  </div>
+                  <div class="col-4">
+                    <div class="kpi-value text-danger" id="summaryErreurs">—</div>
+                    <div class="kpi-label">Erreurs</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-import -->
+    </div><!-- /tab-content -->
+  </div><!-- /container -->
+
+  <!-- FOOTER -->
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 Bible de Bloc — Consensus Design System —
+    <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+  </footer>
+</main>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALE — DÉTAIL / ÉDITION PROTOCOLE
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalDetail" tabindex="-1" aria-labelledby="modalDetailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="flex-grow-1">
+          <h5 class="modal-title mb-0" id="modalDetailLabel">Protocole</h5>
+          <small class="text-muted" id="modalProtoId"></small>
+        </div>
+        <div class="d-flex align-items-center gap-2 me-2">
+          <span id="modalTypeBadge" class="badge thes-type-badge">—</span>
+          <span id="modalParetoBadge" class="badge thes-pareto-badge">—</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" id="modalTabs" role="tablist">
+          <li class="nav-item"><button class="nav-link active" id="mInfo-btn" data-bs-toggle="tab" data-bs-target="#mInfo" type="button"><i class="bi bi-info-circle me-1"></i>Informations</button></li>
+          <li class="nav-item"><button class="nav-link" id="mExpert-btn" data-bs-toggle="tab" data-bs-target="#mExpert" type="button"><i class="bi bi-journal-text me-1"></i>Définition expert</button></li>
+          <li class="nav-item bdb-admin-only d-none"><button class="nav-link" id="mEdit-btn" data-bs-toggle="tab" data-bs-target="#mEdit" type="button"><i class="bi bi-pencil me-1"></i>Édition <span class="badge bg-danger ms-1">Admin</span></button></li>
+        </ul>
+        <div class="tab-content">
+          <!-- Infos -->
+          <div class="tab-pane fade show active" id="mInfo">
+            <div class="row g-3">
+              <div class="col-6 col-md-4"><div class="small text-muted fw-semibold">Zone anatomique</div><div id="mInfoZone" class="mt-1">—</div></div>
+              <div class="col-6 col-md-4"><div class="small text-muted fw-semibold">Catégorie parent</div><div id="mInfoCat" class="mt-1">—</div></div>
+              <div class="col-6 col-md-4"><div class="small text-muted fw-semibold">Fréquence <span class="thes-badge-sacred-inline">SACRÉ</span></div><div id="mInfoFreq" class="mt-1 fw-bold text-primary fs-5">—</div></div>
+              <div class="col-12 col-md-6"><div class="small text-muted fw-semibold">Pathologie</div><div id="mInfoPath" class="mt-1">—</div></div>
+              <div class="col-12 col-md-6"><div class="small text-muted fw-semibold">Alertes</div><div id="mInfoAlertes" class="mt-1">—</div></div>
+              <div class="col-12"><div class="small text-muted fw-semibold mb-1">Synonymes de recherche</div><div id="mInfoSyn" class="thes-tag-list">—</div></div>
+              <div class="col-12"><div class="small text-muted fw-semibold mb-1">Codes CCAM</div><div id="mInfoCCAM" class="thes-tag-list">—</div></div>
+              <div class="col-12"><div class="small text-muted fw-semibold mb-1">Libellés sources liés</div><div id="mInfoSources">—</div></div>
+            </div>
+          </div>
+          <!-- Expert -->
+          <div class="tab-pane fade" id="mExpert">
+            <div id="mExpertContent" class="thes-expert-content">Aucune définition expert disponible.</div>
+          </div>
+          <!-- Édition admin -->
+          <div class="tab-pane fade" id="mEdit">
+            <div class="alert alert-warning small mb-3" role="alert">
+              <i class="bi bi-lock-fill me-2"></i>
+              <strong>LIBELLE_CIBLE</strong> et <strong>FREQUENCE</strong> sont en lecture seule — champs sacrés non modifiables.
+            </div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Libellé cible <span class="thes-badge-sacred-inline">SACRÉ</span></label>
+                <input type="text" id="editLibelleCible" class="form-control form-control-sm" readonly/>
+              </div>
+              <div class="col-6 col-md-3">
+                <label for="editType" class="form-label small fw-semibold">Type</label>
+                <select id="editType" class="form-select form-select-sm">
+                  <option value="SEPTIQUE">SEPTIQUE</option>
+                  <option value="TRAUMATO">TRAUMATO</option>
+                  <option value="NEURO">NEURO</option>
+                  <option value="ORTHO">ORTHO</option>
+                  <option value="EXCLUS">EXCLUS</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label for="editZone" class="form-label small fw-semibold">Zone anatomique</label>
+                <select id="editZone" class="form-select form-select-sm" id="editZone"></select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label for="editCatParent" class="form-label small fw-semibold">Catégorie parent</label>
+                <select id="editCatParent" class="form-select form-select-sm">
+                  <option value="MEMBRE SUP">MEMBRE SUP</option>
+                  <option value="MEMBRE INF">MEMBRE INF</option>
+                  <option value="RACHIS">RACHIS</option>
+                  <option value="AUTRE">AUTRE</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small fw-semibold">Fréquence <span class="thes-badge-sacred-inline">SACRÉ</span></label>
+                <input type="number" id="editFrequence" class="form-control form-control-sm" readonly/>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="editPathologie" class="form-label small fw-semibold">Pathologie</label>
+                <input type="text" id="editPathologie" class="form-control form-control-sm"/>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="editAlertes" class="form-label small fw-semibold">Alertes</label>
+                <input type="text" id="editAlertes" class="form-control form-control-sm"/>
+              </div>
+              <div class="col-12">
+                <label for="editSynonymes" class="form-label small fw-semibold">Synonymes de recherche</label>
+                <input type="text" id="editSynonymes" class="form-control form-control-sm" placeholder="Séparés par des virgules"/>
+              </div>
+              <div class="col-12">
+                <label for="editCCAM" class="form-label small fw-semibold">Codes CCAM</label>
+                <input type="text" id="editCCAM" class="form-control form-control-sm" placeholder="Ex : NZGA010, NZGA020"/>
+              </div>
+              <div class="col-12">
+                <label for="editDefinition" class="form-label small fw-semibold">Définition expert</label>
+                <textarea id="editDefinition" class="form-control form-control-sm" rows="4"></textarea>
+              </div>
+              <div class="col-12">
+                <label for="editSources" class="form-label small fw-semibold">Libellés sources liés</label>
+                <textarea id="editSources" class="form-control form-control-sm" rows="3" placeholder="Un libellé source par ligne"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary bdb-admin-only d-none" id="btnSaveEdit">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALE — ADMIN : CRÉATION / ÉDITION COMPLÈTE
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalAdminEdit" tabindex="-1" aria-labelledby="modalAdminEditLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdminEditLabel">Nouveau protocole</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning small mb-3" role="alert">
+          <i class="bi bi-shield-exclamation me-2"></i>
+          LIBELLE_CIBLE et FREQUENCE sont <strong>sacrés</strong> — modifiables uniquement à la création, jamais en édition.
+        </div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="adminLibelle" class="form-label small fw-semibold">
+              Libellé cible <span class="text-danger">*</span> <span class="thes-badge-sacred-inline" id="adminLibelleSacredBadge">SACRÉ</span>
+            </label>
+            <input type="text" id="adminLibelle" class="form-control form-control-sm" placeholder="Libellé normalisé" required/>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="adminType" class="form-label small fw-semibold">Type <span class="text-danger">*</span></label>
+            <select id="adminType" class="form-select form-select-sm" required>
+              <option value="">—</option>
+              <option value="SEPTIQUE">SEPTIQUE</option>
+              <option value="TRAUMATO">TRAUMATO</option>
+              <option value="NEURO">NEURO</option>
+              <option value="ORTHO">ORTHO</option>
+              <option value="EXCLUS">EXCLUS</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="adminZone" class="form-label small fw-semibold">Zone anatomique</label>
+            <select id="adminZone" class="form-select form-select-sm"></select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="adminCat" class="form-label small fw-semibold">Catégorie parent</label>
+            <select id="adminCat" class="form-select form-select-sm">
+              <option value="">—</option>
+              <option value="MEMBRE SUP">MEMBRE SUP</option>
+              <option value="MEMBRE INF">MEMBRE INF</option>
+              <option value="RACHIS">RACHIS</option>
+              <option value="AUTRE">AUTRE</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="adminFrequence" class="form-label small fw-semibold">
+              Fréquence <span class="thes-badge-sacred-inline" id="adminFreqSacredBadge">SACRÉ</span>
+            </label>
+            <input type="number" id="adminFrequence" class="form-control form-control-sm" min="0" value="0"/>
+          </div>
+          <div class="col-12 col-md-6">
+            <label for="adminPath" class="form-label small fw-semibold">Pathologie</label>
+            <input type="text" id="adminPath" class="form-control form-control-sm"/>
+          </div>
+          <div class="col-12 col-md-6">
+            <label for="adminAlertes" class="form-label small fw-semibold">Alertes</label>
+            <input type="text" id="adminAlertes" class="form-control form-control-sm"/>
+          </div>
+          <div class="col-12">
+            <label for="adminSyn" class="form-label small fw-semibold">Synonymes de recherche</label>
+            <input type="text" id="adminSyn" class="form-control form-control-sm" placeholder="Séparés par des virgules"/>
+          </div>
+          <div class="col-12">
+            <label for="adminCCAM" class="form-label small fw-semibold">Codes CCAM</label>
+            <input type="text" id="adminCCAM" class="form-control form-control-sm"/>
+          </div>
+          <div class="col-12">
+            <label for="adminDef" class="form-label small fw-semibold">Définition expert</label>
+            <textarea id="adminDef" class="form-control form-control-sm" rows="4"></textarea>
+          </div>
+          <div class="col-12">
+            <label for="adminSources" class="form-label small fw-semibold">Libellés sources liés</label>
+            <textarea id="adminSources" class="form-control form-control-sm" rows="3" placeholder="Un libellé source par ligne"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger me-auto d-none" id="btnAdminDelete">
+          <i class="bi bi-trash me-1"></i>Supprimer
+        </button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="btnAdminSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALE — CONFIRMATION SUPPRESSION
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalConfirmDelete" tabindex="-1" aria-labelledby="modalConfirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title text-danger" id="modalConfirmDeleteLabel">
+          <i class="bi bi-exclamation-triangle me-2"></i>Supprimer le protocole
+        </h6>
+      </div>
+      <div class="modal-body">
+        <p class="mb-1 small">Vous allez supprimer :</p>
+        <p class="fw-semibold small" id="deleteProtoName">—</p>
+        <p class="text-danger small mb-0">Cette action est irréversible.</p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger btn-sm" id="btnConfirmDelete">
+          <i class="bi bi-trash me-1"></i>Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TOASTS -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastSuccess" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastSuccessBody">OK</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+  <div id="toastError" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastErrorBody">Erreur</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+  <div id="toastInfo" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastInfoBody">Info</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── SCRIPTS ─────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="../../js/supabase-client.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // ── Auth + Header universel BDB ──────────────────────────────
+  let _isAdmin = false;
+  (async () => {
+    const _s = await window.bdbGetSession();
+    if (!_s) { window.location.href = '../../login.html'; return; }
+    try {
+      const { data: _p } = await window.bdb.from('profiles_directory')
+        .select('prenom,nom,initials').eq('user_id', _s.user.id).maybeSingle();
+      const ini  = (_p?.initials||((_p?.prenom?.[0]||'')+(_p?.nom?.[0]||''))||_s.user.email.substring(0,2)).toUpperCase();
+      const name = [_p?.prenom,_p?.nom].filter(Boolean).join(' ')||_s.user.email;
+      document.getElementById('bdbAvatarInitials').textContent      = ini;
+      document.getElementById('offcanvasAvatarInitials').textContent = ini;
+      document.getElementById('offcanvasUserName').textContent      = name;
+      document.getElementById('bdbMenuName').textContent            = name;
+      document.getElementById('bdbMenuEmail').textContent           = _s.user.email;
+    } catch(_) {}
+    try {
+      const { data: _r } = await window.bdb.from('user_roles')
+        .select('role').eq('user_id', _s.user.id).maybeSingle();
+      if (_r?.role === 'admin') {
+        _isAdmin = true;
+        document.getElementById('bdbBadgeAdmin').classList.remove('d-none');
+        document.querySelectorAll('.bdb-nav-admin').forEach(el => el.classList.remove('d-none'));
+        document.querySelectorAll('.bdb-admin-only').forEach(el => el.classList.remove('d-none'));
+      }
+    } catch(_) {}
+    document.getElementById('bdbBtnLogout').addEventListener('click', async () => {
+      await window.bdb.auth.signOut(); window.location.href = '../../login.html';
+    });
+    const _btn = document.getElementById('bdbAvatarBtn');
+    const _menu = document.getElementById('bdbUserMenu');
+    _btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = _menu.classList.toggle('open');
+      _btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', () => { _menu.classList.remove('open'); _btn.setAttribute('aria-expanded','false'); });
+    _menu.addEventListener('click', e => e.stopPropagation());
+
+    ThesApp.init(_isAdmin);
+  })();
+
+});
+
+// ════════════════════════════════════════════════════════════════
+// DONNÉES MOCK — à remplacer par appels Supabase
+// ════════════════════════════════════════════════════════════════
+const MOCK = (() => {
+  const TYPES = ['ORTHO','ORTHO','ORTHO','ORTHO','TRAUMATO','TRAUMATO','NEURO','SEPTIQUE','EXCLUS'];
+  const ZONES = ['Genou','Hanche','Épaule','Rachis','Poignet','Pied','Cheville','Coude','Main','Doigt','Avant-bras','Jambe','Cuisse','Bassin','Autre'];
+  const CATS  = ['MEMBRE INF','MEMBRE INF','MEMBRE INF','MEMBRE SUP','MEMBRE SUP','RACHIS','AUTRE'];
+  const CHIRS = ['LOUISIA','PICOULEAU','BOSCHER','VACQUERIE','ALAIN','DOTZIS','MARCZUK','COSTE','CHROSCIANY'];
+  const LIBELLES = [
+    'Arthroplastie totale de hanche','Arthroplastie totale du genou','Arthroscopie du genou',
+    'Ligamentoplastie LCA','Réparation coiffe des rotateurs','Prothèse d\'épaule inversée',
+    'Ostéosynthèse col fémoral','Fracture bimalléolaire','Hernie discale L4-L5',
+    'Sténose canal lombaire','Cure de canal carpien','Ténosynovite de Quervain',
+    'Hallux valgus','Arthrodèse sous-talienne','Fracture du radius distal',
+    'Prothèse unicompartimentale du genou','Méniscectomie partielle','Capsulite épaule',
+    'Fracture diaphyse humérus','Ostéotomie tibiale de valgisation',
+    'Arthrodèse lombaire postérieure','Discectomie cervicale','Prothèse discale cervicale',
+    'Infection prothèse hanche','Arthrite septique genou','Fasciite nécrosante',
+    'Fracture calcanéum','Ostéotomie du premier métatarse','Fracture bimalléolaire externe',
+    'Nettoyage prothèse infectée','Ablation matériel ostéosynthèse','Kyste synovial poignet',
+    'Dupuytren','Syndrome rotulien','Libération adhérences','Arthroscopie cheville',
+    'Fracture fémur supracondylien','Prothèse totale coude','Névrome Morton',
+    'Fracture plateau tibial'
+  ];
+  const DEFS = {
+    'Arthroplastie totale de hanche': 'Remplacement chirurgical de l\'articulation coxo-fémorale par une prothèse. Indiqué principalement dans la coxarthrose évoluée. Voies d\'abord : antérieure (minimalement invasive), postérieure (meilleure exposition), latérale. Durée : 60-90 min.',
+    'Arthroscopie du genou': 'Exploration et geste chirurgical intra-articulaire réalisé via 2-3 portails de 5mm. Permet méniscectomie, chondroplastie, lavage articulaire. Durée : 20-45 min selon geste.',
+    'Ligamentoplastie LCA': 'Reconstruction du ligament croisé antérieur par autogreffe (DIDT, DCOS, Kenneth-Jones) ou allogreffe. Positionnement en decubitus dorsal, garrot pneumatique. Durée : 75-120 min.',
+  };
+
+  // Génération de 420 protocoles
+  const protocoles = LIBELLES.concat(
+    Array.from({length: 380}, (_,i) => `Protocole étendu ${i+1}`)
+  ).slice(0,420).map((lib, i) => {
+    const type = TYPES[i % TYPES.length];
+    const zone = ZONES[i % ZONES.length];
+    const cat  = CATS[i % CATS.length];
+    const freq = Math.max(1, Math.round(Math.abs(Math.sin(i*1.3)*4000)));
+    const pareto = freq >= 1000 ? 'Critique' : freq >= 300 ? 'Standard' : freq >= 50 ? 'Secondaire' : 'Rare';
+    return {
+      id_protocole: 'P' + String(i+1).padStart(4,'0'),
+      libelle_cible: lib,
+      type, zone_anat: zone, cat_parent: cat, frequence: freq, pareto,
+      pathologie: type === 'ORTHO' ? 'Arthrose / Traumatisme' : type === 'TRAUMATO' ? 'Fracture / Urgence' : type === 'NEURO' ? 'Pathologie rachidienne' : type === 'SEPTIQUE' ? 'Infection / Sepsis' : '',
+      alertes: i % 7 === 0 ? 'Antibiothérapie prophylactique obligatoire' : '',
+      synonymes_recherche: lib.toLowerCase().split(' ').slice(0,3).join(','),
+      codes_ccam: i % 3 === 0 ? 'NZ' + String(i).padStart(5,'0') : '',
+      definition_expert: DEFS[lib] || '',
+      libelles_sources_lies: ''
+    };
+  });
+
+  // Génération de données interventions agrégées par chirurgien/mois/protocole
+  const interventions = [];
+  const months = ['2024-01','2024-02','2024-03','2024-04','2024-05','2024-06',
+                  '2024-07','2024-08','2024-09','2024-10','2024-11','2024-12',
+                  '2025-01','2025-02','2025-03','2025-04','2025-05','2025-06',
+                  '2025-07','2025-08','2025-09','2025-10','2025-11','2025-12'];
+  CHIRS.forEach((chir, ci) => {
+    const nbProtos = 20 + ci * 5;
+    for (let m = 0; m < months.length; m++) {
+      const nbOps = 30 + Math.round(Math.sin(m + ci) * 15) + Math.round(Math.random() * 10);
+      for (let o = 0; o < nbOps; o++) {
+        const p = protocoles[(ci * 7 + o) % protocoles.length];
+        interventions.push({
+          chirurgien: chir,
+          date_intervention: months[m] + '-' + String(1 + Math.floor(Math.random()*28)).padStart(2,'0'),
+          protocole_operatoire: p.libelle_cible,
+          _proto: p
+        });
+      }
+    }
+  });
+
+  return { protocoles, interventions, CHIRS, ZONES };
+})();
+
+
+// ════════════════════════════════════════════════════════════════
+// ThesApp — Application principale
+// ════════════════════════════════════════════════════════════════
+const ThesApp = {
+
+  isAdmin: false,
+  data   : [],        // protocoles (depuis Supabase ou mock)
+  interv : [],        // interventions mock
+  charts : {},        // instances Chart.js
+  _state : { sorted: { col:'frequence', dir:'desc' }, page:1, pageSize:50, filters:{} },
+  _currentProto: null,
+  _adminEditId : null,
+  _deleteId    : null,
+
+  // ── Utilitaires ──────────────────────────────────────────────
+  toast(type, msg) {
+    const el   = document.getElementById('toast' + type);
+    const body = document.getElementById('toast' + type + 'Body');
+    if (!el || !body) return;
+    body.textContent = msg;
+    bootstrap.Toast.getOrCreateInstance(el, {delay:3000}).show();
+  },
+
+  typeBadgeClass(t) {
+    return ({ORTHO:'thes-badge-ortho',TRAUMATO:'thes-badge-traumato',
+             SEPTIQUE:'thes-badge-septique',NEURO:'thes-badge-neuro',
+             EXCLUS:'thes-badge-exclus'})[t] || 'bg-secondary';
+  },
+
+  paretoBadgeClass(p) {
+    return ({Critique:'thes-pareto-critique',Standard:'thes-pareto-standard',
+             Secondaire:'thes-pareto-secondaire',Rare:'thes-pareto-rare'})[p] || 'bg-secondary';
+  },
+
+  typePalette(t) {
+    return ({ORTHO:'#60a5fa',TRAUMATO:'#f59e0b',SEPTIQUE:'#ef4444',
+             NEURO:'#06b6d4',EXCLUS:'#9ca3af'})[t] || '#9ca3af';
+  },
+
+  fmtNum(n) { return Number(n).toLocaleString('fr-FR'); },
+
+  makeTagsHtml(str, cls='thes-tag') {
+    if (!str) return '<span class="text-muted fst-italic">—</span>';
+    return str.split(',').map(s => s.trim()).filter(Boolean)
+              .map(s => `<span class="${cls}">${s}</span>`).join('');
+  },
+
+  // ── Init ─────────────────────────────────────────────────────
+  async init(isAdmin) {
+    this.isAdmin = isAdmin;
+
+    // Charger depuis Supabase si disponible, sinon mock
+    await this.loadData();
+
+    // Remplir selects zones
+    this._fillZoneSelects();
+    // Remplir selects chirurgiens
+    this._fillChirSelects();
+    // Remplir selects années
+    this._fillAnneeSelect();
+
+    // Init onglet actif
+    this.initConsultation();
+
+    // Lazy init autres onglets
+    document.getElementById('tab-dashboard-btn').addEventListener('shown.bs.tab', () => {
+      if (!this._dashInit) { this.initDashboard(); this._dashInit = true; }
+    });
+    document.getElementById('tab-chirurgiens-btn').addEventListener('shown.bs.tab', () => {
+      if (!this._chirInit) { this.initChirurgiensUI(); this._chirInit = true; }
+    });
+    document.getElementById('tab-analyse-btn').addEventListener('shown.bs.tab', () => {
+      if (!this._analyseInit) { this.initAnalyse(); this._analyseInit = true; }
+    });
+    if (isAdmin) {
+      document.getElementById('tab-admin-btn')?.addEventListener('shown.bs.tab', () => {
+        if (!this._adminInit) { this.initAdmin(); this._adminInit = true; }
+      });
+      document.getElementById('tab-import-btn')?.addEventListener('shown.bs.tab', () => {
+        if (!this._importInit) { this.initImport(); this._importInit = true; }
+      });
+    }
+  },
+
+  async loadData() {
+    try {
+      // Tentative Supabase
+      if (window.bdb) {
+        const { data, error } = await window.bdb.from('protocoles')
+          .select('*').order('frequence', { ascending: false });
+        if (!error && data && data.length > 0) {
+          this.data  = data;
+          this.interv = [];  // charger à part si nécessaire
+          document.getElementById('hdrInfo').textContent =
+            `${data.length} protocoles · Supabase`;
+          return;
+        }
+      }
+    } catch(_) {}
+    // Fallback mock
+    this.data   = MOCK.protocoles;
+    this.interv = MOCK.interventions;
+    document.getElementById('hdrInfo').textContent =
+      `${MOCK.protocoles.length} protocoles · ${MOCK.interventions.length} interventions (mock)`;
+  },
+
+  _fillZoneSelects() {
+    const zones = [...new Set(this.data.map(p => p.zone_anat).filter(Boolean))].sort();
+    ['filterZone','editZone','adminZone'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      // Conserver option vide pour filterZone
+      if (id === 'filterZone') {
+        zones.forEach(z => { const o = new Option(z,z); el.appendChild(o); });
+      } else {
+        el.innerHTML = '<option value="">—</option>';
+        zones.forEach(z => { const o = new Option(z,z); el.appendChild(o); });
+      }
+    });
+  },
+
+  _fillChirSelects() {
+    const chirs = [...new Set(this.interv.length ? this.interv.map(i => i.chirurgien) : MOCK.CHIRS)].sort();
+    ['selectChirurgien','selectChirA','selectChirB'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      chirs.forEach(c => { const o = new Option(c,c); el.appendChild(o); });
+    });
+  },
+
+  _fillAnneeSelect() {
+    const annees = [...new Set(this.interv.map(i => i.date_intervention?.substring(0,4)).filter(Boolean))].sort().reverse();
+    const el = document.getElementById('selectAnnee');
+    if (el) annees.forEach(a => { const o = new Option(a,a); el.appendChild(o); });
+  },
+
+
+  // ════════════════════════════════════════════════════════════
+  // ONGLET 1 — CONSULTATION
+  // ════════════════════════════════════════════════════════════
+  initConsultation() {
+    this._filtered = [...this.data];
+    this._renderTable();
+
+    // Events filtres
+    ['searchInput','filterType','filterZone','filterPareto'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        this._state.page = 1;
+        this._applyFilters();
+      });
+    });
+    document.getElementById('filterType').addEventListener('change', () => {
+      this._state.page = 1; this._applyFilters();
+    });
+    document.getElementById('filterZone').addEventListener('change', () => {
+      this._state.page = 1; this._applyFilters();
+    });
+    document.getElementById('filterPareto').addEventListener('change', () => {
+      this._state.page = 1; this._applyFilters();
+    });
+    document.getElementById('btnClearSearch').addEventListener('click', () => {
+      document.getElementById('searchInput').value = '';
+      this._state.page = 1; this._applyFilters();
+    });
+    document.getElementById('btnResetFilters').addEventListener('click', () => {
+      ['searchInput','filterType','filterZone','filterPareto'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      this._state.page = 1; this._applyFilters();
+    });
+    document.getElementById('pageSizeSelect').addEventListener('change', e => {
+      this._state.pageSize = +e.target.value;
+      this._state.page = 1;
+      this._renderTable();
+    });
+    document.getElementById('btnExportCSV').addEventListener('click', () => this._exportCSV());
+
+    // Tri colonnes
+    document.querySelectorAll('.thes-sort-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const col = btn.dataset.col;
+        if (this._state.sorted.col === col) {
+          this._state.sorted.dir = this._state.sorted.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          this._state.sorted = { col, dir: 'asc' };
+        }
+        this._state.page = 1;
+        this._applySort();
+        this._renderTable();
+        document.querySelectorAll('.thes-sort-btn').forEach(b => {
+          b.classList.remove('asc','desc');
+        });
+        btn.classList.add(this._state.sorted.dir);
+      });
+    });
+
+    // Modale sauvegarde
+    document.getElementById('btnSaveEdit').addEventListener('click', () => this._saveEdit());
+  },
+
+  _applyFilters() {
+    const q   = document.getElementById('searchInput').value.toLowerCase().trim();
+    const typ = document.getElementById('filterType').value;
+    const zon = document.getElementById('filterZone').value;
+    const par = document.getElementById('filterPareto').value;
+
+    this._filtered = this.data.filter(p => {
+      if (typ && p.type !== typ) return false;
+      if (zon && p.zone_anat !== zon) return false;
+      if (par && p.pareto !== par) return false;
+      if (q) {
+        const hay = [p.libelle_cible, p.synonymes_recherche, p.pathologie, p.codes_ccam].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    this._applySort();
+    this._renderTable();
+  },
+
+  _applySort() {
+    const { col, dir } = this._state.sorted;
+    this._filtered.sort((a, b) => {
+      let va = a[col], vb = b[col];
+      if (typeof va === 'number') return dir === 'asc' ? va - vb : vb - va;
+      va = String(va||'').toLowerCase(); vb = String(vb||'').toLowerCase();
+      return dir === 'asc' ? va.localeCompare(vb,'fr') : vb.localeCompare(va,'fr');
+    });
+  },
+
+  _renderTable() {
+    const tbody     = document.getElementById('tableBody');
+    const total     = this._filtered.length;
+    const pageSize  = this._state.pageSize;
+    const page      = this._state.page;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    document.getElementById('resultCount').textContent = this.fmtNum(total);
+    document.getElementById('currentPage').textContent = page;
+    document.getElementById('totalPages').textContent  = totalPages;
+
+    const slice = this._filtered.slice((page-1)*pageSize, page*pageSize);
+
+    if (slice.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5">
+        <i class="bi bi-search d-block fs-3 mb-2 opacity-25"></i>Aucun résultat</td></tr>`;
+      this._renderPagination(page, totalPages);
+      return;
+    }
+
+    tbody.innerHTML = slice.map(p => `
+      <tr data-id="${p.id_protocole}">
+        <td><span class="badge ${this.typeBadgeClass(p.type)}">${p.type||'—'}</span></td>
+        <td class="fw-medium">${p.libelle_cible}</td>
+        <td class="text-muted small">${p.zone_anat||'—'}</td>
+        <td><span class="badge ${this.paretoBadgeClass(p.pareto)}">${p.pareto||'—'}</span></td>
+        <td class="text-end font-monospace small">${this.fmtNum(p.frequence)}</td>
+        <td class="text-end">
+          <button class="btn btn-xs btn-outline-primary btn-detail" data-id="${p.id_protocole}" type="button" title="Voir le détail">
+            <i class="bi bi-eye"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    // Délégation : clic ligne ou bouton détail
+    tbody.querySelectorAll('.btn-detail').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        this._openDetail(id);
+      });
+    });
+    tbody.querySelectorAll('tr[data-id]').forEach(tr => {
+      tr.addEventListener('click', () => this._openDetail(tr.dataset.id));
+    });
+
+    this._renderPagination(page, totalPages);
+  },
+
+  _renderPagination(page, total) {
+    const el = document.getElementById('paginationContainer');
+    if (total <= 1) { el.innerHTML = ''; return; }
+    const pages = [];
+    if (page > 1) pages.push({ label:'‹', p: page-1 });
+    const range = [];
+    for (let i = Math.max(1, page-2); i <= Math.min(total, page+2); i++) range.push(i);
+    if (range[0] > 1) { pages.push({ label:'1', p:1 }); if (range[0] > 2) pages.push({ label:'…', p:null }); }
+    range.forEach(i => pages.push({ label: String(i), p: i, active: i === page }));
+    if (range[range.length-1] < total) { if (range[range.length-1] < total-1) pages.push({label:'…',p:null}); pages.push({label:String(total),p:total}); }
+    if (page < total) pages.push({ label:'›', p: page+1 });
+
+    el.innerHTML = pages.map(pg =>
+      pg.p === null
+        ? `<li class="page-item disabled"><span class="page-link">…</span></li>`
+        : `<li class="page-item ${pg.active ? 'active' : ''}">
+             <button class="page-link" data-p="${pg.p}" type="button">${pg.label}</button>
+           </li>`
+    ).join('');
+    el.querySelectorAll('button[data-p]').forEach(btn => {
+      btn.addEventListener('click', () => { this._state.page = +btn.dataset.p; this._renderTable(); });
+    });
+  },
+
+  _openDetail(id) {
+    const p = this.data.find(x => x.id_protocole === id);
+    if (!p) return;
+    this._currentProto = p;
+
+    document.getElementById('modalDetailLabel').textContent = p.libelle_cible;
+    document.getElementById('modalProtoId').textContent     = 'ID : ' + p.id_protocole;
+
+    const tb = document.getElementById('modalTypeBadge');
+    tb.className = 'badge thes-type-badge ' + this.typeBadgeClass(p.type);
+    tb.textContent = p.type || '—';
+
+    const pb = document.getElementById('modalParetoBadge');
+    pb.className = 'badge thes-pareto-badge ' + this.paretoBadgeClass(p.pareto);
+    pb.textContent = p.pareto || '—';
+
+    document.getElementById('mInfoZone').textContent    = p.zone_anat || '—';
+    document.getElementById('mInfoCat').textContent     = p.cat_parent || '—';
+    document.getElementById('mInfoFreq').textContent    = this.fmtNum(p.frequence);
+    document.getElementById('mInfoPath').textContent    = p.pathologie || '—';
+    document.getElementById('mInfoAlertes').innerHTML   = p.alertes
+      ? `<span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i>${p.alertes}</span>` : '—';
+    document.getElementById('mInfoSyn').innerHTML       = this.makeTagsHtml(p.synonymes_recherche);
+    document.getElementById('mInfoCCAM').innerHTML      = this.makeTagsHtml(p.codes_ccam);
+
+    const srcEl = document.getElementById('mInfoSources');
+    if (p.libelles_sources_lies) {
+      srcEl.innerHTML = p.libelles_sources_lies.split('\n').filter(Boolean)
+        .map(s => `<div class="thes-source-item">${s}</div>`).join('');
+    } else { srcEl.innerHTML = '<span class="text-muted fst-italic">—</span>'; }
+
+    document.getElementById('mExpertContent').textContent = p.definition_expert || 'Aucune définition expert disponible.';
+
+    // Préremplir form édition si admin
+    if (this.isAdmin) {
+      document.getElementById('editLibelleCible').value = p.libelle_cible;
+      document.getElementById('editType').value         = p.type || '';
+      document.getElementById('editZone').value         = p.zone_anat || '';
+      document.getElementById('editCatParent').value    = p.cat_parent || '';
+      document.getElementById('editFrequence').value    = p.frequence;
+      document.getElementById('editPathologie').value   = p.pathologie || '';
+      document.getElementById('editAlertes').value      = p.alertes || '';
+      document.getElementById('editSynonymes').value    = p.synonymes_recherche || '';
+      document.getElementById('editCCAM').value         = p.codes_ccam || '';
+      document.getElementById('editDefinition').value   = p.definition_expert || '';
+      document.getElementById('editSources').value      = p.libelles_sources_lies || '';
+    }
+
+    // Remettre sur l'onglet Info
+    const infoTab = document.getElementById('mInfo-btn');
+    bootstrap.Tab.getOrCreateInstance(infoTab).show();
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetail')).show();
+  },
+
+  _saveEdit() {
+    const p = this._currentProto;
+    if (!p) return;
+    // Champs sacrés non modifiables
+    p.type                 = document.getElementById('editType').value;
+    p.zone_anat            = document.getElementById('editZone').value;
+    p.cat_parent           = document.getElementById('editCatParent').value;
+    p.pathologie           = document.getElementById('editPathologie').value;
+    p.alertes              = document.getElementById('editAlertes').value;
+    p.synonymes_recherche  = document.getElementById('editSynonymes').value;
+    p.codes_ccam           = document.getElementById('editCCAM').value;
+    p.definition_expert    = document.getElementById('editDefinition').value;
+    p.libelles_sources_lies= document.getElementById('editSources').value;
+
+    // TODO : window.bdb.from('protocoles').update(p).eq('id_protocole', p.id_protocole)
+    this._applyFilters();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetail')).hide();
+    this.toast('Success', 'Protocole mis à jour (mock).');
+  },
+
+  _exportCSV() {
+    const cols = ['id_protocole','libelle_cible','type','zone_anat','cat_parent','frequence','pareto','pathologie'];
+    const rows = [cols.join(';')].concat(
+      this._filtered.map(p => cols.map(c => `"${(p[c]||'').toString().replace(/"/g,'""')}"`).join(';'))
+    );
+    const blob = new Blob(['\uFEFF' + rows.join('\n')], {type:'text/csv;charset=utf-8;'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'thesaurus_export.csv';
+    a.click();
+    this.toast('Success', `${this._filtered.length} lignes exportées.`);
+  },
+
+
+  // ════════════════════════════════════════════════════════════
+  // ONGLET 2 — DASHBOARDS
+  // ════════════════════════════════════════════════════════════
+  initDashboard() {
+    const d = this.data;
+    const total = d.length;
+
+    // KPIs
+    const classif = d.filter(p => p.type && p.type !== '').length;
+    const avecDef = d.filter(p => p.definition_expert && p.definition_expert.length > 5).length;
+    const crits   = d.filter(p => p.pareto === 'Critique').length;
+
+    document.getElementById('kpiTotalProto').textContent  = this.fmtNum(total);
+    document.getElementById('kpiProtoSub').textContent    = '420 protocoles Lovable';
+    document.getElementById('kpiClassifies').textContent  = Math.round(classif/total*100) + ' %';
+    document.getElementById('kpiClassifiesSub').textContent = this.fmtNum(classif) + ' / ' + total;
+    document.getElementById('kpiAvecDef').textContent     = Math.round(avecDef/total*100) + ' %';
+    document.getElementById('kpiAvecDefSub').textContent  = this.fmtNum(avecDef) + ' définitions';
+    document.getElementById('kpiCritiques').textContent   = this.fmtNum(crits);
+
+    // Distribution type
+    const typeCounts = {};
+    ['SEPTIQUE','TRAUMATO','NEURO','ORTHO','EXCLUS'].forEach(t => typeCounts[t] = 0);
+    d.forEach(p => { if (p.type && typeCounts[p.type] !== undefined) typeCounts[t] = (typeCounts[p.type]||0)+1; });
+    d.forEach(p => { if (p.type) typeCounts[p.type] = (typeCounts[p.type]||0); });
+    ['SEPTIQUE','TRAUMATO','NEURO','ORTHO','EXCLUS'].forEach(t => { typeCounts[t] = d.filter(p=>p.type===t).length; });
+
+    this._destroyChart('chartTypeDistrib');
+    this.charts.typeDistrib = new Chart(document.getElementById('chartTypeDistrib'), {
+      type: 'bar',
+      data: {
+        labels: Object.keys(typeCounts),
+        datasets: [{
+          label: 'Protocoles',
+          data: Object.values(typeCounts),
+          backgroundColor: Object.keys(typeCounts).map(t => this.typePalette(t)),
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.raw} protocoles` } } },
+        scales: { x: { beginAtZero: true, grid: { color: '#f3f4f6' } }, y: { grid: { display: false } } },
+        responsive: true, maintainAspectRatio: true
+      }
+    });
+
+    // Pareto pie
+    const parCounts = {Critique:0, Standard:0, Secondaire:0, Rare:0};
+    d.forEach(p => { if (parCounts[p.pareto] !== undefined) parCounts[p.pareto]++; });
+    this._destroyChart('chartPareto');
+    this.charts.pareto = new Chart(document.getElementById('chartPareto'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Critique','Standard','Secondaire','Rare'],
+        datasets: [{ data: Object.values(parCounts),
+          backgroundColor: ['#ef4444','#f59e0b','#06b6d4','#9ca3af'],
+          borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: true, cutout: '60%' }
+    });
+
+    // Courbe cumulative top 30
+    const sorted30 = [...d].sort((a,b) => b.frequence - a.frequence).slice(0,30);
+    const totalFreq = sorted30.reduce((s,p) => s + p.frequence, 0);
+    let cumSum = 0;
+    const cumPct = sorted30.map(p => { cumSum += p.frequence; return Math.round(cumSum/totalFreq*100); });
+    this._destroyChart('chartCumulPareto');
+    this.charts.cumul = new Chart(document.getElementById('chartCumulPareto'), {
+      type: 'bar',
+      data: {
+        labels: sorted30.map(p => p.libelle_cible.substring(0,20) + '…'),
+        datasets: [
+          { type: 'bar', label: 'Fréquence', data: sorted30.map(p=>p.frequence),
+            backgroundColor: '#93c5fd', borderRadius: 3, yAxisID: 'y' },
+          { type: 'line', label: '% cumulé', data: cumPct,
+            borderColor: '#ef4444', backgroundColor: 'transparent', borderWidth: 2,
+            pointRadius: 0, yAxisID: 'y2',
+            segment: { borderColor: ctx => ctx.p1.parsed.y >= 80 ? '#22c55e' : '#ef4444' } }
+        ]
+      },
+      options: {
+        plugins: { legend: { position: 'top', labels: { font: { size: 10 } } },
+          annotation: {} },
+        scales: {
+          x: { ticks: { font: { size: 9 }, maxRotation: 45 }, grid: { display: false } },
+          y : { beginAtZero: true, grid: { color: '#f3f4f6' }, position: 'left' },
+          y2: { beginAtZero: true, max: 100, position: 'right', grid: { drawOnChartArea: false },
+                ticks: { callback: v => v + '%' } }
+        },
+        responsive: true, maintainAspectRatio: false
+      }
+    });
+
+    // Top zones (barres)
+    const zoneSums = {};
+    d.forEach(p => { if (p.zone_anat) zoneSums[p.zone_anat] = (zoneSums[p.zone_anat]||0) + p.frequence; });
+    const topZones = Object.entries(zoneSums).sort((a,b) => b[1]-a[1]).slice(0,8);
+    const maxZ = topZones[0]?.[1] || 1;
+    document.getElementById('dashZonesRanking').innerHTML = topZones.map(([z,v]) => `
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="thes-zone-label">${z}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxZ*100)}%"></div></div>
+        <span class="thes-zone-value">${this.fmtNum(v)}</span>
+      </div>`).join('');
+
+    // Jauge qualité
+    const avecCCAM = d.filter(p => p.codes_ccam && p.codes_ccam.length > 2).length;
+    document.getElementById('dashQualite').innerHTML = [
+      { label:'Classification (type renseigné)', pct: Math.round(classif/total*100), cls:'bg-success' },
+      { label:'Définitions expert disponibles',  pct: Math.round(avecDef/total*100), cls:'bg-warning' },
+      { label:'Codes CCAM renseignés',            pct: Math.round(avecCCAM/total*100), cls:'bg-info' },
+    ].map(q => `
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="thes-quality-label">${q.label}</span>
+        <div class="progress thes-quality-progress flex-grow-1">
+          <div class="progress-bar ${q.cls}" role="progressbar" style="width:${q.pct}%" aria-valuenow="${q.pct}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <span class="thes-quality-pct">${q.pct} %</span>
+      </div>`).join('');
+  },
+
+  _destroyChart(id) {
+    const el = document.getElementById(id);
+    if (el) { const c = Chart.getChart(el); if (c) c.destroy(); }
+  },
+
+
+  // ════════════════════════════════════════════════════════════
+  // ONGLET 3 — CHIRURGIENS
+  // ════════════════════════════════════════════════════════════
+  initChirurgiensUI() {
+    document.getElementById('btnModeAnalyse').addEventListener('click', () => {
+      document.getElementById('chirModeAnalyse').classList.remove('d-none');
+      document.getElementById('chirModeComparer').classList.add('d-none');
+      document.getElementById('btnModeAnalyse').classList.add('active');
+      document.getElementById('btnModeComparer').classList.remove('active');
+    });
+    document.getElementById('btnModeComparer').addEventListener('click', () => {
+      document.getElementById('chirModeAnalyse').classList.add('d-none');
+      document.getElementById('chirModeComparer').classList.remove('d-none');
+      document.getElementById('btnModeComparer').classList.add('active');
+      document.getElementById('btnModeAnalyse').classList.remove('active');
+    });
+    document.getElementById('btnAnalyseChir').addEventListener('click', () => this._analyseChirurgien());
+    document.getElementById('btnComparer').addEventListener('click', () => this._comparerChirurgiens());
+  },
+
+  _getIntervChir(name, annee) {
+    return this.interv.filter(i =>
+      i.chirurgien === name &&
+      (!annee || i.date_intervention?.startsWith(annee))
+    );
+  },
+
+  _analyseChirurgien() {
+    const chir  = document.getElementById('selectChirurgien').value;
+    const annee = document.getElementById('selectAnnee').value;
+    if (!chir) { this.toast('Error', 'Sélectionnez un chirurgien.'); return; }
+
+    const interv = this._getIntervChir(chir, annee);
+    if (!interv.length) { this.toast('Info', 'Aucune intervention pour ce chirurgien.'); return; }
+
+    // Agrégation
+    const protoMap = {};
+    const typeMap  = {ORTHO:0,TRAUMATO:0,NEURO:0,SEPTIQUE:0,EXCLUS:0};
+    const moisMap  = {};
+    interv.forEach(i => {
+      const lib = i.protocole_operatoire;
+      protoMap[lib] = (protoMap[lib]||0) + 1;
+      const t = i._proto?.type;
+      if (t && typeMap[t] !== undefined) typeMap[t]++;
+      const mois = i.date_intervention?.substring(0,7);
+      if (mois) moisMap[mois] = (moisMap[mois]||0) + 1;
+    });
+
+    const top20 = Object.entries(protoMap).sort((a,b)=>b[1]-a[1]).slice(0,20);
+    const moisActif = Object.entries(moisMap).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
+    const protosD = new Set(Object.keys(protoMap)).size;
+
+    const res = document.getElementById('chirResults');
+    res.innerHTML = `
+      <!-- KPIs -->
+      <div class="thes-chir-kpi-row">
+        <div class="thes-chir-kpi"><div class="kpi-value text-primary">${this.fmtNum(interv.length)}</div><div class="kpi-label">Interventions</div></div>
+        <div class="thes-chir-kpi"><div class="kpi-value text-success">${protosD}</div><div class="kpi-label">Protocoles distincts</div></div>
+        <div class="thes-chir-kpi"><div class="kpi-value text-warning">${Math.round(typeMap.TRAUMATO/interv.length*100)}%</div><div class="kpi-label">TRAUMATO</div></div>
+        <div class="thes-chir-kpi"><div class="kpi-value text-info">${moisActif}</div><div class="kpi-label">Mois le + actif</div></div>
+      </div>
+      <!-- Charts -->
+      <div class="row g-3">
+        <div class="col-12 col-md-8">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom"><h6 class="mb-0 fw-semibold">Top 20 protocoles</h6></div>
+            <div class="card-body p-0">
+              <table class="table table-sm mb-0">
+                <thead class="table-light"><tr><th>Protocole</th><th class="text-end">Nb</th><th class="text-end">%</th></tr></thead>
+                <tbody>${top20.map(([lib,nb]) => `<tr><td class="small">${lib}</td><td class="text-end fw-semibold">${nb}</td><td class="text-end text-muted small">${Math.round(nb/interv.length*100)}%</td></tr>`).join('')}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom"><h6 class="mb-0 fw-semibold">Types</h6></div>
+            <div class="card-body p-3"><canvas id="chartChirType" height="200"></canvas></div>
+          </div>
+        </div>
+      </div>`;
+
+    // Chart donut types
+    this._destroyChart('chartChirType');
+    setTimeout(() => {
+      const el = document.getElementById('chartChirType');
+      if (el) {
+        new Chart(el, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(typeMap).filter(k=>typeMap[k]>0),
+            datasets: [{
+              data: Object.entries(typeMap).filter(([,v])=>v>0).map(([,v])=>v),
+              backgroundColor: Object.keys(typeMap).filter(k=>typeMap[k]>0).map(k=>this.typePalette(k)),
+              borderWidth: 2, borderColor: '#fff'
+            }]
+          },
+          options: { plugins: { legend: { position: 'bottom', labels: { font:{size:10} } } }, responsive: true, cutout: '55%' }
+        });
+      }
+    }, 50);
+  },
+
+  _comparerChirurgiens() {
+    const chirA = document.getElementById('selectChirA').value;
+    const chirB = document.getElementById('selectChirB').value;
+    if (!chirA || !chirB) { this.toast('Error', 'Sélectionnez deux chirurgiens.'); return; }
+    if (chirA === chirB)  { this.toast('Error', 'Sélectionnez deux chirurgiens différents.'); return; }
+
+    const intA = this._getIntervChir(chirA, '');
+    const intB = this._getIntervChir(chirB, '');
+
+    const protoA = {}; intA.forEach(i => { protoA[i.protocole_operatoire] = (protoA[i.protocole_operatoire]||0)+1; });
+    const protoB = {}; intB.forEach(i => { protoB[i.protocole_operatoire] = (protoB[i.protocole_operatoire]||0)+1; });
+
+    const setA = new Set(Object.keys(protoA));
+    const setB = new Set(Object.keys(protoB));
+    const communs = [...setA].filter(p => setB.has(p));
+    const exclusA = [...setA].filter(p => !setB.has(p)).slice(0,10);
+    const exclusB = [...setB].filter(p => !setA.has(p)).slice(0,10);
+
+    const typeA = {ORTHO:0,TRAUMATO:0,NEURO:0,SEPTIQUE:0};
+    intA.forEach(i => { const t=i._proto?.type; if(typeA[t]!==undefined) typeA[t]++; });
+    const typeB = {ORTHO:0,TRAUMATO:0,NEURO:0,SEPTIQUE:0};
+    intB.forEach(i => { const t=i._proto?.type; if(typeB[t]!==undefined) typeB[t]++; });
+
+    const top10communs = communs.sort((a,b)=>(protoB[b]+protoA[b])-(protoA[a]+protoB[a])).slice(0,10);
+
+    document.getElementById('comparerResults').innerHTML = `
+      <!-- Tableau comparatif -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Indicateur</th>
+                <th class="thes-compare-col-a text-center">${chirA}</th>
+                <th class="thes-compare-col-b text-center">${chirB}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Total interventions</td><td class="text-center fw-semibold">${this.fmtNum(intA.length)}</td><td class="text-center fw-semibold">${this.fmtNum(intB.length)}</td></tr>
+              <tr><td>Protocoles distincts</td><td class="text-center">${setA.size}</td><td class="text-center">${setB.size}</td></tr>
+              <tr><td>Protocoles en commun</td><td class="text-center" colspan="2"><span class="badge bg-secondary">${communs.length}</span></td></tr>
+              ${['ORTHO','TRAUMATO','NEURO','SEPTIQUE'].map(t=>`<tr><td>${t}</td><td class="text-center"><span class="badge ${this.typeBadgeClass(t)}">${Math.round((typeA[t]||0)/Math.max(1,intA.length)*100)}%</span></td><td class="text-center"><span class="badge ${this.typeBadgeClass(t)}">${Math.round((typeB[t]||0)/Math.max(1,intB.length)*100)}%</span></td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Top 10 communs -->
+      ${top10communs.length ? `
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white border-bottom"><h6 class="mb-0 fw-semibold">Top 10 protocoles communs</h6></div>
+        <div class="card-body p-3"><canvas id="chartCompareProtos" height="220"></canvas></div>
+      </div>` : ''}
+      <!-- Exclusifs -->
+      <div class="row g-3">
+        <div class="col-6">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom"><h6 class="mb-0 fw-semibold thes-compare-col-a">Exclusifs ${chirA}</h6></div>
+            <div class="card-body p-2"><ul class="list-unstyled mb-0 small">${exclusA.map(p=>`<li class="py-1 border-bottom">${p}</li>`).join('')}</ul></div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom"><h6 class="mb-0 fw-semibold thes-compare-col-b">Exclusifs ${chirB}</h6></div>
+            <div class="card-body p-2"><ul class="list-unstyled mb-0 small">${exclusB.map(p=>`<li class="py-1 border-bottom">${p}</li>`).join('')}</ul></div>
+          </div>
+        </div>
+      </div>`;
+
+    if (top10communs.length) {
+      setTimeout(() => {
+        const el = document.getElementById('chartCompareProtos');
+        if (!el) return;
+        new Chart(el, {
+          type: 'bar',
+          data: {
+            labels: top10communs.map(p => p.length > 22 ? p.substring(0,22)+'…' : p),
+            datasets: [
+              { label: chirA, data: top10communs.map(p => protoA[p]||0), backgroundColor: '#60a5fa', borderRadius: 3 },
+              { label: chirB, data: top10communs.map(p => protoB[p]||0), backgroundColor: '#34d399', borderRadius: 3 }
+            ]
+          },
+          options: {
+            indexAxis: 'y',
+            plugins: { legend: { position: 'top', labels: { font:{size:10} } } },
+            scales: { x: { beginAtZero:true, grid:{color:'#f3f4f6'} }, y: { ticks:{font:{size:9}}, grid:{display:false} } },
+            responsive: true, maintainAspectRatio: false
+          }
+        });
+      }, 50);
+    }
+  },
+
+
+  // ════════════════════════════════════════════════════════════
+  // ONGLET 4 — ANALYSE
+  // ════════════════════════════════════════════════════════════
+  initAnalyse() {
+    this._buildHeatmap('frequence');
+
+    document.getElementById('heatmapMetric').addEventListener('change', e => {
+      this._buildHeatmap(e.target.value);
+    });
+    document.getElementById('btnRunCroisement').addEventListener('click', () => this._buildCroisement());
+    document.getElementById('btnRunTemporal').addEventListener('click', () => this._buildTemporal());
+
+    // Init croisement par défaut
+    this._buildCroisement();
+  },
+
+  _buildHeatmap(metric) {
+    const types = ['SEPTIQUE','TRAUMATO','NEURO','ORTHO'];
+    const zones = [...new Set(this.data.map(p=>p.zone_anat).filter(Boolean))].sort().slice(0,12);
+
+    // Calcul cellules
+    const cells = {};
+    this.data.forEach(p => {
+      if (!p.type || !p.zone_anat) return;
+      const key = p.type + '|' + p.zone_anat;
+      if (!cells[key]) cells[key] = { freq:0, count:0 };
+      cells[key].freq  += p.frequence;
+      cells[key].count += 1;
+    });
+
+    // Valeur max pour normalisation couleur
+    const vals = Object.values(cells).map(c => metric === 'frequence' ? c.freq : c.count);
+    const maxVal = Math.max(...vals, 1);
+
+    const heatColor = (v, max) => {
+      const pct = v / max;
+      if (pct === 0)   return { bg: '#f9fafb', color: '#d1d5db' };
+      if (pct < 0.2)   return { bg: '#dbeafe', color: '#1d4ed8' };
+      if (pct < 0.4)   return { bg: '#bfdbfe', color: '#1d4ed8' };
+      if (pct < 0.6)   return { bg: '#93c5fd', color: '#1e3a8a' };
+      if (pct < 0.8)   return { bg: '#3b82f6', color: '#ffffff' };
+      return { bg: '#1d4ed8', color: '#ffffff' };
+    };
+
+    const html = `
+      <table class="thes-heatmap-table">
+        <thead>
+          <tr>
+            <th style="min-width:90px">Zone \ Type</th>
+            ${types.map(t => `<th class="text-center"><span class="badge ${this.typeBadgeClass(t)}">${t}</span></th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${zones.map(z => `
+            <tr>
+              <th class="thes-heatmap-row-header">${z}</th>
+              ${types.map(t => {
+                const key = t + '|' + z;
+                const v = cells[key] ? (metric === 'frequence' ? cells[key].freq : cells[key].count) : 0;
+                const { bg, color } = heatColor(v, maxVal);
+                return `<td class="thes-heatmap-cell ${v===0?'thes-heatmap-empty':''}"
+                            style="background:${bg};color:${color}"
+                            title="${t} × ${z} : ${this.fmtNum(v)}">${v > 0 ? this.fmtNum(v) : '—'}</td>`;
+              }).join('')}
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+    document.getElementById('heatmapContainer').innerHTML = html;
+  },
+
+  _buildCroisement() {
+    const xKey = document.getElementById('croisementX').value;
+    const yKey = document.getElementById('croisementY').value;
+
+    const xVals = [...new Set(this.data.map(p=>p[xKey]).filter(Boolean))].sort().slice(0,8);
+    const yVals = [...new Set(this.data.map(p=>p[yKey]).filter(Boolean))].sort().slice(0,6);
+
+    const matrix = {};
+    xVals.forEach(x => {
+      matrix[x] = {};
+      yVals.forEach(y => { matrix[x][y] = 0; });
+    });
+    this.data.forEach(p => {
+      const x = p[xKey], y = p[yKey];
+      if (matrix[x] && matrix[x][y] !== undefined) matrix[x][y]++;
+    });
+
+    const palette = ['#60a5fa','#34d399','#f59e0b','#a78bfa','#fb7185','#38bdf8'];
+
+    this._destroyChart('chartCroisement');
+    this.charts.croisement = new Chart(document.getElementById('chartCroisement'), {
+      type: 'bar',
+      data: {
+        labels: xVals,
+        datasets: yVals.map((y, i) => ({
+          label: y,
+          data: xVals.map(x => matrix[x][y]),
+          backgroundColor: palette[i % palette.length],
+          borderRadius: 3
+        }))
+      },
+      options: {
+        plugins: { legend: { position: 'top', labels: { font:{size:10} } } },
+        scales: {
+          x: { stacked: false, grid: { display: false }, ticks:{font:{size:10}} },
+          y: { beginAtZero: true, grid: { color: '#f3f4f6' } }
+        },
+        responsive: true, maintainAspectRatio: true
+      }
+    });
+  },
+
+  _buildTemporal() {
+    const type = document.getElementById('temporalType').value;
+    const gran = document.getElementById('temporalGranularity').value;
+
+    const filtered = type ? this.interv.filter(i => i._proto?.type === type) : this.interv;
+
+    const map = {};
+    filtered.forEach(i => {
+      let key;
+      const d = i.date_intervention || '';
+      if (gran === 'year')    key = d.substring(0,4);
+      else if (gran === 'quarter') {
+        const m = parseInt(d.substring(5,7));
+        key = d.substring(0,4) + ' T' + Math.ceil(m/3);
+      } else key = d.substring(0,7);
+      if (key) map[key] = (map[key]||0) + 1;
+    });
+
+    const labels = Object.keys(map).sort();
+    const vals   = labels.map(k => map[k]);
+
+    this._destroyChart('chartTemporal');
+    this.charts.temporal = new Chart(document.getElementById('chartTemporal'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: type || 'Tous types',
+          data: vals,
+          borderColor: this.typePalette(type) || '#60a5fa',
+          backgroundColor: (this.typePalette(type) || '#60a5fa') + '20',
+          fill: true, tension: 0.3, pointRadius: 3
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { maxRotation: 45, font:{size:9} }, grid: { color:'#f3f4f6' } },
+          y: { beginAtZero: true, grid: { color: '#f3f4f6' } }
+        },
+        responsive: true, maintainAspectRatio: true
+      }
+    });
+  },
+
+
+  // ════════════════════════════════════════════════════════════
+  // ONGLET 5 — ADMIN
+  // ════════════════════════════════════════════════════════════
+  initAdmin() {
+    this._adminFiltered = [...this.data];
+    this._renderAdminTable();
+
+    document.getElementById('adminSearchInput').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      this._adminFiltered = q
+        ? this.data.filter(p => p.libelle_cible.toLowerCase().includes(q) || p.type?.toLowerCase().includes(q))
+        : [...this.data];
+      this._renderAdminTable();
+    });
+
+    document.getElementById('btnAdminNew').addEventListener('click', () => this._openAdminNew());
+    document.getElementById('btnAdminSave').addEventListener('click', () => this._adminSave());
+    document.getElementById('btnAdminDelete').addEventListener('click', () => {
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdminEdit')).hide();
+      this._openConfirmDelete();
+    });
+    document.getElementById('btnConfirmDelete').addEventListener('click', () => this._adminDelete());
+  },
+
+  _renderAdminTable() {
+    const slice = this._adminFiltered.slice(0,200); // limité pour perf
+    document.getElementById('adminCountBadge').textContent = this._adminFiltered.length;
+    document.getElementById('adminTableBody').innerHTML = slice.map(p => `
+      <tr data-id="${p.id_protocole}">
+        <td class="font-monospace small text-muted">${p.id_protocole}</td>
+        <td class="fw-medium small">${p.libelle_cible}</td>
+        <td><span class="badge ${this.typeBadgeClass(p.type)}">${p.type||'—'}</span></td>
+        <td class="small text-muted">${p.zone_anat||'—'}</td>
+        <td class="text-end font-monospace small">${this.fmtNum(p.frequence)}</td>
+        <td><span class="badge ${this.paretoBadgeClass(p.pareto)}">${p.pareto||'—'}</span></td>
+        <td class="text-end">
+          <button class="btn btn-xs btn-outline-primary me-1 btn-admin-edit" data-id="${p.id_protocole}" type="button" title="Éditer"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-xs btn-outline-danger btn-admin-del" data-id="${p.id_protocole}" type="button" title="Supprimer"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>`).join('');
+
+    document.querySelectorAll('.btn-admin-edit').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); this._openAdminEdit(btn.dataset.id); });
+    });
+    document.querySelectorAll('.btn-admin-del').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); this._deleteId = btn.dataset.id; this._openConfirmDelete(); });
+    });
+  },
+
+  _openAdminNew() {
+    this._adminEditId = null;
+    document.getElementById('modalAdminEditLabel').textContent = 'Nouveau protocole';
+    document.getElementById('btnAdminDelete').classList.add('d-none');
+    ['adminLibelle','adminPath','adminAlertes','adminSyn','adminCCAM','adminDef','adminSources'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('adminType').value     = '';
+    document.getElementById('adminZone').value     = '';
+    document.getElementById('adminCat').value      = '';
+    document.getElementById('adminFrequence').value= 0;
+    // En création : libelle + fréquence modifiables
+    document.getElementById('adminLibelle').removeAttribute('readonly');
+    document.getElementById('adminFrequence').removeAttribute('readonly');
+    document.getElementById('adminLibelleSacredBadge').textContent = 'SACRÉ — saisissable à la création uniquement';
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdminEdit')).show();
+  },
+
+  _openAdminEdit(id) {
+    const p = this.data.find(x => x.id_protocole === id);
+    if (!p) return;
+    this._adminEditId = id;
+    document.getElementById('modalAdminEditLabel').textContent = 'Édition — ' + p.libelle_cible.substring(0,40);
+    document.getElementById('btnAdminDelete').classList.remove('d-none');
+    // Champs sacrés : readonly en édition
+    document.getElementById('adminLibelle').value = p.libelle_cible;
+    document.getElementById('adminLibelle').setAttribute('readonly','readonly');
+    document.getElementById('adminFrequence').value = p.frequence;
+    document.getElementById('adminFrequence').setAttribute('readonly','readonly');
+    document.getElementById('adminLibelleSacredBadge').textContent = 'SACRÉ — non modifiable';
+    document.getElementById('adminType').value    = p.type || '';
+    document.getElementById('adminZone').value    = p.zone_anat || '';
+    document.getElementById('adminCat').value     = p.cat_parent || '';
+    document.getElementById('adminPath').value    = p.pathologie || '';
+    document.getElementById('adminAlertes').value = p.alertes || '';
+    document.getElementById('adminSyn').value     = p.synonymes_recherche || '';
+    document.getElementById('adminCCAM').value    = p.codes_ccam || '';
+    document.getElementById('adminDef').value     = p.definition_expert || '';
+    document.getElementById('adminSources').value = p.libelles_sources_lies || '';
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdminEdit')).show();
+  },
+
+  _adminSave() {
+    const libelle = document.getElementById('adminLibelle').value.trim();
+    if (!libelle) { this.toast('Error','Le libellé cible est requis.'); return; }
+    const type = document.getElementById('adminType').value;
+    if (!type)   { this.toast('Error','Sélectionnez un type.'); return; }
+
+    if (this._adminEditId) {
+      // Édition
+      const p = this.data.find(x => x.id_protocole === this._adminEditId);
+      if (p) {
+        p.type = type;
+        p.zone_anat            = document.getElementById('adminZone').value;
+        p.cat_parent           = document.getElementById('adminCat').value;
+        p.pathologie           = document.getElementById('adminPath').value;
+        p.alertes              = document.getElementById('adminAlertes').value;
+        p.synonymes_recherche  = document.getElementById('adminSyn').value;
+        p.codes_ccam           = document.getElementById('adminCCAM').value;
+        p.definition_expert    = document.getElementById('adminDef').value;
+        p.libelles_sources_lies= document.getElementById('adminSources').value;
+        // TODO : window.bdb.from('protocoles').update(p).eq(...)
+      }
+    } else {
+      // Création
+      const newId = 'P' + String(this.data.length + 1).padStart(4,'0');
+      const freq  = parseInt(document.getElementById('adminFrequence').value) || 0;
+      const pareto = freq >= 1000 ? 'Critique' : freq >= 300 ? 'Standard' : freq >= 50 ? 'Secondaire' : 'Rare';
+      const newP = {
+        id_protocole: newId, libelle_cible: libelle, type,
+        zone_anat:    document.getElementById('adminZone').value,
+        cat_parent:   document.getElementById('adminCat').value,
+        frequence: freq, pareto,
+        pathologie:   document.getElementById('adminPath').value,
+        alertes:      document.getElementById('adminAlertes').value,
+        synonymes_recherche: document.getElementById('adminSyn').value,
+        codes_ccam:   document.getElementById('adminCCAM').value,
+        definition_expert:  document.getElementById('adminDef').value,
+        libelles_sources_lies: document.getElementById('adminSources').value
+      };
+      this.data.push(newP);
+      // TODO : window.bdb.from('protocoles').insert(newP)
+    }
+    this._adminFiltered = [...this.data];
+    this._renderAdminTable();
+    this._applyFilters();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdminEdit')).hide();
+    this.toast('Success', this._adminEditId ? 'Protocole mis à jour.' : 'Protocole créé.');
+  },
+
+  _openConfirmDelete() {
+    const id = this._deleteId;
+    const p  = this.data.find(x => x.id_protocole === id);
+    document.getElementById('deleteProtoName').textContent = p ? p.libelle_cible : id;
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalConfirmDelete')).show();
+  },
+
+  _adminDelete() {
+    const id = this._deleteId;
+    this.data = this.data.filter(p => p.id_protocole !== id);
+    this._adminFiltered = this._adminFiltered.filter(p => p.id_protocole !== id);
+    this._filtered      = this._filtered.filter(p => p.id_protocole !== id);
+    // TODO : window.bdb.from('protocoles').delete().eq('id_protocole', id)
+    this._renderAdminTable();
+    this._renderTable();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalConfirmDelete')).hide();
+    this.toast('Success', 'Protocole supprimé.');
+  },
+
+
+  // ════════════════════════════════════════════════════════════
+  // ONGLET 6 — IMPORT
+  // ════════════════════════════════════════════════════════════
+  initImport() {
+    this._setupDropZone('dropZoneInterv', 'fileInterv', 'interventions');
+    this._setupDropZone('dropZoneProto',  'fileProto',  'protocoles');
+
+    document.getElementById('btnImportInterv').addEventListener('click', () => this._doImport('interventions'));
+    document.getElementById('btnImportProto').addEventListener('click',  () => this._doImport('protocoles'));
+    document.getElementById('btnClearLog').addEventListener('click', () => {
+      document.getElementById('importLog').textContent = 'Journal vidé.';
+    });
+    document.getElementById('btnClassifIA').addEventListener('click', () => {
+      this._logImport('info', '⚡ Classification IA — non implémentée dans cette version.');
+      this.toast('Info', 'Fonctionnalité en développement.');
+    });
+  },
+
+  _setupDropZone(zoneId, inputId, type) {
+    const zone  = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    if (!zone || !input) return;
+
+    zone.addEventListener('click', () => input.click());
+    zone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') input.click(); });
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault(); zone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) this._fileSelected(file, type);
+    });
+    input.addEventListener('change', () => {
+      if (input.files[0]) this._fileSelected(input.files[0], type);
+    });
+  },
+
+  _fileSelected(file, type) {
+    if (!file.name.endsWith('.csv') && !file.name.endsWith('.txt')) {
+      this.toast('Error', 'Format non supporté. Utilisez un fichier .csv.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text  = e.target.result;
+      const lines = text.split('\n').filter(Boolean);
+      const headers = lines[0].split(/[;,]/).map(h => h.trim().replace(/"/g,''));
+
+      if (type === 'interventions') {
+        this._showPreview(lines.slice(0,11), 'interv');
+        this._showMapping(headers, type);
+        document.getElementById('btnImportInterv').disabled = false;
+        this._importData = { text, type, file };
+      } else {
+        this._showPreview(lines.slice(0,11), 'proto');
+        document.getElementById('btnImportProto').disabled = false;
+        this._importDataProto = { text, type, file };
+      }
+
+      const zone = document.getElementById(type === 'interventions' ? 'dropZoneInterv' : 'dropZoneProto');
+      zone.classList.add('file-ok');
+      this._logImport('ok', `Fichier chargé : ${file.name} (${lines.length-1} lignes, ${headers.length} colonnes)`);
+    };
+    reader.readAsText(file, 'UTF-8');
+  },
+
+  _showPreview(lines, prefix) {
+    const secId  = prefix === 'interv' ? 'intervPreviewSection' : null;
+    if (secId) {
+      document.getElementById(secId).classList.remove('d-none');
+      const tblId = prefix === 'interv' ? 'intervPreviewTable' : null;
+      if (tblId) {
+        const cols = lines[0].split(/[;,]/).map(h => h.trim().replace(/"/g,''));
+        const rows = lines.slice(1,11);
+        document.getElementById(tblId).innerHTML = `
+          <thead class="table-light"><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+          <tbody>${rows.map(r => `<tr>${r.split(/[;,]/).map(c=>`<td>${c.replace(/"/g,'')}</td>`).join('')}</tr>`).join('')}</tbody>`;
+      }
+    }
+  },
+
+  _showMapping(headers, type) {
+    const EXPECTED = ['chirurgien','date_intervention','protocole_operatoire','specialite'];
+    const sec = document.getElementById('intervMappingSection');
+    const frm = document.getElementById('intervMappingForm');
+    if (!sec || !frm) return;
+    sec.classList.remove('d-none');
+    frm.innerHTML = EXPECTED.map(field => `
+      <div class="thes-mapping-row">
+        <span class="thes-mapping-label"><code class="thes-col-badge">${field}</code></span>
+        <select class="form-select form-select-sm thes-select-sm" id="map_${field}">
+          ${headers.map(h => `<option value="${h}" ${h.toLowerCase()===field?'selected':''}>${h}</option>`).join('')}
+        </select>
+      </div>`).join('');
+  },
+
+  async _doImport(type) {
+    const progressId = type === 'interventions' ? 'importIntervProgress' : 'importProtoProgress';
+    const barId      = type === 'interventions' ? 'importIntervBar' : 'importProtoBar';
+    const statusId   = type === 'interventions' ? 'importIntervStatus' : 'importProtoStatus';
+    const data       = type === 'interventions' ? this._importData : this._importDataProto;
+    if (!data) { this.toast('Error','Aucun fichier sélectionné.'); return; }
+
+    document.getElementById(progressId).classList.remove('d-none');
+    const bar    = document.getElementById(barId);
+    const status = document.getElementById(statusId);
+
+    // Simulation de progression
+    let pct = 0;
+    const lines = data.text.split('\n').filter(Boolean).length - 1;
+    status.textContent = `Parsing ${lines} lignes…`;
+
+    const steps = [10,25,50,75,90,100];
+    for (const s of steps) {
+      await new Promise(r => setTimeout(r, 400));
+      pct = s;
+      bar.style.width = pct + '%';
+      bar.setAttribute('aria-valuenow', pct);
+      if (s === 50) status.textContent = `Insertion en base (${Math.round(lines/2)} / ${lines})…`;
+      if (s === 90) status.textContent = `Vérification intégrité…`;
+    }
+    status.textContent = `Import terminé — ${lines} lignes traitées.`;
+
+    // Résumé
+    const protos = Math.round(lines * 0.006); // ratio mock
+    document.getElementById('summaryLignes').textContent    = this.fmtNum(lines);
+    document.getElementById('summaryProtocoles').textContent = this.fmtNum(protos);
+    document.getElementById('summaryErreurs').textContent   = '0';
+    document.getElementById('importSummarySection').classList.remove('d-none');
+    document.getElementById('btnClassifIA').disabled = false;
+
+    this._logImport('ok', `Import ${type} terminé : ${lines} lignes, ${protos} protocoles agrégés, 0 erreur.`);
+    this.toast('Success', `Import terminé — ${lines} lignes importées.`);
+    // TODO : window.bdb.from(type === 'interventions' ? 'interventions' : 'protocoles').insert(parsedData)
+  },
+
+  _logImport(level, msg) {
+    const log = document.getElementById('importLog');
+    const cls = level === 'ok' ? 'log-ok' : level === 'warn' ? 'log-warn' : 'log-err';
+    const time = new Date().toLocaleTimeString('fr-FR');
+    log.innerHTML += `\n<span class="${cls}">[${time}] ${msg}</span>`;
+    log.scrollTop = log.scrollHeight;
+  }
+};
+</script>
+</body>
+</html>

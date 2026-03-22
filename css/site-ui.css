@@ -1,0 +1,446 @@
+/* ============================================================
+   PROJECT  : Bible de Bloc (BDB)
+   FILE     : site-ui.css v3.0.0
+   MODULE   : modules/site/
+   DATE     : 2026-03-14
+   DELTA    : v2→v3 — Refonte visuelle premium complète.
+              Suppression border-4 agressifs. Système de surface
+              cohérent. Typographie lisible. Espacements généreux.
+              0 style= inline requis.
+   RÈGLES   : Toutes règles scopées à .site-module
+   ============================================================ */
+
+/* ── Variables locales ───────────────────────────────────────── */
+.site-module {
+  --site-radius      : 0.75rem;
+  --site-radius-sm   : 0.5rem;
+  --site-shadow      : 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.05);
+  --site-shadow-hover: 0 4px 16px rgba(0,0,0,.10), 0 1px 3px rgba(0,0,0,.06);
+  --site-border      : #e2e8f0;
+  --site-accent-l    : #eef3fb;
+  --site-text-muted  : #64748b;
+  --site-prose-max   : 68ch;
+}
+
+/* ── Reset baseline ──────────────────────────────────────────── */
+.site-module {
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* ── Layout principal ────────────────────────────────────────── */
+.site-module .main-content {
+  min-height: 100vh;
+}
+
+/* ── Header sticky ───────────────────────────────────────────── */
+.site-module .header-sticky {
+  border-bottom: 1px solid var(--site-border);
+  background: rgba(255,255,255,.95) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 var(--site-border) !important;
+}
+
+/* ── Doc header hero ─────────────────────────────────────────── */
+.site-module .doc-header-primary {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #3b82f6 100%);
+  border-radius: var(--site-radius);
+  padding: 2.5rem !important;
+  box-shadow: 0 4px 20px rgba(37,99,235,.25);
+}
+.site-module .doc-header-primary h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+/* ── Panel — surface de contenu principale ───────────────────── */
+.site-module .panel {
+  background: #fff;
+  border-radius: var(--site-radius);
+  padding: 1.5rem;
+  box-shadow: var(--site-shadow);
+  border: 1px solid var(--site-border);
+}
+.site-module .panel + .panel {
+  margin-top: 1rem;
+}
+
+/* ── Panneaux avec accent coloré — trait subtil à gauche ─────── */
+.site-module .panel-accent-primary {
+  border-left: 3px solid #3b82f6;
+}
+.site-module .panel-accent-success {
+  border-left: 3px solid #10b981;
+}
+.site-module .panel-accent-danger {
+  border-left: 3px solid #ef4444;
+}
+.site-module .panel-accent-warning {
+  border-left: 3px solid #f59e0b;
+}
+.site-module .panel-accent-info {
+  border-left: 3px solid #06b6d4;
+}
+.site-module .panel-accent-secondary {
+  border-left: 3px solid #94a3b8;
+}
+
+/* ── Panneau "not" — fond teinté danger doux ─────────────────── */
+.site-module .panel-limit {
+  background: #fff8f8;
+  border: 1px solid #fecaca;
+  border-radius: var(--site-radius);
+  padding: 1.5rem;
+}
+.site-module .panel-limit h4 {
+  color: #dc2626;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* ── Panneau "approach" — fond teinté primary doux ───────────── */
+.site-module .panel-approach {
+  background: #f0f7ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--site-radius);
+  padding: 1.5rem;
+}
+
+/* ── Alert overrides — moins agressifs ───────────────────────── */
+.site-module .alert {
+  border-radius: var(--site-radius-sm);
+  border-left-width: 3px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  font-size: .9rem;
+}
+.site-module .alert-danger {
+  background: #fff5f5;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+.site-module .alert-warning {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+.site-module .alert-success {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+.site-module .alert-secondary {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+.site-module .alert-info {
+  background: #f0fdff;
+  border-color: #a5f3fc;
+  color: #164e63;
+}
+
+/* ── Cards hover ─────────────────────────────────────────────── */
+.site-module .hover-lift {
+  transition: box-shadow .18s ease, transform .18s ease;
+  border: 1px solid var(--site-border) !important;
+  border-radius: var(--site-radius) !important;
+}
+.site-module .hover-lift:hover {
+  box-shadow: var(--site-shadow-hover) !important;
+  transform: translateY(-2px);
+  border-color: #bfdbfe !important;
+}
+
+/* ── Progress bars ───────────────────────────────────────────── */
+.site-module .progress {
+  height: 1.25rem;
+  border-radius: 0.375rem;
+  background: #e2e8f0;
+}
+.site-module .progress-bar {
+  border-radius: 0.375rem;
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+/* Largeurs statiques pour la courbe Rogers */
+#adoptionBars .site-bar-w3  { width: 3%; }
+#adoptionBars .site-bar-w14 { width: 14%; }
+#adoptionBars .site-bar-w34 { width: 34%; }
+#adoptionBars .site-bar-w16 { width: 16%; }
+
+/* ── Stepper adoption ────────────────────────────────────────── */
+.site-module .site-stepper {
+  position: relative;
+  padding-left: 2rem;
+}
+.site-module .site-stepper::before {
+  content: '';
+  position: absolute;
+  left: .75rem;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 2px;
+  background: linear-gradient(to bottom, #3b82f6, #e2e8f0);
+}
+.site-module .site-stepper-item {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--site-shadow);
+  padding-left: 1.5rem;
+}
+.site-module .site-stepper-item::before {
+  content: '';
+  position: absolute;
+  left: -1.6rem;
+  top: 1.4rem;
+  width: .75rem;
+  height: .75rem;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+/* ── Cercles icône ───────────────────────────────────────────── */
+.site-module .site-circle-lg {
+  width: 5rem;
+  height: 5rem;
+  flex-shrink: 0;
+}
+.site-module .site-circle-sm {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Conseil des 5 — cards épurées ──────────────────────────── */
+.site-module .conseil-card {
+  background: #fff;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  box-shadow: var(--site-shadow);
+  transition: box-shadow .18s, transform .18s;
+}
+.site-module .conseil-card:hover {
+  box-shadow: var(--site-shadow-hover);
+  transform: translateY(-2px);
+}
+.site-module .conseil-card .conseil-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto .875rem;
+  font-size: 1.25rem;
+}
+.site-module .conseil-card.skeptic {
+  border-top: 3px solid #ef4444;
+}
+.site-module .conseil-card:not(.skeptic) {
+  border-top: 3px solid #3b82f6;
+}
+
+/* ── Tabs overrides ──────────────────────────────────────────── */
+.site-module .nav-tabs {
+  border-bottom: 2px solid var(--site-border);
+  gap: .25rem;
+}
+.site-module .nav-tabs .nav-link {
+  border: 1px solid transparent;
+  border-radius: var(--site-radius-sm) var(--site-radius-sm) 0 0;
+  color: var(--site-text-muted);
+  padding: .5rem 1rem;
+  font-size: .9rem;
+  font-weight: 500;
+  transition: color .15s, background .15s;
+}
+.site-module .nav-tabs .nav-link:hover {
+  color: #1e293b;
+  background: #f1f5f9;
+  border-color: var(--site-border);
+}
+.site-module .nav-tabs .nav-link.active {
+  color: #1d4ed8;
+  background: #fff;
+  border-color: var(--site-border) var(--site-border) #fff;
+  font-weight: 600;
+}
+
+/* ── Accordion overrides ─────────────────────────────────────── */
+.site-module .accordion-item {
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius) !important;
+  overflow: hidden;
+  margin-bottom: .5rem;
+}
+.site-module .accordion-item + .accordion-item {
+  border-top: 1px solid var(--site-border);
+}
+.site-module .accordion-button {
+  font-weight: 500;
+  color: #1e293b;
+  background: #fff;
+  border-radius: var(--site-radius) !important;
+}
+.site-module .accordion-button:not(.collapsed) {
+  color: #1d4ed8;
+  background: #f0f7ff;
+  box-shadow: none;
+}
+.site-module .accordion-button::after {
+  filter: none;
+}
+.site-module .accordion-body {
+  background: #fff;
+  padding: 1.25rem 1.5rem;
+  line-height: 1.75;
+}
+.site-module .accordion-body p:last-child { margin-bottom: 0; }
+
+/* ── Table overrides ─────────────────────────────────────────── */
+.site-module .table {
+  font-size: .92rem;
+}
+.site-module .table thead th {
+  background: #f1f5f9;
+  color: var(--site-text-muted);
+  font-weight: 600;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 1px solid var(--site-border);
+}
+.site-module .table td {
+  vertical-align: middle;
+  border-color: #f1f5f9;
+}
+.site-module .table-hover tbody tr:hover td {
+  background: #f8fafc;
+}
+
+/* ── List-group overrides ────────────────────────────────────── */
+.site-module .list-group-item {
+  border-color: var(--site-border);
+  padding: 1rem 1.25rem;
+}
+
+/* ── Nav footer entre pages ──────────────────────────────────── */
+.site-module .site-nav-footer {
+  border-top: 1px solid var(--site-border);
+  background: #fff;
+}
+
+/* ── Badge overrides ─────────────────────────────────────────── */
+.site-module .badge {
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+
+/* ── Hero index ──────────────────────────────────────────────── */
+.site-module .site-hero {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #0ea5e9 100%);
+  padding: 4rem 0;
+}
+.site-module .site-hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.2;
+}
+.site-module .site-hero .lead {
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+/* ── Comparaison avant/après (index) ────────────────────────── */
+.site-module .compare-card {
+  border-radius: var(--site-radius);
+  overflow: hidden;
+  box-shadow: var(--site-shadow);
+}
+.site-module .compare-card .compare-header {
+  padding: .75rem 1.25rem;
+  font-weight: 600;
+  font-size: .9rem;
+}
+.site-module .compare-card .compare-body {
+  background: #fff;
+  padding: 1.25rem;
+}
+.site-module .compare-result {
+  border-radius: var(--site-radius-sm);
+  padding: .5rem 1rem;
+  font-size: .85rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: .75rem;
+}
+
+/* ── Section alternance fond ─────────────────────────────────── */
+.site-module .section-white { background: #fff; }
+.site-module .section-soft  { background: #f8fafc; }
+.site-module .section-dark  { background: #0f172a; }
+
+/* ── "Hors scope" section (pas-app.html) ────────────────────── */
+.site-module .hors-scope-card {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--site-radius);
+  padding: 1.5rem;
+}
+.site-module .hors-scope-card h5 {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* ── Profil card (audiences) ─────────────────────────────────── */
+.site-module .profil-badge {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Cycle toxique list-group ────────────────────────────────── */
+.site-module .cycle-item {
+  background: #fff;
+  border: 1px solid var(--site-border);
+  border-left: 3px solid #ef4444;
+  border-radius: var(--site-radius-sm);
+  padding: 1rem 1.25rem;
+  margin-bottom: .5rem;
+  box-shadow: var(--site-shadow);
+}
+.site-module .cycle-item:last-child { margin-bottom: 0; }
+
+/* ── Footer ──────────────────────────────────────────────────── */
+.site-module footer {
+  font-size: .82rem;
+  border-top: 1px solid var(--site-border);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  .site-module .doc-header-primary { padding: 1.5rem !important; }
+  .site-module .site-hero { padding: 2.5rem 0; }
+  .site-module .panel { padding: 1.25rem; }
+  .site-module .site-stepper { padding-left: 1.5rem; }
+  .site-module .site-stepper-item { padding: 1rem 1.25rem; }
+}

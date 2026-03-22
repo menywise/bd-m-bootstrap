@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Accès refusé | Bible de Bloc</title>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <!-- Chaîne CSS BLOC E -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <link href="/bdb/css/cds-overrides.css" rel="stylesheet"/>
+</head>
+
+<body class="d-flex min-vh-100">
+
+  <main class="d-flex flex-column flex-grow-1 main-content">
+
+    <!-- Header statique -->
+    <header class="bdb-module-header sticky-top d-flex align-items-center justify-content-between px-3 px-md-4">
+      <div class="d-flex align-items-center gap-3">
+        <a href="/bdb/index.html" class="d-flex align-items-center gap-2 text-decoration-none">
+          <i class="bi bi-hospital fs-5 text-primary"></i>
+          <span class="fw-bold text-white lh-1">Bible de Bloc</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="container-fluid p-4 bg-light flex-grow-1">
+
+      <!-- ── État erreur CDS ──────────────────────────────── -->
+      <div class="cds-error-state text-center py-5">
+        <div class="display-1 fw-bold text-danger opacity-25 lh-1 mb-3">403</div>
+        <i class="bi bi-shield-lock cds-error-icon"></i>
+        <div class="cds-error-title">Accès refusé</div>
+        <p class="cds-error-msg">Le fichier ou le dossier demandé est protégé.</p>
+        <div class="d-flex justify-content-center gap-2 mt-3">
+          <a href="/bdb/index.html" class="btn btn-primary btn-sm">
+            <i class="bi bi-house me-1"></i>Portail BDB
+          </a>
+          <a href="/bdb/modules/site/index.html" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-info-circle me-1"></i>Présentation
+          </a>
+        </div>
+        <p class="text-muted small mt-4 mb-0">Si vous pensez que c'est une erreur, contactez l'administrateur.</p>
+      </div>
+
+    </div>
+
+    <!-- Footer CDS -->
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 Bible de Bloc — Consensus Design System —
+      <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+    </footer>
+  </main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

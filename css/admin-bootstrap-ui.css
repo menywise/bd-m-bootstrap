@@ -1,0 +1,139 @@
+/* ============================================================
+   ADMIN-BOOTSTRAP-UI.CSS — Styles spécifiques admin-bootstrap.html
+   VERSION    : 1.0.0
+   DATE       : 2026-03-06
+   SCOPE      : admin-bootstrap.html uniquement
+   ============================================================ */
+
+/* ── Background ── */
+.admin-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background-color: #1a1f2e;
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(220, 38, 38, .08) 0%, transparent 60%);
+}
+
+/* ── Card ── */
+.ab-card {
+  width: 100%;
+  max-width: 520px;
+  border: 1px solid rgba(220, 38, 38, .2);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,.3), 0 20px 50px rgba(0,0,0,.4);
+}
+
+/* ── Icône header ── */
+.ab-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #dc3545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, .4);
+}
+
+/* ── Avertissement ── */
+.ab-warning {
+  font-size: .855rem;
+  border-radius: 10px;
+  background: rgba(255, 193, 7, .1);
+  border-color: rgba(255, 193, 7, .4);
+  color: #856404;
+}
+
+/* ── Alerte résultat ── */
+.ab-alert {
+  font-size: .855rem;
+  border-radius: 10px;
+}
+
+/* ── Sections ── */
+.ab-section {
+  background: var(--bs-tertiary-bg, #f8f9fa);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10px;
+  padding: .85rem 1rem;
+}
+
+.ab-section-title {
+  font-size: .82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--bs-secondary-color);
+  display: flex;
+  align-items: center;
+}
+
+.ab-label {
+  font-size: .82rem;
+  font-weight: 600;
+  margin-bottom: .3rem;
+}
+
+.ab-hint {
+  font-size: .775rem;
+  color: var(--bs-secondary-color);
+  margin-top: .3rem;
+  margin-bottom: 0;
+}
+
+/* .input-eye-wrap + .btn-eye-sm -> migre vers cds-overrides.css (.cds-eye-wrap + .cds-btn-eye) */
+
+/* ── Boutons environnement ── */
+.env-btn.active {
+  background: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: #fff;
+}
+
+/* ── Section SQL ── */
+.ab-details {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10px;
+  padding: .75rem 1rem;
+}
+
+.ab-summary {
+  font-size: .855rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  color: var(--bs-secondary-color);
+}
+.ab-summary::-webkit-details-marker { display: none; }
+.ab-summary::before {
+  content: '\F285';
+  font-family: 'bootstrap-icons';
+  margin-right: .4rem;
+  transition: transform .15s;
+}
+details[open] .ab-summary::before { transform: rotate(90deg); }
+
+.ab-pre {
+  background: #1e293b;
+  color: #94a3b8;
+  border-radius: 8px;
+  padding: .75rem 1rem;
+  font-size: .75rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin-bottom: .5rem;
+}
+
+/* ── Lien retour ── */
+.ab-back-link {
+  font-size: .82rem;
+  color: var(--bs-secondary-color);
+  text-decoration: none;
+}
+.ab-back-link:hover { color: var(--bs-primary); }

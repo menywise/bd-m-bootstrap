@@ -1,0 +1,390 @@
+/* ============================================================
+   PLANNING ENGINE — CSS module spécifique
+   VERSION    : 1.0.0
+   DATE       : 2026-02-28
+   SCOPE      : planning.html UNIQUEMENT
+   USAGE      : <link href="planning-ui.css" rel="stylesheet"/>
+                Charger APRÈS cds-overrides.css
+   RÈGLE      : Ne contient que ce qui concerne le Planning Engine.
+                Toute modification doit être tracée dans JOURNAL_DECISIONS.md.
+   ============================================================
+
+   STRUCTURE :
+     [1] matrixGrid — vue matrice
+     [2] legacyTableCard — vue table plate
+     [3] slot-line — badges inline vue table
+     [4] modalCloseSalles — modale fermeture salles
+     [5] modalCreate — modale saisie slot (form controls scopés)
+     [6] Composants Planning-specific (doublure, card chirurgien)
+   ============================================================ */
+
+/* ════════════════════════════════════════════════════════════
+   [1] matrixGrid — vue matrice
+   Classes JS actives injectées par planning-matrix.js :
+   day-alt-0/1, room-alt, bg-couloir, bg-closed, bg-opening, bg-visceral
+   ════════════════════════════════════════════════════════════ */
+
+#matrixGrid table td                { padding: 6px; }
+#matrixGrid td, #matrixGrid th      { vertical-align: top; overflow: hidden; }
+#matrixGrid button.btn {
+  line-height: 1.3; min-height: 60px; white-space: normal;
+  font-size: 0.82rem; overflow-wrap: break-word; word-break: break-word;
+}
+
+/* Séparateurs entre salles */
+#matrixGrid tbody tr                { border-bottom: 8px solid #ffffff; }
+#matrixGrid tbody tr td:first-child { background-color: #e9ecef !important; font-weight: 700; }
+
+/* Pivot feel — gradient ne conflicte pas avec background-color des aplats */
+#matrixGrid tbody tr:nth-child(odd) td {
+  background-image: linear-gradient(to bottom, rgba(0,0,0,0.02), rgba(0,0,0,0.02));
+}
+#matrixGrid tbody tr:hover td {
+  background-image: linear-gradient(to bottom, rgba(0,0,0,0.045), rgba(0,0,0,0.045));
+}
+
+/* Alternance fond par JOUR */
+#matrixGrid .day-alt-1:not(.bg-opening):not(.bg-visceral):not(.bg-closed):not(.bg-couloir) {
+  background-color: #f8f9fa !important;
+}
+#matrixGrid .day-alt-0:not(.bg-opening):not(.bg-visceral):not(.bg-closed):not(.bg-couloir) {
+  background-color: #ffffff !important;
+}
+
+/* Alternance fond par SALLE */
+#matrixGrid .room-alt:not(.bg-opening):not(.bg-visceral):not(.bg-closed):not(.bg-couloir) {
+  background-color: #fcfcfc !important;
+}
+
+/* STATUTS TERRAIN — couleurs métier figées (ne pas modifier sans JOURNAL_DECISIONS) */
+#matrixGrid .bg-couloir       { background-color: #eef3f8 !important; }
+#matrixGrid .bg-closed        { background-color: #e9ecef !important; color: #6c757d !important; cursor: not-allowed; opacity: 0.95; }
+#matrixGrid .bg-closed-degrade { background-color: #f8d7da !important; color: #842029 !important; cursor: not-allowed; opacity: 0.95; }
+#matrixGrid .bg-opening       { background-color: #d4edda !important; }
+#matrixGrid .bg-visceral      { background-color: #ffe8cc !important; }
+
+/* Protection : gradient hover n'écrase pas les aplats terrain */
+#matrixGrid .bg-couloir,
+#matrixGrid .bg-closed,
+#matrixGrid .bg-closed-degrade,
+#matrixGrid .bg-opening,
+#matrixGrid .bg-visceral { background-image: none !important; }
+
+/* ════════════════════════════════════════════════════════════
+   [2] legacyTableCard — vue table plate colorée
+   ════════════════════════════════════════════════════════════ */
+#legacyTableCard table      { table-layout: auto; }
+#legacyTableCard thead th   { position: sticky; top: 0; background: #fff; z-index: 2; border-bottom: 2px solid #dee2e6; }
+#legacyTableCard tbody tr.row-couloir  td  { background-color: #eef3f8 !important; }
+#legacyTableCard tbody tr.row-visceral td  { background-color: #ffe5b4 !important; }
+#legacyTableCard tbody tr.row-fermee        td  { background-color: #e9ecef !important; color: #6c757d; }
+#legacyTableCard tbody tr.row-ferme-degrade td  { background-color: #f8d7da !important; color: #842029; }
+#legacyTableCard tbody tr.row-ouverture td { background-color: #d4edda !important; }
+#legacyTableCard tbody tr:hover td         { filter: brightness(0.96); }
+
+/* ════════════════════════════════════════════════════════════
+   [3] slot-line — badges couleur inline
+   ════════════════════════════════════════════════════════════ */
+.plan-slot-ouverture { background-color: #d4edda; padding: 2px 4px; border-radius: 4px; }
+.plan-slot-doublure  { background-color: #fff3cd; padding: 2px 4px; border-radius: 4px; }
+.plan-slot-visceral  { background-color: #ffe5b4; padding: 2px 4px; border-radius: 4px; }
+
+/* ════════════════════════════════════════════════════════════
+   [4] modalCloseSalles — modale fermeture salles
+   ════════════════════════════════════════════════════════════ */
+
+#modalCloseSalles .modal-header { background: #fffbeb; border-bottom: 2px solid #fde68a; }
+#modalCloseSalles .modal-body   { padding: 0; }
+
+#modalCloseSalles .close-salles-info {
+  display: flex; align-items: flex-start; gap: .6rem;
+  padding: .6rem 1.1rem; font-size: .8rem;
+  background: #f0fdf4; border-bottom: 1px solid #bbf7d0;
+  color: #166534; line-height: 1.4;
+}
+
+#modalCloseSalles .close-salles-legend {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .5rem 1rem;
+  padding: .5rem 1.1rem;
+  background: var(--pe-surface-2); border-bottom: 1px solid var(--pe-border);
+  font-size: .74rem;
+}
+#modalCloseSalles .plan-cs-legend-item {
+  display: flex; align-items: center; gap: .35rem;
+  color: var(--pe-text-muted); font-weight: 500;
+}
+#modalCloseSalles .cs-swatch {
+  width: 14px; height: 14px; border-radius: 3px;
+  flex-shrink: 0; border: 1px solid rgba(0,0,0,.1);
+}
+.plan-cs-swatch-open     { background: #ffffff; border: 1.5px dashed #94a3b8 !important; }
+.plan-cs-swatch-filled   { background: #f0fdf4; border-color: #86efac !important; }
+.plan-cs-swatch-closed   { background: repeating-linear-gradient(-45deg, #e2e8f0, #e2e8f0 3px, #f1f5f9 3px, #f1f5f9 7px); }
+.plan-cs-swatch-selected { background: #fef3c7; border-color: #fcd34d !important; }
+
+#modalCloseSalles .table-scroll-wrapper {
+  max-height: calc(100vh - 340px);
+  overflow-y: auto; overflow-x: auto;
+  scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent;
+}
+#modalCloseSalles .table-scroll-wrapper::-webkit-scrollbar       { height: 5px; width: 5px; }
+#modalCloseSalles .table-scroll-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+#modalCloseSalles table { margin-bottom: 0; border-collapse: collapse; }
+
+/* Neutralisation border-start BS posé par le JS — spécificité maximale */
+#modalCloseSalles table > thead > tr > th.border-start,
+#modalCloseSalles table > thead > tr > td.border-start,
+#modalCloseSalles table > tbody > tr > th.border-start,
+#modalCloseSalles table > tbody > tr > td.border-start,
+#modalCloseSalles table th.border-start.border-primary.border-3,
+#modalCloseSalles table td.border-start.border-primary.border-3 {
+  border-left-width: 1px !important;
+  border-left-color: var(--pe-border) !important;
+  border-left-style: solid !important;
+}
+
+#modalCloseSalles table th.day-sep-end,
+#modalCloseSalles table td.day-sep-end { border-right: 3px solid #94a3b8 !important; }
+
+#modalCloseSalles table .cs-day-start  { border-left: 2px solid #94a3b8 !important; }
+
+/* THEAD ligne 1 : jours */
+#modalCloseSalles table thead tr:first-child th {
+  background: #f8fafc; font-size: .78rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--pe-text-muted); padding: .5rem .6rem;
+  text-align: center; border-bottom: 1px solid var(--pe-border); white-space: nowrap;
+}
+#modalCloseSalles table thead tr:first-child th:first-child {
+  background: var(--pe-surface-3); border-right: 2px solid var(--pe-border-strong);
+}
+#modalCloseSalles table thead tr:first-child th.jour-even { background: #eef2ff; color: #3730a3; }
+#modalCloseSalles table thead tr:first-child th.jour-odd  { background: #f0fdf4; color: #166534; }
+
+/* THEAD ligne 2 : créneaux */
+#modalCloseSalles table thead tr:nth-child(2) th {
+  background: var(--pe-surface-3); font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--pe-text-muted); padding: .3rem .4rem;
+  text-align: center; border-bottom: 2px solid var(--pe-border-strong);
+}
+#modalCloseSalles table thead tr:nth-child(2) th:first-child {
+  border-right: 2px solid var(--pe-border-strong); text-align: left; padding-left: .75rem;
+}
+
+/* THEAD ligne 3 : "Tout" cocher */
+#modalCloseSalles table thead tr:nth-child(3) td,
+#modalCloseSalles table thead tr:nth-child(3) th {
+  background: #fffbf0; padding: .3rem .3rem; text-align: center;
+  border-bottom: 2px solid #fde68a; font-size: .7rem; color: var(--pe-text-muted);
+}
+#modalCloseSalles table thead tr:nth-child(3) td:first-child,
+#modalCloseSalles table thead tr:nth-child(3) th:first-child {
+  text-align: right; padding-right: .6rem;
+  border-right: 2px solid var(--pe-border-strong); font-weight: 600; color: #92400e;
+}
+
+/* TBODY — colonne label salle */
+#modalCloseSalles table tbody tr td:first-child {
+  background: var(--pe-surface-2) !important; border-right: 2px solid var(--pe-border-strong);
+  font-weight: 700; font-size: .82rem; color: var(--pe-text);
+  padding: .7rem .85rem; white-space: nowrap; text-align: left !important; vertical-align: middle;
+}
+
+/* TBODY — alternance lignes */
+#modalCloseSalles table tbody tr:nth-child(odd)  td:not(:first-child) { background-color: #fafbfc; }
+#modalCloseSalles table tbody tr:nth-child(even) td:not(:first-child) { background-color: #ffffff; }
+#modalCloseSalles table tbody tr                { border-bottom: 2px solid var(--pe-border-strong); }
+#modalCloseSalles table tbody tr:last-child     { border-bottom: none; }
+
+/* TBODY — cellules créneaux */
+#modalCloseSalles table tbody td:not(:first-child) {
+  text-align: center; vertical-align: middle; padding: .65rem .4rem;
+}
+
+/* TBODY — cellule POURVU (slot déjà affecté — cs-cell-pourvu injectée par planning-slot-editor.js) */
+#modalCloseSalles table tbody td.cs-cell-pourvu {
+  background-color: #f0fdf4 !important; cursor: not-allowed; position: relative;
+}
+#modalCloseSalles table tbody td.cs-cell-pourvu input[type="checkbox"]:disabled { display: none; }
+#modalCloseSalles table tbody td.cs-cell-pourvu::after {
+  content: '✓'; font-size: .68rem; font-weight: 800; color: #16a34a;
+  background: #dcfce7; border: 1px solid #86efac;
+  border-radius: 10px; padding: .1rem .4rem; display: inline-block;
+}
+
+/* TBODY — cellule sélectionnée */
+#modalCloseSalles table tbody td:has(input:checked) { background-color: #fef9ec !important; }
+
+/* Checkboxes amber (distinct du bleu BS — signale action fermeture) */
+#modalCloseSalles table input[type="checkbox"] {
+  width: 1.15em; height: 1.15em; border-radius: 4px; cursor: pointer;
+  border: 1.5px solid #94a3b8; background-color: #fff;
+  transition: border-color .12s, background .12s, box-shadow .12s;
+  margin: 0; display: block;
+}
+#modalCloseSalles table input[type="checkbox"]:hover:not(:disabled) {
+  border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.12);
+}
+#modalCloseSalles table input[type="checkbox"]:checked {
+  background-color: #f59e0b; border-color: #d97706;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+#modalCloseSalles table input[type="checkbox"]:focus {
+  border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); outline: none;
+}
+#modalCloseSalles table .form-check { display: flex; justify-content: center; margin: 0; }
+
+/* Footer */
+#modalCloseSalles .modal-footer {
+  justify-content: space-between; align-items: center; padding: .75rem 1.25rem;
+}
+#modalCloseSalles .close-salles-counter {
+  font-size: .8rem; font-family: monospace; color: var(--pe-text-muted);
+  display: flex; align-items: center; gap: .35rem;
+}
+#modalCloseSalles .close-salles-counter strong { color: #d97706; font-size: .9rem; }
+
+/* ════════════════════════════════════════════════════════════
+   [7] Classes utilitaires — remplacement inline styles (BUG-4)
+   ════════════════════════════════════════════════════════════ */
+
+/* Table vue plate : largeur minimale pour éviter l'écrasement */
+.plan-table-min { min-width: 700px; }
+
+/* Annotations sub-header dans les modales batch */
+.plan-batch-th-note { font-size: .65rem; }
+
+/* Colonne Salle/Rôle modale IDEs */
+.plan-batch-th-role-label { width: 90px; }
+   (évite tout conflit avec les checkboxes amber de modalCloseSalles)
+   ════════════════════════════════════════════════════════════ */
+#modalCreate .form-select,
+#modalCreate .form-control {
+  border: 1.5px solid var(--pe-border); border-radius: 8px;
+  font-size: .855rem; transition: border-color .15s, box-shadow .15s;
+}
+#modalCreate .form-select:focus,
+#modalCreate .form-control:focus {
+  border-color: var(--pe-primary); box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+}
+#modalCreate .form-select-sm,
+#modalCreate .form-control-sm { font-size: .815rem; border-radius: 7px; }
+
+#modalCreate .form-check-input[type="checkbox"][role="switch"] {
+  width: 2.2em; height: 1.15em; cursor: pointer;
+}
+#modalCreate .form-check-input:checked {
+  background-color: var(--pe-primary); border-color: var(--pe-primary);
+}
+
+/* ════════════════════════════════════════════════════════════
+   [6] Composants Planning-specific
+   ════════════════════════════════════════════════════════════ */
+
+/* Card accent chirurgien */
+#modalCreate .card.border-primary-subtle .card-header {
+  background: var(--pe-primary-light) !important;
+  border-bottom: 1px solid #b8d0fc;
+}
+
+/* Bloc doublure — indicateur apprentissage (amber) */
+.plan-doublure-block {
+  border-left: 3px solid #fcd34d; padding-left: .85rem;
+  margin-top: .6rem; border-radius: 0 6px 6px 0; background: #fffbeb;
+}
+
+/* ── ETUDIANT — violet pastel (distinct du bleu nuit bg-info-subtle) ── */
+.plan-bg-etudiant {
+  background-color: #ede9fe !important;
+}
+.plan-text-etudiant {
+  color: #6d28d9 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BATCH MODALS — Saisie rapide (planning-batch-modals.js)
+   Extraites de planning-modal-lab.html v1.0.0
+   ══════════════════════════════════════════════════════════════ */
+
+/* Grille batch */
+.plan-batch-table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: #64748b; font-weight: 600; vertical-align: middle; }
+.plan-batch-table td { vertical-align: middle; padding: 6px 8px; }
+.plan-batch-table .row-label { font-size: .8rem; font-weight: 700; white-space: nowrap; min-width: 72px; }
+
+/* Colonne AM avec checkbox = Matin */
+.plan-col-am-inner { display: flex; align-items: center; gap: 6px; }
+.plan-col-am-check { flex-shrink: 0; }
+.plan-col-am-select { flex: 1; }
+
+/* Soir : select + checkbox fermée */
+.plan-col-soir-inner { display: flex; align-items: center; gap: 6px; }
+.plan-col-soir-select { flex: 1; }
+.plan-soir-fermee .plan-col-soir-select { opacity: .35; pointer-events: none; }
+
+/* Couloir : viscéral inline */
+.plan-couloir-row-inner { display: flex; align-items: center; gap: 6px; }
+.plan-visceral-check-label  { font-size: .7rem; color: #d97706; white-space: nowrap; }
+.plan-ouverture-check-label { font-size: .7rem; color: #16a34a; white-space: nowrap; }
+.plan-nuit-check-label      { font-size: .7rem; color: #0891b2; white-space: nowrap; cursor: default; }
+
+/* Section header dans la modale */
+.plan-batch-section-header { background: #f1f5f9; padding: 6px 12px; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #475569; border-radius: 4px; margin-bottom: 6px; }
+.plan-batch-section-sep { border-top: 2px solid #e2e8f0; margin: 16px 0 12px; }
+
+/* Groupes par salle (IDEs binôme) */
+.plan-salle-group { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+.plan-salle-group-header { background: #f8fafc; padding: 6px 12px; font-size: .78rem; font-weight: 700; color: #334155; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px; }
+.plan-salle-group-header .plan-salle-badge { background: #3b82f6; color: #fff; border-radius: 4px; padding: 1px 8px; font-size: .7rem; }
+.plan-role-row-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 0 8px; white-space: nowrap; }
+.plan-role-row-label.instru  { color: #2563eb; }
+.plan-role-row-label.panseur { color: #7c3aed; }
+.plan-ide-role-separator { border-top: 1px dashed #e2e8f0; }
+
+/* Jour sauvegardé silencieusement — feedback visuel sélecteur de jour */
+.plan-batch-jour-saved {
+  background-color: #16a34a !important;
+  border-color: #16a34a !important;
+  color: #fff !important;
+}
+.plan-batch-jour-saved::after {
+  content: " ✓";
+  font-weight: 700;
+}
+
+/* ── Créneau fermé dans les modales batch ───────────────────────────────── */
+/* Utilisé par buildLockedTd() ET par la cellule soir-fermée (modale chir)  */
+.plan-batch-creneau-ferme,
+.plan-col-soir-inner.plan-soir-fermee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--bs-gray-200);
+  color: var(--bs-secondary);
+  border-radius: 0.375rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  gap: 0.25rem;
+  height: 100%;
+  min-height: 2rem;
+}
+
+/* ── Ligne doublure batch IDEs ──────────────────────────────────────────── */
+.plan-batch-doublure-row td {
+  background-color: var(--bs-gray-100);
+  border-top: none !important;
+}
+.plan-batch-doublure-row .plan-role-row-label.doublure {
+  font-size: 0.78rem;
+  color: var(--bs-secondary);
+  padding-left: 1.5rem;
+}
+.plan-batch-doublure-btn-row td {
+  border-top: none !important;
+  padding-top: 0 !important;
+}
+.plan-batch-btn-add-doublure {
+  font-size: 0.78rem;
+}

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon profil | Bible de Bloc</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="profile-ui.css" rel="stylesheet"/>  <!-- chemin relatif correct depuis modules/profile/ -->
+</head>
+<body class="d-flex min-vh-100">
+
+
+<!-- ── OFFCANVAS ────────────────────────────────────────────── -->
+<div class="offcanvas offcanvas-start bdb-offcanvas" tabindex="-1" id="bdbMainMenu" aria-labelledby="bdbMenuLabel">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <a href="../../index.html" class="d-flex align-items-center gap-2 text-decoration-none">
+      <i class="bi bi-hospital fs-4 text-primary"></i>
+      <div>
+        <div class="fw-bold text-white lh-1">Bible de Bloc</div>
+        <div class="bdb-offcanvas-sub">Ortho-Neuro · CDS</div>
+      </div>
+    </a>
+    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column p-0">
+    <nav class="flex-grow-1 py-2" aria-label="Navigation BDB">
+      <ul class="nav flex-column px-2 gap-1">
+        <li><a href="../../index.html"                        class="nav-link bdb-nav-link"><i class="bi bi-house me-2"></i>Accueil</a></li>
+        <li><a href="../../modules/planning/dashboard.html"  class="nav-link bdb-nav-link"><i class="bi bi-calendar2-week me-2"></i>Planning</a></li>
+        <li><a href="../../modules/annuaire/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-people me-2"></i>Annuaire</a></li>
+        <li><a href="../../modules/transmissions/index.html" class="nav-link bdb-nav-link"><i class="bi bi-arrow-left-right me-2"></i>Transmissions</a></li>
+        <li><a href="../../modules/arsenal/index.html"       class="nav-link bdb-nav-link"><i class="bi bi-box-seam me-2"></i>Arsenal</a></li>
+        <li><a href="../../modules/fiches/index.html"        class="nav-link bdb-nav-link"><i class="bi bi-file-earmark-medical me-2"></i>Fiches</a></li>
+        <li><a href="../../modules/preferences/index.html"   class="nav-link bdb-nav-link"><i class="bi bi-person-gear me-2"></i>Préférences</a></li>
+        <li><a href="../../modules/cours/index.html"         class="nav-link bdb-nav-link"><i class="bi bi-mortarboard me-2"></i>Cours</a></li>
+        <li><a href="../../modules/anatomie/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-activity me-2"></i>Anatomie</a></li>
+        <li><a href="../../modules/installation/index.html"  class="nav-link bdb-nav-link"><i class="bi bi-hospital me-2"></i>Installation</a></li>
+        <li class="bdb-nav-admin d-none"><hr class="border-secondary my-1"/></li>
+        <li><a href="../../modules/admin/index.html" class="nav-link bdb-nav-link bdb-nav-admin d-none"><i class="bi bi-shield-check me-2"></i>Administration</a></li>
+      </ul>
+    </nav>
+    <div class="bdb-offcanvas-footer border-top border-secondary">
+      <div class="d-flex align-items-center gap-2">
+        <span class="bdb-sync-dot" role="status" aria-label="Statut connexion"></span>
+        <small class="text-white-50">Système OK</small>
+      </div>
+      <div class="d-flex align-items-center gap-2 mt-2">
+        <div class="bdb-avatar-xs bdb-offcanvas-avatar" id="offcanvasAvatarInitials">?</div>
+        <small class="text-white-50" id="offcanvasUserName">…</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+<!-- ── HEADER ────────────────────────────────────────────────── -->
+<header class="bdb-module-header sticky-top d-flex align-items-center justify-content-between px-3 px-md-4" id="bdbHeader">
+  <div class="d-flex align-items-center gap-3">
+    <button class="btn btn-sm bdb-menu-btn" data-bs-toggle="offcanvas" data-bs-target="#bdbMainMenu" aria-label="Ouvrir le menu" aria-controls="bdbMainMenu">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-person-circle bdb-module-header-icon"></i>
+      <h1 class="bdb-module-header-title mb-0">Mon profil</h1>
+    </div>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <span id="bdbBadgeAdmin" class="badge bg-danger d-none">Admin</span>
+    <div class="position-relative">
+      <button class="bdb-avatar-btn" id="bdbAvatarBtn" aria-label="Menu utilisateur" aria-expanded="false" aria-haspopup="true">
+        <span id="bdbAvatarInitials">?</span>
+      </button>
+      <div class="bdb-user-menu" id="bdbUserMenu" role="menu">
+        <div class="bdb-user-menu-header">
+          <div class="fw-semibold small" id="bdbMenuName">…</div>
+          <div class="bdb-user-menu-email" id="bdbMenuEmail"></div>
+        </div>
+        <a href="../../modules/profile/index.html" class="bdb-user-menu-item" role="menuitem">
+          <i class="bi bi-person-circle"></i>Mon profil
+        </a>
+        <a href="../../admin-memo.html" class="bdb-user-menu-item bdb-admin-only d-none" role="menuitem">
+          <i class="bi bi-journal-bookmark-fill"></i>Mémo admin
+        </a>
+        <div class="bdb-menu-sep"></div>
+        <button class="bdb-user-menu-item danger w-100" id="bdbBtnLogout" role="menuitem">
+          <i class="bi bi-box-arrow-right"></i>Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+    <!-- CONTENU -->
+  <div class="container-fluid p-4 bg-light flex-grow-1">
+
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+
+        <!-- Alerte -->
+        <div id="alertBox" class="alert d-none mb-3" role="alert" aria-live="polite"></div>
+
+        <!-- Carte avatar + identité -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+
+            <!-- Avatar -->
+            <div class="text-center mb-4">
+              <div class="position-relative d-inline-block mb-3">
+                <div class="profile-avatar mx-auto" id="avatarDisplay">
+                  <span id="avatarInitials">?</span>
+                </div>
+                <button class="profile-avatar-edit-btn" id="btnEditAvatar" type="button" aria-label="Modifier la photo">
+                  <i class="bi bi-camera"></i>
+                </button>
+              </div>
+              <input type="file" id="avatarInput" accept="image/*" class="d-none"/>
+              <div class="fw-bold fs-5" id="displayName">Chargement…</div>
+              <div class="text-muted small" id="displayEmail"></div>
+              <div class="text-muted small" id="displayFonction"></div>
+            </div>
+
+            <!-- Séparateur -->
+            <hr/>
+
+            <!-- Formulaire édition -->
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="form-label fw-semibold" for="fieldPrenom">Prénom</label>
+                <input type="text" class="form-control" id="fieldPrenom" autocomplete="given-name"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold" for="fieldNom">Nom</label>
+                <input type="text" class="form-control" id="fieldNom" autocomplete="family-name"/>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold" for="fieldFonction">Fonction</label>
+                <select class="form-select" id="fieldFonction">
+                  <option value="infirmier">Infirmier(ère)</option>
+                  <option value="medecin">Médecin</option>
+                  <option value="cadre">Cadre</option>
+                  <option value="aide-soignant">Aide-soignant(e)</option>
+                  <option value="secretaire">Secrétaire</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Email</label>
+                <input type="email" class="form-control" id="fieldEmail" disabled/>
+                <div class="form-text">L'email ne peut pas être modifié ici.</div>
+              </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2 justify-content-end">
+              <button class="btn btn-outline-secondary" id="btnCancel" type="button">Annuler</button>
+              <button class="btn btn-primary" id="btnSave" type="button">
+                <span id="btnSaveText"><i class="bi bi-check-lg me-1"></i>Enregistrer</span>
+                <span id="btnSaveSpinner" class="spinner-border spinner-border-sm ms-1 d-none" role="status"></span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Carte mot de passe -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-key me-2 text-secondary"></i>Changer le mot de passe</h6>
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold" for="fieldNewPwd">Nouveau mot de passe</label>
+                <div class="input-group">
+                  <input type="password" class="form-control" id="fieldNewPwd" placeholder="••••••••" autocomplete="new-password"/>
+                  <button class="btn btn-outline-secondary" id="eyePwdBtn" type="button" aria-label="Afficher">
+                    <i class="bi bi-eye" id="eyePwdIcon"></i>
+                  </button>
+                </div>
+                <div class="form-text">Minimum 8 caractères.</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold" for="fieldConfirmPwd">Confirmer</label>
+                <input type="password" class="form-control" id="fieldConfirmPwd" placeholder="••••••••" autocomplete="new-password"/>
+              </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-end">
+              <button class="btn btn-warning" id="btnChangePwd" type="button">
+                <span id="btnPwdText"><i class="bi bi-key me-1"></i>Changer le mot de passe</span>
+                <span id="btnPwdSpinner" class="spinner-border spinner-border-sm ms-1 d-none" role="status"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte statut compte -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2 text-secondary"></i>Statut du compte</h6>
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex justify-content-between small">
+                <span class="text-muted">Approbation</span>
+                <span id="statusApproved" class="badge bg-secondary">—</span>
+              </div>
+              <div class="d-flex justify-content-between small">
+                <span class="text-muted">Rôle</span>
+                <span id="statusRole" class="badge bg-secondary">—</span>
+              </div>
+              <div class="d-flex justify-content-between small">
+                <span class="text-muted">Email vérifié</span>
+                <span id="statusEmailVerified" class="badge bg-secondary">—</span>
+              </div>
+              <div class="d-flex justify-content-between small">
+                <span class="text-muted">Membre depuis</span>
+                <span id="statusSince" class="text-muted">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <!-- FOOTER -->
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 Bible de Bloc — Consensus Design System —
+    <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+  </footer>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi bi-check-circle-fill me-2 text-success"></i>
+      <strong class="me-auto">Profil</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+    <div class="toast-body" id="toastBody">Enregistré.</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+
+<script>
+
+// ── renderProfileAvatar (définie en dehors de DOMContentLoaded pour portée globale) ──
+let _avatarPreview = null;
+let _avatarFile    = null;
+
+function renderProfileAvatar(url, ini, bgColor) {
+  const av   = document.getElementById('avatarDisplay');
+  const span = document.getElementById('avatarInitials');
+  if (!av) return;
+  av.dataset.initials = ini || '?';
+  av.dataset.color    = bgColor || '#2563eb';
+  av.style.background = bgColor || '#2563eb';
+  const src = _avatarPreview || url;
+  if (src) {
+    if (span) span.style.display = 'none';
+    let img = av.querySelector('img');
+    if (!img) {
+      img = document.createElement('img');
+      img.className = 'profile-avatar-img';
+      av.appendChild(img);
+    }
+    img.src = src; img.alt = ini || '';
+  } else {
+    av.querySelectorAll('img').forEach(i => i.remove());
+    if (span) { span.style.display = ''; span.textContent = ini || '?'; }
+  }
+}
+
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // ── BDB Header universel ──────────────────────────────────────
+  (async () => {
+    const _s = await window.bdbGetSession();
+    if (!_s) { window.location.href = '../../login.html'; return; }
+    try {
+      const { data: _p } = await window.bdb.from('profiles_directory')
+        .select('prenom, nom, initials').eq('user_id', _s.user.id).maybeSingle();
+      const ini  = (_p?.initials || ((_p?.prenom?.[0]||'') + (_p?.nom?.[0]||'')) || _s.user.email.substring(0,2)).toUpperCase();
+      const name = [_p?.prenom, _p?.nom].filter(Boolean).join(' ') || _s.user.email;
+      document.getElementById('bdbAvatarInitials').textContent     = ini;
+      document.getElementById('offcanvasAvatarInitials').textContent = ini;
+      document.getElementById('offcanvasUserName').textContent     = name;
+      document.getElementById('bdbMenuName').textContent           = name;
+      document.getElementById('bdbMenuEmail').textContent          = _s.user.email;
+    } catch(_) {}
+    try {
+      const { data: _r } = await window.bdb.from('user_roles')
+        .select('role').eq('user_id', _s.user.id).maybeSingle();
+      if (_r?.role === 'admin') {
+        document.getElementById('bdbBadgeAdmin').classList.remove('d-none');
+        document.querySelectorAll('.bdb-nav-admin').forEach(el => el.classList.remove('d-none'));
+        document.querySelectorAll('.bdb-admin-only').forEach(el => el.classList.remove('d-none'));
+      }
+    } catch(_) {}
+    document.getElementById('bdbBtnLogout').addEventListener('click', async () => {
+      await window.bdb.auth.signOut();
+      window.location.href = '../../login.html';
+    });
+    const _btn  = document.getElementById('bdbAvatarBtn');
+    const _menu = document.getElementById('bdbUserMenu');
+    _btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = _menu.classList.toggle('open');
+      _btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', () => {
+      _menu.classList.remove('open');
+      _btn.setAttribute('aria-expanded', 'false');
+    });
+    _menu.addEventListener('click', e => e.stopPropagation());
+  })();
+  // ── Fin BDB Header ────────────────────────────────────────────
+
+
+  // ── Auth guard ───────────────────────────────────────────────
+  const session = await window.bdbGetSession();
+  if (!session) { window.location.href = '../../login.html'; return; }
+
+  const userId = session.user.id;
+  const DB = window.bdb;
+
+  // ── Helpers UI ───────────────────────────────────────────────
+  function showAlert(msg, type = 'danger') {
+    const el = document.getElementById('alertBox');
+    const icon = type === 'danger' ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill';
+    el.className = `alert alert-${type} d-flex align-items-start gap-2 mb-3`;
+    el.innerHTML = `<i class="bi ${icon} flex-shrink-0 mt-1"></i><span>${msg}</span>`;
+    el.classList.remove('d-none');
+    setTimeout(() => el.classList.add('d-none'), 5000);
+  }
+
+  function showToast(msg) {
+    document.getElementById('toastBody').textContent = msg;
+    new bootstrap.Toast(document.getElementById('toastInfo')).show();
+  }
+
+  function avatarColor(name) {
+    const colors = ['#2563eb','#7c3aed','#059669','#d97706','#dc2626','#0891b2','#be185d'];
+    let hash = 0;
+    for (const c of (name || '')) hash = c.charCodeAt(0) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  function fonctionLabel(f) {
+    const map = { medecin:'Médecin', infirmier:'Infirmier·e', 'aide-soignant':'Aide-soignant·e',
+      cadre:'Cadre de bloc', secretaire:'Secrétaire', autre:'Autre' };
+    return map[f] || f || '';
+  }
+
+  // ── Chargement profil ────────────────────────────────────────
+  let originalData = {};
+
+  async function loadProfile() {
+    try {
+      const { data: p } = await DB.from('profiles_directory')
+        .select('*').eq('user_id', session.user.id).maybeSingle();
+
+      const { data: roleData } = await DB.from('user_roles')
+        .select('role').eq('user_id', session.user.id).maybeSingle();
+
+      if (p) {
+        originalData = { prenom: p.prenom || '', nom: p.nom || '', fonction: p.fonction || 'infirmier' };
+
+        // Remplir formulaire
+        document.getElementById('fieldPrenom').value  = p.prenom  || '';
+        document.getElementById('fieldNom').value     = p.nom     || '';
+        document.getElementById('fieldFonction').value = p.fonction || 'infirmier';
+        document.getElementById('fieldEmail').value   = session.user.email || '';
+
+        // Avatar
+        const ini = p.initials || ((p.prenom?.[0] || '') + (p.nom?.[0] || '')).toUpperCase() || '?';
+        renderProfileAvatar(p.avatar_url || null, ini, avatarColor(p.prenom || ''));
+
+        // Infos affichées
+        const fullName = [p.prenom, p.nom].filter(Boolean).join(' ');
+        document.getElementById('displayName').textContent     = fullName || session.user.email;
+        document.getElementById('displayEmail').textContent    = session.user.email;
+        document.getElementById('displayFonction').textContent = fonctionLabel(p.fonction);
+
+        // Statut
+        document.getElementById('statusApproved').textContent  = p.approved ? 'Approuvé' : 'En attente';
+        document.getElementById('statusApproved').className    = 'badge ' + (p.approved ? 'bg-success' : 'bg-warning text-dark');
+        document.getElementById('statusRole').textContent      = roleData?.role || 'membre';
+        document.getElementById('statusRole').className        = 'badge ' + (roleData?.role === 'admin' ? 'bg-danger' : 'bg-primary');
+        document.getElementById('statusEmailVerified').textContent = session.user.email_confirmed_at ? 'Oui' : 'Non';
+        document.getElementById('statusEmailVerified').className   = 'badge ' + (session.user.email_confirmed_at ? 'bg-success' : 'bg-secondary');
+
+        const since = p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR') : '—';
+        document.getElementById('statusSince').textContent = since;
+      }
+    } catch (err) {
+      showAlert('Erreur chargement profil : ' + (err.message || 'service indisponible'));
+    }
+  }
+
+  // ── Enregistrer profil ───────────────────────────────────────
+  document.getElementById('btnSave').addEventListener('click', async () => {
+    const prenom   = document.getElementById('fieldPrenom').value.trim();
+    const nom      = document.getElementById('fieldNom').value.trim();
+    const fonction = document.getElementById('fieldFonction').value;
+
+    if (!prenom || prenom.length < 2) { showAlert('Prénom trop court.'); return; }
+    if (!nom    || nom.length < 2)    { showAlert('Nom trop court.'); return; }
+
+    const btn = document.getElementById('btnSave');
+    btn.disabled = true;
+    document.getElementById('btnSaveSpinner').classList.remove('d-none');
+    document.getElementById('btnSaveText').innerHTML = 'Enregistrement…';
+
+    const initials = (prenom[0] + nom[0]).toUpperCase();
+    const name     = prenom + ' ' + nom;
+
+    // Upload avatar si changé
+    let avatarUrl = null;
+    if (_avatarFile) {
+      const file = _avatarFile;
+      const ext  = file.name.split('.').pop();
+      const path = `avatars/${session.user.id}.${ext}`;
+      const { error: upErr } = await DB.storage.from('avatars').upload(path, file, { upsert: true });
+      if (!upErr) {
+        const { data: urlData } = DB.storage.from('avatars').getPublicUrl(path);
+        avatarUrl = urlData.publicUrl;
+      }
+    }
+
+    const updatePayload = {
+      prenom, nom, name, initials, fonction,
+      updated_at: new Date().toISOString(),
+      ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
+    };
+
+    const { error } = await DB.from('profiles_directory')
+      .update(updatePayload)
+      .eq('user_id', session.user.id);
+
+    btn.disabled = false;
+    document.getElementById('btnSaveSpinner').classList.add('d-none');
+    document.getElementById('btnSaveText').innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer';
+
+    if (error) {
+      showAlert('Erreur : ' + error.message);
+    } else {
+      showToast('Profil mis à jour.');
+      document.getElementById('displayName').textContent     = name;
+      document.getElementById('displayFonction').textContent = fonctionLabel(fonction);
+      originalData = { prenom, nom, fonction };
+      _avatarPreview = null;
+      _avatarFile = null;
+      document.getElementById('avatarInput').value = '';
+      const av = document.getElementById('avatarDisplay');
+      renderProfileAvatar(avatarUrl || av.querySelector('img')?.src || null, initials, av.dataset.color || '#2563eb');
+    }
+  });
+
+  // ── Annuler ──────────────────────────────────────────────────
+  document.getElementById('btnCancel').addEventListener('click', () => {
+    document.getElementById('fieldPrenom').value   = originalData.prenom   || '';
+    document.getElementById('fieldNom').value      = originalData.nom      || '';
+    document.getElementById('fieldFonction').value = originalData.fonction || 'infirmier';
+  });
+
+  // ── Toggle affichage mot de passe ────────────────────────────
+  document.getElementById('eyePwdBtn').addEventListener('click', () => {
+    const input = document.getElementById('fieldNewPwd');
+    const icon  = document.getElementById('eyePwdIcon');
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+  });
+
+  // ── Changer mot de passe ─────────────────────────────────────
+  document.getElementById('btnChangePwd').addEventListener('click', async () => {
+    const pwd     = document.getElementById('fieldNewPwd').value;
+    const confirm = document.getElementById('fieldConfirmPwd').value;
+
+    if (!pwd || pwd.length < 8)  { showAlert('8 caractères minimum.'); return; }
+    if (pwd !== confirm)          { showAlert('Les mots de passe ne correspondent pas.'); return; }
+
+    const btn = document.getElementById('btnChangePwd');
+    btn.disabled = true;
+    document.getElementById('btnPwdSpinner').classList.remove('d-none');
+    document.getElementById('btnPwdText').innerHTML = 'Mise à jour…';
+
+    const { error } = await DB.auth.updateUser({ password: pwd });
+
+    btn.disabled = false;
+    document.getElementById('btnPwdSpinner').classList.add('d-none');
+    document.getElementById('btnPwdText').innerHTML = '<i class="bi bi-key me-1"></i>Changer le mot de passe';
+
+    if (error) {
+      showAlert('Erreur : ' + error.message);
+    } else {
+      showToast('Mot de passe mis à jour.');
+      document.getElementById('fieldNewPwd').value     = '';
+      document.getElementById('fieldConfirmPwd').value = '';
+    }
+  });
+
+  // ── Init ─────────────────────────────────────────────────────
+  try {
+    await loadProfile();
+  } catch (err) {
+    showAlert('Erreur de chargement — ' + (err.message || 'service indisponible'));
+  }
+
+  // ── Tooltips ─────────────────────────────────────────────────
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,720 @@
+﻿<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planning Engine — Saisie</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="../../css/planning-ui.css" rel="stylesheet"/>
+
+</head>
+
+<body class="d-flex min-vh-100">
+
+<div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mainMenu">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title d-flex align-items-center">
+      <i class="bi bi-calendar2-week fs-4 me-2 text-primary"></i>
+      <span class="fs-5 fw-bold">Planning Engine</span>
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body">
+    <small class="text-uppercase text-white-50 mb-2 d-block">v1.x — file:// safe</small>
+    <hr class="border-secondary my-3">
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a href="../../index.html" class="nav-link text-white-50"><i class="bi bi-house me-2"></i>← Portail</a>
+      </li>
+      <li><hr class="border-secondary my-2 mx-2"></li>
+      <li class="nav-item">
+        <a href="./dashboard.html" class="nav-link text-white-50"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+      </li>
+      <li class="nav-item">
+        <a href="./planning.html" class="nav-link text-white active"><i class="bi bi-pencil-square me-2"></i>Saisie</a>
+      </li>
+      <li class="nav-item">
+        <a href="./export.html" class="nav-link text-white-50"><i class="bi bi-download me-2"></i>Export</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+  <header class="sticky-top bg-white shadow-sm px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-label="Menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <h5 class="mb-0">Saisie — Affectations</h5>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <div class="btn-group" role="group" aria-label="Navigation semaine">
+      <button id="btnPrevWeek" class="btn btn-outline-secondary" title="Semaine précédente">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <button id="btnLoadWeek" class="btn btn-outline-secondary">Charger semaine</button>
+      <button id="btnNextWeek" class="btn btn-outline-secondary" title="Semaine suivante">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    <span id="weekContext" class="badge bg-light text-dark border ms-2"></span>
+      <button id="btnImportCSV" class="btn btn-outline-primary">
+        <i class="bi bi-upload me-1"></i>Importer CSV
+      </button>
+
+      <button id="btnImportJSON" class="btn btn-outline-secondary">
+        <i class="bi bi-filetype-json me-1"></i>Importer JSON
+      </button>
+      <button id="btnSnapshotWork" class="btn btn-outline-secondary">
+        <i class="bi bi-save me-1"></i>Snapshot WORK
+      </button>
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-lightning-fill me-1"></i>Saisie rapide
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <button class="dropdown-item" id="btnCloseSalles" data-bs-toggle="modal" data-bs-target="#modalCloseSalles">
+              <i class="bi bi-lock me-2"></i>Fermer des cr&eacute;neaux
+            </button>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#batchModalChirurgiens">
+              <i class="bi bi-person-badge me-2 text-primary"></i>Chirurgiens
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#batchModalIDEs">
+              <i class="bi bi-people me-2 text-success"></i>IDEs (INSTRU / PANSEUR)
+            </button>
+          </li>
+          <li>
+            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#batchModalCouloir">
+              <i class="bi bi-arrow-left-right me-2 text-info"></i>Couloir
+            </button>
+          </li>
+        </ul>
+      </div>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCreate">
+        <i class="bi bi-plus-lg me-1"></i>Nouvelle affectation
+      </button>
+      <!-- input file (file:// safe) -->
+      <input id="fileImportCSV" type="file" accept=".csv,text/csv" class="d-none" multiple>
+
+      <input id="fileImportJSON" type="file" accept=".json,application/json" class="d-none">
+    </div>
+  </header>
+
+  <div class="container-xxl py-4">
+
+    <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
+      <h1 class="mb-2"><i class="bi bi-pencil-square me-2"></i>Saisie planning</h1>
+      <p class="mb-0 opacity-75">Créer / modifier / supprimer des affectations atomiques</p>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-xl-7">
+        <div class="card shadow-sm">
+          <div class="card-body d-flex flex-wrap align-items-end justify-content-between gap-3">
+            <div>
+              <div class="text-secondary">Semaine</div>
+              <div class="fw-semibold" id="weekKey">—</div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <div>
+                <label class="form-label mb-1">Semaine</label>
+                <input id="weekInput" type="number" class="form-control" value="16" min="1" max="53">
+              </div>
+              <div>
+                <label class="form-label mb-1">Année</label>
+                <input id="yearInput" type="number" class="form-control" value="2025" min="2020" max="2100">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-5">
+        <div class="card shadow-sm h-100">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <span>Contrôles semaine</span>
+            <span id="weekStatutBadge" class="badge bg-secondary">En cours</span>
+          </div>
+          <div class="card-body">
+            <ul class="list-group mb-2" id="weekWarnings"></ul>
+            <button id="btnDeclareComplete" class="btn btn-sm btn-outline-success w-100">
+              <i class="bi bi-check2-all me-1"></i>Déclarer la semaine complète
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- =====================
+         VUE MATRICE (UX humaine) — Semaine en 1 coup d'œil
+         ===================== -->
+    <div class="card shadow-sm mb-3">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="fw-semibold">
+          <i class="bi bi-grid-3x3-gap me-2"></i>Vue matrice (jour × créneau)
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button id="btnToggleLegacyTable" class="btn btn-sm btn-outline-secondary" type="button">
+            Afficher / masquer la liste
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="matrixGrid" class="table-responsive"></div>
+        <div class="small text-secondary mt-2">
+          Astuce : clique une cellule vide pour ouvrir une affectation pré-remplie (jour + créneau + salle/couloir).
+        </div>
+      </div>
+    </div>
+
+<div class="card shadow-sm" id="legacyTableCard">
+      <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <strong>Affectations</strong>
+          <span class="badge bg-secondary"><span id="countAffectations">0</span> slots</span>
+        </div>
+        <div class="btn-group btn-group-sm" id="affFilterBar" data-filter="all">
+          <button class="btn btn-primary active"           data-filter="all">Tous</button>
+          <button class="btn btn-outline-primary"          data-filter="couloir"><i class="bi bi-arrow-left-right me-1"></i>Couloir</button>
+          <button class="btn btn-outline-danger"           data-filter="visceral"><i class="bi bi-heart-pulse me-1"></i>Viscéral</button>
+          <button class="btn btn-outline-secondary"        data-filter="fermee"><i class="bi bi-lock me-1"></i>Fermées</button>
+          <button class="btn btn-outline-success"          data-filter="ouverture"><i class="bi bi-sunrise me-1"></i>Ouvreurs</button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle plan-table-min">
+          <thead>
+            <tr>
+              <th scope="col" class="small ps-3">Secteur / Salle</th>
+              <th scope="col" class="small">Jour</th>
+              <th scope="col" class="small">Créneau</th>
+              <th scope="col" class="small">Chirurgien</th>
+              <th scope="col" class="small">Personnel</th>
+              <th scope="col" class="small">Statut</th>
+              <th scope="col" class="small text-end pe-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyAffectations"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 Planning Engine — <span class="badge bg-light text-dark border">FILE SAFE</span></small>
+  </footer>
+
+</main>
+
+<!-- =====================================================
+     MODALE AFFECTATION V2 — TERRAIN FIRST
+     2 vues : COULOIR (multi-IDE) / SALLE (entités autonomes)
+===================================================== -->
+<div class="modal fade" id="modalCreate" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-pencil-square text-primary me-2"></i>
+          Affectation — <span id="modalContextLabel" class="fw-normal"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- =============================================
+             VUE COULOIR
+             Jusqu'à 7 IDE, chacun avec ouverture + viscéral
+             Toute personne ici = indisponible dans les salles
+        ============================================= -->
+        <div id="modalViewCouloir" class="d-none">
+
+          <div class="alert alert-info py-2 mb-3 small">
+            <i class="bi bi-info-circle me-1"></i>
+            Chaque personne affectée ici sera <strong>indisponible dans les salles</strong> du même créneau.
+          </div>
+
+          <!-- Liste dynamique IDE couloir -->
+          <div id="couloirEquipeList" class="d-flex flex-column gap-2 mb-3">
+            <!-- Rows injectées par JS -->
+          </div>
+
+          <button type="button" id="btnAddCouloirIDE" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-person-plus me-1"></i>Ajouter une personne
+          </button>
+
+        </div>
+
+        <!-- =============================================
+             VUE SALLE
+             Entités autonomes : Chirurgien / INSTRU / PANSEUR / Étudiant
+        ============================================= -->
+        <div id="modalViewSalle" class="d-none">
+
+          <!-- Fermeture salle -->
+          <div class="form-check form-switch mb-2">
+            <input type="checkbox" class="form-check-input" id="checkboxSalleFermee" role="switch">
+            <label class="form-check-label fw-semibold text-danger" for="checkboxSalleFermee">
+              <i class="bi bi-lock me-1"></i>Salle fermée
+            </label>
+          </div>
+          <!-- Cause fermeture — visible uniquement si salle fermée -->
+          <div id="fermeDegradesSection" class="d-none mb-3 ps-3 border-start border-danger">
+            <div class="form-check form-switch mb-0">
+              <input type="checkbox" class="form-check-input" id="checkboxFermeDegrade" role="switch">
+              <label class="form-check-label small text-danger" for="checkboxFermeDegrade">
+                <i class="bi bi-exclamation-triangle me-1"></i>Fermée par manque de personnel (dégradé)
+              </label>
+            </div>
+          </div>
+
+          <!-- Contenu salle (masqué si fermée) -->
+          <div id="salleContent">
+
+            <!-- CHIRURGIEN -->
+            <div class="card mb-3 border-primary-subtle">
+              <div class="card-header py-2 bg-primary-subtle text-primary fw-semibold small">
+                <i class="bi bi-person-badge me-1"></i>Chirurgien
+              </div>
+              <div class="card-body py-2">
+                <select id="selectChirurgien" class="form-select form-select-sm"></select>
+              </div>
+            </div>
+
+            <!-- INSTRU -->
+            <div class="card mb-3">
+              <div class="card-header py-2 bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-semibold small"><i class="bi bi-person me-1"></i>INSTRU</span>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="form-check form-switch mb-0">
+                    <input type="checkbox" class="form-check-input" id="checkboxOuvertureInstru" role="switch">
+                    <label class="form-check-label small text-success" for="checkboxOuvertureInstru">Ouverture</label>
+                  </div>
+                  <div class="form-check mb-0" id="nuitInstruWrapper">
+                    <input type="checkbox" class="form-check-input" id="checkboxNuitInstru">
+                    <label class="form-check-label small text-info-emphasis" for="checkboxNuitInstru"><i class="bi bi-moon-stars me-1"></i>Nuit</label>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body py-2">
+                <!-- IDE + Intérimaire -->
+                <div class="row g-2 align-items-center mb-2">
+                  <div class="col">
+                    <select id="selectInstru" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-auto">
+                    <div class="form-check mb-0">
+                      <input type="checkbox" class="form-check-input" id="checkboxInstruInterim">
+                      <label class="form-check-label small" for="checkboxInstruInterim">Intérimaire</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Doublure INSTRU -->
+                <div id="doublureInstruSection">
+                  <button type="button" id="btnToggleDoublureInstru" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-person-plus me-1"></i>Ajouter doublure
+                  </button>
+                  <div id="doublureInstruBlock" class="d-none mt-2 ps-2 border-start border-warning">
+                    <div class="row g-2 align-items-center">
+                      <div class="col-auto">
+                        <span class="badge bg-warning-subtle text-dark small">Doublure INSTRU</span>
+                      </div>
+                      <div class="col">
+                        <select id="selectDoublureInstru" class="form-select form-select-sm"></select>
+                      </div>
+                      <div class="col-auto d-none" id="doublureInstruOuvWrapper">
+                        <div class="form-check mb-0">
+                          <input type="checkbox" class="form-check-input" id="checkboxDoublureInstruOuv">
+                          <label class="form-check-label small text-success" for="checkboxDoublureInstruOuv">Ouv.</label>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="form-check mb-0">
+                          <input type="checkbox" class="form-check-input" id="checkboxDoublureInstruInterim">
+                          <label class="form-check-label small" for="checkboxDoublureInstruInterim">Intérimaire</label>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <button type="button" id="btnRemoveDoublureInstru" class="btn btn-outline-danger btn-sm py-0 px-2">
+                          <i class="bi bi-x"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANSEUR -->
+            <div id="alertNuitDoublon" class="alert alert-info py-2 px-3 d-none mb-2">
+              <i class="bi bi-moon-stars me-2"></i>
+              <strong>Attention :</strong> Une autre IDE est déjà marquée « Nuit » ce jour.
+            </div>
+            <div id="warnInstruPanseur" class="alert alert-danger py-2 px-3 d-none mb-2">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <strong>Même personne en INSTRU et PANSEUR</strong> — vérifier la saisie.
+            </div>
+            <div class="card mb-3">
+              <div class="card-header py-2 bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-semibold small"><i class="bi bi-person me-1"></i>PANSEUR</span>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="form-check form-switch mb-0">
+                    <input type="checkbox" class="form-check-input" id="checkboxOuverturePanseur" role="switch">
+                    <label class="form-check-label small text-success" for="checkboxOuverturePanseur">Ouverture</label>
+                  </div>
+                  <div class="form-check mb-0" id="nuitPanseurWrapper">
+                    <input type="checkbox" class="form-check-input" id="checkboxNuitPanseur">
+                    <label class="form-check-label small text-info-emphasis" for="checkboxNuitPanseur"><i class="bi bi-moon-stars me-1"></i>Nuit</label>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body py-2">
+                <!-- IDE + Intérimaire -->
+                <div class="row g-2 align-items-center mb-2">
+                  <div class="col">
+                    <select id="selectPanseur" class="form-select form-select-sm"></select>
+                  </div>
+                  <div class="col-auto">
+                    <div class="form-check mb-0">
+                      <input type="checkbox" class="form-check-input" id="checkboxPanseurInterim">
+                      <label class="form-check-label small" for="checkboxPanseurInterim">Intérimaire</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Doublure PANSEUR -->
+                <div id="doublurePanseurSection">
+                  <button type="button" id="btnToggleDoublurePanseur" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-person-plus me-1"></i>Ajouter doublure
+                  </button>
+                  <div id="doublurePanseurBlock" class="d-none mt-2 ps-2 border-start border-warning">
+                    <div class="row g-2 align-items-center">
+                      <div class="col-auto">
+                        <span class="badge bg-warning-subtle text-dark small">Doublure PANSEUR</span>
+                      </div>
+                      <div class="col">
+                        <select id="selectDoublurePanseur" class="form-select form-select-sm"></select>
+                      </div>
+                      <div class="col-auto d-none" id="doublurePanseurOuvWrapper">
+                        <div class="form-check mb-0">
+                          <input type="checkbox" class="form-check-input" id="checkboxDoublurePanseurOuv">
+                          <label class="form-check-label small text-success" for="checkboxDoublurePanseurOuv">Ouv.</label>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="form-check mb-0">
+                          <input type="checkbox" class="form-check-input" id="checkboxDoublurePanseurInterim">
+                          <label class="form-check-label small" for="checkboxDoublurePanseurInterim">Intérimaire</label>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <button type="button" id="btnRemoveDoublurePanseur" class="btn btn-outline-danger btn-sm py-0 px-2">
+                          <i class="bi bi-x"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ÉTUDIANT -->
+            <div class="card mb-3">
+              <div class="card-body py-2">
+                <div class="row g-2 align-items-center">
+                  <div class="col-auto">
+                    <div class="form-check form-switch mb-0">
+                      <input type="checkbox" class="form-check-input" id="checkboxEtudiant" role="switch">
+                      <label class="form-check-label fw-semibold small" for="checkboxEtudiant">
+                        <i class="bi bi-mortarboard me-1"></i>Étudiant présent
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col d-none" id="etudiantSelectWrapper">
+                    <select id="selectEtudiant" class="form-select form-select-sm"></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Warning combinaison irrationnelle -->
+            <div id="alertIrrationnel" class="alert alert-warning py-2 small d-none">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              <strong>Combinaison inhabituelle</strong> —
+              Doublure INSTRU + Doublure PANSEUR + Étudiant en simultané. Vérifier conformité sécurité.
+            </div>
+
+          </div><!-- /salleContent -->
+        </div><!-- /modalViewSalle -->
+
+      </div><!-- /modal-body -->
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" id="btnCopySlotCreneaux" class="btn btn-outline-secondary d-none">
+          <i class="bi bi-copy me-1"></i>Copier vers autres créneaux
+        </button>
+        <button type="button" id="btnSaveAffectation" class="btn btn-primary">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<!-- MODALE FERMETURE SALLES -->
+<div class="modal fade" id="modalCloseSalles" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-lock text-warning me-2"></i>Fermer des salles
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="alert alert-info small m-3 mb-0 py-2">
+          <i class="bi bi-info-circle me-1"></i>
+          Cochez les créneaux à fermer. Les cases grisées contiennent déjà une affectation.
+        </div>
+        <div class="table-responsive p-3">
+          <table class="table table-sm mb-0 align-middle text-center" id="closeSallesTable">
+            <thead id="closeSallesThead"></thead>
+            <tbody id="closeSallesBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" id="btnConfirmCloseSalles" class="btn btn-warning">
+          <i class="bi bi-lock me-1"></i>Fermer les salles sélectionnées
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong class="me-auto">Planning Engine</strong>
+      <small class="text-muted">info</small>
+      <button type="button" class="btn btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+    <div class="toast-body">—</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- CORE -->
+<script src="core/planning-core.js"></script>
+<script src="core/planning-defaults.js"></script>
+<script src="core/planning-schema.js"></script>
+<script src="services/members-service.js"></script>
+
+<!-- SERVICES -->
+<script src="services/cds-storage.js"></script>
+<script src="services/storage-key-service.js"></script>
+<script src="services/planning-engine.js"></script>
+<script src="services/planning-import.js"></script>
+<script src="services/planning-export.js"></script>
+<script src="services/planning-analytics.js"></script>
+
+<!-- UI -->
+<script src="ui/planning-matrix.js"></script>
+<script src="ui/planning-events.js"></script>
+<script src="ui/planning-modal.js"></script>
+<script src="ui/planning-availability.js"></script>
+<script src="ui/planning-import-ui.js"></script>
+<script src="ui/planning-crud.js"></script>
+<script src="ui/planning-slot-editor.js"></script>
+<script src="ui/planning-members.js"></script>
+<script src="ui/planning-batch-modals.js"></script>
+<script src="ui/planning-controller.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("modalCloseSalles")
+    ?.addEventListener("show.bs.modal", () => PlanningSlotEditor.openCloseSallesModal());
+  document.getElementById("btnConfirmCloseSalles")
+    ?.addEventListener("click", () => PlanningSlotEditor.closeSallesSelection());
+});
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BATCH MODALES — Saisie rapide (planning-batch-modals.js)
+     IDs préfixés "batch" pour éviter collisions avec modales existantes
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- MODALE CHIRURGIENS -->
+<div class="modal fade" id="batchModalChirurgiens" tabindex="-1" aria-labelledby="batchLabelChir">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="batchLabelChir">
+          <i class="bi bi-person-badge text-primary me-2"></i>
+          Saisie rapide — Chirurgiens &mdash; <span id="batchChirJourLabel" class="fw-normal text-muted">Lundi</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <label class="form-label fw-semibold mb-0">Jour :</label>
+          <div class="btn-group btn-group-sm" id="batchChirJourSelector">
+            <button class="btn btn-outline-secondary active" data-jour="LUNDI">Lundi</button>
+            <button class="btn btn-outline-secondary" data-jour="MARDI">Mardi</button>
+            <button class="btn btn-outline-secondary" data-jour="MERCREDI">Mercredi</button>
+            <button class="btn btn-outline-secondary" data-jour="JEUDI">Jeudi</button>
+            <button class="btn btn-outline-secondary" data-jour="VENDREDI">Vendredi</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table plan-batch-table align-middle mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th>Salle</th>
+                <th class="text-center">Matin</th>
+                <th class="text-center">Après-midi <small class="text-muted fw-normal d-block plan-batch-th-note">☑ = Matin par défaut</small></th>
+                <th class="text-center">Soir <small class="text-muted fw-normal d-block plan-batch-th-note">☑ =M · ☐ Fermée</small></th>
+              </tr>
+            </thead>
+            <tbody id="batchTbodyChir"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="batchBtnSaveChir">
+          <i class="bi bi-check-all me-1"></i>Terminer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE IDEs -->
+<div class="modal fade" id="batchModalIDEs" tabindex="-1" aria-labelledby="batchLabelIDEs">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="batchLabelIDEs">
+          <i class="bi bi-people text-success me-2"></i>
+          Saisie rapide — IDEs &mdash; <span id="batchIDEJourLabel" class="fw-normal text-muted">Lundi</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <label class="form-label fw-semibold mb-0">Jour :</label>
+          <div class="btn-group btn-group-sm" id="batchIDEJourSelector">
+            <button class="btn btn-outline-secondary active" data-jour="LUNDI">Lundi</button>
+            <button class="btn btn-outline-secondary" data-jour="MARDI">Mardi</button>
+            <button class="btn btn-outline-secondary" data-jour="MERCREDI">Mercredi</button>
+            <button class="btn btn-outline-secondary" data-jour="JEUDI">Jeudi</button>
+            <button class="btn btn-outline-secondary" data-jour="VENDREDI">Vendredi</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table plan-batch-table mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th class="plan-batch-th-role-label">Salle / Rôle</th>
+                <th class="text-center">Matin <small class="text-muted fw-normal d-block plan-batch-th-note">+ ☐ Ouv.</small></th>
+                <th class="text-center">Après-midi <small class="text-muted fw-normal d-block plan-batch-th-note">☑ =M</small></th>
+                <th class="text-center">Soir <small class="text-muted fw-normal d-block plan-batch-th-note">☑ =AM</small></th>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div id="batchIDEsSalleGroups"></div>
+      </div>
+      <div class="modal-footer">
+        <div id="alertNuitDoublonBatch" class="alert alert-info py-1 px-2 small d-none me-auto mb-0">
+          <i class="bi bi-moon-stars me-1"></i>Plusieurs IDEs marquées « Nuit » ce jour.
+        </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" id="batchBtnSaveIDEs">
+          <i class="bi bi-check-all me-1"></i>Terminer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE COULOIR -->
+<div class="modal fade" id="batchModalCouloir" tabindex="-1" aria-labelledby="batchLabelCouloir">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="batchLabelCouloir">
+          <i class="bi bi-arrow-left-right text-info me-2"></i>
+          Saisie rapide — Couloir &mdash; <span id="batchCouloirJourLabel" class="fw-normal text-muted">Lundi</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex align-items-center gap-2 mb-4">
+          <label class="form-label fw-semibold mb-0">Jour :</label>
+          <div class="btn-group btn-group-sm" id="batchCouloirJourSelector">
+            <button class="btn btn-outline-secondary active" data-jour="LUNDI">Lundi</button>
+            <button class="btn btn-outline-secondary" data-jour="MARDI">Mardi</button>
+            <button class="btn btn-outline-secondary" data-jour="MERCREDI">Mercredi</button>
+            <button class="btn btn-outline-secondary" data-jour="JEUDI">Jeudi</button>
+            <button class="btn btn-outline-secondary" data-jour="VENDREDI">Vendredi</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table plan-batch-table align-middle" id="batchTableCouloir">
+            <thead class="bg-light">
+              <tr>
+                <th>IDE</th>
+                <th class="text-center">Matin <small class="text-muted fw-normal d-block plan-batch-th-note">+ ☐ Visc. · ☐ Ouv.</small></th>
+                <th class="text-center">Après-midi <small class="text-muted fw-normal d-block plan-batch-th-note">☑ =M · ☐ Visc.</small></th>
+                <th class="text-center">Soir <small class="text-muted fw-normal d-block plan-batch-th-note">☑ =AM · ☐ Visc.</small></th>
+                <th class="text-center">Suppr.</th>
+              </tr>
+            </thead>
+            <tbody id="batchTbodyCouloir"></tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="batchBtnAddCouloirRow">
+          <i class="bi bi-person-plus me-1"></i>Ajouter un IDE
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-info text-white" id="batchBtnSaveCouloir">
+          <i class="bi bi-check-all me-1"></i>Terminer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

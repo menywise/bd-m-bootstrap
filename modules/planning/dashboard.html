@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard | Planning Engine</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+
+<style>
+/* ============================================================
+   PLANNING ENGINE — DASHBOARD CSS
+   Règle : 0 CSS inline dans le markup HTML
+   Tout ce qui est dynamique est injecté par JS via classList
+   ============================================================ */
+
+/* ── Inputs semaine dans le header banner ── */
+.dash-week-input  { width: 5.5rem; }
+.dash-year-input  { width: 6.5rem; }
+
+/* ── KPI cards ── */
+.kpi-card { transition: transform .12s ease, box-shadow .12s ease; }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.10) !important; }
+.kpi-value { font-size: 2.1rem; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.kpi-label { font-size: .72rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; }
+.kpi-sub   { font-size: .68rem; color: #9ca3af; margin-top: 2px; }
+
+/* ── États slots — badges et cellules ── */
+.slot-stable   { background-color: #dcfce7 !important; color: #166534 !important; }
+.slot-fragile  { background-color: #fef9c3 !important; color: #854d0e !important; }
+.slot-critique { background-color: #fee2e2 !important; color: #991b1b !important; }
+.slot-ferme    { background-color: #f3f4f6 !important; color: #9ca3af !important; }
+.slot-vide     { background-color: #f8fafc !important; color: #cbd5e1 !important; }
+
+/* Cellule matrice */
+.matrix-cell {
+  min-width: 64px; max-width: 96px;
+  text-align: center;
+  padding: 5px 3px;
+  border-radius: 5px;
+  font-size: .68rem;
+  cursor: default;
+  transition: filter .1s;
+}
+.matrix-cell:hover { filter: brightness(.93); }
+.matrix-cell .matrix-cell-chir { font-size: .62rem; font-weight: 600; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 88px; }
+.matrix-header-day { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #475569; }
+
+/* ── Barres CSS (pas de chart.js — file:// safe) ── */
+.cs-bar-track { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.cs-bar-track-lg { height: 12px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.cs-bar-fill { height: 100%; border-radius: 4px; transition: width .35s cubic-bezier(.4,0,.2,1); }
+
+/* ── Ligne dispatch IDE ── */
+.dispatch-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.dispatch-row:last-child { border-bottom: none; }
+.dispatch-label { font-size: .78rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dispatch-total { font-size: .78rem; font-weight: 700; text-align: right; }
+.dispatch-sub-label { font-size: .63rem; color: #94a3b8; width: 50px; flex-shrink: 0; }
+
+/* ── Doublure / paires ── */
+.assoc-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+.assoc-row:last-child { border-bottom: none; }
+
+/* ── Swatch légende ── */
+.cs-swatch-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Dot couleur inline dans JS ── */
+.cs-color-stable   { background: #16a34a; }
+.cs-color-fragile  { background: #ca8a04; }
+.cs-color-critique { background: #dc2626; }
+.cs-color-ferme    { background: #9ca3af; }
+.cs-color-vide     { background: #e2e8f0; }
+.cs-color-instru   { background: #3b82f6; }
+.cs-color-panseur  { background: #8b5cf6; }
+.cs-color-couloir  { background: #0891b2; }
+.cs-color-ouvert   { background: #16a34a; }
+.cs-color-visceral { background: #dc2626; }
+.cs-color-doublure { background: #d97706; }
+.cs-color-assoc    { background: #7c3aed; }
+.cs-color-actif    { background: #16a34a; }
+.cs-color-ferme-b  { background: #9ca3af; }
+
+/* ── Seuils haute densité pour le tableau detail ── */
+.td-high   { color: #166534; font-weight: 700; }
+.td-medium { color: #854d0e; }
+.td-low    { color: #6b7280; }
+
+/* ── État vide / chargement ── */
+.empty-icon { font-size: 3rem; color: #cbd5e1; }
+
+/* ── Situation badges ── */
+.sit-ferme    { background-color: #f3f4f6; color: #6b7280; }
+.sit-urgence  { background-color: #dbeafe; color: #1e40af; }
+.sit-doublure { background-color: #fef9c3; color: #854d0e; }
+.sit-visceral { background-color: #fee2e2; color: #991b1b; }
+
+/* ── Tab semaine selector ── */
+.cs-creneau-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Tendances tableau ── */
+.trend-cell-high { color: #16a34a; font-weight: 700; }
+.trend-cell-zero { color: #94a3b8; }
+
+/* ── Spinner chargement ── */
+.cs-loading { display: none; }
+.cs-loading.is-active { display: flex; }
+
+/* ── Print ── */
+@media print {
+  .no-print, .offcanvas, header, footer { display: none !important; }
+  .container-fluid { padding: 0 !important; }
+}
+</style>
+</head>
+<body class="d-flex min-vh-100">
+
+
+<!-- ── OFFCANVAS ────────────────────────────────────────────── -->
+<div class="offcanvas offcanvas-start bdb-offcanvas" tabindex="-1" id="bdbMainMenu" aria-labelledby="bdbMenuLabel">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <a href="../../index.html" class="d-flex align-items-center gap-2 text-decoration-none">
+      <i class="bi bi-hospital fs-4 text-primary"></i>
+      <div>
+        <div class="fw-bold text-white lh-1">Bible de Bloc</div>
+        <div class="bdb-offcanvas-sub">Ortho-Neuro · CDS</div>
+      </div>
+    </a>
+    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column p-0">
+    <nav class="flex-grow-1 py-2" aria-label="Navigation BDB">
+      <ul class="nav flex-column px-2 gap-1">
+        <li><a href="../../index.html"                        class="nav-link bdb-nav-link"><i class="bi bi-house me-2"></i>Accueil</a></li>
+        <li><a href="../../modules/planning/dashboard.html"  class="nav-link bdb-nav-link"><i class="bi bi-calendar2-week me-2"></i>Planning</a></li>
+        <li><a href="../../modules/annuaire/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-people me-2"></i>Annuaire</a></li>
+        <li><a href="../../modules/transmissions/index.html" class="nav-link bdb-nav-link"><i class="bi bi-arrow-left-right me-2"></i>Transmissions</a></li>
+        <li><a href="../../modules/arsenal/index.html"       class="nav-link bdb-nav-link"><i class="bi bi-box-seam me-2"></i>Arsenal</a></li>
+        <li><a href="../../modules/fiches/index.html"        class="nav-link bdb-nav-link"><i class="bi bi-file-earmark-medical me-2"></i>Fiches</a></li>
+        <li><a href="../../modules/preferences/index.html"   class="nav-link bdb-nav-link"><i class="bi bi-person-gear me-2"></i>Préférences</a></li>
+        <li><a href="../../modules/cours/index.html"         class="nav-link bdb-nav-link"><i class="bi bi-mortarboard me-2"></i>Cours</a></li>
+        <li><a href="../../modules/anatomie/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-activity me-2"></i>Anatomie</a></li>
+        <li><a href="../../modules/installation/index.html"  class="nav-link bdb-nav-link"><i class="bi bi-hospital me-2"></i>Installation</a></li>
+        <li class="bdb-nav-admin d-none"><hr class="border-secondary my-1"/></li>
+        <li><a href="../../modules/admin/index.html" class="nav-link bdb-nav-link bdb-nav-admin d-none"><i class="bi bi-shield-check me-2"></i>Administration</a></li>
+      </ul>
+    </nav>
+    <div class="bdb-offcanvas-footer border-top border-secondary">
+      <div class="d-flex align-items-center gap-2">
+        <span class="bdb-sync-dot" role="status" aria-label="Statut connexion"></span>
+        <small class="text-white-50">Système OK</small>
+      </div>
+      <div class="d-flex align-items-center gap-2 mt-2">
+        <div class="bdb-avatar-xs bdb-offcanvas-avatar" id="offcanvasAvatarInitials">?</div>
+        <small class="text-white-50" id="offcanvasUserName">…</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HEADER ────────────────────────────────────────────────── -->
+<!-- ═══════════════════════════════════════════════════════
+     OFFCANVAS NAV
+     ═══════════════════════════════════════════════════════ --><!-- ═══════════════════════════════════════════════════════
+     MAIN
+     ═══════════════════════════════════════════════════════ -->
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+  <header class="bdb-module-header sticky-top d-flex align-items-center justify-content-between px-3 px-md-4" id="bdbHeader">
+  <div class="d-flex align-items-center gap-3">
+    <button class="btn btn-sm bdb-menu-btn" data-bs-toggle="offcanvas" data-bs-target="#bdbMainMenu" aria-label="Ouvrir le menu" aria-controls="bdbMainMenu">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-calendar2-week bdb-module-header-icon"></i>
+      <h1 class="bdb-module-header-title mb-0">Planning</h1>
+    </div>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <span id="headerWeekBadge" class="badge bg-light text-dark border"></span>
+    <button id="btnRefresh" class="btn btn-sm btn-outline-secondary" title="Rafraîchir les données">
+      <i class="bi bi-arrow-clockwise"></i>
+    </button>
+    <button class="btn btn-sm btn-outline-secondary" id="bdbBtnPrint" title="Imprimer">
+      <i class="bi bi-printer"></i>
+    </button>
+    <span id="bdbBadgeAdmin" class="badge bg-danger d-none">Admin</span>
+    <div class="position-relative">
+      <button class="bdb-avatar-btn" id="bdbAvatarBtn" aria-label="Menu utilisateur" aria-expanded="false" aria-haspopup="true">
+        <span id="bdbAvatarInitials">?</span>
+      </button>
+      <div class="bdb-user-menu" id="bdbUserMenu" role="menu">
+        <div class="bdb-user-menu-header">
+          <div class="fw-semibold small" id="bdbMenuName">…</div>
+          <div class="bdb-user-menu-email" id="bdbMenuEmail"></div>
+        </div>
+        <a href="../../modules/profile/index.html" class="bdb-user-menu-item" role="menuitem">
+          <i class="bi bi-person-circle"></i>Mon profil
+        </a>
+        <a href="../../admin-memo.html" class="bdb-user-menu-item bdb-admin-only d-none" role="menuitem">
+          <i class="bi bi-journal-bookmark-fill"></i>Mémo admin
+        </a>
+        <div class="bdb-menu-sep"></div>
+        <button class="bdb-user-menu-item danger w-100" id="bdbBtnLogout" role="menuitem">
+          <i class="bi bi-box-arrow-right"></i>Déconnexion
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+  <div class="container-fluid p-4 bg-light flex-grow-1">
+
+    <!-- DOC-HEADER-PRIMARY -->
+    <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
+      <div class="d-flex align-items-end justify-content-between flex-wrap gap-4">
+        <div>
+          <h1 class="mb-2"><i class="bi bi-speedometer2 me-2"></i>Dashboard Opératoire</h1>
+          <p class="mb-0 opacity-75">Analyse descriptive · Ortho-Neurochirurgie · Salles 5, 6, 7, 8 · Vn (calculé)</p>
+        </div>
+        <div class="d-flex align-items-end gap-2 flex-wrap">
+          <div>
+            <label class="form-label text-white-50 small mb-1" for="weekInput">Semaine</label>
+            <input type="number" id="weekInput" class="form-control form-control-sm bg-white dash-week-input" value="1" min="1" max="53" aria-label="Numéro de semaine">
+          </div>
+          <div>
+            <label class="form-label text-white-50 small mb-1" for="yearInput">Année</label>
+            <input type="number" id="yearInput" class="form-control form-control-sm bg-white dash-year-input" value="2025" min="2020" max="2100" aria-label="Année">
+          </div>
+          <button id="btnLoadWeek" class="btn btn-light fw-semibold">
+            <i class="bi bi-bar-chart-line me-1"></i>Analyser
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAT VIDE (par défaut) -->
+    <div id="emptyState" class="card shadow-sm text-center py-5 mb-4">
+      <div class="card-body">
+        <i class="bi bi-inbox empty-icon d-block mb-3"></i>
+        <p class="fw-semibold text-muted mb-1">Aucune semaine chargée</p>
+        <small class="text-muted">Entrez un numéro de semaine et cliquez sur <strong>Analyser</strong>.</small>
+        <div class="mt-3" id="availableWeeksList"></div>
+      </div>
+    </div>
+
+    <!-- SPINNER -->
+    <div id="dashLoading" class="cs-loading align-items-center justify-content-center py-5 mb-4">
+      <div class="spinner-border text-primary me-3" role="status"></div>
+      <span class="text-muted">Analyse en cours…</span>
+    </div>
+
+    <!-- CONTENU DASHBOARD -->
+    <div id="dashContent" class="d-none">
+
+      <!-- KPI ROW -->
+      <div class="row g-3 mb-4" id="kpiRow" aria-label="Indicateurs clés"></div>
+
+      <!-- ONGLETS -->
+      <ul class="nav nav-tabs mb-0" id="dashTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-slots-btn" data-bs-toggle="tab" data-bs-target="#tab-slots" type="button" role="tab" aria-controls="tab-slots" aria-selected="true">
+            <i class="bi bi-grid-3x3-gap me-1"></i>Slots
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-ides-btn" data-bs-toggle="tab" data-bs-target="#tab-ides" type="button" role="tab">
+            <i class="bi bi-people me-1"></i>IDEs
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-chirs-btn" data-bs-toggle="tab" data-bs-target="#tab-chirs" type="button" role="tab">
+            <i class="bi bi-person-badge me-1"></i>Chirurgiens
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-situations-btn" data-bs-toggle="tab" data-bs-target="#tab-situations" type="button" role="tab">
+            <i class="bi bi-flag me-1"></i>Situations
+            <span class="badge bg-danger-subtle text-danger ms-1 rounded-pill" id="badgeSituations">0</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-tendances-btn" data-bs-toggle="tab" data-bs-target="#tab-tendances" type="button" role="tab">
+            <i class="bi bi-graph-up me-1"></i>Tendances
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content border border-top-0 rounded-bottom bg-white shadow-sm p-4 mb-4" id="dashTabContent">
+
+        <!-- ── TAB SLOTS ──────────────────────────────────────────── -->
+        <div class="tab-pane fade show active" id="tab-slots" role="tabpanel">
+          <div class="row g-3">
+
+            <!-- Matrice état des slots -->
+            <div class="col-12">
+              <div class="card shadow-sm border-0">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between flex-wrap gap-2">
+                  <span class="fw-semibold"><i class="bi bi-grid me-2 text-primary"></i>État des plages opératoires — Semaine courante</span>
+                  <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <span class="badge slot-stable rounded-pill px-2"><i class="bi bi-check-circle me-1"></i>Stable</span>
+                    <span class="badge slot-fragile rounded-pill px-2"><i class="bi bi-exclamation-circle me-1"></i>Fragile</span>
+                    <span class="badge slot-critique rounded-pill px-2"><i class="bi bi-x-circle me-1"></i>Critique</span>
+                    <span class="badge slot-ferme rounded-pill px-2"><i class="bi bi-lock me-1"></i>Fermé</span>
+                    <span class="badge slot-vide rounded-pill px-2"><i class="bi bi-dash me-1"></i>Vide</span>
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-sm mb-0 align-middle" id="slotsMatrix">
+                      <thead></thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="card-footer bg-transparent small text-muted">
+                  <i class="bi bi-info-circle me-1"></i>Stable = opérant, aucun facteur de complexité. Fragile = 1 facteur. Critique = non-opérant ou ≥ 2 facteurs.
+                  Facteurs : INSTRU intérimaire/étudiant · urgence (soir) · doublure présente.
+                </div>
+              </div>
+            </div>
+
+            <!-- Répartition états + Activité salles -->
+            <div class="col-md-5">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent fw-semibold">
+                  <i class="bi bi-pie-chart me-2 text-primary"></i>Répartition des états
+                </div>
+                <div class="card-body" id="slotDistribution"></div>
+              </div>
+            </div>
+
+            <div class="col-md-7">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent fw-semibold">
+                  <i class="bi bi-building me-2 text-primary"></i>Taux d'activité par salle
+                </div>
+                <div class="card-body" id="salleActivity"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── TAB IDEs ───────────────────────────────────────────── -->
+        <div class="tab-pane fade" id="tab-ides" role="tabpanel">
+          <div class="row g-3">
+
+            <!-- Volumes rôles -->
+            <div class="col-md-6">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent fw-semibold">
+                  <i class="bi bi-bar-chart me-2 text-primary"></i>Volumes par rôle
+                  <span class="badge bg-secondary-subtle text-secondary ms-2 fw-normal">INSTRU / PANSEUR</span>
+                </div>
+                <div class="card-body p-3" id="ideRoleChart"></div>
+              </div>
+            </div>
+
+            <!-- Dispatch -->
+            <div class="col-md-6">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent fw-semibold">
+                  <i class="bi bi-grid-1x2 me-2 text-primary"></i>Dispatch spécifique
+                  <span class="badge bg-secondary-subtle text-secondary ms-2 fw-normal">COULOIR · OUVERTURE · VISCÉRAL</span>
+                </div>
+                <div class="card-body p-3" id="ideDispatchChart"></div>
+              </div>
+            </div>
+
+            <!-- Tableau détail -->
+            <div class="col-12">
+              <div class="card shadow-sm border-0">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold"><i class="bi bi-table me-2 text-primary"></i>Détail complet par IDE</span>
+                  <span class="badge bg-secondary-subtle text-secondary" id="ideCount">0 IDEs</span>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm mb-0 align-middle">
+                    <thead class="bg-light">
+                      <tr>
+                        <th scope="col" class="ps-3">IDE</th>
+                        <th scope="col" class="text-center" data-label="INSTRU"><i class="bi bi-person text-primary me-1"></i>INSTRU</th>
+                        <th scope="col" class="text-center" data-label="PANSEUR"><i class="bi bi-person text-purple me-1"></i>PANSEUR</th>
+                        <th scope="col" class="text-center" data-label="Couloir"><i class="bi bi-arrow-left-right text-info me-1"></i>Couloir</th>
+                        <th scope="col" class="text-center" data-label="Ouvertures"><i class="bi bi-sunrise text-success me-1"></i>Ouverture</th>
+                        <th scope="col" class="text-center" data-label="Viscéral"><i class="bi bi-heart-pulse text-danger me-1"></i>Viscéral</th>
+                        <th scope="col" class="text-center" data-label="Doublures"><i class="bi bi-person-plus text-warning me-1"></i>Doublure</th>
+                        <th scope="col" class="text-center pe-3 fw-semibold">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ideDetailTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── TAB CHIRURGIENS ────────────────────────────────────── -->
+        <div class="tab-pane fade" id="tab-chirs" role="tabpanel">
+          <div class="row g-3">
+
+            <!-- Tableau chirurgiens -->
+            <div class="col-12">
+              <div class="card shadow-sm border-0">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                  <span class="fw-semibold"><i class="bi bi-person-badge me-2 text-primary"></i>Présence par salle et créneau</span>
+                  <span class="badge bg-secondary-subtle text-secondary" id="chirCount">0 chirurgiens</span>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm mb-0 align-middle">
+                    <thead class="bg-light">
+                      <tr>
+                        <th scope="col" class="ps-3">Chirurgien</th>
+                        <th scope="col" class="text-center">Total slots</th>
+                        <th scope="col" class="text-center border-start">Salle 5</th>
+                        <th scope="col" class="text-center">Salle 6</th>
+                        <th scope="col" class="text-center">Salle 7</th>
+                        <th scope="col" class="text-center">Salle 8</th>
+                        <th scope="col" class="text-center border-start">Matin</th>
+                        <th scope="col" class="text-center">Après-m.</th>
+                        <th scope="col" class="text-center pe-3">Soir</th>
+                      </tr>
+                    </thead>
+                    <tbody id="chirTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Doublures + Associations -->
+            <div class="col-md-5">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent fw-semibold">
+                  <i class="bi bi-person-plus me-2 text-warning"></i>Doublures
+                </div>
+                <div class="card-body p-3" id="doublureChart"></div>
+              </div>
+            </div>
+
+            <div class="col-md-7">
+              <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-transparent fw-semibold">
+                  <i class="bi bi-link-45deg me-2 text-primary"></i>Associations fréquentes Chir → INSTRU
+                </div>
+                <div class="card-body p-3" id="pairesChart"></div>
+                <div class="card-footer bg-transparent small text-muted">Top paires sur la période sélectionnée</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── TAB SITUATIONS ─────────────────────────────────────── -->
+        <div class="tab-pane fade" id="tab-situations" role="tabpanel">
+          <div class="card shadow-sm border-0">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+              <span class="fw-semibold"><i class="bi bi-flag me-2 text-primary"></i>Situations structurelles détectées</span>
+              <span class="badge bg-secondary-subtle text-secondary" id="situationTotal">0 situation(s)</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover table-sm mb-0 align-middle">
+                <thead class="bg-light">
+                  <tr>
+                    <th scope="col" class="ps-3">Type</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Jour</th>
+                    <th scope="col">Salle</th>
+                    <th scope="col" class="pe-3">Détail</th>
+                  </tr>
+                </thead>
+                <tbody id="situationsTable"></tbody>
+              </table>
+            </div>
+            <div class="card-footer bg-transparent small text-muted">
+              <i class="bi bi-info-circle me-1"></i>Les situations sont des faits structurels, non des alertes. Elles ne portent aucun jugement.
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TAB TENDANCES ──────────────────────────────────────── -->
+        <div class="tab-pane fade" id="tab-tendances" role="tabpanel">
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="alert alert-info small mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Les tendances agrègent <strong>toutes les semaines disponibles</strong> en localStorage.
+                Recommandation : <strong>5 semaines minimum</strong> pour une analyse significative.
+              </div>
+            </div>
+            <div class="col-12" id="tendancesContent">
+              <!-- injecté dynamiquement -->
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-content -->
+    </div><!-- /dashContent -->
+
+  </div><!-- /container-fluid -->
+
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white no-print">
+    <small>
+      &copy; 2026 Planning Engine — Dashboard V1 — Analyse descriptive Vn —
+      <span class="badge bg-light text-dark border">FILE SAFE</span>
+    </small>
+  </footer>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3 no-print">
+  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi bi-info-circle me-2 text-primary"></i>
+      <strong class="me-auto">Dashboard</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+    <div class="toast-body">—</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS — Ordre de chargement critique
+     ═══════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="core/planning-core.js"></script>
+<script src="core/planning-defaults.js"></script>
+<script src="core/planning-schema.js"></script>
+<script src="services/members-service.js"></script>
+<script src="services/cds-storage.js"></script>
+<script src="services/storage-key-service.js"></script>
+<script src="services/planning-analytics.js"></script>
+<script src="ui/planning-members.js"></script>
+
+<script>
+/* ============================================================
+   DASHBOARD — Logique principale (IIFE + DOMContentLoaded)
+   Règle : 0 onclick / 0 style inline / addEventListener only
+   Ref analytique : PLANNING_ENGINE_DASHBOARD_SPEC_V2.md
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  "use strict";
+
+  // ── UTILITAIRES ────────────────────────────────────────────────────────
+
+  function $(id) { return document.getElementById(id); }
+
+  function esc(s) {
+    return String(s ?? "")
+      .replaceAll("&","&amp;").replaceAll("<","&lt;")
+      .replaceAll(">","&gt;").replaceAll('"',"&quot;");
+  }
+
+  function toast(msg) {
+    const el = $("toastInfo");
+    if (!el) return;
+    el.querySelector(".toast-body").textContent = String(msg ?? "");
+    new bootstrap.Toast(el).show();
+  }
+
+  function displayMember(code) {
+    if (!code) return "—";
+    return window.PlanningMembers?.display?.(code) || esc(code);
+  }
+
+  function isKnown(code) {
+    return window.PlanningMembers?.isKnown?.(code) ?? true;
+  }
+
+  function labelCreneau(c) {
+    const map = { MATIN:"Matin", APREM:"Après-m.", SOIR:"Soir" };
+    return map[String(c).toUpperCase()] || c;
+  }
+
+  // ── ÉTAT SLOT Vn (CALCULÉ) ────────────────────────────────────────────
+  // Ref: PLANNING_ENGINE_SLOT_STATE_VERSIONING_V1.md + DASHBOARD_SPEC_V2 §4
+
+  function computeSlotState(atoms) {
+    if (!atoms || atoms.length === 0) return "VIDE";
+    if (atoms.some(a => Number(a.salle_fermee) === 1)) return "FERME";
+
+    const hasChir   = atoms.some(a => String(a.chirurgien || "").trim());
+    const hasInstru = atoms.some(a =>
+      String(a.role || "").toUpperCase() === "INSTRU" &&
+      String(a.ide  || "").trim()        &&
+      Number(a.doublure) !== 1
+    );
+    const hasPans = atoms.some(a =>
+      String(a.role || "").toUpperCase() === "PANSEUR" &&
+      String(a.ide  || "").trim()        &&
+      Number(a.doublure) !== 1
+    );
+
+    if (!hasChir) return "VIDE";
+    if (!hasInstru || !hasPans) return "CRITIQUE"; // non-opérant
+
+    // Opérant → facteurs de complexité
+    const instrAtom = atoms.find(a =>
+      String(a.role || "").toUpperCase() === "INSTRU" && Number(a.doublure) !== 1
+    );
+    const instrCode = String(instrAtom?.ide || "").trim().toUpperCase();
+    const isInstruQualifie = instrCode && !["INTERIMAIRE","ETUDIANT","VISCERAL",""].includes(instrCode);
+    const hasUrgence  = atoms.some(a => String(a.creneau || "").toUpperCase() === "SOIR");
+    const hasDoublure = atoms.some(a => Number(a.doublure) === 1);
+
+    const factors = [!isInstruQualifie, hasUrgence, hasDoublure].filter(Boolean).length;
+    if (factors === 0) return "STABLE";
+    if (factors === 1) return "FRAGILE";
+    return "CRITIQUE";
+  }
+
+  const STATE_CONFIG = {
+    STABLE:   { cssClass: "slot-stable",   icon: "bi-check-circle-fill",      label: "Stable",   colorClass: "cs-color-stable"   },
+    FRAGILE:  { cssClass: "slot-fragile",  icon: "bi-exclamation-circle-fill", label: "Fragile",  colorClass: "cs-color-fragile"  },
+    CRITIQUE: { cssClass: "slot-critique", icon: "bi-x-circle-fill",          label: "Critique", colorClass: "cs-color-critique" },
+    FERME:    { cssClass: "slot-ferme",    icon: "bi-lock-fill",              label: "Fermé",    colorClass: "cs-color-ferme"    },
+    VIDE:     { cssClass: "slot-vide",     icon: "bi-dash-circle",            label: "Vide",     colorClass: "cs-color-vide"     }
+  };
+
+  function stateBadgeHTML(state) {
+    const c = STATE_CONFIG[state] || STATE_CONFIG.VIDE;
+    return `<span class="badge ${c.cssClass} rounded-pill"><i class="bi ${c.icon} me-1"></i>${c.label}</span>`;
+  }
+
+  // ── CONSTRUCTION SLOT MAP ─────────────────────────────────────────────
+  // Regroupe les atomes par slot SALLE (secteur SALLE uniquement)
+
+  function buildSlotMap(affectations) {
+    const map = new Map();
+    for (const a of (affectations || [])) {
+      if (String(a.secteur || "").toUpperCase() !== "SALLE") continue;
+      const key = `${String(a.jour||"").toUpperCase()}||${String(a.creneau||"").toUpperCase()}||${a.salle}`;
+      if (!map.has(key)) map.set(key, { jour: a.jour, creneau: a.creneau, salle: a.salle, atoms: [] });
+      map.get(key).atoms.push(a);
+    }
+    return map;
+  }
+
+  // ── CONSTANTES ───────────────────────────────────────────────────────
+  // Normalisées en UPPERCASE pour comparaisons
+
+  const JOURS    = ["LUNDI","MARDI","MERCREDI","JEUDI","VENDREDI"];
+  const CRENEAUX = ["MATIN","APREM","SOIR"];
+  const SALLES   = [5, 6, 7, 8];
+
+  // ── RENDER : KPI CARDS ────────────────────────────────────────────────
+
+  function renderKPI(stats, slotMap) {
+    const counts = { STABLE:0, FRAGILE:0, CRITIQUE:0, FERME:0, VIDE:0 };
+    const totalTheoretical = SALLES.length * JOURS.length * CRENEAUX.length; // 60 slots max
+
+    for (const jour of JOURS) {
+      for (const creneau of CRENEAUX) {
+        for (const salle of SALLES) {
+          const key = `${jour}||${creneau}||${salle}`;
+          const slot = slotMap.get(key);
+          counts[computeSlotState(slot?.atoms || [])]++;
+        }
+      }
+    }
+
+    const totals = stats?.stats?.totals || {};
+    const kpis = [
+      {
+        value: counts.STABLE,
+        label: "Slots stables",
+        icon: "bi-check-circle-fill",
+        color: "success",
+        sub: `sur ${totalTheoretical} possibles`
+      },
+      {
+        value: counts.FRAGILE,
+        label: "Slots fragiles",
+        icon: "bi-exclamation-triangle-fill",
+        color: "warning",
+        sub: "1 facteur de complexité"
+      },
+      {
+        value: counts.CRITIQUE,
+        label: "Slots critiques",
+        icon: "bi-x-circle-fill",
+        color: "danger",
+        sub: "non-opérant ou ≥ 2 facteurs"
+      },
+      {
+        value: counts.FERME,
+        label: "Salles fermées",
+        icon: "bi-lock-fill",
+        color: "secondary",
+        sub: `+ ${counts.VIDE} vides`
+      },
+      {
+        value: totals.ouvertures || 0,
+        label: "Ouvertures",
+        icon: "bi-sunrise-fill",
+        color: "primary",
+        sub: "IDEs en poste d'ouverture"
+      },
+      {
+        value: totals.visceral || 0,
+        label: "Viscéral",
+        icon: "bi-heart-pulse-fill",
+        color: "danger",
+        sub: "saisies viscéral cette semaine"
+      }
+    ];
+
+    $("kpiRow").innerHTML = kpis.map(k => `
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="card shadow-sm kpi-card h-100 border-0">
+          <div class="card-body text-center py-3 px-2">
+            <i class="bi ${k.icon} fs-2 text-${k.color} mb-2 d-block"></i>
+            <div class="kpi-value text-${k.color}">${k.value}</div>
+            <div class="kpi-label mt-1">${esc(k.label)}</div>
+            <div class="kpi-sub">${esc(k.sub)}</div>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // ── RENDER : MATRICE SLOTS ────────────────────────────────────────────
+
+  function renderSlotsMatrix(slotMap) {
+    const table  = $("slotsMatrix");
+    const thead  = table.querySelector("thead");
+    const tbody  = table.querySelector("tbody");
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+
+    // Ligne 1 : jours
+    const trJours = document.createElement("tr");
+    const thEmpty = document.createElement("th");
+    thEmpty.scope = "col";
+    thEmpty.className = "ps-3 small text-muted align-middle";
+    thEmpty.textContent = "Salle";
+    trJours.appendChild(thEmpty);
+
+    JOURS.forEach(jour => {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.colSpan = CRENEAUX.length;
+      th.className = "text-center matrix-header-day border-start py-2";
+      th.textContent = jour;
+      trJours.appendChild(th);
+    });
+    thead.appendChild(trJours);
+
+    // Ligne 2 : créneaux
+    const trCreneaux = document.createElement("tr");
+    const thSalle = document.createElement("th");
+    thSalle.scope = "col";
+    trCreneaux.appendChild(thSalle);
+
+    JOURS.forEach(() => {
+      CRENEAUX.forEach((creneau, ci) => {
+        const th = document.createElement("th");
+        th.scope = "col";
+        th.className = "text-center cs-creneau-label text-muted fw-normal py-1" + (ci === 0 ? " border-start" : "");
+        th.textContent = labelCreneau(creneau);
+        trCreneaux.appendChild(th);
+      });
+    });
+    thead.appendChild(trCreneaux);
+
+    // Corps : une ligne par salle
+    for (const salle of SALLES) {
+      const tr = document.createElement("tr");
+      const tdLabel = document.createElement("td");
+      tdLabel.className = "ps-3 fw-semibold small align-middle";
+      tdLabel.textContent = `Salle ${salle}`;
+      tr.appendChild(tdLabel);
+
+      for (const jour of JOURS) {
+        for (const creneau of CRENEAUX.map(c => c)) {
+          const ci = CRENEAUX.indexOf(creneau);
+          const key = `${jour}||${creneau}||${salle}`;
+          const slot  = slotMap.get(key);
+          const state = computeSlotState(slot?.atoms || []);
+          const cfg   = STATE_CONFIG[state];
+
+          const td = document.createElement("td");
+          td.className = "align-middle p-1" + (ci === 0 ? " border-start" : "");
+
+          const cell = document.createElement("div");
+          cell.className = `matrix-cell ${cfg.cssClass}`;
+          cell.title = `${jour} — ${labelCreneau(creneau)} — Salle ${salle} : ${cfg.label}`;
+
+          // Icône état
+          const icon = document.createElement("i");
+          icon.className = `bi ${cfg.icon}`;
+          cell.appendChild(icon);
+
+          // Chirurgien si slot actif
+          if (slot && state !== "VIDE" && state !== "FERME") {
+            const chirAtom = slot.atoms.find(a => String(a.chirurgien||"").trim());
+            if (chirAtom) {
+              const chirDiv = document.createElement("div");
+              chirDiv.className = "matrix-cell-chir";
+              chirDiv.textContent = displayMember(chirAtom.chirurgien);
+              cell.appendChild(chirDiv);
+            }
+          }
+
+          td.appendChild(cell);
+          tr.appendChild(td);
+        }
+      }
+      tbody.appendChild(tr);
+    }
+  }
+
+  // ── RENDER : RÉPARTITION ÉTATS ────────────────────────────────────────
+
+  function renderSlotDistribution(slotMap) {
+    const counts = { STABLE:0, FRAGILE:0, CRITIQUE:0, FERME:0, VIDE:0 };
+    for (const [, slot] of slotMap) counts[computeSlotState(slot.atoms)]++;
+
+    // Compléter avec les slots vides non représentés dans slotMap
+    const totalFromMap = Object.values(counts).reduce((s,v)=>s+v,0);
+    const totalTheoretical = SALLES.length * JOURS.length * CRENEAUX.length;
+    counts.VIDE += Math.max(0, totalTheoretical - totalFromMap);
+
+    const total = Object.values(counts).reduce((s,v)=>s+v,0) || 1;
+    const items = [
+      { key:"STABLE",   label:"Stable"  },
+      { key:"FRAGILE",  label:"Fragile" },
+      { key:"CRITIQUE", label:"Critique"},
+      { key:"FERME",    label:"Fermé"   },
+      { key:"VIDE",     label:"Vide"    }
+    ];
+
+    const container = $("slotDistribution");
+    container.innerHTML = "";
+
+    for (const item of items) {
+      const pct = Math.round(counts[item.key] / total * 100);
+      const cfg = STATE_CONFIG[item.key];
+
+      const row = document.createElement("div");
+      row.className = "d-flex align-items-center gap-2 mb-2";
+
+      const dot = document.createElement("span");
+      dot.className = `cs-swatch-dot ${cfg.colorClass}`;
+
+      const lbl = document.createElement("span");
+      lbl.className = "small";
+      lbl.style.setProperty("width","70px","important"); // width nécessaire pour alignement — OK en JS
+      lbl.textContent = item.label;
+
+      const trackWrap = document.createElement("div");
+      trackWrap.className = "flex-grow-1";
+      const track = document.createElement("div");
+      track.className = "cs-bar-track";
+      const fill = document.createElement("div");
+      fill.className = `cs-bar-fill ${cfg.colorClass}`;
+      fill.setAttribute("role","progressbar");
+      fill.setAttribute("aria-valuenow",String(pct));
+      fill.setAttribute("aria-valuemin","0");
+      fill.setAttribute("aria-valuemax","100");
+      fill.setAttribute("aria-label",`${item.label} ${pct}%`);
+      track.appendChild(fill);
+      trackWrap.appendChild(track);
+      // Déclenchement animation après paint
+      requestAnimationFrame(() => { fill.style.width = pct + "%"; });
+
+      const stat = document.createElement("span");
+      stat.className = "small text-muted text-end";
+      stat.style.setProperty("min-width","56px","important");
+      stat.textContent = `${counts[item.key]} (${pct}%)`;
+
+      row.appendChild(dot);
+      row.appendChild(lbl);
+      row.appendChild(trackWrap);
+      row.appendChild(stat);
+      container.appendChild(row);
+    }
+  }
+
+  // ── RENDER : ACTIVITÉ SALLES ──────────────────────────────────────────
+
+  function renderSalleActivity(slotMap) {
+    const totalSlots = JOURS.length * CRENEAUX.length; // 15
+    const container = $("salleActivity");
+    container.innerHTML = "";
+
+    for (const salle of SALLES) {
+      let actif = 0, ferme = 0;
+      for (const jour of JOURS) {
+        for (const creneau of CRENEAUX) {
+          const slot = slotMap.get(`${jour}||${creneau}||${salle}`);
+          const state = computeSlotState(slot?.atoms || []);
+          if (state === "FERME") ferme++;
+          else if (state !== "VIDE") actif++;
+        }
+      }
+      const vide = totalSlots - actif - ferme;
+      const pctActif = Math.round(actif / totalSlots * 100);
+      const pctFerme = Math.round(ferme / totalSlots * 100);
+      const pctVide  = 100 - pctActif - pctFerme;
+
+      const wrap = document.createElement("div");
+      wrap.className = "mb-3";
+
+      const header = document.createElement("div");
+      header.className = "d-flex justify-content-between align-items-center mb-1";
+      header.innerHTML = `
+        <span class="fw-semibold small">Salle ${salle}</span>
+        <span class="small text-muted">${actif} actif · ${ferme} fermé · ${vide} vide</span>`;
+
+      const trackWrap = document.createElement("div");
+      trackWrap.className = "cs-bar-track-lg";
+
+      const barContainer = document.createElement("div");
+      barContainer.className = "d-flex h-100";
+      barContainer.setAttribute("role","img");
+      barContainer.setAttribute("aria-label",`Salle ${salle} : ${pctActif}% actif, ${pctFerme}% fermé`);
+
+      const barActif = document.createElement("div");
+      barActif.className = "cs-bar-fill cs-color-actif";
+      barActif.title = `Actif ${pctActif}%`;
+
+      const barFerme = document.createElement("div");
+      barFerme.className = "cs-bar-fill cs-color-ferme-b";
+      barFerme.title = `Fermé ${pctFerme}%`;
+
+      barContainer.appendChild(barActif);
+      barContainer.appendChild(barFerme);
+      trackWrap.appendChild(barContainer);
+
+      requestAnimationFrame(() => {
+        barActif.style.width = pctActif + "%";
+        barFerme.style.width = pctFerme + "%";
+      });
+
+      const legend = document.createElement("div");
+      legend.className = "d-flex gap-3 mt-1";
+      legend.innerHTML = `
+        <span class="small"><span class="cs-swatch-dot cs-color-actif me-1"></span>${pctActif}% actif</span>
+        <span class="small"><span class="cs-swatch-dot cs-color-ferme-b me-1"></span>${pctFerme}% fermé</span>
+        <span class="small"><span class="cs-swatch-dot" style="background:#e2e8f0" class="me-1"></span>${pctVide}% vide</span>`;
+
+      wrap.appendChild(header);
+      wrap.appendChild(trackWrap);
+      wrap.appendChild(legend);
+      container.appendChild(wrap);
+    }
+  }
+
+  // ── RENDER : IDEs ─────────────────────────────────────────────────────
+
+  function buildIDEMap(affectations) {
+    const map = new Map();
+    function get(code) {
+      if (!map.has(code)) map.set(code, { instru:0, panseur:0, couloir:0, ouverture:0, visceral:0, doublure:0 });
+      return map.get(code);
+    }
+    for (const a of (affectations || [])) {
+      const code = String(a.ide || "").trim();
+      if (!code) continue;
+      const sect = String(a.secteur || "").toUpperCase();
+      const role = String(a.role    || "").toUpperCase();
+      const d = get(code);
+      if (sect === "COULOIR")                              d.couloir++;
+      if (role === "INSTRU"  && Number(a.doublure) !== 1)  d.instru++;
+      if (role === "PANSEUR" && Number(a.doublure) !== 1)  d.panseur++;
+      if (Number(a.ouverture) === 1)                       d.ouverture++;
+      if (Number(a.visceral)  === 1)                       d.visceral++;
+      if (Number(a.doublure)  === 1)                       d.doublure++;
+    }
+    return map;
+  }
+
+  function renderIDECharts(affectations) {
+    const ideMap = buildIDEMap(affectations);
+    const sorted = [...ideMap.entries()]
+      .map(([code, v]) => ({ code, ...v, total: v.instru + v.panseur + v.couloir }))
+      .sort((a,b) => b.total - a.total)
+      .filter(ide => ide.total > 0);
+
+    $("ideCount").textContent = `${sorted.length} IDEs`;
+
+    const maxTotal = sorted[0]?.total || 1;
+    const top = sorted.slice(0, 10);
+
+    // ── Rôles (INSTRU / PANSEUR) ──
+    const roleContainer = $("ideRoleChart");
+    roleContainer.innerHTML = "";
+
+    if (!top.length) {
+      roleContainer.innerHTML = `<p class="text-muted small text-center py-3">Aucune donnée saisie.</p>`;
+    } else {
+      for (const ide of top) {
+        const pctI = Math.round(ide.instru  / maxTotal * 100);
+        const pctP = Math.round(ide.panseur / maxTotal * 100);
+
+        const row = document.createElement("div");
+        row.className = "dispatch-row";
+        row.innerHTML = `
+          <span class="dispatch-label">${displayMember(ide.code)}</span>
+          <div>
+            <div class="d-flex gap-1 align-items-center mb-1">
+              <span class="dispatch-sub-label">INSTRU</span>
+              <div class="flex-grow-1 cs-bar-track"><div class="cs-bar-fill cs-color-instru" data-pct="${pctI}"></div></div>
+              <span class="cs-text-xs text-muted">${ide.instru}</span>
+            </div>
+            <div class="d-flex gap-1 align-items-center">
+              <span class="dispatch-sub-label">PANSEUR</span>
+              <div class="flex-grow-1 cs-bar-track"><div class="cs-bar-fill cs-color-panseur" data-pct="${pctP}"></div></div>
+              <span class="cs-text-xs text-muted">${ide.panseur}</span>
+            </div>
+          </div>
+          <span class="dispatch-total">${ide.total}</span>`;
+        roleContainer.appendChild(row);
+      }
+      requestAnimationFrame(() => {
+        roleContainer.querySelectorAll(".cs-bar-fill[data-pct]").forEach(el => {
+          el.style.width = el.dataset.pct + "%";
+        });
+      });
+    }
+
+    // ── Dispatch (couloir / ouverture / viscéral) ──
+    const dispContainer = $("ideDispatchChart");
+    dispContainer.innerHTML = "";
+    const dispTop = sorted.filter(ide => ide.couloir + ide.ouverture + ide.visceral > 0).slice(0, 10);
+
+    if (!dispTop.length) {
+      dispContainer.innerHTML = `<p class="text-muted small text-center py-3">Aucune donnée de dispatch.</p>`;
+    } else {
+      const maxDisp = Math.max(...dispTop.map(ide => ide.couloir + ide.ouverture + ide.visceral), 1);
+      for (const ide of dispTop) {
+        const dispTotal = ide.couloir + ide.ouverture + ide.visceral;
+        const pctC = Math.round(ide.couloir   / dispTotal * 100);
+        const pctO = Math.round(ide.ouverture / dispTotal * 100);
+        const pctV = Math.round(ide.visceral  / dispTotal * 100);
+
+        const row = document.createElement("div");
+        row.className = "dispatch-row";
+
+        let barsHTML = "";
+        if (ide.couloir)   barsHTML += `<div class="d-flex gap-1 align-items-center mb-1">
+          <span class="dispatch-sub-label">Couloir</span>
+          <div class="flex-grow-1 cs-bar-track"><div class="cs-bar-fill cs-color-couloir" data-pct="${pctC}"></div></div>
+          <span class="cs-text-xs text-muted">${ide.couloir}</span></div>`;
+        if (ide.ouverture) barsHTML += `<div class="d-flex gap-1 align-items-center mb-1">
+          <span class="dispatch-sub-label">Ouverture</span>
+          <div class="flex-grow-1 cs-bar-track"><div class="cs-bar-fill cs-color-ouvert" data-pct="${pctO}"></div></div>
+          <span class="cs-text-xs text-muted">${ide.ouverture}</span></div>`;
+        if (ide.visceral)  barsHTML += `<div class="d-flex gap-1 align-items-center">
+          <span class="dispatch-sub-label">Viscéral</span>
+          <div class="flex-grow-1 cs-bar-track"><div class="cs-bar-fill cs-color-visceral" data-pct="${pctV}"></div></div>
+          <span class="cs-text-xs text-muted">${ide.visceral}</span></div>`;
+
+        row.innerHTML = `<span class="dispatch-label">${displayMember(ide.code)}</span><div>${barsHTML}</div><span class="dispatch-total">${dispTotal}</span>`;
+        dispContainer.appendChild(row);
+      }
+      requestAnimationFrame(() => {
+        dispContainer.querySelectorAll(".cs-bar-fill[data-pct]").forEach(el => {
+          el.style.width = el.dataset.pct + "%";
+        });
+      });
+    }
+
+    // ── Tableau détail ──
+    const tbody = $("ideDetailTable");
+    function intensityClass(v, max) {
+      if (!v) return "td-low";
+      if (v >= max * .6) return "td-high";
+      if (v >= max * .3) return "td-medium";
+      return "";
+    }
+    const maxInstru  = Math.max(...sorted.map(s => s.instru),  1);
+    const maxPanseur = Math.max(...sorted.map(s => s.panseur), 1);
+
+    tbody.innerHTML = sorted.slice(0, 25).map(ide => `
+      <tr>
+        <td class="ps-3 fw-semibold small">${isKnown(ide.code) ? displayMember(ide.code) : `<span class="text-danger fw-semibold">${displayMember(ide.code)}</span>`}</td>
+        <td class="text-center small ${intensityClass(ide.instru, maxInstru)}">${ide.instru  || '<span class="text-muted">—</span>'}</td>
+        <td class="text-center small ${intensityClass(ide.panseur,maxPanseur)}">${ide.panseur || '<span class="text-muted">—</span>'}</td>
+        <td class="text-center small">${ide.couloir   || '<span class="text-muted">—</span>'}</td>
+        <td class="text-center small">${ide.ouverture || '<span class="text-muted">—</span>'}</td>
+        <td class="text-center small">${ide.visceral  || '<span class="text-muted">—</span>'}</td>
+        <td class="text-center small">${ide.doublure  || '<span class="text-muted">—</span>'}</td>
+        <td class="text-center pe-3 fw-bold">${ide.total}</td>
+      </tr>`).join("");
+  }
+
+  // ── RENDER : CHIRURGIENS ──────────────────────────────────────────────
+
+  function renderChirurgiens(affectations) {
+    // Dédupliquer par slot unique (voir spec §6.1)
+    const slotChirSet = new Map();
+    for (const a of (affectations || [])) {
+      const code = String(a.chirurgien || "").trim();
+      if (!code || String(a.secteur || "").toUpperCase() !== "SALLE") continue;
+      const key = `${String(a.jour||"").toUpperCase()}||${String(a.creneau||"").toUpperCase()}||${a.salle}`;
+      if (!slotChirSet.has(key)) slotChirSet.set(key, a);
+    }
+
+    const chirMap = new Map();
+    for (const [, a] of slotChirSet) {
+      const code = String(a.chirurgien || "").trim();
+      if (!chirMap.has(code)) chirMap.set(code, {
+        total: 0, salles: {5:0,6:0,7:0,8:0}, creneaux: {MATIN:0,APREM:0,SOIR:0}
+      });
+      const d = chirMap.get(code);
+      d.total++;
+      const s = Number(a.salle);
+      if (SALLES.includes(s)) d.salles[s]++;
+      const c = String(a.creneau || "").toUpperCase();
+      if (["MATIN","APREM","SOIR"].includes(c)) d.creneaux[c]++;
+    }
+
+    const sorted = [...chirMap.entries()].sort((a,b) => b[1].total - a[1].total);
+    $("chirCount").textContent = `${sorted.length} chirurgien(s)`;
+
+    $("chirTable").innerHTML = sorted.map(([code, d]) => `
+      <tr>
+        <td class="ps-3 fw-semibold small">${displayMember(code)}</td>
+        <td class="text-center fw-bold">${d.total}</td>
+        ${SALLES.map(s => `<td class="text-center small border-start">${d.salles[s] || '<span class="text-muted">—</span>'}</td>`).join("")}
+        <td class="text-center small border-start">${d.creneaux.MATIN || '<span class="text-muted">—</span>'}</td>
+        <td class="text-center small">${d.creneaux.APREM || '<span class="text-muted">—</span>'}</td>
+        <td class="text-center pe-3 small">${d.creneaux.SOIR  || '<span class="text-muted">—</span>'}</td>
+      </tr>`).join("") ||
+      `<tr><td colspan="9" class="text-center text-muted py-4 small"><i class="bi bi-inbox me-1"></i>Aucun chirurgien dans les données.</td></tr>`;
+  }
+
+  // ── RENDER : DOUBLURES ────────────────────────────────────────────────
+
+  function renderDoublures(affectations) {
+    const map = new Map();
+    for (const a of (affectations || [])) {
+      if (Number(a.doublure) !== 1) continue;
+      const code = String(a.ide || "").trim();
+      if (!code) continue;
+      const key = `${code}||${String(a.doublure_sous||"").toUpperCase()}`;
+      map.set(key, (map.get(key)||0) + 1);
+    }
+
+    const container = $("doublureChart");
+    if (!map.size) {
+      container.innerHTML = `<p class="text-muted small text-center py-3">
+        <i class="bi bi-check-circle text-success me-1"></i>Aucune doublure cette semaine.</p>`;
+      return;
+    }
+
+    const sorted = [...map.entries()].sort((a,b)=>b[1]-a[1]);
+    const maxV = sorted[0][1];
+
+    container.innerHTML = "";
+    for (const [key, count] of sorted) {
+      const [code, sous] = key.split("||");
+      const pct = Math.round(count / maxV * 100);
+
+      const row = document.createElement("div");
+      row.className = "assoc-row";
+      row.innerHTML = `
+        <span class="small fw-semibold text-truncate">${displayMember(code)}</span>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-warning-subtle text-dark small">${sous || "?"}</span>
+          <div class="flex-grow-1 cs-bar-track"><div class="cs-bar-fill cs-color-doublure" data-pct="${pct}"></div></div>
+        </div>
+        <span class="small text-muted text-end">${count}</span>`;
+      container.appendChild(row);
+    }
+    requestAnimationFrame(() => {
+      container.querySelectorAll(".cs-bar-fill[data-pct]").forEach(el => {
+        el.style.width = el.dataset.pct + "%";
+      });
+    });
+  }
+
+  // ── RENDER : PAIRES CHIR → INSTRU ────────────────────────────────────
+
+  function renderPaires(stats) {
+    const pairs = (stats?.stats?.relations?.chirInstru || []).slice(0, 8);
+    const container = $("pairesChart");
+    if (!pairs.length) {
+      container.innerHTML = `<p class="text-muted small text-center py-3">Aucune association.</p>`;
+      return;
+    }
+    const maxV = pairs[0].volume;
+    container.innerHTML = "";
+
+    for (const p of pairs) {
+      const pct = Math.round(p.volume / maxV * 100);
+      const row = document.createElement("div");
+      row.className = "assoc-row";
+      row.innerHTML = `
+        <span class="small fw-semibold text-truncate">${displayMember(p.chir)}</span>
+        <div class="d-flex align-items-center gap-1">
+          <span class="small text-muted text-truncate">${displayMember(p.ide)}</span>
+          <div class="flex-grow-1 cs-bar-track"><div class="cs-bar-fill cs-color-assoc" data-pct="${pct}"></div></div>
+        </div>
+        <span class="small text-muted text-end">${p.volume}</span>`;
+      container.appendChild(row);
+    }
+    requestAnimationFrame(() => {
+      container.querySelectorAll(".cs-bar-fill[data-pct]").forEach(el => {
+        el.style.width = el.dataset.pct + "%";
+      });
+    });
+  }
+
+  // ── RENDER : SITUATIONS ───────────────────────────────────────────────
+
+  function renderSituations(situations) {
+    const sitCfg = {
+      SALLE_FERMEE:          { cls:"sit-ferme",    icon:"bi-lock"                },
+      URGENCE_FERMEE:        { cls:"sit-urgence",  icon:"bi-moon-stars"          },
+      DOUBLURE:              { cls:"sit-doublure", icon:"bi-person-plus"         },
+      VISCERAL_COULEUR_SOIR: { cls:"sit-visceral", icon:"bi-heart-pulse"         }
+    };
+
+    $("badgeSituations").textContent  = String(situations.length);
+    $("situationTotal").textContent   = `${situations.length} situation(s)`;
+
+    const tbody = $("situationsTable");
+    if (!situations.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4 small">
+        <i class="bi bi-check-circle text-success me-2"></i>Aucune situation détectée.
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = situations.map(s => {
+      const cfg = sitCfg[s.type] || { cls:"bg-light text-dark", icon:"bi-flag" };
+      const typeLbl = String(s.type).replace(/_/g," ");
+      return `<tr>
+        <td class="ps-3"><span class="badge ${cfg.cls}"><i class="bi ${cfg.icon} me-1"></i>${esc(typeLbl)}</span></td>
+        <td class="small">${esc(s.description)}</td>
+        <td class="small text-muted">${esc(s.jour || "—")}</td>
+        <td class="small text-muted">${s.salle ? `Salle ${esc(String(s.salle))}` : "—"}</td>
+        <td class="small text-muted pe-3">${esc(s.details || "—")}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  // ── RENDER : TENDANCES MULTI-SEMAINES ─────────────────────────────────
+
+  async function renderTendances() {
+    const all = await PlanningAnalytics.analyzeAll();
+    const container = $("tendancesContent");
+
+    if (!all || all.length < 2) {
+      container.innerHTML = `
+        <div class="card shadow-sm border-0">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-graph-up empty-icon d-block mb-3"></i>
+            <p class="fw-semibold text-muted mb-1">Données insuffisantes</p>
+            <small class="text-muted">Minimum 2 semaines. Recommandé : 5 semaines.</small>
+            <div class="mt-3">
+              <span class="badge bg-primary-subtle text-primary">${(all||[]).length} semaine(s) disponible(s)</span>
+            </div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    // Calcul des maxima pour mise en évidence
+    const maxVisc  = Math.max(...all.map(w => w.stats.totals.visceral  || 0));
+    const maxDoubl = Math.max(...all.map(w => w.stats.totals.doublures || 0));
+
+    const rows = all.map(w => {
+      const t = w.stats.totals;
+      const viscCell = (t.visceral||0)  > 0 ? `<span class="trend-cell-high">${t.visceral}</span>`  : `<span class="trend-cell-zero">0</span>`;
+      const doublCell= (t.doublures||0) > 0 ? `<span class="td-medium">${t.doublures}</span>`      : `<span class="trend-cell-zero">0</span>`;
+      return `<tr>
+        <td class="ps-3 fw-semibold small">S${String(w.meta.semaine).padStart(2,"0")}/${w.meta.annee}</td>
+        <td class="text-center small">${t.affectations}</td>
+        <td class="text-center small">${viscCell}</td>
+        <td class="text-center small">${t.couloir || '<span class="trend-cell-zero">0</span>'}</td>
+        <td class="text-center small">${t.ouvertures || '<span class="trend-cell-zero">0</span>'}</td>
+        <td class="text-center small">${doublCell}</td>
+        <td class="text-center pe-3 small">${w.situations.length > 0 ? `<span class="badge bg-secondary-subtle text-secondary">${w.situations.length}</span>` : '<span class="trend-cell-zero">0</span>'}</td>
+      </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+          <span class="fw-semibold"><i class="bi bi-graph-up me-2 text-primary"></i>Évolution sur ${all.length} semaines</span>
+          <span class="badge bg-primary-subtle text-primary">${all.length} semaines disponibles</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover table-sm mb-0 align-middle">
+            <thead class="bg-light">
+              <tr>
+                <th scope="col" class="ps-3">Semaine</th>
+                <th scope="col" class="text-center">Affectations</th>
+                <th scope="col" class="text-center"><i class="bi bi-heart-pulse text-danger me-1"></i>Viscéral</th>
+                <th scope="col" class="text-center"><i class="bi bi-arrow-left-right text-info me-1"></i>Couloir</th>
+                <th scope="col" class="text-center"><i class="bi bi-sunrise text-success me-1"></i>Ouvertures</th>
+                <th scope="col" class="text-center"><i class="bi bi-person-plus text-warning me-1"></i>Doublures</th>
+                <th scope="col" class="text-center pe-3">Situations</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <div class="card-footer bg-transparent small text-muted">
+          <i class="bi bi-info-circle me-1"></i>Toutes les semaines présentes dans le localStorage sont incluses.
+          Cohérence de saisie non garantie sur le jeu de données complet.
+        </div>
+      </div>`;
+  }
+
+  // ── FLOW PRINCIPAL ────────────────────────────────────────────────────
+
+  async function loadAndRender() {
+    const semaine = Number($("weekInput")?.value || 0);
+    const annee   = Number($("yearInput")?.value || 0);
+
+    if (!semaine || !annee) { toast("Semaine ou année invalide"); return; }
+
+    // Spinner
+    $("emptyState").classList.add("d-none");
+    $("dashContent").classList.add("d-none");
+    $("dashLoading").classList.add("is-active");
+
+    try {
+      const data = await PlanningAnalytics.analyzeWeek(semaine, annee);
+
+      $("dashLoading").classList.remove("is-active");
+
+      if (!data) {
+        toast(`Semaine S${semaine}/${annee} introuvable en localStorage`);
+        $("emptyState").classList.remove("d-none");
+        return;
+      }
+
+      // Charger les affectations brutes pour les calculs locaux
+      const weekKey      = PlanningSchema.getWeekKey(semaine, annee);
+      const weekRaw      = await CDS_Storage.get(weekKey);
+      const affectations = weekRaw?.affectations || [];
+      const slotMap      = buildSlotMap(affectations);
+
+      // Badge header
+      $("headerWeekBadge").textContent = `S${String(semaine).padStart(2,"0")}/${annee}`;
+
+      // Render
+      renderKPI(data, slotMap);
+      renderSlotsMatrix(slotMap);
+      renderSlotDistribution(slotMap);
+      renderSalleActivity(slotMap);
+      renderIDECharts(affectations);
+      renderChirurgiens(affectations);
+      renderDoublures(affectations);
+      renderPaires(data);
+      renderSituations(data.situations);
+      await renderTendances();
+
+      $("dashContent").classList.remove("d-none");
+
+    } catch (err) {
+      $("dashLoading").classList.remove("is-active");
+      $("emptyState").classList.remove("d-none");
+      console.error("[Dashboard]", err);
+      toast("Erreur : " + (err?.message || "inconnue"));
+    }
+  }
+
+  // ── CÂBLAGE EVENTS ────────────────────────────────────────────────────
+
+  $("btnLoadWeek")?.addEventListener("click", () => loadAndRender().catch(console.error));
+  $("btnRefresh")?.addEventListener("click",  () => loadAndRender().catch(console.error));
+  $("weekInput")?.addEventListener("keydown", e => { if (e.key === "Enter") loadAndRender().catch(console.error); });
+  $("yearInput")?.addEventListener("keydown", e => { if (e.key === "Enter") loadAndRender().catch(console.error); });
+
+  // ── INITIALISATION : charger la dernière semaine disponible ──────────
+
+  async function init() {
+    const keys = await StorageKeyService.listWeekKeys();
+
+    // Statut nav
+    const navStatus = $("navStorageStatus");
+    if (navStatus) navStatus.textContent = `${keys.length} semaine(s) en mémoire`;
+
+    if (keys.length > 0) {
+      // Afficher la liste des semaines disponibles dans l'état vide
+      const available = $("availableWeeksList");
+      if (available) {
+        available.innerHTML = `<div class="small text-muted mb-2">Semaines disponibles :</div>
+          <div class="d-flex flex-wrap gap-1 justify-content-center">
+            ${keys.map(k => {
+              const p = StorageKeyService.parseWeekKey(k);
+              if (!p) return "";
+              return `<button class="btn btn-sm btn-outline-secondary cs-week-shortcut" data-week="${p.semaine}" data-year="${p.annee}">S${String(p.semaine).padStart(2,"00")}/${p.annee}</button>`;
+            }).join("")}
+          </div>`;
+
+        available.addEventListener("click", e => {
+          const btn = e.target.closest(".cs-week-shortcut");
+          if (!btn) return;
+          $("weekInput").value = btn.dataset.week;
+          $("yearInput").value = btn.dataset.year;
+          loadAndRender().catch(console.error);
+        });
+      }
+
+      // Auto-charger la plus récente
+      const last = keys[keys.length - 1];
+      const parsed = StorageKeyService.parseWeekKey(last);
+      if (parsed) {
+        $("weekInput").value = String(parsed.semaine);
+        $("yearInput").value = parsed.annee;
+        await loadAndRender();
+      }
+    }
+  }
+
+  init().catch(console.error);
+
+}); // DOMContentLoaded
+</script>
+</body>
+</html>

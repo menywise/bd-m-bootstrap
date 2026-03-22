@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bible de Bloc — Accueil</title>
+
+  <!-- 1. Bootstrap 5.3.2 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- 2. Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <!-- 3. CDS tokens -->
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <!-- 4. CDS print -->
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <!-- 5. CDS overrides globaux -->
+  <link href="css/cds-overrides.css" rel="stylesheet"/>
+  <!-- 6. CSS module index -->
+  <link href="css/index-ui.css" rel="stylesheet"/>
+</head>
+<body id="indexApp">
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header class="bdb-header d-flex align-items-center px-4 justify-content-between">
+
+  <!-- Logo -->
+  <a href="index.html" class="bdb-logo-wrap">
+    <div class="bdb-logo-icon">
+      <i class="bi bi-hospital"></i>
+    </div>
+    <div>
+      <div class="bdb-logo-title">Bible de Bloc</div>
+      <div class="bdb-logo-sub">Ortho-Neurochirurgie · Salles 05–08</div>
+    </div>
+  </a>
+
+  <!-- Nav rapide desktop — peuplée dynamiquement depuis app_modules -->
+  <nav class="d-none d-lg-flex align-items-center gap-1" id="quickNav" aria-label="Navigation principale"></nav>
+
+  <!-- User zone -->
+  <div class="d-flex align-items-center gap-2 position-relative">
+    <span id="badgeAdmin" class="badge-admin d-none">Admin</span>
+    <button
+      id="btnUserMenu"
+      class="bdb-avatar"
+      aria-label="Menu utilisateur"
+      aria-expanded="false"
+      aria-haspopup="true"
+    >
+      <span id="avatarInitials">?</span>
+    </button>
+
+    <!-- Dropdown user -->
+    <div id="userDropdown" class="bdb-user-menu" role="menu">
+      <div class="bdb-user-menu-header">
+        <div class="bdb-user-menu-name" id="menuUserName">Chargement…</div>
+        <div class="bdb-user-menu-email" id="menuUserEmail"></div>
+        <div class="bdb-user-menu-email" id="menuUserFonction"></div>
+      </div>
+      <a href="modules/profile/index.html" class="bdb-user-menu-item" role="menuitem">
+        <i class="bi bi-person-circle"></i>Mon profil
+      </a>
+      <div class="bdb-menu-sep"></div>
+      <a href="admin-memo.html" class="bdb-user-menu-item admin-only-item d-none" role="menuitem">
+        <i class="bi bi-journal-bookmark-fill"></i>Mémo admin
+      </a>
+<button id="btnPreviewMenu" class="bdb-user-menu-item admin-only-item d-none" role="menuitem">
+  <i class="bi bi-eye"></i>Prévisualisation
+  <i class="bi bi-chevron-right ms-auto bdb-submenu-chevron"></i>
+</button>
+<div id="previewSubmenu" class="bdb-preview-submenu d-none">
+  <button id="btnPreviewMember" class="bdb-user-menu-item bdb-preview-item" role="menuitem">
+    <i class="bi bi-person-check text-primary"></i>Vue membre approuvé
+  </button>
+  <button id="btnPreviewAnon" class="bdb-user-menu-item bdb-preview-item" role="menuitem">
+    <i class="bi bi-eye text-secondary"></i>Vue visiteur anonyme
+  </button>
+</div>
+      <button id="btnLogout" class="bdb-user-menu-item danger" role="menuitem">
+        <i class="bi bi-box-arrow-right"></i>Déconnexion
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── HERO ───────────────────────────────────────────────── -->
+<section class="bdb-hero" aria-label="Tableau de bord">
+  <p class="bdb-hero-sub mb-1">Bonjour, <strong id="heroUserName">…</strong></p>
+  <h1 class="bdb-hero-title">Tableau de bord</h1>
+
+  <!-- Stats live -->
+  <div class="bdb-stats-row mt-3">
+    <div class="bdb-stat-pill">
+      <i class="bi bi-arrow-left-right bdb-stat-icon"></i>
+      <div>
+        <div class="bdb-stat-value" id="statTransOpen">
+          <span class="bdb-skeleton">&nbsp;</span>
+        </div>
+        <div class="bdb-stat-label">Transmissions<br>ouvertes</div>
+      </div>
+    </div>
+
+    <div class="bdb-stat-pill stat-alert">
+      <i class="bi bi-exclamation-triangle bdb-stat-icon"></i>
+      <div>
+        <div class="bdb-stat-value" id="statTransPrio">
+          <span class="bdb-skeleton">&nbsp;</span>
+        </div>
+        <div class="bdb-stat-label">Prioritaires<br>à traiter</div>
+      </div>
+    </div>
+
+    <div class="bdb-stat-pill">
+      <i class="bi bi-people bdb-stat-icon"></i>
+      <div>
+        <div class="bdb-stat-value" id="statMembers">
+          <span class="bdb-skeleton">&nbsp;</span>
+        </div>
+        <div class="bdb-stat-label">Membres<br>actifs</div>
+      </div>
+    </div>
+
+    <div class="bdb-stat-pill">
+      <i class="bi bi-box-seam bdb-stat-icon"></i>
+      <div>
+        <div class="bdb-stat-value" id="statArsenal">
+          <span class="bdb-skeleton">&nbsp;</span>
+        </div>
+        <div class="bdb-stat-label">Références<br>matériel</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTENU ─────────────────────────────────────────────── -->
+<div class="bdb-content">
+
+  <!-- Grille modules — peuplée dynamiquement depuis app_groups + app_modules -->
+  <div id="modulesContainer">
+    <!-- Skeleton de chargement -->
+    <div class="bdb-section-title">Modules</div>
+    <div class="bdb-modules-grid" id="modulesSkeleton">
+      <div class="bdb-module-card bdb-skeleton-card"><div class="bdb-skeleton-block" style="height:120px"></div></div>
+      <div class="bdb-module-card bdb-skeleton-card"><div class="bdb-skeleton-block" style="height:120px"></div></div>
+      <div class="bdb-module-card bdb-skeleton-card"><div class="bdb-skeleton-block" style="height:120px"></div></div>
+      <div class="bdb-module-card bdb-skeleton-card"><div class="bdb-skeleton-block" style="height:120px"></div></div>
+    </div>
+  </div>
+
+  <!-- Section admin (affichée si admin, peuplée dynamiquement) -->
+  <div id="adminSection" class="bdb-admin-section" aria-label="Administration">
+    <div class="bdb-section-title mb-0">
+      <i class="bi bi-shield-lock text-secondary me-1"></i>Administration
+    </div>
+    <div class="bdb-admin-grid" id="adminGrid"></div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer class="bdb-footer">
+  &copy; 2026 Bible de Bloc — Consensus Design System —
+  <span class="badge bg-light text-dark border">CDS Compliant</span>
+</footer>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/bdb-preview.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // ── 1. Auth guard ──────────────────────────────────────────
+  let session = await window.bdbRequireAuth();
+
+  if (!session && sessionStorage.getItem('demo_mode') === 'true') {
+    session = { demo: true, user: { id: 'demo', email: 'demo@bdb.local' } };
+  }
+  if (!session) return;
+
+  const previewRole = session.preview || null;
+  const isDemoMode  = session.demo === true;
+  const isSpecial   = !!previewRole || isDemoMode;
+  const userId      = session.user.id;
+
+  if (window.bdbInjectPreviewBanner) window.bdbInjectPreviewBanner();
+
+  // ── 2. Profil utilisateur ──────────────────────────────────
+  async function loadProfile() {
+    if (isSpecial) {
+      const p = previewRole === 'anonymous'
+        ? window.BDB_PREVIEW_DATA.anonymousProfile
+        : previewRole === 'member'
+          ? window.BDB_PREVIEW_DATA.memberProfile
+          : { nom: 'Démo', prenom: '', initials: '?', fonction: null };
+      const fullName = [p.prenom, p.nom].filter(Boolean).join(' ') || 'Visiteur';
+      document.getElementById('avatarInitials').textContent   = p.initials || '?';
+      document.getElementById('heroUserName').textContent     = fullName;
+      document.getElementById('menuUserName').textContent     = fullName;
+      document.getElementById('menuUserEmail').textContent    = p.email || 'Non connecté';
+      document.getElementById('menuUserFonction').textContent = fonctionLabel(p.fonction);
+      return;
+    }
+    try {
+      const { data: profile } = await window.bdb
+        .from('profiles_directory')
+        .select('nom, prenom, initials, fonction')
+        .eq('user_id', userId)
+        .single();
+      if (profile) {
+        const fullName = [profile.prenom, profile.nom].filter(Boolean).join(' ');
+        const initials = profile.initials
+          || (profile.prenom?.[0] || '') + (profile.nom?.[0] || '') || '?';
+        document.getElementById('avatarInitials').textContent   = initials.toUpperCase();
+        document.getElementById('heroUserName').textContent     = fullName || session.user.email;
+        document.getElementById('menuUserName').textContent     = fullName || '—';
+        document.getElementById('menuUserEmail').textContent    = session.user.email;
+        document.getElementById('menuUserFonction').textContent = fonctionLabel(profile.fonction);
+      } else {
+        document.getElementById('heroUserName').textContent  = session.user.email;
+        document.getElementById('menuUserEmail').textContent = session.user.email;
+        const initials = session.user.email.substring(0, 2).toUpperCase();
+        document.getElementById('avatarInitials').textContent = initials;
+      }
+    } catch (_) {
+      document.getElementById('heroUserName').textContent = session.user.email;
+    }
+  }
+
+  function fonctionLabel(f) {
+    const map = {
+      medecin: 'Médecin', infirmier: 'Infirmier·e',
+      'aide-soignant': 'Aide-soignant·e', cadre: 'Cadre de bloc',
+      secretaire: 'Secrétaire', autre: 'Autre',
+    };
+    return map[f] || f || '';
+  }
+
+  // ── 3. Rôle admin ──────────────────────────────────────────
+  let isAdmin = false;
+  async function checkAdmin() {
+    if (isSpecial) return;
+    try {
+      const { data } = await window.bdb
+        .from('user_roles').select('role')
+        .eq('user_id', userId).single();
+      if (data?.role === 'admin') {
+        isAdmin = true;
+        document.getElementById('badgeAdmin').classList.remove('d-none');
+        document.getElementById('adminSection').classList.add('visible');
+        document.querySelectorAll('.admin-only-item').forEach(el => el.classList.remove('d-none'));
+      }
+    } catch (_) {}
+  }
+
+  // ── 4. Modules dynamiques ──────────────────────────────────
+  // Source : app_groups + app_modules (Supabase)
+  // Couleurs : style="--mc: ${m.color}" — dynamique DB → toléré (INTERDIT-C3)
+
+  function _esc(s) {
+    return String(s || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function _safeIcon(icon) {
+    return /^bi-[a-z0-9-]+$/.test(icon) ? icon : 'bi-grid';
+  }
+
+  function _buildModuleCard(m, today) {
+    const icon      = _safeIcon(m.icon);
+    const label     = _esc(m.label);
+    const desc      = _esc(m.description || '');
+    const color     = /^#[0-9a-fA-F]{3,6}$/.test(m.color) ? m.color : '#6c757d';
+    const isSoon    = m.status === 'coming_soon';
+    const showNew   = m.is_new && !isSoon && (!m.new_until || new Date(m.new_until) >= today);
+
+    // Badge
+    const badge = isSoon
+      ? `<div class="bdb-module-badge bdb-badge-soon">Bientôt</div>`
+      : showNew
+        ? `<div class="bdb-module-badge bdb-badge-new">Nouveau</div>`
+        : '';
+
+    if (isSoon) {
+      // Carte désactivée — non cliquable, opacité réduite
+      return `
+        <div class="bdb-module-card bdb-module-card--soon" style="--mc: ${color}" aria-disabled="true" tabindex="-1">
+          <div class="bdb-module-icon-wrap">
+            <i class="bi ${icon}"></i>
+          </div>
+          <div>
+            <p class="bdb-module-name">${label}</p>
+            <p class="bdb-module-desc">${desc}</p>
+          </div>
+          ${badge}
+          <div class="bdb-module-footer">
+            <span class="bdb-module-count">Disponible prochainement</span>
+          </div>
+        </div>`;
+    }
+
+    // Carte cliquable
+    return `
+      <a href="${_esc(m.path)}" class="bdb-module-card" style="--mc: ${color}">
+        <div class="bdb-module-icon-wrap">
+          <i class="bi ${icon}"></i>
+        </div>
+        <div>
+          <p class="bdb-module-name">${label}</p>
+          <p class="bdb-module-desc">${desc}</p>
+        </div>
+        ${badge}
+        <div class="bdb-module-footer">
+          <span class="bdb-module-count" id="count-${_esc(m.key)}"></span>
+          <div class="bdb-module-arrow"><i class="bi bi-chevron-right"></i></div>
+        </div>
+      </a>`;
+  }
+
+  async function loadModules() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let groups  = [];
+    let modules = [];
+    let fetchOk = false;
+
+    try {
+      const [gRes, mRes] = await Promise.all([
+        window.bdb.from('app_groups')
+          .select('key, label, icon, color, position')
+          .eq('is_visible', true)
+          .order('position'),
+        window.bdb.from('app_modules')
+          .select('key, label, description, icon, color, group_key, path, position, status, is_new, new_until, visibility')
+          .in('status', ['active', 'coming_soon'])
+          .order('position')
+      ]);
+      if (!gRes.error && !mRes.error) {
+        groups  = gRes.data  || [];
+        modules = mRes.data  || [];
+        fetchOk = true;
+      }
+    } catch (_) {}
+
+    if (!fetchOk) {
+      // Fallback : message d'erreur non bloquant, page reste utilisable
+      document.getElementById('modulesContainer').innerHTML = `
+        <div class="bdb-section-title">Modules</div>
+        <div class="alert alert-warning">
+          <i class="bi bi-wifi-off me-2"></i>
+          Impossible de charger la liste des modules. Vérifiez votre connexion.
+        </div>`;
+      return;
+    }
+
+    // Filtrage visibilité
+    const visible = modules.filter(m => {
+      if (m.visibility === 'admin')  return isAdmin;
+      return true;
+    });
+
+    // Index par groupe
+    const byGroup = {};
+    visible.forEach(m => {
+      if (!byGroup[m.group_key]) byGroup[m.group_key] = [];
+      byGroup[m.group_key].push(m);
+    });
+
+    // Rendu groupé
+    let html = '';
+    groups.forEach(g => {
+      const mods = byGroup[g.key];
+      if (!mods || !mods.length) return;
+
+      const safeGroupLabel = _esc(g.label);
+      const safeGroupIcon  = _safeIcon(g.icon);
+
+      html += `
+        <div class="bdb-section-title">
+          <i class="bi ${safeGroupIcon} me-2" style="color: ${/^#[0-9a-fA-F]{3,6}$/.test(g.color) ? g.color : 'inherit'}"></i>${safeGroupLabel}
+        </div>
+        <div class="bdb-modules-grid">
+          ${mods.map(m => _buildModuleCard(m, today)).join('')}
+        </div>`;
+    });
+
+    document.getElementById('modulesContainer').innerHTML = html;
+
+    // Nav rapide desktop : 3 premiers modules actifs et visibles du premier groupe
+    const firstGroupKey = groups[0]?.key;
+    const quickModules  = visible
+      .filter(m => m.group_key === firstGroupKey && m.status === 'active')
+      .slice(0, 3);
+    const quickNav = document.getElementById('quickNav');
+    if (quickNav && quickModules.length) {
+      quickNav.innerHTML = quickModules.map(m => `
+        <a href="${_esc(m.path)}" class="btn btn-sm btn-ghost-custom">
+          <i class="bi ${_safeIcon(m.icon)} me-1"></i>${_esc(m.label)}
+        </a>`).join('');
+    }
+
+    // Section admin : lien vers module admin
+    if (isAdmin) {
+      const adminMods = modules.filter(m => m.visibility === 'admin' && m.status === 'active');
+      const adminGrid = document.getElementById('adminGrid');
+      if (adminGrid && adminMods.length) {
+        adminGrid.innerHTML = adminMods.map(m => `
+          <a href="${_esc(m.path)}" class="bdb-admin-link">
+            <i class="bi ${_safeIcon(m.icon)}"></i>${_esc(m.label)}
+          </a>`).join('');
+      }
+    }
+  }
+
+  // ── 5. Stats live ──────────────────────────────────────────
+  async function loadStats() {
+    if (previewRole === 'anonymous' || isDemoMode) {
+      const d = window.BDB_PREVIEW_DATA.demoStats;
+      document.getElementById('statTransOpen').textContent = d.transOpen;
+      document.getElementById('statTransPrio').textContent = d.transPrio;
+      document.getElementById('statMembers').textContent   = d.members;
+      document.getElementById('statArsenal').textContent   = d.materiel;
+      _setStat('count-transmissions', d.transOpen + ' ouvertes');
+      _setStat('count-annuaire',      d.members + ' membres');
+      _setStat('count-arsenal',       d.materiel + ' références');
+      _setStat('count-fiches',        d.fiches + ' fiches');
+      _setStat('count-preferences',   d.prefs + ' fiches');
+      _setStat('count-cours',         d.cours + ' cours');
+      _setStat('count-installation',  d.install + ' entrées');
+      _setStat('count-anatomie',      d.anatomie + ' zones');
+      return;
+    }
+
+    function _setStat(id, val) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+
+    const stats = [
+      {
+        query: window.bdb.from('transmissions').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+        onOk: (n) => {
+          document.getElementById('statTransOpen').textContent = n;
+          _setStat('count-transmissions', n + ' ouvertes');
+        },
+        onErr: () => document.getElementById('statTransOpen').textContent = '—'
+      },
+      {
+        query: window.bdb.from('transmissions').select('*', { count: 'exact', head: true }).eq('status', 'open').eq('priority', true),
+        onOk: (n) => {
+          document.getElementById('statTransPrio').textContent = n;
+          if (n > 0) {
+            // La carte transmissions est générée dynamiquement — badge injecté dans le count
+            const countEl = document.getElementById('count-transmissions');
+            if (countEl) {
+              countEl.innerHTML =
+                `<span class="bdb-badge-prio me-1">${n}</span>prioritaire${n > 1 ? 's' : ''}`;
+            }
+          }
+        },
+        onErr: () => document.getElementById('statTransPrio').textContent = '—'
+      },
+      {
+        query: window.bdb.from('profiles_directory').select('*', { count: 'exact', head: true }).eq('approved', true),
+        onOk: (n) => {
+          document.getElementById('statMembers').textContent = n;
+          _setStat('count-annuaire', n + ' membres');
+        },
+        onErr: () => document.getElementById('statMembers').textContent = '—'
+      },
+      {
+        query: window.bdb.from('materiel').select('*', { count: 'exact', head: true }),
+        onOk: (n) => {
+          document.getElementById('statArsenal').textContent = n;
+          _setStat('count-arsenal', n + ' références');
+        },
+        onErr: () => document.getElementById('statArsenal').textContent = '—'
+      },
+      {
+        query: window.bdb.from('fiches_intervention').select('*', { count: 'exact', head: true }),
+        onOk: (n) => _setStat('count-fiches', n + ' fiches'),
+        onErr: () => {}
+      },
+      {
+        query: window.bdb.from('preferences_chirurgien').select('*', { count: 'exact', head: true }),
+        onOk: (n) => _setStat('count-preferences', n + ' fiches'),
+        onErr: () => {}
+      },
+      {
+        query: window.bdb.from('cours').select('*', { count: 'exact', head: true }),
+        onOk: (n) => _setStat('count-cours', n + ' cours'),
+        onErr: () => {}
+      },
+      {
+        query: window.bdb.from('installation_patient').select('*', { count: 'exact', head: true }),
+        onOk: (n) => _setStat('count-installation', n + ' entrées'),
+        onErr: () => {}
+      },
+      {
+        query: window.bdb.from('anatomie').select('*', { count: 'exact', head: true }),
+        onOk: (n) => _setStat('count-anatomie', n + ' zones'),
+        onErr: () => {}
+      },
+    ];
+
+    // Toutes les stats en parallèle — chacune gère son propre fallback
+    await Promise.all(stats.map(async s => {
+      try {
+        const { count } = await s.query;
+        s.onOk(count ?? 0);
+      } catch (_) {
+        s.onErr();
+      }
+    }));
+  }
+
+  // ── 6. Déconnexion ─────────────────────────────────────────
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    if (isSpecial) {
+      sessionStorage.removeItem('bdb_preview_role');
+      sessionStorage.removeItem('demo_mode');
+      window.location.href = 'login.html';
+      return;
+    }
+    await window.bdb.auth.signOut();
+    window.location.href = 'login.html';
+  });
+
+  // ── 6b. Sous-menu prévisualisation ─────────────────────────
+  const btnPreviewMenu = document.getElementById('btnPreviewMenu');
+  const previewSubmenu = document.getElementById('previewSubmenu');
+  if (btnPreviewMenu) {
+    btnPreviewMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      previewSubmenu.classList.toggle('d-none');
+    });
+  }
+  document.getElementById('btnPreviewMember')?.addEventListener('click', () => {
+    if (window.bdbSetPreviewRole) window.bdbSetPreviewRole('member');
+  });
+  document.getElementById('btnPreviewAnon')?.addEventListener('click', () => {
+    if (window.bdbSetPreviewRole) window.bdbSetPreviewRole('anonymous');
+  });
+
+  // ── 7. Toggle dropdown user ────────────────────────────────
+  const btnUser  = document.getElementById('btnUserMenu');
+  const dropdown = document.getElementById('userDropdown');
+  btnUser.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = dropdown.classList.toggle('open');
+    btnUser.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.addEventListener('click', () => {
+    dropdown.classList.remove('open');
+    btnUser.setAttribute('aria-expanded', 'false');
+  });
+  dropdown.addEventListener('click', e => e.stopPropagation());
+
+  // ── 8. Init — ordre : profil + admin en parallèle,
+  //            puis modules (besoin de isAdmin), stats en parallèle
+  await Promise.all([loadProfile(), checkAdmin()]);
+  await loadModules();
+  loadStats(); // non bloquant — stats arrivent après le rendu
+});
+</script>
+</body>
+</html>

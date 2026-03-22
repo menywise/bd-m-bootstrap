@@ -1,0 +1,44 @@
+/*
+ * organisateur-ui.css — Module ORGANISATEUR
+ * CSS spécifique au module uniquement.
+ * Ne pas importer depuis un autre module.
+ * CDS compliant.
+ */
+
+/* Icône de drag (remplace style="cursor:grab;font-size:1.2rem;") */
+.org-grip {
+  cursor: grab;
+  font-size: 1.2rem;
+}
+
+.org-grip:active {
+  cursor: grabbing;
+}
+
+/* ── Phase items drag & drop ───────────────────────────────── */
+.phase-item {
+  cursor: grab;
+  transition: box-shadow .15s, transform .1s;
+  border-left: 4px solid var(--bs-primary);
+}
+.phase-item:active  { cursor: grabbing; }
+.phase-item.dragging {
+  opacity: .5;
+  border-left-color: var(--bs-success);
+  box-shadow: 0 4px 16px rgba(0,0,0,.15) !important;
+}
+.phase-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08) !important; }
+
+/* ── Phase numérotation ─────────────────────────────────────── */
+.phase-num {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--bs-primary);
+  min-width: 2rem;
+}
+
+/* ── Zones conditionnelles ──────────────────────────────────── */
+.export-box          { display: none; }
+.export-box.active   { display: block; }
+.add-phase-form      { display: none; }
+.add-phase-form.active { display: block; }

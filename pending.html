@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compte en attente | Bible de Bloc</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="css/cds-overrides.css" rel="stylesheet"/>
+  <link href="css/login-ui.css" rel="stylesheet"/>
+</head>
+<body class="login-bg">
+
+<div class="card login-card">
+  <div class="card-body text-center py-4">
+
+    <!-- Icône -->
+    <div class="login-icon-wrap mb-3" id="iconWrap">
+      <i class="bi bi-hourglass-split fs-3 text-white"></i>
+    </div>
+
+    <h5 class="fw-bold mb-1">Compte en attente</h5>
+    <p class="text-muted small mb-0">Bible de Bloc · Bloc ortho-neurochirurgie</p>
+
+    <hr class="my-3"/>
+
+    <!-- Infos utilisateur -->
+    <div id="userInfo" class="mb-4 d-none">
+      <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white cds-avatar-md" id="userInitials">?</div>
+        <div class="text-start">
+          <div class="fw-semibold small" id="userName">—</div>
+          <div class="text-muted" class="cds-text-xs text-muted" id="userEmail">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message principal -->
+    <div class="alert alert-warning d-flex align-items-start gap-2 text-start mb-4" role="alert">
+      <i class="bi bi-clock-history flex-shrink-0 mt-1"></i>
+      <div>
+        <strong>Votre compte est en attente de validation.</strong><br>
+        <span class="small">
+          Un administrateur doit approuver votre accès avant que vous puissiez utiliser l'application.
+          Ce processus est généralement rapide — contactez votre responsable de bloc si besoin.
+        </span>
+      </div>
+    </div>
+
+    <!-- Étapes -->
+    <div class="pending-steps mb-4">
+      <div class="pending-step pending-step-done">
+        <div class="pending-step-icon"><i class="bi bi-check-lg"></i></div>
+        <div class="small">Inscription</div>
+      </div>
+      <div class="pending-step-line"></div>
+      <div class="pending-step pending-step-done">
+        <div class="pending-step-icon"><i class="bi bi-envelope-check"></i></div>
+        <div class="small">Email vérifié</div>
+      </div>
+      <div class="pending-step-line"></div>
+      <div class="pending-step pending-step-active">
+        <div class="pending-step-icon"><i class="bi bi-person-check"></i></div>
+        <div class="small">Approbation admin</div>
+      </div>
+      <div class="pending-step-line"></div>
+      <div class="pending-step pending-step-waiting">
+        <div class="pending-step-icon"><i class="bi bi-door-open"></i></div>
+        <div class="small">Accès complet</div>
+      </div>
+    </div>
+
+    <!-- Bouton vérifier statut -->
+    <button class="btn btn-outline-primary w-100 mb-2" id="btnCheck" type="button">
+      <i class="bi bi-arrow-clockwise me-2"></i>
+      <span id="btnCheckText">Vérifier l'approbation</span>
+      <span id="btnCheckSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+    </button>
+
+    <!-- Déconnexion -->
+    <div class="demo-link-wrap">
+      <button class="btn-demo" id="btnLogout" type="button">
+        <i class="bi bi-box-arrow-left"></i>
+        <span>Se déconnecter</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Style étapes -->
+<style>
+.pending-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.pending-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3rem;
+  min-width: 64px;
+}
+.pending-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+}
+.pending-step-done .pending-step-icon {
+  background: var(--bs-success);
+  color: #fff;
+}
+.pending-step-active .pending-step-icon {
+  background: var(--bs-warning);
+  color: #fff;
+  animation: pulse-pending 1.8s ease-in-out infinite;
+}
+.pending-step-waiting .pending-step-icon {
+  background: var(--bs-light);
+  color: var(--bs-secondary-color);
+  border: 1.5px solid var(--bs-border-color);
+}
+.pending-step .small {
+  font-size: .7rem;
+  color: var(--bs-secondary-color);
+  text-align: center;
+}
+.pending-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--bs-border-color);
+  margin-bottom: 1.2rem;
+  min-width: 16px;
+}
+@keyframes pulse-pending {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .75; transform: scale(1.08); }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase-client.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // ── Vérifier session active ──────────────────────────────────────────
+  const session = await window.bdbGetSession();
+  if (!session) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // ── Afficher infos utilisateur ───────────────────────────────────────
+  const user = session.user;
+  const meta = user.user_metadata || {};
+  const nom    = meta.nom    || '';
+  const prenom = meta.prenom || '';
+  const name   = meta.name   || (prenom + ' ' + nom).trim() || user.email;
+  const ini    = ((prenom[0] || '') + (nom[0] || '')).toUpperCase() || user.email[0].toUpperCase();
+
+  document.getElementById('userInitials').textContent = ini;
+  document.getElementById('userName').textContent     = name || '—';
+  document.getElementById('userEmail').textContent    = user.email;
+  document.getElementById('userInfo').classList.remove('d-none');
+
+  // ── Vérifier si déjà approuvé (cas de refresh) ──────────────────────
+  async function checkApproval() {
+    const btn     = document.getElementById('btnCheck');
+    const spinner = document.getElementById('btnCheckSpinner');
+    const text    = document.getElementById('btnCheckText');
+
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+    text.textContent = 'Vérification…';
+
+    const { data } = await window.bdb
+      .from('profiles_directory')
+      .select('approved')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    btn.disabled = false;
+    spinner.classList.add('d-none');
+    text.textContent = 'Vérifier l\'approbation';
+
+    if (data && data.approved === true) {
+      // Approuvé → rediriger vers le portail
+      window.location.href = 'index.html';
+    } else {
+      // Pas encore approuvé → feedback visuel
+      btn.classList.remove('btn-outline-primary');
+      btn.classList.add('btn-outline-secondary');
+      btn.innerHTML = '<i class="bi bi-hourglass me-2"></i>Pas encore approuvé — réessayez plus tard';
+      setTimeout(() => {
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-outline-primary');
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i><span id="btnCheckText">Vérifier l\'approbation</span><span id="btnCheckSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>';
+        document.getElementById('btnCheck').addEventListener('click', checkApproval);
+      }, 3000);
+    }
+  }
+
+  document.getElementById('btnCheck').addEventListener('click', checkApproval);
+
+  // ── Déconnexion ──────────────────────────────────────────────────────
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    await window.bdb.auth.signOut();
+    window.location.href = 'login.html';
+  });
+
+});
+</script>
+</body>
+</html>

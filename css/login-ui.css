@@ -1,0 +1,164 @@
+/* ============================================================
+   LOGIN-UI.CSS — Styles spécifiques à login.html
+   VERSION    : 1.0.0
+   DATE       : 2026-03-06
+   SCOPE      : login.html uniquement
+   RÈGLE CDS  : Ne jamais importer ce fichier dans un autre module
+   ============================================================ */
+
+/* ── Background page ── */
+.login-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: #f0f4f8;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(13, 110, 253, .07) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(13, 110, 253, .05) 0%, transparent 50%);
+}
+
+/* ── Card principale ── */
+.login-card {
+  width: 100%;
+  max-width: 448px;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,.08), 0 20px 50px -10px rgba(13,110,253,.12);
+}
+
+.login-card .card-body {
+  padding: 2rem 2rem 1.5rem;
+}
+
+/* ── Header icône ── */
+.login-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--bs-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 4px 14px rgba(13,110,253,.35);
+}
+
+/* ── Tabs style raffiné ── */
+.login-tabs {
+  border-bottom: 1.5px solid var(--bs-border-color);
+  margin-bottom: 1.5rem;
+  gap: 0;
+}
+.login-tabs .nav-link {
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  border-radius: 0;
+  color: var(--bs-secondary-color);
+  padding: .6rem 1.25rem;
+  font-weight: 500;
+  font-size: .875rem;
+  transition: color .15s, border-color .15s;
+  margin-bottom: -1.5px;
+}
+.login-tabs .nav-link:hover { color: var(--bs-primary); }
+.login-tabs .nav-link.active {
+  color: var(--bs-primary);
+  border-bottom-color: var(--bs-primary);
+  background: none;
+}
+
+/* ── Labels ── */
+.login-card .form-label {
+  font-weight: 600;
+  font-size: .85rem;
+  margin-bottom: .35rem;
+  color: var(--bs-body-color);
+}
+
+/* ── Champ mot de passe avec oeil ── */
+/* .cds-eye-wrap + .cds-btn-eye -> migre vers cds-overrides.css (.cds-eye-wrap + .cds-btn-eye) */
+
+/* ── Bouton submit ── */
+.login-card .btn-primary {
+  font-weight: 600;
+  font-size: .9rem;
+  padding: .55rem 1rem;
+  letter-spacing: .01em;
+}
+
+/* ── Texte aide mot de passe ── */
+.password-hint {
+  font-size: .775rem;
+  color: var(--bs-secondary-color);
+  margin-top: .3rem;
+}
+
+/* ── Demo mode lien discret ── */
+.demo-link-wrap {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bs-border-color);
+  text-align: center;
+}
+.btn-demo {
+  background: none;
+  border: none;
+  color: var(--bs-secondary-color);
+  font-size: .78rem;
+  padding: .35rem .75rem;
+  cursor: pointer;
+  transition: color .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+.btn-demo:hover { color: var(--bs-body-color); }
+
+/* ── Alertes ── */
+.alert-login {
+  font-size: .855rem;
+  border-radius: 10px;
+}
+
+/* ── Admin bootstrap lien ultra-discret ── */
+.admin-hint {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  font-size: .7rem;
+  color: transparent;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Lien mot de passe oublié ── */
+.btn-forgot {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: .775rem;
+  color: var(--bs-primary);
+  cursor: pointer;
+  transition: opacity .15s;
+  line-height: 1;
+}
+.btn-forgot:hover { opacity: .75; text-decoration: underline; }
+
+/* ── Bouton retour dans panneau forgot ── */
+.btn-back {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: .82rem;
+  color: var(--bs-secondary-color);
+  cursor: pointer;
+  transition: color .15s;
+  display: inline-flex;
+  align-items: center;
+}
+.btn-back:hover { color: var(--bs-primary); }
+
+/* ── Note info dans panneau forgot ── */
+.forgot-back { margin-top: .5rem; }

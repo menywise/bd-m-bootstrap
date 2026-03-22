@@ -1,0 +1,1709 @@
+﻿<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Analyse Multi-Périodes | Planning Engine</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+
+  <style>
+  /* ── KPI ── */
+  .kpi-value { font-size:2.2rem; font-weight:700; line-height:1; letter-spacing:-.02em; }
+  .kpi-label { font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; }
+  .kpi-sub   { font-size:.65rem; margin-top:2px; }
+  .kpi-card  { transition:transform .12s ease, box-shadow .12s ease; }
+  .kpi-card:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,.10)!important; }
+
+  /* ── Barres custom (pas d'équivalent BS exact) ── */
+  .cs-bar-track { height:10px; background:#e2e8f0; border-radius:5px; overflow:hidden; }
+  .cs-bar-fill  { height:100%; border-radius:5px; }
+  .progress-xs  { height:5px; }
+  .progress-sm  { height:7px; }
+
+  /* ── Dot légende ── */
+  .cs-dot { display:inline-block; width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+
+  /* ── Chart évolution page ── */
+  .evo-week     { min-width:48px; }
+  .evo-label    { font-size:.62rem; color:#94a3b8; text-align:center; margin-top:3px; }
+  .evo-bar-wrap { height:64px; display:flex; flex-direction:column-reverse; }
+  .evo-bar-seg  { width:100%; border-radius:2px 2px 0 0; }
+
+  /* ── Tri ── */
+  .sort-th { cursor:pointer; user-select:none; white-space:nowrap; }
+  .sort-th:hover { background:#f1f5f9!important; }
+  .sort-arrow { font-size:.6rem; color:#94a3b8; vertical-align:middle; margin-left:2px; }
+  .sort-th.sort-active { color:#0d6efd; }
+  .sort-th.sort-active .sort-arrow { color:#0d6efd; }
+
+  /* ── Paire item ── */
+  .pair-item { border-bottom:1px solid #f1f5f9; padding:7px 0; }
+  .pair-item:last-child { border-bottom:none; }
+
+  /* ── Sous-texte ── */
+  .text-sub { font-size:.65rem; color:#9ca3af; }
+
+  /* ── Misc ── */
+  .period-vr { height:38px; }
+
+  /* ── Print ── */
+  @media print {
+    .no-print, .offcanvas, header { display:none!important; }
+    .container-fluid { padding:0!important; }
+  }
+  </style>
+</head>
+<body class="d-flex min-vh-100">
+
+<!-- ═══ OFFCANVAS ═══ -->
+<div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mainMenu">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title d-flex align-items-center">
+      <i class="bi bi-calendar2-week fs-4 me-2 text-primary"></i>
+      <span class="fs-5 fw-bold">Planning Engine</span>
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body">
+    <small class="text-uppercase text-white-50 mb-2 d-block">v1.x — file:// safe</small>
+    <hr class="border-secondary my-3"/>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a href="../../index.html" class="nav-link text-white-50"><i class="bi bi-house me-2"></i>← Portail</a>
+      </li>
+      <li><hr class="border-secondary my-2 mx-2"></li>
+      <li><a href="./dashboard.html" class="nav-link text-white-50"><i class="bi bi-speedometer2 me-2"></i>Dashboard semaine</a></li>
+      <li><a href="./analytics.html" class="nav-link text-white active"><i class="bi bi-graph-up-arrow me-2"></i>Analyse multi-périodes</a></li>
+      <li><a href="./planning.html"  class="nav-link text-white-50"><i class="bi bi-pencil-square me-2"></i>Saisie</a></li>
+      <li><a href="./export.html"    class="nav-link text-white-50"><i class="bi bi-download me-2"></i>Export</a></li>
+    </ul>
+    <div class="mt-auto pt-3 border-top border-secondary">
+      <div class="d-flex align-items-center gap-2">
+        <span class="d-inline-block rounded-circle bg-success" style="width:8px;height:8px" role="status"></span>
+        <small class="text-white-50" id="navStatus">Chargement…</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+  <header class="sticky-top bg-white shadow-sm px-4 py-3 d-flex align-items-center justify-content-between header-sticky no-print">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-label="Menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <h5 class="mb-0">Analyse multi-périodes</h5>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span id="headerBadge" class="badge bg-light text-dark border"></span>
+      <button id="btnPrint" class="btn btn-sm btn-outline-secondary" title="Imprimer"><i class="bi bi-printer"></i></button>
+    </div>
+  </header>
+
+  <div class="container-fluid p-4 bg-light flex-grow-1">
+
+    <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
+      <h1 class="mb-2"><i class="bi bi-graph-up-arrow me-2"></i>Analyse de Performance Opératoire</h1>
+      <p class="mb-0 opacity-75">Agrégation multi-semaines — Trimestre · Semestre · Année</p>
+    </div>
+
+    <!-- ══ SÉLECTEUR PÉRIODE ══ -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
+          <div class="col-auto">
+            <label class="form-label small fw-semibold mb-1 d-block">Année</label>
+            <div class="btn-group btn-group-sm" id="yearGroup" role="group"></div>
+          </div>
+          <div class="col-auto"><div class="vr period-vr"></div></div>
+          <div class="col-auto">
+            <label class="form-label small fw-semibold mb-1 d-block">Trimestre</label>
+            <div class="btn-group btn-group-sm" role="group">
+              <button class="btn btn-outline-primary btn-sm" data-period="Q1">Q1 <small>S01–13</small></button>
+              <button class="btn btn-outline-primary btn-sm" data-period="Q2">Q2 <small>S14–26</small></button>
+              <button class="btn btn-outline-primary btn-sm" data-period="Q3">Q3 <small>S27–39</small></button>
+              <button class="btn btn-outline-primary btn-sm" data-period="Q4">Q4 <small>S40–52</small></button>
+            </div>
+          </div>
+          <div class="col-auto"><div class="vr period-vr"></div></div>
+          <div class="col-auto">
+            <label class="form-label small fw-semibold mb-1 d-block">Semestre</label>
+            <div class="btn-group btn-group-sm" role="group">
+              <button class="btn btn-outline-secondary btn-sm" data-period="H1">H1 <small>S01–26</small></button>
+              <button class="btn btn-outline-secondary btn-sm" data-period="H2">H2 <small>S27–52</small></button>
+            </div>
+          </div>
+          <div class="col-auto"><div class="vr period-vr"></div></div>
+          <div class="col-auto">
+            <label class="form-label small fw-semibold mb-1 d-block">Global</label>
+            <button class="btn btn-sm btn-outline-dark active" data-period="ALL">
+              <i class="bi bi-infinity me-1"></i>Tout
+            </button>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-top d-flex flex-wrap gap-3 align-items-center">
+          <span id="selectionLabel" class="fw-semibold text-primary"></span>
+          <span id="selectionBadge" class="badge bg-primary-subtle text-primary"></span>
+          <span id="selectionRange"  class="text-muted small"></span>
+          <div id="loadingSpinner" class="d-none spinner-border spinner-border-sm text-primary" role="status"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ KPI ══ -->
+    <div class="row g-3 mb-4" id="kpiRow"></div>
+
+    <!-- ══ DISTRIBUTION + ACTIVITÉ ══ -->
+    <div class="row g-4 mb-4">
+      <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-transparent">
+            <strong><i class="bi bi-bar-chart-fill text-primary me-2"></i>Distribution des états de slots</strong>
+            <small class="text-muted ms-2">60 slots théoriques × semaines</small>
+          </div>
+          <div class="card-body" id="slotDistrib"></div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-transparent">
+            <strong><i class="bi bi-activity text-success me-2"></i>Activité cumulée</strong>
+          </div>
+          <div class="card-body" id="activitySummary"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ÉVOLUTION ══ -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <strong><i class="bi bi-graph-up text-info me-2"></i>Évolution semaine par semaine</strong>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+          <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#16a34a"></span><small>Stable</small></span>
+          <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#ca8a04"></span><small>Fragile</small></span>
+          <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#dc2626"></span><small>Critique</small></span>
+          <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#9ca3af"></span><small>Fermé</small></span>
+        </div>
+      </div>
+      <div class="card-body overflow-auto">
+        <div class="d-flex gap-2 align-items-end" id="evoChart"></div>
+      </div>
+    </div>
+
+    <!-- ══ IDEs ══ -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <strong><i class="bi bi-people-fill text-primary me-2"></i>Classement IDEs — charge de travail</strong>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+          <div class="bg-light rounded px-3 py-2 d-flex gap-2 align-items-center">
+            <i class="bi bi-funnel text-muted small"></i>
+            <input type="text" id="ideFilterText" class="form-control form-control-sm"
+                   style="width:140px" placeholder="Filtrer…" aria-label="Filtrer par nom">
+            <select id="ideFilterRole" class="form-select form-select-sm" style="width:120px" aria-label="Rôle">
+              <option value="">Tous rôles</option>
+              <option value="instru">INSTRU</option>
+              <option value="panseur">PANSEUR</option>
+              <option value="couloir">Couloir</option>
+            </select>
+          </div>
+          <span id="ideBadge" class="badge bg-secondary-subtle text-secondary"></span>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle mb-0" id="ideTable">
+          <thead class="bg-light">
+            <tr>
+              <th scope="col" class="ps-3" style="width:36px">#</th>
+              <th scope="col" class="sort-th" data-col="name">IDE <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th sort-active" data-col="total">Total <i class="sort-arrow bi bi-chevron-down"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="instru" title="Instrumentiste"><i class="bi bi-person-badge text-primary"></i> Instru <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="panseur"><i class="bi bi-scissors text-success"></i> Panseur <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="couloir"><i class="bi bi-arrow-left-right text-info"></i> Couloir <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="visceral"><i class="bi bi-heart-pulse text-danger"></i> Viscéral <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="ouverture"><i class="bi bi-sunrise text-warning"></i> Ouvert. <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th pe-3" data-col="doublure"><i class="bi bi-person-plus text-secondary"></i> Doublu. <i class="sort-arrow bi bi-chevron-expand"></i></th>
+            </tr>
+          </thead>
+          <tbody id="ideTableBody"></tbody>
+        </table>
+      </div>
+      <div class="card-footer bg-transparent small text-muted">
+        <i class="bi bi-info-circle me-1"></i>
+        Cliquer sur un <strong>nom</strong> pour ouvrir sa fiche · Cliquer sur un <strong>en-tête</strong> pour trier
+      </div>
+    </div>
+
+    <!-- ══ CHIRURGIENS ══ -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <strong><i class="bi bi-person-workspace text-warning me-2"></i>Classement Chirurgiens — présences</strong>
+        <span id="chirBadge" class="badge bg-secondary-subtle text-secondary"></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm align-middle mb-0" id="chirTable">
+          <thead class="bg-light">
+            <tr>
+              <th scope="col" class="ps-3" style="width:36px">#</th>
+              <th scope="col" class="sort-th" data-col="name">Chirurgien <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th sort-active" data-col="slots">Slots <i class="sort-arrow bi bi-chevron-down"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="semaines">Semaines <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="salles">Salles <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="ideDistincts"
+                  title="IDEs distincts en INSTRU — signal de concentration">
+                IDEs INSTRU <i class="sort-arrow bi bi-chevron-expand"></i>
+                <i class="bi bi-question-circle text-muted ms-1"
+                   data-bs-toggle="tooltip" title="Faible = risque de monopole d'apprentissage"></i>
+              </th>
+              <th scope="col" class="text-center sort-th" data-col="matin">Matin <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th" data-col="aprem">AM <i class="sort-arrow bi bi-chevron-expand"></i></th>
+              <th scope="col" class="text-center sort-th pe-3" data-col="soir">Soir <i class="sort-arrow bi bi-chevron-expand"></i></th>
+            </tr>
+          </thead>
+          <tbody id="chirTableBody"></tbody>
+        </table>
+      </div>
+      <div class="card-footer bg-transparent small text-muted">
+        Un slot = {salle · jour · créneau}. Déduplication appliquée.
+        <span class="ms-2 text-info"><i class="bi bi-info-circle me-1"></i>IDEs INSTRU faible = risque de monopole.</span>
+      </div>
+    </div>
+
+    <!-- ══ TOP PAIRES ══ -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-transparent">
+            <strong><i class="bi bi-person-badge text-primary me-2"></i>Top Paires Chir — INSTRU</strong>
+          </div>
+          <div class="card-body p-0" id="instrPairesTable"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-transparent">
+            <strong><i class="bi bi-scissors text-success me-2"></i>Top Paires Chir — PANSEUR</strong>
+          </div>
+          <div class="card-body p-0" id="pansPairesTable"></div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-transparent">
+            <strong><i class="bi bi-people-fill text-info me-2"></i>Top Paires INSTRU — PANSEUR</strong>
+          </div>
+          <div class="card-body p-0" id="instrPansPairesTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TRIOS GLOBAL ══ -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <strong><i class="bi bi-diagram-3 text-primary me-2"></i>Top Trios — Chir · INSTRU · PANSEUR</strong>
+        <span id="triosBadge" class="badge bg-secondary-subtle text-secondary"></span>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-light border small py-2 mb-3">
+          <i class="bi bi-lightbulb me-1 text-warning"></i>
+          La fréquence d'un trio sur une période définit la <strong>fenêtre d'apprentissage réelle</strong> disponible.
+          Une occurrence faible = situation rare — elle ne peut pas être attendue passivement.
+        </div>
+        <div id="triosGlobalTable"></div>
+      </div>
+    </div>
+
+    <div id="emptyState" class="d-none text-center py-5">
+      <i class="bi bi-inbox fs-1 text-muted d-block mb-3"></i>
+      <p class="fw-semibold text-muted mb-1">Aucune semaine disponible pour cette période</p>
+      <small class="text-muted">Changez de période ou vérifiez que des données sont chargées.</small>
+    </div>
+
+  </div>
+
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 Planning Engine — Consensus Design System —
+    <span class="badge bg-light text-dark border">Analytics v4.0</span></small>
+  </footer>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODALE FICHE IDE
+═══════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalIDE" tabindex="-1" aria-labelledby="modalIDELabel">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-bottom">
+        <h5 class="modal-title d-flex align-items-center gap-2" id="modalIDELabel">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle
+                      bg-primary-subtle text-primary fw-bold"
+               style="width:32px;height:32px;font-size:.8rem" id="modalIDEInitials"></div>
+          <span id="modalIDEName"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body p-0">
+        <ul class="nav nav-tabs px-3 pt-2 bg-light" id="ideModalTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="ideTabResume-tab" data-bs-toggle="tab"
+                    data-bs-target="#ideTabResume" type="button" role="tab">
+              <i class="bi bi-person-circle me-1"></i>Résumé
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="ideTabPaires-tab" data-bs-toggle="tab"
+                    data-bs-target="#ideTabPaires" type="button" role="tab">
+              <i class="bi bi-diagram-3 me-1"></i>Paires &amp; Trios
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="ideTabEvo-tab" data-bs-toggle="tab"
+                    data-bs-target="#ideTabEvo" type="button" role="tab">
+              <i class="bi bi-calendar3 me-1"></i>Évolution
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content p-3">
+          <div class="tab-pane fade show active" id="ideTabResume"  role="tabpanel"><div id="modalIDEResume"></div></div>
+          <div class="tab-pane fade"             id="ideTabPaires" role="tabpanel"><div id="modalIDEPaires"></div></div>
+          <div class="tab-pane fade"             id="ideTabEvo"    role="tabpanel"><div id="modalIDEEvo"></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <small class="text-muted me-auto" id="modalIDEPeriodLabel"></small>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODALE FICHE CHIRURGIEN
+═══════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalChir" tabindex="-1" aria-labelledby="modalChirLabel">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-bottom">
+        <h5 class="modal-title d-flex align-items-center gap-2" id="modalChirLabel">
+          <div class="d-inline-flex align-items-center justify-content-center rounded-circle
+                      bg-warning-subtle text-warning fw-bold"
+               style="width:32px;height:32px;font-size:.8rem" id="modalChirInitials"></div>
+          <span id="modalChirName"></span>
+          <span class="badge bg-warning-subtle text-warning ms-1">Chirurgien</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body p-0">
+        <ul class="nav nav-tabs px-3 pt-2 bg-light" id="chirModalTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="chirTabResume-tab" data-bs-toggle="tab"
+                    data-bs-target="#chirTabResume" type="button" role="tab">
+              <i class="bi bi-person-workspace me-1"></i>Résumé
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="chirTabEquipe-tab" data-bs-toggle="tab"
+                    data-bs-target="#chirTabEquipe" type="button" role="tab">
+              <i class="bi bi-people-fill me-1"></i>Équipe habituelle
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="chirTabEvo-tab" data-bs-toggle="tab"
+                    data-bs-target="#chirTabEvo" type="button" role="tab">
+              <i class="bi bi-calendar3 me-1"></i>Évolution
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content p-3">
+          <div class="tab-pane fade show active" id="chirTabResume"  role="tabpanel"><div id="modalChirResume"></div></div>
+          <div class="tab-pane fade"             id="chirTabEquipe" role="tabpanel"><div id="modalChirEquipe"></div></div>
+          <div class="tab-pane fade"             id="chirTabEvo"    role="tabpanel"><div id="modalChirEvo"></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <small class="text-muted me-auto" id="modalChirPeriodLabel"></small>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi bi-info-circle-fill me-2 text-primary"></i>
+      <strong class="me-auto">Info</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+    <div class="toast-body" id="toastBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="core/planning-core.js"></script>
+<script src="core/planning-defaults.js"></script>
+<script src="core/planning-schema.js"></script>
+<script src="services/members-service.js"></script>
+<script src="services/cds-storage.js"></script>
+<script src="services/storage-key-service.js"></script>
+<script src="services/planning-analytics.js"></script>
+<script src="ui/planning-members.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // ════════════════════════════════════════════════════
+  //  CONSTANTES
+  // ════════════════════════════════════════════════════
+
+  const SALLES         = ["05","06","07","08"];
+  const JOURS          = ["LUNDI","MARDI","MERCREDI","JEUDI","VENDREDI"];
+  const CRENEAUX       = ["MATIN","APREM","SOIR"];
+  const SLOTS_PER_WEEK = 60;
+  const TOP_N          = 5; // Top Pareto pour la modale chir
+
+  const PERIOD_RANGES = {
+    Q1:[1,13], Q2:[14,26], Q3:[27,39], Q4:[40,53],
+    H1:[1,26], H2:[27,53], ALL:[1,53]
+  };
+  const PERIOD_LABELS = {
+    Q1:"1er trimestre (S01–S13)", Q2:"2e trimestre (S14–S26)",
+    Q3:"3e trimestre (S27–S39)", Q4:"4e trimestre (S40–S52)",
+    H1:"1er semestre (S01–S26)",  H2:"2e semestre (S27–S52)",
+    ALL:"Toutes les semaines disponibles"
+  };
+
+  // ════════════════════════════════════════════════════
+  //  ÉTAT
+  // ════════════════════════════════════════════════════
+
+  let allWeeks     = [];
+  let currentWeeks = [];
+  let currentAgg   = null;
+  let currentPeriod = "ALL";
+  let currentYear   = null;
+  let ideSort  = { col:"total", dir:"desc" };
+  let chirSort = { col:"slots", dir:"desc" };
+  let ideFilter    = { text:"", role:"" };
+  let ideModalBS   = null;
+  let chirModalBS  = null;
+
+  // ════════════════════════════════════════════════════
+  //  UTILITAIRES
+  // ════════════════════════════════════════════════════
+
+  const $ = id => document.getElementById(id);
+
+  function esc(s) {
+    if (!s) return "";
+    const d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function dm(code) {
+    return window.PlanningMembers?.display?.(code) || esc(code);
+  }
+
+  function pct(n, total) {
+    return total > 0 ? Math.round((n / total) * 100) : 0;
+  }
+
+  function initials(code) {
+    const name = window.PlanningMembers?.display?.(code) || code;
+    return name.split(/[\s\-]/).map(p => (p[0]||"").toUpperCase()).slice(0,2).join("");
+  }
+
+  function showToast(msg) {
+    $("toastBody").textContent = msg;
+    new bootstrap.Toast($("toastInfo")).show();
+  }
+
+  /** Pad top-N avec null pour toujours avoir N rangs */
+  function topN(arr, n) {
+    const items = arr.slice(0, n);
+    while (items.length < n) items.push(null);
+    return items;
+  }
+
+  // ════════════════════════════════════════════════════
+  //  CALCUL ÉTAT SLOT
+  // ════════════════════════════════════════════════════
+
+  function computeSlotState(atoms) {
+    if (!atoms || !atoms.length) return "VIDE";
+    if (atoms.some(a => Number(a.salle_fermee) === 1)) return "FERME";
+    const hasChir   = atoms.some(a => String(a.chirurgien||"").trim());
+    const hasInstru = atoms.some(a =>
+      String(a.role||"").toUpperCase()==="INSTRU" &&
+      String(a.ide||"").trim() && Number(a.doublure)!==1);
+    const hasPans   = atoms.some(a =>
+      String(a.role||"").toUpperCase()==="PANSEUR" &&
+      String(a.ide||"").trim() && Number(a.doublure)!==1);
+    if (!hasChir) return "VIDE";
+    if (!hasInstru || !hasPans) return "CRITIQUE";
+    const instrAtom = atoms.find(a =>
+      String(a.role||"").toUpperCase()==="INSTRU" && Number(a.doublure)!==1);
+    const instrCode = String(instrAtom?.ide||"").trim().toUpperCase();
+    const isQualif  = instrCode && !["INTERIMAIRE","ETUDIANT",""].includes(instrCode);
+    const hasUrg    = atoms.some(a => String(a.creneau||"").toUpperCase()==="SOIR");
+    const hasDbl    = atoms.some(a => Number(a.doublure)===1);
+    const f = [!isQualif, hasUrg, hasDbl].filter(Boolean).length;
+    return f===0 ? "STABLE" : f===1 ? "FRAGILE" : "CRITIQUE";
+  }
+
+  function weekSlotCounts(rawWeek) {
+    const aff = rawWeek?.affectations || [];
+    const sm  = new Map();
+    for (const a of aff) {
+      if (String(a.secteur||"").toUpperCase()!=="SALLE") continue;
+      const k = `${a.jour}||${a.creneau}||${a.salle}`;
+      if (!sm.has(k)) sm.set(k, []);
+      sm.get(k).push(a);
+    }
+    const c = { STABLE:0, FRAGILE:0, CRITIQUE:0, FERME:0, VIDE:0 };
+    for (const j of JOURS) for (const cr of CRENEAUX) for (const s of SALLES)
+      c[computeSlotState(sm.get(`${j}||${cr}||${s}`)||[])]++;
+    return c;
+  }
+
+  // ════════════════════════════════════════════════════
+  //  AGRÉGATION
+  // ════════════════════════════════════════════════════
+
+  function aggregateWeeks(weeks) {
+    const slotTotals = { STABLE:0, FRAGILE:0, CRITIQUE:0, FERME:0, VIDE:0 };
+    const ideMap     = new Map();
+    const chirData   = new Map();
+    const instrPairs = new Map();
+    const pansPairs  = new Map();
+    const ipPairs    = new Map();
+    const trioMap    = new Map();
+    const weeklyStats = [];
+    let totalAff=0, totalVisc=0, totalOuv=0, totalDbl=0, totalCoul=0;
+
+    for (const w of weeks) {
+      const aff  = w.raw?.affectations || [];
+      const wKey = w.key;
+      totalAff  += aff.length;
+
+      const ws = weekSlotCounts(w.raw);
+      for (const st of Object.keys(slotTotals)) slotTotals[st] += ws[st];
+      weeklyStats.push({ meta:w.meta, slots:ws });
+
+      // Slot map → paires / trios
+      const slotMap = new Map();
+      for (const a of aff) {
+        if (String(a.secteur||"").toUpperCase()!=="SALLE") continue;
+        const sk = `${a.jour}||${a.creneau}||${a.salle}`;
+        if (!slotMap.has(sk)) slotMap.set(sk, { chir:"", instru:"", panseur:"" });
+        const slot = slotMap.get(sk);
+        if (String(a.chirurgien||"").trim()) slot.chir = a.chirurgien;
+        const role = String(a.role||"").toUpperCase();
+        if (role==="INSTRU"  && String(a.ide||"").trim() && Number(a.doublure)!==1) slot.instru  = a.ide;
+        if (role==="PANSEUR" && String(a.ide||"").trim() && Number(a.doublure)!==1) slot.panseur = a.ide;
+      }
+      for (const s of slotMap.values()) {
+        if (s.chir && s.instru)             { const k=`${s.chir}||${s.instru}`;          instrPairs.set(k,(instrPairs.get(k)||0)+1); }
+        if (s.chir && s.panseur)            { const k=`${s.chir}||${s.panseur}`;         pansPairs.set(k,(pansPairs.get(k)||0)+1);  }
+        if (s.instru && s.panseur)          { const k=`${s.instru}||${s.panseur}`;       ipPairs.set(k,(ipPairs.get(k)||0)+1);      }
+        if (s.chir && s.instru && s.panseur){ const k=`${s.chir}||${s.instru}||${s.panseur}`; trioMap.set(k,(trioMap.get(k)||0)+1); }
+      }
+
+      // IDE stats
+      for (const a of aff) {
+        const code = String(a.ide||"").trim();
+        if (!code) continue;
+        if (!ideMap.has(code)) ideMap.set(code, {
+          total:0, instru:0, panseur:0, couloir:0, salle:0,
+          visceral:0, ouverture:0, doublure:0, weekPresence:new Map()
+        });
+        const ide  = ideMap.get(code);
+        const role = String(a.role||"").toUpperCase();
+        const sect = String(a.secteur||"").toUpperCase();
+        ide.total++;
+        if (role==="INSTRU")          ide.instru++;
+        if (role==="PANSEUR")         ide.panseur++;
+        if (sect==="COULOIR")         { ide.couloir++; totalCoul++; }
+        if (sect==="SALLE")           ide.salle++;
+        if (Number(a.visceral)===1)   { ide.visceral++;  totalVisc++; }
+        if (Number(a.ouverture)===1)  { ide.ouverture++; totalOuv++;  }
+        if (Number(a.doublure)===1)   { ide.doublure++;  totalDbl++;  }
+        ide.weekPresence.set(wKey, (ide.weekPresence.get(wKey)||0)+1);
+      }
+
+      // Chir stats
+      for (const a of aff) {
+        const code = String(a.chirurgien||"").trim();
+        if (!code || String(a.secteur||"").toUpperCase()!=="SALLE") continue;
+        if (!chirData.has(code)) chirData.set(code, {
+          slots:new Set(), semaines:new Set(), salles:new Set(),
+          matin:0, aprem:0, soir:0, instrIDEs:new Set(),
+          weekPresence:new Map()
+        });
+        const c  = chirData.get(code);
+        const sk = `${wKey}||${a.jour}||${a.creneau}||${a.salle}`;
+        // présence brute (affectations) pour évolution
+        c.weekPresence.set(wKey, (c.weekPresence.get(wKey)||0)+1);
+        if (!c.slots.has(sk)) {
+          c.slots.add(sk);
+          c.semaines.add(wKey);
+          c.salles.add(String(a.salle||""));
+          const cr = String(a.creneau||"").toUpperCase();
+          if (cr==="MATIN") c.matin++;
+          else if (cr==="APREM") c.aprem++;
+          else if (cr==="SOIR")  c.soir++;
+        }
+      }
+    }
+
+    // IDEs distincts INSTRU par chir
+    for (const [k] of instrPairs.entries()) {
+      const [chir, ide] = k.split("||");
+      if (chirData.has(chir)) chirData.get(chir).instrIDEs.add(ide);
+    }
+
+    const ideList = Array.from(ideMap.entries())
+      .map(([code,d]) => ({ code, ...d }))
+      .sort((a,b) => b.total - a.total);
+
+    const chirList = Array.from(chirData.entries())
+      .map(([code,d]) => ({
+        code,
+        slots:        d.slots.size,
+        semaines:     d.semaines.size,
+        salles:       d.salles.size,
+        matin:        d.matin,
+        aprem:        d.aprem,
+        soir:         d.soir,
+        ideDistincts: d.instrIDEs.size,
+        weekPresence: d.weekPresence
+      }))
+      .sort((a,b) => b.slots - a.slots);
+
+    const chirTotalSlots = new Map(chirList.map(c => [c.code, c.slots]));
+
+    function toArr(map, fields) {
+      return Array.from(map.entries())
+        .map(([k,v]) => { const p=k.split("||"); const o={count:v}; fields.forEach((f,i)=>o[f]=p[i]||""); return o; })
+        .sort((a,b) => b.count - a.count);
+    }
+
+    return {
+      slotTotals, weeklyStats,
+      totalAff, totalVisc, totalOuv, totalDbl, totalCoul,
+      ideList, chirList, chirTotalSlots,
+      instrPairs:     toArr(instrPairs, ["chir","ide"]),
+      pansPairs:      toArr(pansPairs,  ["chir","ide"]),
+      instrPansPairs: toArr(ipPairs,    ["instru","panseur"]),
+      trios:          toArr(trioMap,    ["chir","instru","panseur"]),
+      nbWeeks: weeks.length
+    };
+  }
+
+  // ════════════════════════════════════════════════════
+  //  COMPOSANTS PARTAGÉS MODALES
+  // ════════════════════════════════════════════════════
+
+  /** Ligne d'item dans un top — null = slot fantôme */
+  function topRow(item, rank, maxCount, labelHtml, badgeHtml, barColor) {
+    if (!item) return `
+      <div class="d-flex align-items-center gap-2 py-2 border-bottom border-light opacity-25">
+        <span class="badge bg-light text-muted border" style="min-width:22px">${rank}</span>
+        <span class="text-muted small fst-italic">—</span>
+      </div>`;
+    const w = pct(item.count, maxCount);
+    return `
+      <div class="d-flex align-items-start gap-2 py-2 border-bottom border-light">
+        <span class="badge bg-light text-dark border lh-base" style="min-width:22px">${rank}</span>
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
+            <span class="small fw-semibold">${labelHtml}</span>
+            <div class="d-flex gap-1 align-items-center flex-wrap">${badgeHtml}</div>
+          </div>
+          <div class="progress progress-sm">
+            <div class="progress-bar" style="width:${w}%;background:${barColor}" role="progressbar"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /** Ligne trio — null = fantôme */
+  function trioRow(item, rank, maxCount, highlightRole) {
+    if (!item) return `
+      <div class="d-flex align-items-center gap-2 py-2 border-bottom border-light opacity-25">
+        <span class="badge bg-light text-muted border" style="min-width:22px">${rank}</span>
+        <span class="text-muted small fst-italic">—</span>
+      </div>`;
+    const w = pct(item.count, maxCount);
+    // highlightRole : "instru" | "panseur" | "chir" | null
+    const instrClass  = highlightRole==="instru"  ? "bg-primary text-white"  : "bg-primary-subtle text-primary";
+    const pansClass   = highlightRole==="panseur" ? "bg-success text-white"  : "bg-success-subtle text-success";
+    return `
+      <div class="d-flex align-items-start gap-2 py-2 border-bottom border-light">
+        <span class="badge bg-light text-dark border lh-base" style="min-width:22px">${rank}</span>
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between align-items-start mb-1 flex-wrap gap-1">
+            <div class="d-flex align-items-center gap-1 flex-wrap">
+              <span class="small fw-semibold">${dm(item.chir)}</span>
+              <span class="badge ${instrClass}">
+                <i class="bi bi-person-badge me-1"></i>${dm(item.instru)}
+              </span>
+              <span class="badge ${pansClass}">
+                <i class="bi bi-scissors me-1"></i>${dm(item.panseur)}
+              </span>
+            </div>
+            <span class="badge bg-primary-subtle text-primary">${item.count}×</span>
+          </div>
+          <div class="progress progress-sm">
+            <div class="progress-bar bg-primary" style="width:${w}%" role="progressbar"></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /** Titre de section modal */
+  function secTitle(icon, label) {
+    return `<p class="text-uppercase fw-bold small text-muted mb-2 mt-3">
+      <i class="bi ${icon} me-1"></i>${label}
+    </p>`;
+  }
+
+  /** Bloc stat BS natif */
+  function statBloc(color, val, lbl, sub) {
+    return `
+      <div class="p-3 bg-light rounded border-start border-3 border-${color} h-100">
+        <div class="fs-4 fw-bold text-${color} lh-1">${val}</div>
+        <div class="text-uppercase fw-semibold text-muted mt-1" style="font-size:.68rem">${lbl}</div>
+        <div class="text-sub mt-1">${sub||""}</div>
+      </div>`;
+  }
+
+  /** Mini barchart évolution (commun IDE + chir) */
+  function evoMiniChart(weekEvo) {
+    const maxC = Math.max(...weekEvo.map(w => w.count), 1);
+    return weekEvo.map(w => {
+      const h   = w.count > 0 ? Math.max(Math.round((w.count/maxC)*60), 4) : 4;
+      const bg  = w.count > 0 ? "#0d6efd" : "#e2e8f0";
+      const lbl = `S${String(w.meta.semaine).padStart(2,"0")}`;
+      return `
+        <div class="d-flex flex-column align-items-center" style="min-width:44px"
+             title="${lbl}/${w.meta.annee} · ${w.count}">
+          <div style="height:64px;display:flex;flex-direction:column-reverse">
+            <div style="height:${h}px;width:28px;background:${bg};border-radius:3px 3px 0 0"></div>
+          </div>
+          <div style="font-size:.62rem;color:#94a3b8;text-align:center;margin-top:3px">${lbl}</div>
+        </div>`;
+    }).join("");
+  }
+
+  // ════════════════════════════════════════════════════
+  //  PROFIL IDE
+  // ════════════════════════════════════════════════════
+
+  function buildIDEProfile(code, agg) {
+    const d = agg.ideList.find(i => i.code===code);
+    if (!d) return null;
+
+    const chirTot    = agg.chirTotalSlots;
+    const chirInstru  = agg.instrPairs.filter(p => p.ide===code)
+      .map(p => ({ code:p.chir, count:p.count, ratioChir:pct(p.count, chirTot.get(p.chir)||1) }));
+    const chirPanseur = agg.pansPairs.filter(p => p.ide===code)
+      .map(p => ({ code:p.chir, count:p.count, ratioChir:pct(p.count, chirTot.get(p.chir)||1) }));
+    const binomePanseurs = agg.instrPansPairs.filter(p => p.instru===code)
+      .map(p => ({ code:p.panseur, count:p.count }));
+    const binomeInstrus  = agg.instrPansPairs.filter(p => p.panseur===code)
+      .map(p => ({ code:p.instru, count:p.count }));
+    const triosAsInstru  = agg.trios.filter(t => t.instru===code)
+      .map(t => ({ chir:t.chir, instru:t.instru, panseur:t.panseur, count:t.count }));
+    const triosAsPanseur = agg.trios.filter(t => t.panseur===code)
+      .map(t => ({ chir:t.chir, instru:t.instru, panseur:t.panseur, count:t.count }));
+
+    const avgTotal    = agg.ideList.length ? agg.totalAff / agg.ideList.length : 0;
+    const chargeRatio = avgTotal > 0 ? Math.round((d.total/avgTotal)*100) : 100;
+    const partVisc    = pct(d.visceral, agg.totalVisc||1);
+    const partDbl     = pct(d.doublure, agg.totalDbl||1);
+    const roles       = [d.instru, d.panseur, d.couloir].filter(v => v>0);
+    const totR        = roles.reduce((s,v) => s+v, 0);
+    let polyvalence   = 0;
+    if (totR>0 && roles.length>1) {
+      const h = roles.reduce((s,v) => { const p=v/totR; return s - p*Math.log2(p); }, 0);
+      polyvalence = Math.round((h/Math.log2(3))*100);
+    }
+    return {
+      code, d, chirInstru, chirPanseur, binomePanseurs, binomeInstrus,
+      triosAsInstru, triosAsPanseur,
+      chargeRatio, partVisc, partDbl, polyvalence, nbWeeks:agg.nbWeeks
+    };
+  }
+
+  // ════════════════════════════════════════════════════
+  //  MODALE IDE — ONGLETS
+  // ════════════════════════════════════════════════════
+
+  function renderIDETabResume(p) {
+    const d=p.d, tot=d.total||1;
+    const pI=pct(d.instru,tot), pP=pct(d.panseur,tot), pC=pct(d.couloir,tot);
+    const chargeColor = p.chargeRatio>=120?"danger": p.chargeRatio>=90?"success": p.chargeRatio>=70?"warning":"secondary";
+    const polyColor   = p.polyvalence>=70?"success": p.polyvalence>=40?"warning":"secondary";
+    $("modalIDEResume").innerHTML = `
+      <p class="text-uppercase fw-bold small text-muted mb-2">Profil de rôle</p>
+      <div class="progress mb-1" style="height:22px;border-radius:4px">
+        ${pI>0?`<div class="progress-bar bg-primary fw-semibold" role="progressbar" style="width:${pI}%">INSTRU ${pI}%</div>`:""}
+        ${pP>0?`<div class="progress-bar bg-success fw-semibold" role="progressbar" style="width:${pP}%">PANSEUR ${pP}%</div>`:""}
+        ${pC>0?`<div class="progress-bar bg-info  fw-semibold"  role="progressbar" style="width:${pC}%">Couloir ${pC}%</div>`:""}
+        ${(pI+pP+pC)===0?`<div class="progress-bar bg-secondary" style="width:100%">—</div>`:""}
+      </div>
+      <div class="d-flex gap-3 mb-4">
+        <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#0d6efd"></span><small>INSTRU ${pI}%</small></span>
+        <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#198754"></span><small>PANSEUR ${pP}%</small></span>
+        <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#0dcaf0"></span><small>Couloir ${pC}%</small></span>
+      </div>
+      <p class="text-uppercase fw-bold small text-muted mb-2">Indicateurs clés</p>
+      <div class="row g-2">
+        <div class="col-6 col-md-4">${statBloc("primary",   d.total, "Affectations", `sur ${p.nbWeeks} semaine(s)`)}</div>
+        <div class="col-6 col-md-4">${statBloc(chargeColor, p.chargeRatio+"%", "Charge relative", "vs moyenne groupe")}</div>
+        <div class="col-6 col-md-4">${statBloc(polyColor,   p.polyvalence+"/100", "Polyvalence", "répartition des rôles")}</div>
+        <div class="col-6 col-md-4">${statBloc("warning",   d.ouverture, "Ouvertures", pct(d.ouverture,(d.instru+d.panseur)||1)+"% des postes salle")}</div>
+        <div class="col-6 col-md-4">${statBloc("danger",    d.visceral,  "Viscéral",   p.partVisc+"% du total équipe")}</div>
+        <div class="col-6 col-md-4">${statBloc("secondary", d.doublure,  "Doublures portées", p.partDbl+"% du total équipe")}</div>
+      </div>`;
+  }
+
+  function renderIDETabPaires(p) {
+    const N = 3;
+    let html = "";
+
+    // Card INSTRU — masquée si 0 slot instru
+    if (p.d.instru > 0) {
+      html += `<div class="card border-primary-subtle mb-3">
+        <div class="card-header bg-primary-subtle text-primary py-2">
+          <strong><i class="bi bi-person-badge me-2"></i>En tant qu'INSTRU</strong>
+          <span class="badge bg-primary ms-2">${p.d.instru} slot(s)</span>
+        </div>
+        <div class="card-body p-3">`;
+
+      html += secTitle("bi-person-workspace", "Top 3 chirurgiens");
+      const maxCI = p.chirInstru[0]?.count||1;
+      topN(p.chirInstru, N).forEach((item,i) => {
+        const badge = item
+          ? `<span class="badge bg-primary-subtle text-primary">${item.count}×</span>
+             <span class="badge bg-light text-muted border">${item.ratioChir}%&nbsp;chir</span>`
+          : "";
+        html += topRow(item, i+1, maxCI, item?dm(item.code):"", badge, "#0d6efd");
+      });
+
+      html += secTitle("bi-people-fill", "Top 3 binôme PANSEUR habituel");
+      const maxBP = p.binomePanseurs[0]?.count||1;
+      topN(p.binomePanseurs, N).forEach((item,i) => {
+        const badge = item ? `<span class="badge bg-primary-subtle text-primary">${item.count}×</span>` : "";
+        html += topRow(item, i+1, maxBP, item?dm(item.code):"", badge, "#0d6efd");
+      });
+
+      html += secTitle("bi-diagram-3", "Top 3 trios (Chir · <strong>INSTRU</strong> · PANSEUR)");
+      const maxTI = p.triosAsInstru[0]?.count||1;
+      topN(p.triosAsInstru, N).forEach((item,i) => { html += trioRow(item, i+1, maxTI, "instru"); });
+
+      html += `</div></div>`;
+    }
+
+    // Card PANSEUR — masquée si 0 slot panseur
+    if (p.d.panseur > 0) {
+      html += `<div class="card border-success-subtle mb-3">
+        <div class="card-header bg-success-subtle text-success py-2">
+          <strong><i class="bi bi-scissors me-2"></i>En tant que PANSEUR</strong>
+          <span class="badge bg-success ms-2">${p.d.panseur} slot(s)</span>
+        </div>
+        <div class="card-body p-3">`;
+
+      html += secTitle("bi-person-workspace", "Top 3 chirurgiens");
+      const maxCP = p.chirPanseur[0]?.count||1;
+      topN(p.chirPanseur, N).forEach((item,i) => {
+        const badge = item
+          ? `<span class="badge bg-success-subtle text-success">${item.count}×</span>
+             <span class="badge bg-light text-muted border">${item.ratioChir}%&nbsp;chir</span>`
+          : "";
+        html += topRow(item, i+1, maxCP, item?dm(item.code):"", badge, "#198754");
+      });
+
+      html += secTitle("bi-people-fill", "Top 3 binôme INSTRU habituel");
+      const maxBI = p.binomeInstrus[0]?.count||1;
+      topN(p.binomeInstrus, N).forEach((item,i) => {
+        const badge = item ? `<span class="badge bg-success-subtle text-success">${item.count}×</span>` : "";
+        html += topRow(item, i+1, maxBI, item?dm(item.code):"", badge, "#198754");
+      });
+
+      html += secTitle("bi-diagram-3", "Top 3 trios (Chir · INSTRU · <strong>PANSEUR</strong>)");
+      const maxTP = p.triosAsPanseur[0]?.count||1;
+      topN(p.triosAsPanseur, N).forEach((item,i) => { html += trioRow(item, i+1, maxTP, "panseur"); });
+
+      html += `</div></div>`;
+    }
+
+    // Card COULOIR
+    if (p.d.couloir > 0) {
+      html += `<div class="card border-info-subtle">
+        <div class="card-header bg-info-subtle text-info py-2">
+          <strong><i class="bi bi-arrow-left-right me-2"></i>En tant que Couloir</strong>
+          <span class="badge bg-info ms-2">${p.d.couloir} slot(s)</span>
+        </div>
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <div class="col-6">${statBloc("info",   p.d.couloir,   "Présences couloir",  "")}</div>
+            <div class="col-6">${statBloc("danger", p.d.visceral,  "Détachements viscéral", pct(p.d.visceral,p.d.couloir)+"% des slots couloir")}</div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    if (!html) html = `<div class="alert alert-light border">Aucune donnée de paires pour cette période.</div>`;
+    $("modalIDEPaires").innerHTML = html;
+  }
+
+  function renderIDETabEvo(p, weeks) {
+    const weekEvo  = weeks.map(w => ({ meta:w.meta, count:p.d.weekPresence?.get(w.key)||0 }));
+    const present  = weekEvo.filter(w => w.count>0).length;
+    $("modalIDEEvo").innerHTML = `
+      <div class="row g-2 mb-4">
+        <div class="col-4">${statBloc("primary", present, "Semaines présente", `sur ${weekEvo.length} analysées`)}</div>
+        <div class="col-4">${statBloc("success", pct(present,weekEvo.length)+"%", "Taux de présence", "sur la période")}</div>
+        <div class="col-4">${statBloc("info",    Math.round(p.d.total/Math.max(present,1)), "Moy. affectations", "par semaine présente")}</div>
+      </div>
+      <p class="text-uppercase fw-bold small text-muted mb-2">Affectations par semaine</p>
+      <div class="d-flex gap-1 align-items-end overflow-auto pb-1">${evoMiniChart(weekEvo)}</div>
+      <small class="text-sub d-block mt-2">
+        <i class="bi bi-info-circle me-1"></i>Barres = affectations brutes (lignes de saisie).
+      </small>`;
+  }
+
+  function openIDEModal(code) {
+    if (!currentAgg) return;
+    const profile = buildIDEProfile(code, currentAgg);
+    if (!profile) { showToast("Données introuvables."); return; }
+    new bootstrap.Tab($("ideTabResume-tab")).show();
+    $("modalIDEInitials").textContent = initials(code);
+    $("modalIDEName").innerHTML       = dm(code);
+    $("modalIDEPeriodLabel").textContent =
+      `${PERIOD_LABELS[currentPeriod]||currentPeriod} · ${currentWeeks.length} semaine(s)`;
+    renderIDETabResume(profile);
+    renderIDETabPaires(profile);
+    renderIDETabEvo(profile, currentWeeks);
+    if (!ideModalBS) ideModalBS = new bootstrap.Modal($("modalIDE"));
+    ideModalBS.show();
+  }
+
+  // ════════════════════════════════════════════════════
+  //  PROFIL CHIRURGIEN
+  // ════════════════════════════════════════════════════
+
+  function buildChirProfile(code, agg) {
+    const d = agg.chirList.find(c => c.code===code);
+    if (!d) return null;
+
+    const topInstru  = agg.instrPairs.filter(p => p.chir===code)
+      .map(p => ({ code:p.ide, count:p.count, ratioChir:pct(p.count, d.slots) }));
+    const topPanseur = agg.pansPairs.filter(p => p.chir===code)
+      .map(p => ({ code:p.ide, count:p.count, ratioChir:pct(p.count, d.slots) }));
+    const topTrios   = agg.trios.filter(t => t.chir===code)
+      .map(t => ({ chir:t.chir, instru:t.instru, panseur:t.panseur, count:t.count,
+                   ratioChir:pct(t.count, d.slots) }));
+
+    return { code, d, topInstru, topPanseur, topTrios, nbWeeks:agg.nbWeeks };
+  }
+
+  // ════════════════════════════════════════════════════
+  //  MODALE CHIRURGIEN — ONGLETS
+  // ════════════════════════════════════════════════════
+
+  function renderChirTabResume(p) {
+    const d = p.d;
+    const pM = pct(d.matin, d.slots);
+    const pA = pct(d.aprem, d.slots);
+    const pS = pct(d.soir,  d.slots);
+    const ideConcentColor = d.ideDistincts<=2 ? "danger" : d.ideDistincts<=4 ? "warning" : "success";
+
+    $("modalChirResume").innerHTML = `
+      <p class="text-uppercase fw-bold small text-muted mb-2">Répartition des créneaux</p>
+      <div class="progress mb-1" style="height:22px;border-radius:4px">
+        ${pM>0?`<div class="progress-bar bg-primary fw-semibold" role="progressbar" style="width:${pM}%">Matin ${pM}%</div>`:""}
+        ${pA>0?`<div class="progress-bar bg-info   fw-semibold" role="progressbar" style="width:${pA}%">AM ${pA}%</div>`:""}
+        ${pS>0?`<div class="progress-bar bg-warning fw-semibold text-dark" role="progressbar" style="width:${pS}%">Soir ${pS}%</div>`:""}
+        ${(pM+pA+pS)===0?`<div class="progress-bar bg-secondary" style="width:100%">—</div>`:""}
+      </div>
+      <div class="d-flex gap-3 mb-4">
+        <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#0d6efd"></span><small>Matin ${pM}%</small></span>
+        <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#0dcaf0"></span><small>AM ${pA}%</small></span>
+        <span class="d-flex align-items-center gap-1"><span class="cs-dot" style="background:#ffc107"></span><small>Soir ${pS}%</small></span>
+      </div>
+      <p class="text-uppercase fw-bold small text-muted mb-2">Indicateurs clés</p>
+      <div class="row g-2">
+        <div class="col-6 col-md-4">${statBloc("warning",           d.slots,       "Slots opératoires",      `sur ${p.nbWeeks} semaine(s)`)}</div>
+        <div class="col-6 col-md-4">${statBloc("primary",           d.semaines,    "Semaines actives",       pct(d.semaines,p.nbWeeks)+"% de présence")}</div>
+        <div class="col-6 col-md-4">${statBloc("info",              d.salles,      "Salles distinctes",      "sur 4 au total")}</div>
+        <div class="col-6 col-md-4">${statBloc(ideConcentColor,     d.ideDistincts,"IDEs INSTRU distincts",  d.ideDistincts<=2?"⚠ Concentration forte":d.ideDistincts<=4?"Distribution moyenne":"✓ Bonne distribution")}</div>
+        <div class="col-6 col-md-4">${statBloc("warning",           d.matin,       "Slots Matin",            pM+"% de son activité")}</div>
+        <div class="col-6 col-md-4">${statBloc("secondary",         d.soir,        "Slots Soir (urgences)",  pS+"% de son activité")}</div>
+      </div>`;
+  }
+
+  function renderChirTabEquipe(p) {
+    const N = TOP_N; // 5
+    let html = "";
+
+    // Top 5 INSTRU
+    html += `<div class="card border-primary-subtle mb-3">
+      <div class="card-header bg-primary-subtle text-primary py-2">
+        <strong><i class="bi bi-person-badge me-2"></i>Top ${N} INSTRU habituels</strong>
+      </div>
+      <div class="card-body p-3">`;
+    if (!p.topInstru.length) {
+      html += `<p class="text-muted small fst-italic mb-0">Aucune donnée INSTRU.</p>`;
+      topN([], N).forEach((_,i) => {
+        html += `<div class="d-flex align-items-center gap-2 py-2 border-bottom border-light opacity-25">
+          <span class="badge bg-light text-muted border" style="min-width:22px">${i+1}</span>
+          <span class="text-muted small fst-italic">—</span></div>`;
+      });
+    } else {
+      const max = p.topInstru[0]?.count||1;
+      topN(p.topInstru, N).forEach((item,i) => {
+        const badge = item
+          ? `<span class="badge bg-primary-subtle text-primary">${item.count}×</span>
+             <span class="badge bg-light text-muted border">${item.ratioChir}%&nbsp;de ses slots</span>`
+          : "";
+        html += topRow(item, i+1, max, item?dm(item.code):"", badge, "#0d6efd");
+      });
+    }
+    html += `</div></div>`;
+
+    // Top 5 PANSEUR
+    html += `<div class="card border-success-subtle mb-3">
+      <div class="card-header bg-success-subtle text-success py-2">
+        <strong><i class="bi bi-scissors me-2"></i>Top ${N} PANSEUR habituels</strong>
+      </div>
+      <div class="card-body p-3">`;
+    if (!p.topPanseur.length) {
+      html += `<p class="text-muted small fst-italic mb-0">Aucune donnée PANSEUR.</p>`;
+      topN([], N).forEach((_,i) => {
+        html += `<div class="d-flex align-items-center gap-2 py-2 border-bottom border-light opacity-25">
+          <span class="badge bg-light text-muted border" style="min-width:22px">${i+1}</span>
+          <span class="text-muted small fst-italic">—</span></div>`;
+      });
+    } else {
+      const max = p.topPanseur[0]?.count||1;
+      topN(p.topPanseur, N).forEach((item,i) => {
+        const badge = item
+          ? `<span class="badge bg-success-subtle text-success">${item.count}×</span>
+             <span class="badge bg-light text-muted border">${item.ratioChir}%&nbsp;de ses slots</span>`
+          : "";
+        html += topRow(item, i+1, max, item?dm(item.code):"", badge, "#198754");
+      });
+    }
+    html += `</div></div>`;
+
+    // Top 5 Trios
+    html += `<div class="card border-secondary-subtle">
+      <div class="card-header bg-secondary-subtle py-2">
+        <strong><i class="bi bi-diagram-3 me-2"></i>Top ${N} trios habituels</strong>
+      </div>
+      <div class="card-body p-3">`;
+    if (!p.topTrios.length) {
+      html += `<p class="text-muted small fst-italic mb-0">Aucun trio détecté.</p>`;
+      topN([], N).forEach((_,i) => {
+        html += `<div class="d-flex align-items-center gap-2 py-2 border-bottom border-light opacity-25">
+          <span class="badge bg-light text-muted border" style="min-width:22px">${i+1}</span>
+          <span class="text-muted small fst-italic">—</span></div>`;
+      });
+    } else {
+      const max = p.topTrios[0]?.count||1;
+      topN(p.topTrios, N).forEach((item,i) => {
+        if (!item) {
+          html += `<div class="d-flex align-items-center gap-2 py-2 border-bottom border-light opacity-25">
+            <span class="badge bg-light text-muted border" style="min-width:22px">${i+1}</span>
+            <span class="text-muted small fst-italic">—</span></div>`;
+        } else {
+          const w = pct(item.count, max);
+          html += `
+            <div class="d-flex align-items-start gap-2 py-2 border-bottom border-light">
+              <span class="badge bg-light text-dark border lh-base" style="min-width:22px">${i+1}</span>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-1 flex-wrap gap-1">
+                  <div class="d-flex gap-1 flex-wrap">
+                    <span class="badge bg-primary-subtle text-primary">
+                      <i class="bi bi-person-badge me-1"></i>${dm(item.instru)}
+                    </span>
+                    <span class="badge bg-success-subtle text-success">
+                      <i class="bi bi-scissors me-1"></i>${dm(item.panseur)}
+                    </span>
+                  </div>
+                  <div class="d-flex gap-1">
+                    <span class="badge bg-primary-subtle text-primary">${item.count}×</span>
+                    <span class="badge bg-light text-muted border">${item.ratioChir}%&nbsp;de ses slots</span>
+                  </div>
+                </div>
+                <div class="progress progress-sm">
+                  <div class="progress-bar" style="width:${w}%" role="progressbar"></div>
+                </div>
+              </div>
+            </div>`;
+        }
+      });
+    }
+    html += `</div></div>`;
+
+    $("modalChirEquipe").innerHTML = html;
+  }
+
+  function renderChirTabEvo(p, weeks) {
+    const weekEvo = weeks.map(w => ({
+      meta:  w.meta,
+      count: p.d.weekPresence?.get(w.key)||0
+    }));
+    const present = weekEvo.filter(w => w.count>0).length;
+    $("modalChirEvo").innerHTML = `
+      <div class="row g-2 mb-4">
+        <div class="col-4">${statBloc("warning", present, "Semaines actives", `sur ${weekEvo.length} analysées`)}</div>
+        <div class="col-4">${statBloc("success", pct(present,weekEvo.length)+"%", "Taux de présence", "sur la période")}</div>
+        <div class="col-4">${statBloc("primary", Math.round(p.d.slots/Math.max(present,1)), "Moy. slots", "par semaine active")}</div>
+      </div>
+      <p class="text-uppercase fw-bold small text-muted mb-2">Affectations par semaine</p>
+      <div class="d-flex gap-1 align-items-end overflow-auto pb-1">${evoMiniChart(weekEvo)}</div>
+      <small class="text-sub d-block mt-2">
+        <i class="bi bi-info-circle me-1"></i>Barres = affectations brutes (lignes de saisie).
+      </small>`;
+  }
+
+  function openChirModal(code) {
+    if (!currentAgg) return;
+    const profile = buildChirProfile(code, currentAgg);
+    if (!profile) { showToast("Données introuvables."); return; }
+    new bootstrap.Tab($("chirTabResume-tab")).show();
+    $("modalChirInitials").textContent = initials(code);
+    $("modalChirName").innerHTML       = dm(code);
+    $("modalChirPeriodLabel").textContent =
+      `${PERIOD_LABELS[currentPeriod]||currentPeriod} · ${currentWeeks.length} semaine(s)`;
+    renderChirTabResume(profile);
+    renderChirTabEquipe(profile);
+    renderChirTabEvo(profile, currentWeeks);
+    if (!chirModalBS) chirModalBS = new bootstrap.Modal($("modalChir"));
+    chirModalBS.show();
+  }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PAGE — KPI
+  // ════════════════════════════════════════════════════
+
+  function renderKPI(agg) {
+    const total = SLOTS_PER_WEEK * agg.nbWeeks;
+    const opTot = agg.slotTotals.STABLE + agg.slotTotals.FRAGILE;
+    const kpis  = [
+      { val:agg.nbWeeks,             lbl:"Semaines",        icon:"bi-calendar3",         col:"primary",   sub:`${total} slots théoriques` },
+      { val:`${pct(opTot,total)}%`,  lbl:"Taux opérant",    icon:"bi-check-circle-fill", col:"success",   sub:`${opTot} stable + fragile` },
+      { val:agg.slotTotals.CRITIQUE, lbl:"Slots critiques", icon:"bi-x-circle-fill",     col:"danger",    sub:`+ ${agg.slotTotals.FRAGILE} fragiles` },
+      { val:`${pct(agg.slotTotals.FERME,total)}%`, lbl:"Taux fermeture", icon:"bi-lock-fill", col:"secondary", sub:`${agg.slotTotals.FERME} fermés · ${agg.slotTotals.VIDE} vides` },
+      { val:agg.totalVisc,           lbl:"Viscéral",        icon:"bi-heart-pulse-fill",  col:"danger",    sub:"Couloir → secteur viscéral" },
+      { val:agg.totalDbl,            lbl:"Doublures",       icon:"bi-person-plus-fill",  col:"warning",   sub:"IDEs en encadrement" }
+    ];
+    $("kpiRow").innerHTML = kpis.map(k => `
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="card shadow-sm kpi-card h-100 border-0">
+          <div class="card-body text-center py-3 px-2">
+            <i class="bi ${k.icon} fs-2 text-${k.col} mb-2 d-block"></i>
+            <div class="kpi-value text-${k.col}">${esc(String(k.val))}</div>
+            <div class="kpi-label text-muted mt-1">${esc(k.lbl)}</div>
+            <div class="kpi-sub text-muted">${esc(k.sub)}</div>
+          </div>
+        </div>
+      </div>`).join("");
+  }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PAGE — DISTRIBUTION
+  // ════════════════════════════════════════════════════
+
+  function renderSlotDistrib(agg) {
+    const total = SLOTS_PER_WEEK * agg.nbWeeks;
+    const opTot = agg.slotTotals.STABLE + agg.slotTotals.FRAGILE;
+    const states = [
+      { key:"STABLE",   lbl:"Stable",   bg:"#16a34a" },
+      { key:"FRAGILE",  lbl:"Fragile",  bg:"#ca8a04" },
+      { key:"CRITIQUE", lbl:"Critique", bg:"#dc2626" },
+      { key:"FERME",    lbl:"Fermé",    bg:"#9ca3af" },
+      { key:"VIDE",     lbl:"Vide",     bg:"#e2e8f0" }
+    ];
+    $("slotDistrib").innerHTML = states.map(s => {
+      const n=agg.slotTotals[s.key]||0, p=pct(n,total);
+      return `
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="d-flex align-items-center gap-2">
+              <span class="cs-dot" style="background:${s.bg}"></span>
+              <span class="small fw-semibold">${s.lbl}</span>
+            </span>
+            <span class="small text-muted">${n} slots · <strong>${p}%</strong></span>
+          </div>
+          <div class="cs-bar-track">
+            <div class="cs-bar-fill" style="width:${p}%;background:${s.bg}"></div>
+          </div>
+        </div>`;
+    }).join("") + `
+      <div class="mt-3 pt-2 border-top d-flex gap-4">
+        <div><div class="text-sub">Total théorique</div><div class="fw-bold">${total}</div></div>
+        <div><div class="text-sub">Opérants</div><div class="fw-bold text-success">${opTot} (${pct(opTot,total)}%)</div></div>
+        <div><div class="text-sub">Non opérants</div><div class="fw-bold text-danger">${total-opTot}</div></div>
+      </div>`;
+  }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PAGE — ACTIVITÉ
+  // ════════════════════════════════════════════════════
+
+  function renderActivity(agg) {
+    const items = [
+      { icon:"bi-list-ul",          col:"primary",   lbl:"Affectations totales", val:agg.totalAff  },
+      { icon:"bi-arrow-left-right", col:"info",      lbl:"Couloir",              val:agg.totalCoul },
+      { icon:"bi-sunrise",          col:"warning",   lbl:"Ouvertures",           val:agg.totalOuv  },
+      { icon:"bi-heart-pulse",      col:"danger",    lbl:"Viscéral",             val:agg.totalVisc },
+      { icon:"bi-person-plus",      col:"secondary", lbl:"Doublures",            val:agg.totalDbl  }
+    ];
+    $("activitySummary").innerHTML = items.map(it => `
+      <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <span class="d-flex align-items-center gap-2">
+          <i class="bi ${it.icon} text-${it.col}"></i>
+          <span class="small">${it.lbl}</span>
+        </span>
+        <span class="fw-bold">${it.val}</span>
+      </div>`).join("") + `
+      <div class="mt-3 text-muted small">
+        <i class="bi bi-info-circle me-1"></i>
+        Moy./sem. : ${Math.round(agg.totalAff/Math.max(agg.nbWeeks,1))} aff. ·
+        ${Math.round(agg.totalDbl/Math.max(agg.nbWeeks,1))} doublures
+      </div>`;
+  }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PAGE — EVO CHART
+  // ════════════════════════════════════════════════════
+
+  function renderEvoChart(agg) {
+    if (!agg.weeklyStats.length) { $("evoChart").innerHTML=""; return; }
+    $("evoChart").innerHTML = agg.weeklyStats.map(w => {
+      const s    = w.slots;
+      const segs = [
+        { c:"#16a34a", n:s.STABLE   },
+        { c:"#ca8a04", n:s.FRAGILE  },
+        { c:"#dc2626", n:s.CRITIQUE },
+        { c:"#9ca3af", n:s.FERME    }
+      ];
+      const bars = segs.map(seg => {
+        const h = Math.round((seg.n/SLOTS_PER_WEEK)*64);
+        return h>0 ? `<div class="evo-bar-seg" style="height:${h}px;background:${seg.c}"></div>` : "";
+      }).join("");
+      const lbl = `S${String(w.meta.semaine).padStart(2,"0")}`;
+      return `
+        <div class="evo-week d-flex flex-column align-items-center"
+             title="${lbl}/${w.meta.annee} · ${pct(s.STABLE+s.FRAGILE,SLOTS_PER_WEEK)}% opérant">
+          <div class="evo-bar-wrap w-100">${bars}</div>
+          <div class="evo-label">${lbl}</div>
+        </div>`;
+    }).join("");
+  }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PAGE — TABLE IDEs
+  // ════════════════════════════════════════════════════
+
+  function applyIDESort(list) {
+    let res = [...list];
+    if (ideFilter.text) {
+      const q = ideFilter.text.toLowerCase();
+      res = res.filter(i => {
+        const lbl = (window.PlanningMembers?.display?.(i.code)||i.code).toLowerCase();
+        return lbl.includes(q) || i.code.toLowerCase().includes(q);
+      });
+    }
+    if (ideFilter.role) {
+      res = res.filter(i => {
+        if (ideFilter.role==="instru")  return i.instru>0;
+        if (ideFilter.role==="panseur") return i.panseur>0;
+        if (ideFilter.role==="couloir") return i.couloir>0;
+        return true;
+      });
+    }
+    const dir = ideSort.dir==="asc"?1:-1;
+    res.sort((a,b) => {
+      if (ideSort.col==="name") {
+        const la=(window.PlanningMembers?.display?.(a.code)||a.code).toLowerCase();
+        const lb=(window.PlanningMembers?.display?.(b.code)||b.code).toLowerCase();
+        return dir*la.localeCompare(lb);
+      }
+      return dir*((a[ideSort.col]||0)-(b[ideSort.col]||0));
+    });
+    return res;
+  }
+
+  function refreshIDESortUI() {
+    document.querySelectorAll("#ideTable thead th.sort-th").forEach(th => {
+      const col=th.dataset.col, arrow=th.querySelector(".sort-arrow");
+      if (!arrow) return;
+      th.classList.toggle("sort-active", col===ideSort.col);
+      arrow.className = "sort-arrow bi " +
+        (col!==ideSort.col?"bi-chevron-expand": ideSort.dir==="asc"?"bi-chevron-up":"bi-chevron-down");
+    });
+  }
+
+  function refreshIDETable(agg) {
+    const list   = applyIDESort(agg.ideList);
+    const maxTot = agg.ideList[0]?.total||1;
+    $("ideBadge").textContent = `${list.length} / ${agg.ideList.length} IDEs`;
+    if (!list.length) {
+      $("ideTableBody").innerHTML=`<tr><td colspan="9" class="text-center text-muted py-3">Aucun résultat</td></tr>`;
+      return;
+    }
+    $("ideTableBody").innerHTML = list.map((ide,i) => `
+      <tr>
+        <td class="ps-3 text-muted small">${i+1}</td>
+        <td>
+          <button class="btn btn-link btn-sm p-0 fw-semibold text-decoration-underline"
+                  data-ide-code="${esc(ide.code)}">${dm(ide.code)}</button>
+          <div class="mt-1" style="width:120px">
+            <div class="progress progress-xs">
+              <div class="progress-bar bg-primary" role="progressbar" style="width:${pct(ide.total,maxTot)}%"></div>
+            </div>
+          </div>
+        </td>
+        <td class="text-center fw-bold">${ide.total}</td>
+        <td class="text-center">${ide.instru ||"—"}</td>
+        <td class="text-center">${ide.panseur||"—"}</td>
+        <td class="text-center">${ide.couloir||"—"}</td>
+        <td class="text-center ${ide.visceral >0?"text-danger fw-bold":"text-muted"}">${ide.visceral ||0}</td>
+        <td class="text-center ${ide.ouverture>0?"text-warning fw-bold":"text-muted"}">${ide.ouverture||0}</td>
+        <td class="text-center pe-3 ${ide.doublure>0?"text-secondary fw-bold":"text-muted"}">${ide.doublure||0}</td>
+      </tr>`).join("");
+  }
+
+  function renderIDE(agg) { refreshIDESortUI(); refreshIDETable(agg); }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PAGE — TABLE CHIRURGIENS
+  // ════════════════════════════════════════════════════
+
+  function applyChirSort(list) {
+    const dir = chirSort.dir==="asc"?1:-1;
+    return [...list].sort((a,b) => {
+      if (chirSort.col==="name") {
+        const la=(window.PlanningMembers?.display?.(a.code)||a.code).toLowerCase();
+        const lb=(window.PlanningMembers?.display?.(b.code)||b.code).toLowerCase();
+        return dir*la.localeCompare(lb);
+      }
+      return dir*((a[chirSort.col]||0)-(b[chirSort.col]||0));
+    });
+  }
+
+  function refreshChirSortUI() {
+    document.querySelectorAll("#chirTable thead th.sort-th").forEach(th => {
+      const col=th.dataset.col, arrow=th.querySelector(".sort-arrow");
+      if (!arrow) return;
+      th.classList.toggle("sort-active", col===chirSort.col);
+      arrow.className = "sort-arrow bi " +
+        (col!==chirSort.col?"bi-chevron-expand": chirSort.dir==="asc"?"bi-chevron-up":"bi-chevron-down");
+    });
+  }
+
+  function renderChir(agg) {
+    $("chirBadge").textContent = `${agg.chirList.length} chirurgiens`;
+    refreshChirSortUI();
+    if (!agg.chirList.length) {
+      $("chirTableBody").innerHTML=`<tr><td colspan="9" class="text-center text-muted py-3">Aucune donnée</td></tr>`;
+      return;
+    }
+    const sorted = applyChirSort(agg.chirList);
+    $("chirTableBody").innerHTML = sorted.map((c,i) => {
+      const ideCol = c.ideDistincts<=2?"text-danger fw-bold": c.ideDistincts<=4?"text-warning fw-bold":"text-success fw-bold";
+      return `
+        <tr>
+          <td class="ps-3 text-muted small">${i+1}</td>
+          <td>
+            <button class="btn btn-link btn-sm p-0 fw-semibold text-decoration-underline"
+                    data-chir-code="${esc(c.code)}">${dm(c.code)}</button>
+            <div class="text-sub">${c.salles} salle(s)</div>
+          </td>
+          <td class="text-center fw-bold">${c.slots}</td>
+          <td class="text-center">${c.semaines}</td>
+          <td class="text-center">${c.salles}</td>
+          <td class="text-center ${ideCol}">${c.ideDistincts}</td>
+          <td class="text-center">${c.matin}</td>
+          <td class="text-center">${c.aprem}</td>
+          <td class="text-center pe-3 ${c.soir>0?"text-info fw-semibold":"text-muted"}">${c.soir}</td>
+        </tr>`;
+    }).join("");
+  }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PAGE — PAIRES GLOBALES
+  // ════════════════════════════════════════════════════
+
+  function renderPairesBlock(id, pairs, keyA, keyB, barColor, chirTotalSlots) {
+    const el=$(id);
+    if (!pairs.length) { el.innerHTML=`<p class="text-muted small p-3">Aucune paire détectée.</p>`; return; }
+    const max5 = pairs[0].count||1;
+    el.innerHTML = `<div class="p-3">` +
+      pairs.slice(0,5).map((p,i) => {
+        const w   = pct(p.count,max5);
+        const ratioHtml = chirTotalSlots?.has(p[keyA])
+          ? `<span class="badge bg-light text-muted border">${pct(p.count,chirTotalSlots.get(p[keyA]))}%&nbsp;chir</span>`
+          : "";
+        return `
+          <div class="pair-item">
+            <div class="d-flex align-items-start gap-2">
+              <span class="badge bg-light text-dark border lh-base" style="min-width:22px">${i+1}</span>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-1">
+                  <span class="small fw-semibold">${dm(p[keyA])}</span>
+                  <div class="d-flex gap-1">
+                    <span class="badge bg-primary-subtle text-primary">${p.count}×</span>
+                    ${ratioHtml}
+                  </div>
+                </div>
+                <div class="text-sub mb-1">avec ${dm(p[keyB])}</div>
+                <div class="cs-bar-track" style="height:5px">
+                  <div class="cs-bar-fill" style="width:${w}%;background:${barColor}"></div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join("") + `</div>`;
+  }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PAGE — TRIOS GLOBAL
+  // ════════════════════════════════════════════════════
+
+  function renderTriosGlobal(agg) {
+    $("triosBadge").textContent = `${agg.trios.length} trios distincts`;
+    if (!agg.trios.length) {
+      $("triosGlobalTable").innerHTML=`<p class="text-muted fst-italic">Aucun trio détecté.</p>`;
+      return;
+    }
+    const top10 = agg.trios.slice(0,10);
+    const max   = top10[0]?.count||1;
+    $("triosGlobalTable").innerHTML = `<div class="row g-2">` +
+      top10.map((t,i) => {
+        const w         = pct(t.count,max);
+        const ratioChir = agg.chirTotalSlots.has(t.chir)
+          ? ` · ${pct(t.count,agg.chirTotalSlots.get(t.chir))}% des slots ${dm(t.chir)}`
+          : "";
+        return `
+          <div class="col-md-6">
+            <div class="d-flex align-items-start gap-2 p-2 bg-light rounded">
+              <span class="badge bg-primary-subtle text-primary fw-bold" style="min-width:26px">${i+1}</span>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-1 flex-wrap gap-1">
+                  <span class="small fw-semibold">${dm(t.chir)}</span>
+                  <span class="badge bg-primary-subtle text-primary">${t.count}×</span>
+                </div>
+                <div class="d-flex gap-1 flex-wrap mb-1">
+                  <span class="badge bg-primary-subtle text-primary"><i class="bi bi-person-badge me-1"></i>${dm(t.instru)}</span>
+                  <span class="badge bg-success-subtle text-success"><i class="bi bi-scissors me-1"></i>${dm(t.panseur)}</span>
+                </div>
+                <div class="text-sub mb-1">${t.count} occurrence(s)${ratioChir}</div>
+                <div class="progress progress-xs">
+                  <div class="progress-bar" role="progressbar" style="width:${w}%"></div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join("") + `</div>`;
+  }
+
+  // ════════════════════════════════════════════════════
+  //  RENDU PRINCIPAL
+  // ════════════════════════════════════════════════════
+
+  function render(weeks) {
+    currentWeeks = weeks;
+    const hasData = weeks.length > 0;
+    $("emptyState").classList.toggle("d-none", hasData);
+    if (!hasData) {
+      ["kpiRow","slotDistrib","activitySummary","evoChart",
+       "ideTableBody","chirTableBody",
+       "instrPairesTable","pansPairesTable","instrPansPairesTable","triosGlobalTable"]
+        .forEach(id => { const el=$(id); if(el) el.innerHTML=""; });
+      currentAgg = null;
+      return;
+    }
+
+    currentAgg = aggregateWeeks(weeks);
+
+    const first=weeks[0].meta, last=weeks[weeks.length-1].meta;
+    const rangeStr = first.semaine===last.semaine && first.annee===last.annee
+      ? `S${String(first.semaine).padStart(2,"0")} / ${first.annee}`
+      : `S${String(first.semaine).padStart(2,"0")}/${first.annee} → S${String(last.semaine).padStart(2,"0")}/${last.annee}`;
+
+    $("selectionLabel").textContent = PERIOD_LABELS[currentPeriod]||currentPeriod;
+    $("selectionBadge").textContent = `${weeks.length} semaine(s)`;
+    $("selectionRange").textContent  = rangeStr;
+    $("headerBadge").textContent     = `${weeks.length} sem.`;
+    $("navStatus").textContent       = `${allWeeks.length} sem. chargées`;
+
+    renderKPI(currentAgg);
+    renderSlotDistrib(currentAgg);
+    renderActivity(currentAgg);
+    renderEvoChart(currentAgg);
+    renderIDE(currentAgg);
+    renderChir(currentAgg);
+    renderPairesBlock("instrPairesTable",     currentAgg.instrPairs,     "chir","ide",      "#0d6efd", currentAgg.chirTotalSlots);
+    renderPairesBlock("pansPairesTable",      currentAgg.pansPairs,      "chir","ide",      "#198754", currentAgg.chirTotalSlots);
+    renderPairesBlock("instrPansPairesTable", currentAgg.instrPansPairs, "instru","panseur","#0dcaf0", null);
+    renderTriosGlobal(currentAgg);
+  }
+
+  // ════════════════════════════════════════════════════
+  //  FILTRAGE PÉRIODE
+  // ════════════════════════════════════════════════════
+
+  function filterWeeks(period, year) {
+    const [sMin,sMax] = PERIOD_RANGES[period]||[1,53];
+    return allWeeks.filter(w => {
+      if (year && w.meta.annee!==year) return false;
+      return w.meta.semaine>=sMin && w.meta.semaine<=sMax;
+    });
+  }
+
+  function applySelection() { render(filterWeeks(currentPeriod, currentYear)); }
+
+  function buildYearButtons() {
+    const years = [...new Set(allWeeks.map(w => w.meta.annee))].sort();
+    const group = $("yearGroup");
+    group.innerHTML = "";
+    const mkBtn = (txt, year) => {
+      const btn = document.createElement("button");
+      btn.className = `btn btn-outline-dark btn-sm${currentYear===year?" active":""}`;
+      btn.textContent = txt;
+      btn.dataset.year = year===null?"all":year;
+      return btn;
+    };
+    group.appendChild(mkBtn("Toutes", null));
+    for (const y of years) group.appendChild(mkBtn(String(y), y));
+  }
+
+  // ════════════════════════════════════════════════════
+  //  CHARGEMENT
+  // ════════════════════════════════════════════════════
+
+  async function loadAllWeeks() {
+    $("loadingSpinner").classList.remove("d-none");
+    $("selectionLabel").textContent = "Chargement…";
+    try {
+      const allKeys  = await CDS_Storage.keys();
+      const weekKeys = allKeys.filter(k => /^\d{4}_\d{2}_planning_week$/.test(k));
+      allWeeks = [];
+      for (const k of weekKeys) {
+        const raw = await CDS_Storage.get(k);
+        if (raw?.meta?.semaine!=null && raw?.meta?.annee!=null)
+          allWeeks.push({ key:k, meta:raw.meta, raw });
+      }
+      allWeeks.sort((a,b) => (a.meta.annee-b.meta.annee)||(a.meta.semaine-b.meta.semaine));
+      buildYearButtons();
+      applySelection();
+    } catch(err) {
+      console.error("Erreur:", err);
+      showToast("Erreur lors du chargement des données.");
+    } finally {
+      $("loadingSpinner").classList.add("d-none");
+    }
+  }
+
+  // ════════════════════════════════════════════════════
+  //  ÉVÉNEMENTS
+  // ════════════════════════════════════════════════════
+
+  // Période
+  document.querySelectorAll("[data-period]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-period]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentPeriod = btn.dataset.period;
+      applySelection();
+    });
+  });
+
+  // Année
+  $("yearGroup").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-year]");
+    if (!btn) return;
+    $("yearGroup").querySelectorAll("button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentYear = btn.dataset.year==="all" ? null : Number(btn.dataset.year);
+    applySelection();
+  });
+
+  // Tri IDEs
+  document.querySelector("#ideTable thead").addEventListener("click", e => {
+    const th = e.target.closest("th.sort-th");
+    if (!th || !currentAgg) return;
+    const col = th.dataset.col;
+    ideSort = ideSort.col===col
+      ? { col, dir: ideSort.dir==="desc"?"asc":"desc" }
+      : { col, dir: col==="name"?"asc":"desc" };
+    renderIDE(currentAgg);
+  });
+
+  // Tri Chirurgiens
+  document.querySelector("#chirTable thead").addEventListener("click", e => {
+    const th = e.target.closest("th.sort-th");
+    if (!th || !currentAgg) return;
+    const col = th.dataset.col;
+    chirSort = chirSort.col===col
+      ? { col, dir: chirSort.dir==="desc"?"asc":"desc" }
+      : { col, dir: col==="name"?"asc":"desc" };
+    renderChir(currentAgg);
+  });
+
+  // Filtre texte IDE
+  $("ideFilterText").addEventListener("input", () => {
+    ideFilter.text = $("ideFilterText").value.trim();
+    if (currentAgg) refreshIDETable(currentAgg);
+  });
+
+  // Filtre rôle IDE
+  $("ideFilterRole").addEventListener("change", () => {
+    ideFilter.role = $("ideFilterRole").value;
+    if (currentAgg) refreshIDETable(currentAgg);
+  });
+
+  // Délégation globale — IDE + Chirurgien
+  document.addEventListener("click", e => {
+    const ideBtn  = e.target.closest("button[data-ide-code]");
+    const chirBtn = e.target.closest("button[data-chir-code]");
+    if (ideBtn) {
+      try { openIDEModal(ideBtn.dataset.ideCode); }
+      catch(err) { console.error("openIDEModal:", err); showToast("Erreur modale IDE : " + err.message); }
+    }
+    if (chirBtn) {
+      try { openChirModal(chirBtn.dataset.chirCode); }
+      catch(err) { console.error("openChirModal:", err); showToast("Erreur modale Chir : " + err.message); }
+    }
+  });
+
+  // Print
+  $("btnPrint").addEventListener("click", () => window.print());
+
+  // ════════════════════════════════════════════════════
+  //  INIT
+  // ════════════════════════════════════════════════════
+
+  document.querySelectorAll("[data-bs-toggle='tooltip']").forEach(el => new bootstrap.Tooltip(el));
+  if (window.PlanningMembers?.init) PlanningMembers.init().catch(()=>{});
+  loadAllWeeks();
+
+});
+</script>
+</body>
+</html>

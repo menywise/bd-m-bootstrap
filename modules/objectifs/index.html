@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Intégration IDE — Bible de Bloc</title>
+  <!-- 1. Bootstrap 5.3.2 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- 2. Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <!-- 3. CDS tokens — REMPLACER @latest par tag de release avant déploiement OVH -->
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <!-- 4. CDS print -->
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <!-- 5. CDS overrides globaux -->
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <!-- 6. CSS module -->
+  <link href="../../css/objectifs-ui.css" rel="stylesheet"/>
+</head>
+
+<body class="d-flex min-vh-100">
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+  <!-- SHELL — PREMIER ENFANT de <main> (INTERDIT-E1) -->
+  <div id="bdb-shell" data-module-title="Intégration IDE" data-module-icon="bi-clipboard-check"></div>
+
+  <!-- CONTENU MODULE -->
+  <div class="container-fluid p-3 p-md-4 bg-light flex-grow-1" id="objectifsContainer">
+
+    <!-- TOOLBAR -->
+    <div class="obj-toolbar card border mb-4">
+      <div class="card-body py-2 px-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-md">
+            <div class="fw-bold"><i class="bi bi-clipboard-check text-primary me-2"></i>Parcours d'intégration IDE</div>
+            <div class="text-muted small">Bloc Opératoire — Suivi progressif de votre intégration</div>
+          </div>
+          <div class="col-12 col-md-auto">
+            <button class="btn btn-outline-secondary btn-sm w-100" id="btnPrint" type="button">
+              <i class="bi bi-printer me-1"></i>Imprimer
+            </button>
+          </div>
+          <!-- Slot admin (pattern C.6) -->
+          <div class="col-12 col-md-auto d-none" id="objectifsToolbarAdminSlot">
+            <button class="btn btn-danger btn-sm w-100" id="btnAdminGerer" type="button">
+              <i class="bi bi-gear-fill me-1"></i>Administrer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKELETON -->
+    <div id="objectifsSkeleton">
+      <div class="d-flex gap-2 mb-4 flex-wrap">
+        <div class="placeholder-glow"><span class="placeholder rounded-pill obj-skel obj-skel-w1"></span></div>
+        <div class="placeholder-glow"><span class="placeholder rounded-pill obj-skel obj-skel-w2"></span></div>
+        <div class="placeholder-glow"><span class="placeholder rounded-pill obj-skel obj-skel-w3"></span></div>
+        <div class="placeholder-glow"><span class="placeholder rounded-pill obj-skel obj-skel-w4"></span></div>
+      </div>
+      <div class="card"><div class="card-body p-4 d-flex flex-column gap-3">
+        <div class="placeholder-glow"><span class="placeholder col-12 obj-skel"></span></div>
+        <div class="placeholder-glow"><span class="placeholder col-10 obj-skel"></span></div>
+        <div class="placeholder-glow"><span class="placeholder col-11 obj-skel"></span></div>
+      </div></div>
+    </div>
+
+    <!-- CONTENU DYNAMIQUE -->
+    <div id="objectifsUI" class="d-none">
+      <!-- Nav pills (générée par JS) -->
+      <div id="objectifsNav" class="mb-4"></div>
+      <!-- Tab content (générée par JS) -->
+      <div id="objectifsTabContent" class="tab-content"></div>
+    </div>
+
+    <!-- ERREUR -->
+    <div id="objectifsError" class="d-none">
+      <div class="alert alert-danger d-flex gap-2 align-items-center">
+        <i class="bi bi-exclamation-triangle-fill fs-5 flex-shrink-0"></i>
+        <span id="objectifsErrorMsg">Impossible de charger les données.</span>
+      </div>
+    </div>
+
+  </div><!-- /objectifsContainer -->
+
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 Bible de Bloc — Consensus Design System —
+    <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+  </footer>
+
+
+  <!-- offlineBanner (template BDB standard) -->
+  <div id="offlineBanner" class="cds-offline-banner">
+    <i class="bi bi-wifi-off me-2"></i>
+    Connexion Supabase indisponible — les données ne peuvent pas être chargées.
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <i class="bi bi-info-circle-fill me-2 text-primary"></i>
+        <strong class="me-auto">Info</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+      <div class="toast-body" id="toastInfoBody">Message.</div>
+    </div>
+  </div>
+</main>
+
+<!-- ── MODALE ADMIN ─────────────────────────────────────────── -->
+<div class="modal fade" id="modalAdmin" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-fullscreen-lg-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-gear-fill me-2 text-danger"></i>Administration — Intégration IDE</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <ul class="nav nav-tabs px-3 pt-3" id="adminTabs" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#adm-enc" type="button"><i class="bi bi-people me-1"></i>Encadrement</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adm-sec" type="button"><i class="bi bi-diagram-3 me-1"></i>Secteurs</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adm-sem" type="button"><i class="bi bi-calendar-week me-1"></i>Semaines</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adm-crit" type="button"><i class="bi bi-list-check me-1"></i>Critères</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adm-items" type="button"><i class="bi bi-bar-chart-steps me-1"></i>Objectifs</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adm-prog" type="button"><i class="bi bi-graph-up me-1"></i>Progression</button></li>
+        </ul>
+        <div class="tab-content p-3">
+          <div class="tab-pane fade show active" id="adm-enc">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="obj-admin-section">Membres de l'encadrement</span>
+              <button class="btn btn-success btn-sm" id="btnNewEnc" type="button"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+            </div>
+            <div id="admEncListe"></div>
+          </div>
+          <div class="tab-pane fade" id="adm-sec">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="obj-admin-section">Secteurs du bloc</span>
+              <button class="btn btn-success btn-sm" id="btnNewSec" type="button"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+            </div>
+            <div id="admSecListe"></div>
+          </div>
+          <div class="tab-pane fade" id="adm-sem">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="obj-admin-section">Semaines d'évaluation</span>
+              <button class="btn btn-success btn-sm" id="btnNewSem" type="button"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+            </div>
+            <div id="admSemListe"></div>
+          </div>
+          <div class="tab-pane fade" id="adm-crit">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="obj-admin-section">Critères par semaine</span>
+                <select class="form-select form-select-sm obj-select-auto" id="admFiltSem"></select>
+              </div>
+              <button class="btn btn-success btn-sm" id="btnNewCrit" type="button"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+            </div>
+            <div id="admCritListe"></div>
+          </div>
+          <div class="tab-pane fade" id="adm-items">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="obj-admin-section">Items objectifs</span>
+                <select class="form-select form-select-sm obj-select-auto" id="admFiltTerme">
+                  <option value="">Tous</option>
+                  <option value="court_terme">Court terme</option>
+                  <option value="moyen_terme">Moyen terme</option>
+                </select>
+              </div>
+              <button class="btn btn-success btn-sm" id="btnNewItem" type="button"><i class="bi bi-plus-lg me-1"></i>Ajouter</button>
+            </div>
+            <div id="admItemsListe"></div>
+          </div>
+          <div class="tab-pane fade" id="adm-prog">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="obj-admin-section mb-2">Progression OUI/NON (semaines)</div>
+                <div class="table-responsive"><table class="table table-sm table-hover">
+                  <thead class="table-light"><tr><th>Membre</th><th class="text-center">OUI</th><th class="text-center">NON</th><th class="text-center">%</th></tr></thead>
+                  <tbody id="admProgEval"></tbody>
+                </table></div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="obj-admin-section mb-2">Progression A/ECA/NA (objectifs)</div>
+                <div class="table-responsive"><table class="table table-sm table-hover">
+                  <thead class="table-light"><tr><th>Membre</th><th class="text-center">A</th><th class="text-center">ECA</th><th class="text-center">%</th></tr></thead>
+                  <tbody id="admProgProg"></tbody>
+                </table></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-light"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODALE ENCADREMENT ────────────────────────────────────── -->
+<div class="modal fade" id="modalEnc" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="modalEncLabel">Encadrement</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="encId"/>
+      <div class="mb-3"><label class="form-label fw-semibold" for="encRole">Rôle / Poste</label><input type="text" class="form-control" id="encRole" placeholder="ex : Cadre de service"/></div>
+      <div class="row g-2 mb-3">
+        <div class="col"><label class="form-label fw-semibold" for="encPrenom">Prénom</label><input type="text" class="form-control" id="encPrenom"/></div>
+        <div class="col"><label class="form-label fw-semibold" for="encNom">Nom</label><input type="text" class="form-control" id="encNom"/></div>
+      </div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="encTel">Téléphone <span class="text-muted fw-normal">(optionnel)</span></label><input type="text" class="form-control" id="encTel" placeholder="05 55 XX XX XX"/></div>
+      <div class="row g-2 mb-2">
+        <div class="col-4"><label class="form-label fw-semibold" for="encPos">Position</label><input type="number" class="form-control" id="encPos" min="0" value="0"/></div>
+        <div class="col-8 d-flex align-items-end pb-1"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="encVisible" checked/><label class="form-check-label" for="encVisible">Visible</label></div></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="button" class="btn btn-primary" id="btnSaveEnc"><i class="bi bi-check-lg me-1"></i>Enregistrer</button></div>
+  </div></div>
+</div>
+
+<!-- ── MODALE SECTEUR ────────────────────────────────────────── -->
+<div class="modal fade" id="modalSec" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="modalSecLabel">Secteur</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="secId"/>
+      <div class="row g-2 mb-3">
+        <div class="col-md-4"><label class="form-label fw-semibold" for="secCode">Code (unique)</label><input type="text" class="form-control" id="secCode" placeholder="ex : visceral"/></div>
+        <div class="col-md-8"><label class="form-label fw-semibold" for="secLabel">Libellé</label><input type="text" class="form-control" id="secLabel"/></div>
+      </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-6"><label class="form-label fw-semibold" for="secSalles">Salles</label><input type="text" class="form-control" id="secSalles" placeholder="ex : 1, 2, 3, 4"/></div>
+        <div class="col-md-6"><label class="form-label fw-semibold" for="secQualif">Qualification salles</label><input type="text" class="form-control" id="secQualif" placeholder="ex : Aseptiques"/></div>
+      </div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="secEffectif">Effectif</label><input type="text" class="form-control" id="secEffectif" placeholder="ex : 8 IBODE · 7 IDE actes 1b"/></div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="secDesc">Description</label><textarea class="form-control" id="secDesc" rows="2"></textarea></div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="secActes">Actes principaux</label><input type="text" class="form-control" id="secActes" placeholder="ex : PTH · PTG · LCA"/></div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-4"><label class="form-label fw-semibold" for="secCouleur">Couleur (hex)</label><input type="color" class="form-control form-control-color" id="secCouleur" value="#0d6efd"/></div>
+        <div class="col-md-4"><label class="form-label fw-semibold" for="secIcone">Icône Bootstrap Icons</label><input type="text" class="form-control" id="secIcone" placeholder="bi-hospital"/></div>
+        <div class="col-md-4"><label class="form-label fw-semibold" for="secPos">Position</label><input type="number" class="form-control" id="secPos" min="0" value="0"/></div>
+      </div>
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="secVisible" checked/><label class="form-check-label" for="secVisible">Visible</label></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="button" class="btn btn-primary" id="btnSaveSec"><i class="bi bi-check-lg me-1"></i>Enregistrer</button></div>
+  </div></div>
+</div>
+
+<!-- ── MODALE SEMAINE ────────────────────────────────────────── -->
+<div class="modal fade" id="modalSem" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="modalSemLabel">Semaine</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="semId"/>
+      <div class="row g-2 mb-3">
+        <div class="col-4"><label class="form-label fw-semibold" for="semNum">N°</label><input type="number" class="form-control" id="semNum" min="1"/></div>
+        <div class="col-8"><label class="form-label fw-semibold" for="semLabel">Libellé</label><input type="text" class="form-control" id="semLabel" placeholder="ex : 1ère Semaine"/></div>
+      </div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="semDesc">Description</label><textarea class="form-control" id="semDesc" rows="2"></textarea></div>
+      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="semActive" checked/><label class="form-check-label" for="semActive">Active</label></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="button" class="btn btn-primary" id="btnSaveSem"><i class="bi bi-check-lg me-1"></i>Enregistrer</button></div>
+  </div></div>
+</div>
+
+<!-- ── MODALE CRITÈRE ────────────────────────────────────────── -->
+<div class="modal fade" id="modalCrit" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="modalCritLabel">Critère</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="critId"/><input type="hidden" id="critItemKey"/>
+      <div class="row g-2 mb-3">
+        <div class="col-md-6"><label class="form-label fw-semibold" for="critSem">Semaine</label><select class="form-select" id="critSem"></select></div>
+        <div class="col-md-3"><label class="form-label fw-semibold" for="critObjNum">N° objectif</label><input type="number" class="form-control" id="critObjNum" min="1"/></div>
+        <div class="col-md-3"><label class="form-label fw-semibold" for="critNum">N° critère</label><input type="number" class="form-control" id="critNum" min="1"/></div>
+      </div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="critObjLabel">Libellé objectif</label><input type="text" class="form-control" id="critObjLabel"/></div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="critLabel">Libellé critère</label><input type="text" class="form-control" id="critLabel"/></div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="critDetail">Précision <span class="text-muted fw-normal">(optionnel)</span></label><input type="text" class="form-control" id="critDetail"/></div>
+      <div class="mb-1"><label class="form-label fw-semibold" for="critKey">Clé technique</label><input type="text" class="form-control font-monospace" id="critKey" readonly/><div class="form-text">Générée auto — non modifiable après création.</div></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="button" class="btn btn-primary" id="btnSaveCrit"><i class="bi bi-check-lg me-1"></i>Enregistrer</button></div>
+  </div></div>
+</div>
+
+<!-- ── MODALE ITEM OBJECTIF ──────────────────────────────────── -->
+<div class="modal fade" id="modalItem" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="modalItemLabel">Item objectif</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body">
+      <input type="hidden" id="itemId"/>
+      <div class="row g-2 mb-3">
+        <div class="col-md-6"><label class="form-label fw-semibold" for="itemTerme">Terme</label>
+          <select class="form-select" id="itemTerme"><option value="court_terme">Court terme (1 mois)</option><option value="moyen_terme">Moyen terme (3–6 mois)</option></select>
+        </div>
+        <div class="col-md-6"><label class="form-label fw-semibold" for="itemDomaineKey">Clé domaine</label><input type="text" class="form-control" id="itemDomaineKey" placeholder="ex : circulant"/></div>
+      </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-8"><label class="form-label fw-semibold" for="itemDomaineLabel">Libellé domaine</label><input type="text" class="form-control" id="itemDomaineLabel"/></div>
+        <div class="col-md-4"><label class="form-label fw-semibold" for="itemDomaineIcone">Icône</label><input type="text" class="form-control" id="itemDomaineIcone" placeholder="bi-arrow-repeat"/></div>
+      </div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="itemKey">Clé technique (unique)</label><input type="text" class="form-control font-monospace" id="itemKey" placeholder="ex : lv_ct_circ_14"/></div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="itemLabel">Libellé</label><input type="text" class="form-control" id="itemLabel"/></div>
+      <div class="mb-3"><label class="form-label fw-semibold" for="itemDetail">Détail <span class="text-muted fw-normal">(optionnel)</span></label><textarea class="form-control" id="itemDetail" rows="2"></textarea></div>
+      <div class="row g-2 mb-2">
+        <div class="col-4"><label class="form-label fw-semibold" for="itemPos">Position</label><input type="number" class="form-control" id="itemPos" min="0" value="0"/></div>
+        <div class="col-8 d-flex align-items-end pb-1"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="itemActive" checked/><label class="form-check-label" for="itemActive">Actif</label></div></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button><button type="button" class="btn btn-primary" id="btnSaveItem"><i class="bi bi-check-lg me-1"></i>Enregistrer</button></div>
+  </div></div>
+</div>
+
+<!-- Bootstrap JS + Supabase + BDB -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+const S = {
+  isAdmin     : false,
+  encadrement : [],
+  secteurs    : [],
+  semaines    : [],
+  criteres    : [],
+  evaluations : {},   // { item_key: 'oui'|'non' }
+  lvItems     : [],   // livret_objectifs_items
+  progression : {},   // { item_key: 'acquis'|'en_cours'|'non_acquis' }
+  saving      : new Set(),
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════════════════════
+const esc = s => s == null ? '' : String(s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function showError(msg) {
+  document.getElementById('objectifsSkeleton').classList.add('d-none');
+  document.getElementById('objectifsUI').classList.add('d-none');
+  document.getElementById('objectifsErrorMsg').textContent = msg;
+  document.getElementById('objectifsError').classList.remove('d-none');
+}
+
+function getModal(id) { return bootstrap.Modal.getOrCreateInstance(document.getElementById(id)); }
+
+// ═══════════════════════════════════════════════════════════════
+//  CHARGEMENT
+// ═══════════════════════════════════════════════════════════════
+async function loadAll() {
+  const uid = window.bdbUser.id;
+  const fetches = [
+    { key:'livret_encadrement',     p: window.bdb.from('livret_encadrement').select('id,role_label,prenom_local,nom_local,telephone,position,profile_id').order('position') },
+    { key:'livret_secteurs',        p: window.bdb.from('livret_secteurs').select('*').eq('is_visible',true).order('position') },
+    { key:'objectifs_semaines',     p: window.bdb.from('objectifs_semaines').select('*').eq('is_active',true).order('semaine_num') },
+    { key:'objectifs_criteres',     p: window.bdb.from('objectifs_criteres').select('*').eq('is_active',true).order('objectif_num').order('critere_num') },
+    { key:'objectifs_evaluations',  p: window.bdb.from('objectifs_evaluations').select('item_key,statut').eq('user_id',uid) },
+    { key:'livret_objectifs_items', p: window.bdb.from('livret_objectifs_items').select('*').eq('is_active',true).order('terme').order('domaine_key').order('position') },
+    { key:'livret_progression',     p: window.bdb.from('livret_progression').select('item_key,statut').eq('user_id',uid) },
+  ];
+
+  const results = await Promise.all(fetches.map(f => f.p));
+
+  for (let i = 0; i < results.length; i++) {
+    if (results[i].error) {
+      const e = results[i].error;
+      console.error('[objectifs] Erreur fetch ' + fetches[i].key + ':', e);
+      if (e?.message?.includes('fetch') || e?.code === 'PGRST301') showOfflineBanner();
+      showError('Erreur table "' + fetches[i].key + '" — ' + (e.message || e.code || 'inconnue'));
+      return false;
+    }
+  }
+
+  const [rEnc, rSec, rSem, rCrit, rEvals, rItems, rProg] = results;
+  S.encadrement = rEnc.data  || [];
+  S.secteurs    = rSec.data  || [];
+  S.semaines    = rSem.data  || [];
+  S.criteres    = rCrit.data || [];
+  S.lvItems     = rItems.data|| [];
+  (rEvals.data ||[]).forEach(r => { S.evaluations[r.item_key] = r.statut; });
+  (rProg.data  ||[]).forEach(r => { S.progression[r.item_key] = r.statut; });
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDU NAV + TABS
+// ═══════════════════════════════════════════════════════════════
+function buildUI() {
+  const tabs = [
+    { id:'bienvenue', icon:'bi-house-heart',       label:'Bienvenue' },
+    { id:'bloc',      icon:'bi-diagram-3',          label:'Notre bloc' },
+    { id:'patient',   icon:'bi-person-heart',       label:'Le patient' },
+    { id:'roles',     icon:'bi-person-badge',       label:'Vos rôles' },
+    ...S.semaines.map(s => ({ id:`sem-${s.id}`, icon:'bi-calendar-week', label:s.label, semaineId:s.id })),
+    { id:'obj1m',     icon:'bi-calendar-check',     label:'Objectifs 1 mois' },
+    { id:'obj6m',     icon:'bi-graph-up',            label:'Objectifs 3–6 mois' },
+  ];
+
+  // Nav pills
+  const navEl = document.getElementById('objectifsNav');
+  navEl.innerHTML = `<ul class="nav nav-pills flex-wrap gap-1 obj-nav" role="tablist">
+    ${tabs.map((t,i) => `
+      <li class="nav-item" role="presentation">
+        <button class="nav-link${i===0?' active':''}" id="tab-${t.id}-btn"
+          data-bs-toggle="pill" data-bs-target="#tab-${t.id}"
+          type="button" role="tab" aria-selected="${i===0}">
+          <i class="bi ${t.icon} me-1"></i>${esc(t.label)}
+        </button>
+      </li>`).join('')}
+  </ul>`;
+
+  // Tab panes
+  const contentEl = document.getElementById('objectifsTabContent');
+  contentEl.innerHTML = tabs.map((t,i) => `
+    <div class="tab-pane fade${i===0?' show active':''}" id="tab-${t.id}" role="tabpanel">
+      <div id="pane-${t.id}"></div>
+    </div>`).join('');
+
+  // Remplir chaque pane
+  renderBienvenue();
+  renderBloc();
+  renderPatient();
+  renderRoles();
+  S.semaines.forEach(s => renderSemaine(s));
+  renderObjectifs('court_terme','obj1m','Objectifs — Court terme (1 mois)','Premiers repères à acquérir dans le premier mois.');
+  renderObjectifs('moyen_terme','obj6m','Objectifs — Moyen terme (3–6 mois)','Approfondissement et montée en compétence progressive.');
+
+  document.getElementById('objectifsSkeleton').classList.add('d-none');
+  document.getElementById('objectifsUI').classList.remove('d-none');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TAB 1 — BIENVENUE
+// ═══════════════════════════════════════════════════════════════
+function renderBienvenue() {
+  const contacts = S.encadrement.map(e => {
+    const pd    = e.profiles_directory;
+    const prenom= pd?.prenom || e.prenom_local || '';
+    const nom   = pd?.nom    || e.nom_local    || '';
+    const tel   = e.telephone ? `<a class="ms-2 text-decoration-none small" href="tel:${e.telephone.replace(/\s/g,'')}"><i class="bi bi-telephone-fill text-success"></i> ${esc(e.telephone)}</a>` : '';
+    return `<li class="list-group-item px-0 py-2 d-flex flex-wrap align-items-baseline gap-1">
+      <span class="fw-semibold small">${esc(e.role_label)}</span>
+      <span class="text-muted small">— ${esc(prenom)} ${esc(nom)}</span>${tel}
+    </li>`;
+  }).join('');
+
+  document.getElementById('pane-bienvenue').innerHTML = `
+    <div class="obj-hero mb-4">
+      <div class="obj-hero-title mb-1"><i class="bi bi-door-open me-2"></i>Bienvenue au Bloc Opératoire</div>
+      <div class="obj-hero-sub">Ce parcours vous accompagne étape par étape dans votre intégration.</div>
+    </div>
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <div class="card obj-contact-card h-100">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3"><i class="bi bi-people-fill me-2 text-primary"></i>Votre équipe d'encadrement</h6>
+            <ul class="list-group list-group-flush">${contacts || '<li class="list-group-item px-0 text-muted small">Aucun encadrant configuré.</li>'}</ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="card h-100 border-0 bg-white shadow-sm">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3"><i class="bi bi-info-circle-fill me-2 text-info"></i>Premiers pas</h6>
+            <div class="alert alert-info border-0 py-2 small mb-3"><i class="bi bi-check2-all me-2"></i>Tenue adaptée au bloc fournie dès votre arrivée.</div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2"><i class="bi bi-map text-primary fs-5"></i><span class="small">Visite du bloc avec votre référent(e)</span></li>
+              <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2"><i class="bi bi-clock text-primary fs-5"></i><span class="small">Remise des horaires en début de prise de poste</span></li>
+              <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2"><i class="bi bi-people text-primary fs-5"></i><span class="small">Écoute et disponibilité de toute l'équipe</span></li>
+              <li class="list-group-item px-0 py-2 d-flex align-items-center gap-2"><i class="bi bi-person-check text-primary fs-5"></i><span class="small">Accompagnement individualisé et personnalisé</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TAB 2 — NOTRE BLOC
+// ═══════════════════════════════════════════════════════════════
+function renderBloc() {
+  const cards = S.secteurs.map(s => {
+    // couleur_hex vient de la DB → style= dynamique toléré (CHANTIER C.4)
+    const isLight = s.couleur_hex === '#ffc107' || s.couleur_hex === '#fd7e14';
+    return `
+    <div class="col-12 col-md-6">
+      <div class="card obj-sector-card h-100">
+        <div class="obj-sector-header${isLight?' light-text':''}" style="background-color:${esc(s.couleur_hex)}">
+          <i class="bi ${esc(s.icone_bi)} me-2"></i>${esc(s.label)}
+        </div>
+        <div class="card-body py-2">
+          <div class="d-flex flex-wrap gap-1 mb-2">
+            ${s.salles       ? `<span class="badge bg-light text-dark border">${esc(s.salles)}</span>` : ''}
+            ${s.qualif_salles? `<span class="badge bg-secondary-subtle text-secondary-emphasis">${esc(s.qualif_salles)}</span>` : ''}
+          </div>
+          ${s.effectif ? `<p class="small text-muted mb-1"><i class="bi bi-person-fill me-1"></i>${esc(s.effectif)}</p>` : ''}
+          ${s.actes    ? `<p class="small text-muted mb-0"><i class="bi bi-dot me-1"></i>${esc(s.actes)}</p>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('pane-bloc').innerHTML = `
+    <h5 class="fw-bold mb-3"><i class="bi bi-diagram-3 me-2 text-primary"></i>Organisation du bloc opératoire</h5>
+    <div class="row g-3">${cards || '<div class="col"><p class="text-muted">Aucun secteur configuré.</p></div>'}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TAB 3 — LE PATIENT (statique — arbitrage A4)
+// ═══════════════════════════════════════════════════════════════
+function renderPatient() {
+  const dims = [
+    { icon:'bi-emoji-smile',    cls:'text-warning',   t:'Confort',              d:'Participer activement au confort physique et psychologique tout au long de la prise en charge.' },
+    { icon:'bi-shield-check',   cls:'text-success',   t:'Sécurité physique',    d:'Garantir la sécurité de chaque installation, prévenir les AES, assurer la traçabilité.' },
+    { icon:'bi-chat-heart',     cls:'text-info',      t:'Sécurité psychologique',d:'Communication adaptée, rassurer le patient, respecter son intimité et sa dignité.' },
+    { icon:'bi-arrow-repeat',   cls:'text-primary',   t:'Soins de relation',    d:'Maintenir un lien de confiance avec le patient et sa famille tout au long du parcours.' },
+    { icon:'bi-droplet',        cls:'text-danger',    t:'Soins d\'hygiène',     d:'Appliquer rigoureusement les précautions standard d\'hygiène et d\'asepsie.' },
+    { icon:'bi-tools',          cls:'text-secondary', t:'Soins techniques',     d:'Maîtriser les gestes et équipements techniques au service de l\'acte opératoire.' },
+  ].map(d => `
+    <div class="col-12 col-sm-6 col-lg-4">
+      <div class="card obj-patient-card h-100 text-center p-3">
+        <i class="bi ${d.icon} fs-2 ${d.cls} mb-2"></i>
+        <h6 class="fw-bold">${d.t}</h6>
+        <p class="small text-muted mb-0">${d.d}</p>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('pane-patient').innerHTML = `
+    <h5 class="fw-bold mb-1"><i class="bi bi-person-heart me-2 text-primary"></i>Le patient au centre de votre mission</h5>
+    <p class="text-muted mb-4 small">Chaque geste technique a une finalité : la sécurité et le bien-être du patient.</p>
+    <div class="row g-3">${dims}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TAB 4 — VOS RÔLES (statique — arbitrage A4)
+// ═══════════════════════════════════════════════════════════════
+function renderRoles() {
+  document.getElementById('pane-roles').innerHTML = `
+    <h5 class="fw-bold mb-4"><i class="bi bi-person-badge me-2 text-primary"></i>Vos rôles au bloc</h5>
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <div class="card obj-role-card border-primary border-2">
+          <div class="card-header bg-primary text-white fw-bold"><i class="bi bi-person-workspace me-2"></i>IDE Panseur — Circulante</div>
+          <div class="card-body">
+            <p class="small text-muted mb-3">Intermédiaire entre le champ stérile et l'extérieur. Yeux et bras de l'équipe chirurgicale.</p>
+            <ul class="list-group list-group-flush">
+              ${['Connaissance parfaite du BO, équipements et matériel','Maîtrise des règles d\'hygiène et d\'asepsie — les faire respecter','Connaissance du déroulement de l\'acte opératoire','Gestion du matériel stérile et non stérile','Liaison avec SSPI, pharmacie, labo, stérilisation'].map(i =>
+                `<li class="list-group-item px-0 py-2 small"><i class="bi bi-arrow-right-circle-fill text-primary me-2"></i>${i}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="card obj-role-card border-success border-2">
+          <div class="card-header bg-success text-white fw-bold"><i class="bi bi-scissors me-2"></i>IDE Instrumentiste / Actes 1b</div>
+          <div class="card-body">
+            <p class="small text-muted mb-3">Au champ opératoire, en stérile. Bras droit du chirurgien — chaque geste anticipe le suivant.</p>
+            <ul class="list-group list-group-flush">
+              ${['Aide directe du chirurgien — aide opératoire','Respect strict de l\'hygiène et de l\'asepsie','Ordre · méthode · rigueur · organisation','Connaître les temps opératoires pour anticiper','Compte rigoureux des textiles en fin d\'intervention'].map(i =>
+                `<li class="list-group-item px-0 py-2 small"><i class="bi bi-arrow-right-circle-fill text-success me-2"></i>${i}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TABS 5-N — SEMAINES OUI/NON
+// ═══════════════════════════════════════════════════════════════
+function renderSemaine(sem) {
+  const crits      = S.criteres.filter(c => c.semaine_id === sem.id);
+  const renseignes = crits.filter(c => S.evaluations[c.item_key]).length;
+  const ouis       = crits.filter(c => S.evaluations[c.item_key]==='oui').length;
+  const nons       = crits.filter(c => S.evaluations[c.item_key]==='non').length;
+  const pct        = crits.length ? Math.round(renseignes/crits.length*100) : 0;
+
+  // Grouper par objectif
+  const byObj = {};
+  crits.forEach(c => {
+    const k = `${c.objectif_num}__${c.objectif_label}`;
+    if (!byObj[k]) byObj[k] = [];
+    byObj[k].push(c);
+  });
+
+  const tables = Object.entries(byObj).map(([key,list], idx,arr) => {
+    const [numStr,...lp] = key.split('__');
+    const rows = list.map(c => {
+      const v   = S.evaluations[c.item_key];
+      const det = c.critere_detail ? `<small class="d-block obj-detail">${esc(c.critere_detail)}</small>` : '';
+      return `<tr id="row-${c.item_key}">
+        <td class="obj-num">${c.critere_num}</td>
+        <td>${esc(c.critere_label)}${det}</td>
+        <td class="text-center obj-cell-oui${v==='oui'?' is-checked':''}">
+          <button type="button" class="btn btn-outline-success obj-btn-eval${v==='oui'?' is-oui':''}"
+            data-item-key="${c.item_key}" data-statut="oui" data-semaine-id="${sem.id}" aria-label="OUI">
+            <i class="bi bi-check-lg"></i>
+          </button>
+        </td>
+        <td class="text-center obj-cell-non${v==='non'?' is-checked':''}">
+          <button type="button" class="btn btn-outline-danger obj-btn-eval${v==='non'?' is-non':''}"
+            data-item-key="${c.item_key}" data-statut="non" data-semaine-id="${sem.id}" aria-label="NON">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+    return `
+      <div class="${idx<arr.length-1?'mb-4':'mb-0'}">
+        <div class="bg-light border-start border-primary border-4 p-3 mb-3">
+          <p class="h6 mb-0 text-primary fw-bold">OBJECTIF N°${numStr} : ${esc(lp.join('__'))}</p>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-hover mb-0 obj-table">
+            <thead class="table-light"><tr>
+              <th class="obj-col-num text-center">#</th>
+              <th>Critères d'évaluation</th>
+              <th class="obj-col-oui text-center">OUI</th>
+              <th class="obj-col-non text-center">NON</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById(`pane-sem-${sem.id}`).innerHTML = `
+    <div class="card obj-semaine-card shadow-sm mb-0">
+      <div class="card-header obj-semaine-header py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h2 class="h5 mb-0 text-white fw-bold"><i class="bi bi-calendar-week me-2"></i>${esc(sem.label)}</h2>
+        <div class="d-flex align-items-center gap-3">
+          <div class="obj-prog-label text-white-50" id="prog-lbl-${sem.id}">${renseignes}/${crits.length}</div>
+          <div class="obj-prog-wrap">
+            <div class="progress bg-white bg-opacity-25 obj-prog-bar">
+              <div class="progress-bar bg-white" id="prog-bar-${sem.id}"
+                   style="width:${pct}%" role="progressbar"
+                   aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="text-white-50 small mt-1 text-end" id="prog-det-${sem.id}">
+              <span class="text-success-emphasis">✅ ${ouis}</span>
+              <span class="ms-2 text-danger-emphasis">❌ ${nons}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-3 p-md-4">${crits.length ? tables : '<p class="text-muted mb-0 small">Aucun critère configuré pour cette semaine.</p>'}</div>
+    </div>`;
+}
+
+function refreshSemaineProgress(semaineId) {
+  const crits      = S.criteres.filter(c => c.semaine_id === semaineId);
+  const renseignes = crits.filter(c => S.evaluations[c.item_key]).length;
+  const ouis       = crits.filter(c => S.evaluations[c.item_key]==='oui').length;
+  const nons       = crits.filter(c => S.evaluations[c.item_key]==='non').length;
+  const pct        = crits.length ? Math.round(renseignes/crits.length*100) : 0;
+  const bar = document.getElementById(`prog-bar-${semaineId}`);
+  const lbl = document.getElementById(`prog-lbl-${semaineId}`);
+  const det = document.getElementById(`prog-det-${semaineId}`);
+  if (bar) { bar.style.width=`${pct}%`; bar.setAttribute('aria-valuenow',pct); }
+  if (lbl) lbl.textContent = `${renseignes}/${crits.length}`;
+  if (det) det.innerHTML = `<span class="text-success-emphasis">✅ ${ouis}</span><span class="ms-2 text-danger-emphasis">❌ ${nons}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TABS Objectifs — A/ECA/NA
+// ═══════════════════════════════════════════════════════════════
+function renderObjectifs(terme, paneId, titre, sousTitre) {
+  const items   = S.lvItems.filter(i => i.terme === terme);
+  const allKeys = items.map(i => i.item_key);
+  const acquis  = allKeys.filter(k => S.progression[k]==='acquis').length;
+  const enCours = allKeys.filter(k => S.progression[k]==='en_cours').length;
+  const naCount = allKeys.length - acquis - enCours;
+
+  // Grouper par domaine
+  const byDom = {};
+  items.forEach(i => {
+    if (!byDom[i.domaine_key]) byDom[i.domaine_key] = { label:i.domaine_label, icone:i.domaine_icone, items:[] };
+    byDom[i.domaine_key].items.push(i);
+  });
+
+  const accordions = Object.entries(byDom).map(([dk,dom],idx) => {
+    const bId = `acc-${terme}-${dk}`;
+    const domAcquis = dom.items.filter(i => S.progression[i.item_key]==='acquis').length;
+    const total     = dom.items.length;
+    const badgeCls  = domAcquis===total ? 'bg-success-subtle text-success-emphasis' :
+                      domAcquis > 0     ? 'bg-warning-subtle text-warning-emphasis' :
+                                          'bg-secondary-subtle text-secondary-emphasis';
+    const rows = dom.items.map(it => {
+      const v = S.progression[it.item_key] || null;
+      return `<div class="obj-item-row" id="irow-${it.item_key}">
+        <div class="flex-grow-1">
+          <div class="obj-item-label">${esc(it.item_label)}</div>
+          ${it.item_detail ? `<div class="obj-item-detail">${esc(it.item_detail)}</div>` : ''}
+        </div>
+        <div class="btn-group btn-group-sm flex-shrink-0" role="group">
+          <button type="button" class="btn btn-outline-success obj-btn-statut${v==='acquis'?' is-acquis':''}"
+            data-item-key="${it.item_key}" data-statut="acquis" data-pane="${paneId}" title="Acquis">A</button>
+          <button type="button" class="btn btn-outline-warning obj-btn-statut${v==='en_cours'?' is-en_cours':''}"
+            data-item-key="${it.item_key}" data-statut="en_cours" data-pane="${paneId}" title="En cours d\'acquisition">ECA</button>
+          <button type="button" class="btn btn-outline-secondary obj-btn-statut${v==='non_acquis'?' is-non_acquis':''}"
+            data-item-key="${it.item_key}" data-statut="non_acquis" data-pane="${paneId}" title="Non acquis">NA</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="accordion-item border mb-2 rounded overflow-hidden">
+        <h2 class="accordion-header">
+          <button class="accordion-button${idx>0?' collapsed':''} obj-domain-title py-3"
+            type="button" data-bs-toggle="collapse" data-bs-target="#${bId}">
+            <i class="bi ${esc(dom.icone)} me-2 text-primary"></i>${esc(dom.label)}
+            <span class="ms-2 badge ${badgeCls} fw-normal" id="badge-${terme}-${dk}">${domAcquis}/${total}</span>
+          </button>
+        </h2>
+        <div id="${bId}" class="accordion-collapse collapse${idx===0?' show':''}">
+          <div class="accordion-body p-0">${rows}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById(`pane-${paneId}`).innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div>
+        <h5 class="fw-bold mb-0">${terme==='court_terme'?'<i class="bi bi-calendar-check me-2 text-primary"></i>':'<i class="bi bi-graph-up me-2 text-primary"></i>'}${esc(titre)}</h5>
+        <div class="text-muted small">${sousTitre}</div>
+      </div>
+      <div class="d-flex gap-2 flex-wrap" id="sum-${paneId}">
+        <span class="badge obj-badge-acquis">✅ ${acquis} Acquis</span>
+        <span class="badge obj-badge-en-cours">⏳ ${enCours} ECA</span>
+        <span class="badge obj-badge-na">— ${naCount} restants</span>
+      </div>
+    </div>
+    ${terme==='moyen_terme'?'<div class="alert alert-info border-0 py-2 small mb-3"><i class="bi bi-arrow-up-circle me-1"></i>Tous les items du premier mois sont à renforcer. Cette grille complète la progression.</div>':''}
+    <div class="accordion accordion-flush">${accordions||'<p class="text-muted small">Aucun item configuré.</p>'}</div>`;
+}
+
+function refreshObjectifsSummary(paneId, terme) {
+  const items   = S.lvItems.filter(i => i.terme === terme);
+  const acquis  = items.filter(i => S.progression[i.item_key]==='acquis').length;
+  const enCours = items.filter(i => S.progression[i.item_key]==='en_cours').length;
+  const naCount = items.length - acquis - enCours;
+  const sumEl   = document.getElementById(`sum-${paneId}`);
+  if (sumEl) sumEl.innerHTML = `
+    <span class="badge obj-badge-acquis">✅ ${acquis} Acquis</span>
+    <span class="badge obj-badge-en-cours">⏳ ${enCours} ECA</span>
+    <span class="badge obj-badge-na">— ${naCount} restants</span>`;
+  // Badges domaine
+  const byDom = {};
+  items.forEach(i => { if(!byDom[i.domaine_key]) byDom[i.domaine_key]=0; if(S.progression[i.item_key]==='acquis') byDom[i.domaine_key]++; });
+  Object.entries(byDom).forEach(([dk,n]) => {
+    const total   = items.filter(i=>i.domaine_key===dk).length;
+    const badgeEl = document.getElementById(`badge-${terme}-${dk}`);
+    if (!badgeEl) return;
+    badgeEl.textContent = `${n}/${total}`;
+    badgeEl.className   = `ms-2 badge fw-normal ${n===total?'bg-success-subtle text-success-emphasis':n>0?'bg-warning-subtle text-warning-emphasis':'bg-secondary-subtle text-secondary-emphasis'}`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SAUVEGARDE OUI/NON
+// ═══════════════════════════════════════════════════════════════
+async function saveEval(itemKey, statut, semaineId) {
+  if (S.saving.has(itemKey)) return;
+  S.saving.add(itemKey);
+  const row  = document.getElementById(`row-${itemKey}`);
+  const btns = row ? row.querySelectorAll('.obj-btn-eval') : [];
+  btns.forEach(b => { b.disabled = true; });
+
+  const same = S.evaluations[itemKey] === statut;
+  if (!same) {
+    const { error } = await window.bdb.from('objectifs_evaluations')
+      .upsert({ user_id:window.bdbUser.id, item_key:itemKey, statut },{ onConflict:'user_id,item_key' });
+    if (!error) S.evaluations[itemKey] = statut;
+  } else {
+    const { error } = await window.bdb.from('objectifs_evaluations')
+      .delete().eq('user_id',window.bdbUser.id).eq('item_key',itemKey);
+    if (!error) delete S.evaluations[itemKey];
+  }
+
+  S.saving.delete(itemKey);
+  btns.forEach(b => { b.disabled = false; });
+  if (row) {
+    const v = S.evaluations[itemKey];
+    row.querySelector('[data-statut="oui"]').classList.toggle('is-oui', v==='oui');
+    row.querySelector('[data-statut="non"]').classList.toggle('is-non', v==='non');
+    row.querySelector('.obj-cell-oui').classList.toggle('is-checked', v==='oui');
+    row.querySelector('.obj-cell-non').classList.toggle('is-checked', v==='non');
+  }
+  refreshSemaineProgress(semaineId);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SAUVEGARDE A/ECA/NA
+// ═══════════════════════════════════════════════════════════════
+async function saveProgression(itemKey, statut, paneId) {
+  if (S.saving.has(itemKey)) return;
+  S.saving.add(itemKey);
+  const row  = document.getElementById(`irow-${itemKey}`);
+  const btns = row ? row.querySelectorAll('.obj-btn-statut') : [];
+  btns.forEach(b => { b.disabled = true; });
+
+  const same = S.progression[itemKey] === statut;
+  if (!same) {
+    const { error } = await window.bdb.from('livret_progression')
+      .upsert({ user_id:window.bdbUser.id, item_key:itemKey, statut },{ onConflict:'user_id,item_key' });
+    if (!error) S.progression[itemKey] = statut;
+  } else {
+    const { error } = await window.bdb.from('livret_progression')
+      .delete().eq('user_id',window.bdbUser.id).eq('item_key',itemKey);
+    if (!error) delete S.progression[itemKey];
+  }
+
+  S.saving.delete(itemKey);
+  btns.forEach(b => { b.disabled = false; });
+  if (row) {
+    const v = S.progression[itemKey];
+    row.querySelector('[data-statut="acquis"]').classList.toggle('is-acquis', v==='acquis');
+    row.querySelector('[data-statut="en_cours"]').classList.toggle('is-en_cours', v==='en_cours');
+    row.querySelector('[data-statut="non_acquis"]').classList.toggle('is-non_acquis', v==='non_acquis');
+  }
+  const terme = paneId==='obj1m' ? 'court_terme' : 'moyen_terme';
+  refreshObjectifsSummary(paneId, terme);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ADMIN — chargement et rendu listes
+// ═══════════════════════════════════════════════════════════════
+async function loadAdmin() {
+  const [rEnc, rSec, rSem, rCrit, rItems, rEvals, rProg, rProf] = await Promise.all([
+    window.bdb.from('livret_encadrement').select('*').order('position'),
+    window.bdb.from('livret_secteurs').select('*').order('position'),
+    window.bdb.from('objectifs_semaines').select('*').order('semaine_num'),
+    window.bdb.from('objectifs_criteres').select('*').order('objectif_num').order('critere_num'),
+    window.bdb.from('livret_objectifs_items').select('*').order('terme').order('domaine_key').order('position'),
+    window.bdb.from('objectifs_evaluations').select('user_id,statut'),
+    window.bdb.from('livret_progression').select('user_id,statut'),
+    window.bdb.from('profiles_directory').select('user_id,prenom,nom'),
+  ]);
+
+  renderAdmEnc(rEnc.data||[]);
+  renderAdmSec(rSec.data||[]);
+  renderAdmSem(rSem.data||[], rCrit.data||[]);
+  renderAdmItems(rItems.data||[]);
+  renderAdmProg(rEvals.data||[], rProg.data||[], rProf.data||[], rCrit.data||[], rItems.data||[]);
+  // Peupler selects
+  const semOpts = (rSem.data||[]).map(s=>`<option value="${s.id}" data-num="${s.semaine_num}">${esc(s.label)}</option>`).join('');
+  document.getElementById('admFiltSem').innerHTML = '<option value="">Toutes</option>' + semOpts;
+  document.getElementById('critSem').innerHTML = semOpts;
+}
+
+function admRow(label, html) {
+  return `<div class="card border mb-2"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center flex-wrap gap-2">${label}${html}</div></div>`;
+}
+function admBtns(action, id, label) {
+  return `<div class="btn-group btn-group-sm">
+    <button class="btn btn-outline-primary" data-adm="${action}-edit" data-id="${id}" type="button"><i class="bi bi-pencil"></i></button>
+    <button class="btn btn-outline-danger"  data-adm="${action}-del"  data-id="${id}" data-label="${esc(label)}" type="button"><i class="bi bi-trash"></i></button>
+  </div>`;
+}
+
+function renderAdmEnc(data) {
+  document.getElementById('admEncListe').innerHTML = data.length
+    ? data.map(e => admRow(`<div><span class="fw-semibold">${esc(e.role_label)}</span> — <span class="text-muted small">${esc(e.prenom_local)} ${esc(e.nom_local)}</span>${e.telephone?` <span class="text-muted small">${esc(e.telephone)}</span>`:''}</div>`, admBtns('enc',e.id,e.role_label))).join('')
+    : '<p class="text-muted small">Aucun.</p>';
+}
+function renderAdmSec(data) {
+  document.getElementById('admSecListe').innerHTML = data.length
+    ? data.map(s => admRow(`<div><span class="fw-semibold">${esc(s.label)}</span><span class="badge ms-2 text-white" style="background-color:${esc(s.couleur_hex)}">${esc(s.code)}</span></div>`, admBtns('sec',s.id,s.label))).join('')
+    : '<p class="text-muted small">Aucun.</p>';
+}
+function renderAdmSem(semaines, criteres) {
+  document.getElementById('admSemListe').innerHTML = semaines.length
+    ? semaines.map(s => { const n=criteres.filter(c=>c.semaine_id===s.id).length; return admRow(`<div><span class="fw-semibold">${esc(s.label)}</span> <span class="badge bg-secondary-subtle text-secondary-emphasis">${n} critères</span></div>`, admBtns('sem',s.id,s.label)); }).join('')
+    : '<p class="text-muted small">Aucune.</p>';
+  renderAdmCrit(criteres, semaines, '');
+}
+function renderAdmCrit(criteres, semaines, filtreId) {
+  const filtered  = filtreId ? criteres.filter(c=>c.semaine_id===filtreId) : criteres;
+  const semMap    = Object.fromEntries(semaines.map(s=>[s.id,s.label]));
+  const el        = document.getElementById('admCritListe');
+  el.innerHTML    = filtered.length
+    ? `<div class="table-responsive"><table class="table table-sm table-bordered mb-0">
+      <thead class="table-light"><tr><th>Sem.</th><th>Obj</th><th>#</th><th>Libellé</th><th class="obj-admin-col-key">Clé</th><th class="obj-admin-col-act"></th></tr></thead>
+      <tbody>${filtered.map(c=>`<tr>
+        <td class="small text-muted">${esc(semMap[c.semaine_id]||'?')}</td>
+        <td class="text-center">${c.objectif_num}</td>
+        <td class="text-center">${c.critere_num}</td>
+        <td class="small">${esc(c.critere_label)}</td>
+        <td class="small font-monospace text-muted">${esc(c.item_key)}</td>
+        <td>${admBtns('crit',c.id,c.critere_label)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`
+    : '<p class="text-muted small">Aucun critère.</p>';
+}
+function renderAdmItems(items) {
+  const filtreTerme = document.getElementById('admFiltTerme').value;
+  const filtered    = filtreTerme ? items.filter(i=>i.terme===filtreTerme) : items;
+  const el          = document.getElementById('admItemsListe');
+  el.innerHTML      = filtered.length
+    ? `<div class="table-responsive"><table class="table table-sm table-bordered mb-0">
+      <thead class="table-light"><tr><th>Terme</th><th>Domaine</th><th>Libellé</th><th class="obj-admin-col-key">Clé</th><th class="obj-admin-col-act"></th></tr></thead>
+      <tbody>${filtered.map(i=>`<tr>
+        <td><span class="badge ${i.terme==='court_terme'?'bg-primary-subtle text-primary-emphasis':'bg-success-subtle text-success-emphasis'}">${i.terme==='court_terme'?'CT':'MT'}</span></td>
+        <td class="small text-muted">${esc(i.domaine_label)}</td>
+        <td class="small">${esc(i.item_label)}</td>
+        <td class="small font-monospace text-muted">${esc(i.item_key)}</td>
+        <td>${admBtns('item',i.id,i.item_label)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`
+    : '<p class="text-muted small">Aucun item.</p>';
+}
+function renderAdmProg(evals, progs, profiles, criteres, items) {
+  const profMap = Object.fromEntries(profiles.map(p=>[p.user_id,`${p.prenom} ${p.nom}`]));
+  const totalCrit = criteres.length; const totalItems = items.length;
+
+  const byUserEval = {}; evals.forEach(e=>{ if(!byUserEval[e.user_id])byUserEval[e.user_id]={oui:0,non:0}; byUserEval[e.user_id][e.statut]++; });
+  const byUserProg = {}; progs.forEach(p=>{ if(!byUserProg[p.user_id])byUserProg[p.user_id]={acquis:0,en_cours:0}; if(byUserProg[p.user_id][p.statut]!==undefined)byUserProg[p.user_id][p.statut]++; });
+
+  document.getElementById('admProgEval').innerHTML = Object.entries(byUserEval).map(([uid,c])=>{
+    const pct=totalCrit?Math.round((c.oui+c.non)/totalCrit*100):0;
+    return `<tr><td class="small">${esc(profMap[uid]||uid.slice(0,8)+'…')}</td><td class="text-center text-success fw-bold">${c.oui}</td><td class="text-center text-danger fw-bold">${c.non}</td><td class="text-center"><div class="d-flex align-items-center gap-1"><div class="progress flex-grow-1 obj-prog-mini"><div class="progress-bar" style="width:${pct}%"></div></div><span class="small">${pct}%</span></div></td></tr>`;
+  }).join('') || '<tr><td colspan="4" class="text-muted text-center small">Aucune évaluation.</td></tr>';
+
+  document.getElementById('admProgProg').innerHTML = Object.entries(byUserProg).map(([uid,c])=>{
+    const pct=totalItems?Math.round(c.acquis/totalItems*100):0;
+    return `<tr><td class="small">${esc(profMap[uid]||uid.slice(0,8)+'…')}</td><td class="text-center text-success fw-bold">${c.acquis}</td><td class="text-center text-warning fw-bold">${c.en_cours}</td><td class="text-center"><div class="d-flex align-items-center gap-1"><div class="progress flex-grow-1 obj-prog-mini"><div class="progress-bar bg-success" style="width:${pct}%"></div></div><span class="small">${pct}%</span></div></td></tr>`;
+  }).join('') || '<tr><td colspan="4" class="text-muted text-center small">Aucune progression.</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ADMIN — CRUD helpers
+// ═══════════════════════════════════════════════════════════════
+async function admSave(table, payload, id, reloadFn) {
+  const { error } = id
+    ? await window.bdb.from(table).update(payload).eq('id',id)
+    : await window.bdb.from(table).insert(payload);
+  if (error) { alert('Erreur : '+error.message); return false; }
+  await reloadFn(); await refreshModule(); return true;
+}
+async function admDel(table, id, label, reloadFn) {
+  if (!confirm(`Supprimer "${label}" ?`)) return;
+  const { error } = await window.bdb.from(table).delete().eq('id',id);
+  if (error) { alert('Erreur : '+error.message); return; }
+  await reloadFn(); await refreshModule();
+}
+async function refreshModule() {
+  const ok = await loadAll(); if(ok) buildUI();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EVENT DELEGATION
+// ═══════════════════════════════════════════════════════════════
+function bindEvents() {
+  document.getElementById('btnPrint').addEventListener('click', ()=>window.print());
+
+  document.getElementById('btnAdminGerer').addEventListener('click', ()=>{
+    loadAdmin();
+    getModal('modalAdmin').show();
+  });
+
+  // Évaluations OUI/NON
+  document.addEventListener('click', e=>{
+    const btn = e.target.closest('.obj-btn-eval');
+    if(btn) saveEval(btn.dataset.itemKey, btn.dataset.statut, btn.dataset.semaineId);
+  });
+
+  // Progression A/ECA/NA
+  document.addEventListener('click', e=>{
+    const btn = e.target.closest('.obj-btn-statut');
+    if(btn) saveProgression(btn.dataset.itemKey, btn.dataset.statut, btn.dataset.pane);
+  });
+
+  // Admin actions (délégation)
+  document.addEventListener('click', async e=>{
+    const btn = e.target.closest('[data-adm]');
+    if(!btn) return;
+    const [entity,action] = btn.dataset.adm.split('-');
+    const id              = btn.dataset.id;
+    const label           = btn.dataset.label||'';
+
+    // Encadrement
+    if(entity==='enc'&&action==='del') { admDel('livret_encadrement',id,label,()=>loadAdmin()); return; }
+    if(entity==='enc'&&action==='edit') {
+      const {data}=await window.bdb.from('livret_encadrement').select('*').eq('id',id).single();
+      if(!data) return;
+      document.getElementById('encId').value=data.id; document.getElementById('encRole').value=data.role_label||'';
+      document.getElementById('encPrenom').value=data.prenom_local||''; document.getElementById('encNom').value=data.nom_local||'';
+      document.getElementById('encTel').value=data.telephone||''; document.getElementById('encPos').value=data.position||0;
+      document.getElementById('encVisible').checked=data.is_visible;
+      document.getElementById('modalEncLabel').textContent='Modifier l\'encadrement'; getModal('modalEnc').show(); return;
+    }
+    // Secteur
+    if(entity==='sec'&&action==='del') { admDel('livret_secteurs',id,label,()=>loadAdmin()); return; }
+    if(entity==='sec'&&action==='edit') {
+      const {data}=await window.bdb.from('livret_secteurs').select('*').eq('id',id).single();
+      if(!data) return;
+      document.getElementById('secId').value=data.id; document.getElementById('secCode').value=data.code||'';
+      document.getElementById('secLabel').value=data.label||''; document.getElementById('secSalles').value=data.salles||'';
+      document.getElementById('secQualif').value=data.qualif_salles||''; document.getElementById('secEffectif').value=data.effectif||'';
+      document.getElementById('secDesc').value=data.description||''; document.getElementById('secActes').value=data.actes||'';
+      document.getElementById('secCouleur').value=data.couleur_hex||'#0d6efd'; document.getElementById('secIcone').value=data.icone_bi||'bi-hospital';
+      document.getElementById('secPos').value=data.position||0; document.getElementById('secVisible').checked=data.is_visible;
+      document.getElementById('modalSecLabel').textContent='Modifier le secteur'; getModal('modalSec').show(); return;
+    }
+    // Semaine
+    if(entity==='sem'&&action==='del') { admDel('objectifs_semaines',id,label,()=>loadAdmin()); return; }
+    if(entity==='sem'&&action==='edit') {
+      const {data}=await window.bdb.from('objectifs_semaines').select('*').eq('id',id).single();
+      if(!data) return;
+      document.getElementById('semId').value=data.id; document.getElementById('semNum').value=data.semaine_num;
+      document.getElementById('semLabel').value=data.label||''; document.getElementById('semDesc').value=data.description||'';
+      document.getElementById('semActive').checked=data.is_active;
+      document.getElementById('modalSemLabel').textContent='Modifier la semaine'; getModal('modalSem').show(); return;
+    }
+    // Critère
+    if(entity==='crit'&&action==='del') { admDel('objectifs_criteres',id,label,()=>loadAdmin()); return; }
+    if(entity==='crit'&&action==='edit') {
+      const {data}=await window.bdb.from('objectifs_criteres').select('*').eq('id',id).single();
+      if(!data) return;
+      document.getElementById('critId').value=data.id; document.getElementById('critItemKey').value=data.item_key||'';
+      document.getElementById('critSem').value=data.semaine_id; document.getElementById('critObjNum').value=data.objectif_num;
+      document.getElementById('critNum').value=data.critere_num; document.getElementById('critObjLabel').value=data.objectif_label||'';
+      document.getElementById('critLabel').value=data.critere_label||''; document.getElementById('critDetail').value=data.critere_detail||'';
+      document.getElementById('critKey').value=data.item_key||'';
+      document.getElementById('modalCritLabel').textContent='Modifier le critère'; getModal('modalCrit').show(); return;
+    }
+    // Item objectif
+    if(entity==='item'&&action==='del') { admDel('livret_objectifs_items',id,label,()=>loadAdmin()); return; }
+    if(entity==='item'&&action==='edit') {
+      const {data}=await window.bdb.from('livret_objectifs_items').select('*').eq('id',id).single();
+      if(!data) return;
+      document.getElementById('itemId').value=data.id; document.getElementById('itemTerme').value=data.terme;
+      document.getElementById('itemDomaineKey').value=data.domaine_key||''; document.getElementById('itemDomaineLabel').value=data.domaine_label||'';
+      document.getElementById('itemDomaineIcone').value=data.domaine_icone||''; document.getElementById('itemKey').value=data.item_key||'';
+      document.getElementById('itemLabel').value=data.item_label||''; document.getElementById('itemDetail').value=data.item_detail||'';
+      document.getElementById('itemPos').value=data.position||0; document.getElementById('itemActive').checked=data.is_active;
+      document.getElementById('modalItemLabel').textContent='Modifier l\'item'; getModal('modalItem').show(); return;
+    }
+  });
+
+  // Boutons Nouveau
+  document.getElementById('btnNewEnc').addEventListener('click',()=>{ document.getElementById('encId').value=''; ['encRole','encPrenom','encNom','encTel'].forEach(id=>document.getElementById(id).value=''); document.getElementById('encPos').value=0; document.getElementById('encVisible').checked=true; document.getElementById('modalEncLabel').textContent='Nouveau membre d\'encadrement'; getModal('modalEnc').show(); });
+  document.getElementById('btnNewSec').addEventListener('click',()=>{ document.getElementById('secId').value=''; ['secCode','secLabel','secSalles','secQualif','secEffectif','secDesc','secActes'].forEach(id=>document.getElementById(id).value=''); document.getElementById('secCouleur').value='#0d6efd'; document.getElementById('secIcone').value='bi-hospital'; document.getElementById('secPos').value=0; document.getElementById('secVisible').checked=true; document.getElementById('modalSecLabel').textContent='Nouveau secteur'; getModal('modalSec').show(); });
+  document.getElementById('btnNewSem').addEventListener('click',()=>{ document.getElementById('semId').value=''; document.getElementById('semNum').value=''; document.getElementById('semLabel').value=''; document.getElementById('semDesc').value=''; document.getElementById('semActive').checked=true; document.getElementById('modalSemLabel').textContent='Nouvelle semaine'; getModal('modalSem').show(); });
+  document.getElementById('btnNewCrit').addEventListener('click',()=>{ document.getElementById('critId').value=''; document.getElementById('critItemKey').value=''; ['critObjNum','critNum','critObjLabel','critLabel','critDetail','critKey'].forEach(id=>document.getElementById(id).value=''); document.getElementById('modalCritLabel').textContent='Nouveau critère'; getModal('modalCrit').show(); });
+  document.getElementById('btnNewItem').addEventListener('click',()=>{ document.getElementById('itemId').value=''; ['itemDomaineKey','itemDomaineLabel','itemDomaineIcone','itemKey','itemLabel','itemDetail'].forEach(id=>document.getElementById(id).value=''); document.getElementById('itemTerme').value='court_terme'; document.getElementById('itemPos').value=0; document.getElementById('itemActive').checked=true; document.getElementById('modalItemLabel').textContent='Nouvel item'; getModal('modalItem').show(); });
+
+  // Sauvegardes formulaires
+  document.getElementById('btnSaveEnc').addEventListener('click', async()=>{
+    const id=document.getElementById('encId').value;
+    const ok=await admSave('livret_encadrement',{ role_label:document.getElementById('encRole').value.trim(), prenom_local:document.getElementById('encPrenom').value.trim(), nom_local:document.getElementById('encNom').value.trim(), telephone:document.getElementById('encTel').value.trim()||null, position:+document.getElementById('encPos').value, is_visible:document.getElementById('encVisible').checked },id||null,()=>loadAdmin());
+    if(ok) getModal('modalEnc').hide();
+  });
+  document.getElementById('btnSaveSec').addEventListener('click', async()=>{
+    const id=document.getElementById('secId').value;
+    const ok=await admSave('livret_secteurs',{ code:document.getElementById('secCode').value.trim(), label:document.getElementById('secLabel').value.trim(), salles:document.getElementById('secSalles').value.trim()||null, qualif_salles:document.getElementById('secQualif').value.trim()||null, effectif:document.getElementById('secEffectif').value.trim()||null, description:document.getElementById('secDesc').value.trim()||null, actes:document.getElementById('secActes').value.trim()||null, couleur_hex:document.getElementById('secCouleur').value, icone_bi:document.getElementById('secIcone').value.trim()||'bi-hospital', position:+document.getElementById('secPos').value, is_visible:document.getElementById('secVisible').checked },id||null,()=>loadAdmin());
+    if(ok) getModal('modalSec').hide();
+  });
+  document.getElementById('btnSaveSem').addEventListener('click', async()=>{
+    const id=document.getElementById('semId').value;
+    const ok=await admSave('objectifs_semaines',{ semaine_num:+document.getElementById('semNum').value, label:document.getElementById('semLabel').value.trim(), description:document.getElementById('semDesc').value.trim()||null, is_active:document.getElementById('semActive').checked },id||null,()=>loadAdmin());
+    if(ok) getModal('modalSem').hide();
+  });
+  document.getElementById('btnSaveCrit').addEventListener('click', async()=>{
+    const id=document.getElementById('critId').value;
+    const semEl=document.getElementById('critSem');
+    const semNum=semEl.options[semEl.selectedIndex]?.dataset.num||'0';
+    const objNum=document.getElementById('critObjNum').value;
+    const cNum=document.getElementById('critNum').value;
+    const ik=id?document.getElementById('critItemKey').value:`s${semNum}_obj${objNum}_c${cNum}`;
+    const ok=await admSave('objectifs_criteres',{ semaine_id:semEl.value, objectif_num:+objNum, objectif_label:document.getElementById('critObjLabel').value.trim(), critere_num:+cNum, critere_label:document.getElementById('critLabel').value.trim(), critere_detail:document.getElementById('critDetail').value.trim()||null, item_key:ik },id||null,()=>loadAdmin());
+    if(ok) getModal('modalCrit').hide();
+  });
+  document.getElementById('btnSaveItem').addEventListener('click', async()=>{
+    const id=document.getElementById('itemId').value;
+    const ok=await admSave('livret_objectifs_items',{ terme:document.getElementById('itemTerme').value, domaine_key:document.getElementById('itemDomaineKey').value.trim(), domaine_label:document.getElementById('itemDomaineLabel').value.trim(), domaine_icone:document.getElementById('itemDomaineIcone').value.trim()||'bi-check-circle', item_key:document.getElementById('itemKey').value.trim(), item_label:document.getElementById('itemLabel').value.trim(), item_detail:document.getElementById('itemDetail').value.trim()||null, position:+document.getElementById('itemPos').value, is_active:document.getElementById('itemActive').checked },id||null,()=>loadAdmin());
+    if(ok) getModal('modalItem').hide();
+  });
+
+  // Filtre critères admin
+  document.getElementById('admFiltSem').addEventListener('change', async()=>{
+    const [rSem,rCrit]=await Promise.all([window.bdb.from('objectifs_semaines').select('*').order('semaine_num'),window.bdb.from('objectifs_criteres').select('*').order('objectif_num').order('critere_num')]);
+    renderAdmCrit(rCrit.data||[], rSem.data||[], document.getElementById('admFiltSem').value);
+  });
+  document.getElementById('admFiltTerme').addEventListener('change', async()=>{
+    const {data}=await window.bdb.from('livret_objectifs_items').select('*').order('terme').order('domaine_key').order('position');
+    renderAdmItems(data||[]);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  S.isAdmin = window.bdbUser?.isAdmin ?? false;
+  if (S.isAdmin) document.getElementById('objectifsToolbarAdminSlot').classList.remove('d-none');
+
+  const ok = await loadAll();
+  if (ok) { buildUI(); bindEvents(); }
+});
+
+  // ─────────────────────────────────────────────────────────────────
+  // showToast() — notification standard BDB (template v2.0.0)
+  // ─────────────────────────────────────────────────────────────────
+  function showToast(msg) {
+    document.getElementById('toastInfoBody').textContent = msg;
+    new bootstrap.Toast(document.getElementById('toastInfo')).show();
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // showOfflineBanner() — si Supabase hors service
+  // ─────────────────────────────────────────────────────────────────
+  function showOfflineBanner() {
+    document.getElementById('offlineBanner').classList.add('show');
+  }
+
+  </script>
+</body>
+</html>

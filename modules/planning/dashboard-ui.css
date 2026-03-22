@@ -1,0 +1,122 @@
+/* ============================================================
+   PLANNING ENGINE — DASHBOARD CSS
+   Règle : 0 CSS inline dans le markup HTML
+   Tout ce qui est dynamique est injecté par JS via classList
+   ============================================================ */
+
+/* ── Inputs semaine dans le header banner ── */
+.dash-week-input  { width: 5.5rem; }
+.dash-year-input  { width: 6.5rem; }
+
+/* ── KPI cards ── */
+.kpi-card { transition: transform .12s ease, box-shadow .12s ease; }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.10) !important; }
+.kpi-value { font-size: 2.1rem; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.kpi-label { font-size: .72rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; }
+.kpi-sub   { font-size: .68rem; color: #9ca3af; margin-top: 2px; }
+
+/* ── États slots — badges et cellules ── */
+.slot-stable   { background-color: #dcfce7 !important; color: #166534 !important; }
+.slot-fragile  { background-color: #fef9c3 !important; color: #854d0e !important; }
+.slot-critique { background-color: #fee2e2 !important; color: #991b1b !important; }
+.slot-ferme    { background-color: #f3f4f6 !important; color: #9ca3af !important; }
+.slot-vide     { background-color: #f8fafc !important; color: #cbd5e1 !important; }
+
+/* Cellule matrice */
+.matrix-cell {
+  min-width: 64px; max-width: 96px;
+  text-align: center;
+  padding: 5px 3px;
+  border-radius: 5px;
+  font-size: .68rem;
+  cursor: default;
+  transition: filter .1s;
+}
+.matrix-cell:hover { filter: brightness(.93); }
+.matrix-cell .matrix-cell-chir { font-size: .62rem; font-weight: 600; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 88px; }
+.matrix-header-day { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #475569; }
+
+/* ── Barres CSS (pas de chart.js — file:// safe) ── */
+.cs-bar-track { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.cs-bar-track-lg { height: 12px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.cs-bar-fill { height: 100%; border-radius: 4px; transition: width .35s cubic-bezier(.4,0,.2,1); }
+
+/* ── Ligne dispatch IDE ── */
+.dispatch-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.dispatch-row:last-child { border-bottom: none; }
+.dispatch-label { font-size: .78rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dispatch-total { font-size: .78rem; font-weight: 700; text-align: right; }
+.dispatch-sub-label { font-size: .63rem; color: #94a3b8; width: 50px; flex-shrink: 0; }
+
+/* ── Doublure / paires ── */
+.assoc-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 36px;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+.assoc-row:last-child { border-bottom: none; }
+
+/* ── Swatch légende ── */
+.cs-swatch-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Dot couleur inline dans JS ── */
+.cs-color-stable   { background: #16a34a; }
+.cs-color-fragile  { background: #ca8a04; }
+.cs-color-critique { background: #dc2626; }
+.cs-color-ferme    { background: #9ca3af; }
+.cs-color-vide     { background: #e2e8f0; }
+.cs-color-instru   { background: #3b82f6; }
+.cs-color-panseur  { background: #8b5cf6; }
+.cs-color-couloir  { background: #0891b2; }
+.cs-color-ouvert   { background: #16a34a; }
+.cs-color-visceral { background: #dc2626; }
+.cs-color-doublure { background: #d97706; }
+.cs-color-assoc    { background: #7c3aed; }
+.cs-color-actif    { background: #16a34a; }
+.cs-color-ferme-b  { background: #9ca3af; }
+
+/* ── Seuils haute densité pour le tableau detail ── */
+.td-high   { color: #166534; font-weight: 700; }
+.td-medium { color: #854d0e; }
+.td-low    { color: #6b7280; }
+
+/* ── État vide / chargement ── */
+.empty-icon { font-size: 3rem; color: #cbd5e1; }
+
+/* ── Situation badges ── */
+.sit-ferme    { background-color: #f3f4f6; color: #6b7280; }
+.sit-urgence  { background-color: #dbeafe; color: #1e40af; }
+.sit-doublure { background-color: #fef9c3; color: #854d0e; }
+.sit-visceral { background-color: #fee2e2; color: #991b1b; }
+
+/* ── Tab semaine selector ── */
+.cs-creneau-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Tendances tableau ── */
+.trend-cell-high { color: #16a34a; font-weight: 700; }
+.trend-cell-zero { color: #94a3b8; }
+
+/* ── Spinner chargement ── */
+.cs-loading { display: none; }
+.cs-loading.is-active { display: flex; }
+
+/* ── Print ── */
+@media print {
+  .no-print, .offcanvas, header, footer { display: none !important; }
+  .container-fluid { padding: 0 !important; }
+}

@@ -1,0 +1,319 @@
+<!--
+  ============================================================
+  FILE     : admin-overview.html
+  VERSION  : 2.0.0
+  DATE     : 2026-03-15
+  RÔLE     : Dashboard documentaire BDB — vue d'ensemble admin.
+             État modules, architecture, roadmap, anomalies,
+             documents de gouvernance.
+  CHANTIER : CHANTIER_ADMIN_V1_0_0 — VAGUE 1 — V1-B
+  DELTA    : Migration bdb-shell.js v1.3.1.
+             Extraction CSS → overview-ui.css.
+             #bdb-shell premier enfant de <main> (INTERDIT-E1).
+             Chemins ./js/ ./css/ (racine).
+             Guard admin via bdbShellReady.
+             Versions documents mises à jour (NOYAU V2.2.0, etc.).
+             ANO-01/04 marqués RÉSOLU. ANO-15/T10 ajoutés.
+  ============================================================
+-->
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BDB — Vue d'ensemble | Bible de Bloc</title>
+
+  <!-- Chaîne CSS — ordre immuable (CHANTIER_TECHNIQUE BLOC E) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <link href="./css/cds-overrides.css" rel="stylesheet"/>
+  <link href="./css/overview-ui.css" rel="stylesheet"/>
+</head>
+
+<body class="d-flex min-vh-100">
+
+  <!-- MAIN — #bdb-shell DOIT être le premier enfant (INTERDIT-E1) -->
+  <main class="d-flex flex-column flex-grow-1 main-content">
+
+    <!-- SHELL BDB — offcanvas + header injectés par bdb-shell.js -->
+    <div id="bdb-shell"
+         data-module-title="Vue d'ensemble BDB"
+         data-module-icon="bi-hospital">
+    </div>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <div class="container-fluid p-4 bg-light flex-grow-1">
+
+      <!-- DOC HEADER PRIMARY -->
+      <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4" id="intro">
+        <h1 class="mb-2">
+          <i class="bi bi-hospital me-2"></i>Bible de Bloc
+        </h1>
+        <p class="mb-3 opacity-75">
+          Plateforme métier modulaire pour le bloc opératoire Ortho-Neurochirurgie.
+          Planification · Référentiel chirurgical · Formation · Outils organisationnels.
+        </p>
+        <div class="row g-3">
+          <div class="col-auto">
+            <div class="bdb-stat-num text-white">21</div>
+            <div class="bdb-stat-lbl text-white-50">modules</div>
+          </div>
+          <div class="col-auto border-start border-white border-opacity-25 ps-3">
+            <div class="bdb-stat-num text-white">11</div>
+            <div class="bdb-stat-lbl text-white-50">sur Supabase</div>
+          </div>
+          <div class="col-auto border-start border-white border-opacity-25 ps-3">
+            <div class="bdb-stat-num text-white">24</div>
+            <div class="bdb-stat-lbl text-white-50">tables SQL</div>
+          </div>
+          <div class="col-auto border-start border-white border-opacity-25 ps-3">
+            <div class="bdb-stat-num text-white">5</div>
+            <div class="bdb-stat-lbl text-white-50">phases roadmap</div>
+          </div>
+          <div class="col-auto border-start border-white border-opacity-25 ps-3">
+            <div class="bdb-stat-num text-white" id="headerAuditDate">2026-03-15</div>
+            <div class="bdb-stat-lbl text-white-50">dernier audit</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRINCIPE FONDATEUR -->
+      <div class="bdb-principe p-3 rounded mb-4">
+        <p class="mb-0">
+          <i class="bi bi-shield-heart me-2 text-warning"></i>
+          <strong>Principe fondateur —</strong>
+          Toute décision technique, architecturale ou documentaire est précédée d'une question obligatoire :
+          <em>« En quoi cela bénéficie-t-il au patient ? »</em>
+          Ce principe prime sur toute considération de performance, élégance ou dette technique.
+        </p>
+      </div>
+
+      <!-- ===== MODULES ===== -->
+      <div class="bdb-sep my-4"></div>
+      <h2 class="mb-1 d-flex align-items-center gap-2" id="modules">
+        <i class="bi bi-grid-3x3-gap text-primary"></i>21 modules
+      </h2>
+      <p class="text-muted mb-3">Chaque module est autonome : un dossier, une responsabilité, un CSS, une page HTML.</p>
+
+      <div class="d-flex gap-3 flex-wrap mb-3 p-3 bg-white rounded border small">
+        <span class="d-flex align-items-center gap-1"><span class="badge bg-success">&nbsp;</span> Supabase — opérationnel</span>
+        <span class="d-flex align-items-center gap-1"><span class="badge bg-warning text-dark">&nbsp;</span> localStorage — migration en attente</span>
+        <span class="d-flex align-items-center gap-1"><span class="badge badge-purple text-white">&nbsp;</span> À créer / embryonnaire</span>
+        <span class="d-flex align-items-center gap-1"><span class="badge bg-primary">&nbsp;</span> Statique / brique suivante</span>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-person-lines-fill me-2 text-success"></i><strong class="small">annuaire</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-shield-lock me-2 text-success"></i><strong class="small">admin</strong></span><span class="badge bg-success">premium 5/5</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-boxes me-2 text-success"></i><strong class="small">arsenal</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-file-medical me-2 text-success"></i><strong class="small">fiches</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-person-heart me-2 text-success"></i><strong class="small">preferences</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-chat-left-text me-2 text-success"></i><strong class="small">transmissions</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-activity me-2 text-success"></i><strong class="small">anatomie</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-mortarboard me-2 text-success"></i><strong class="small">cours</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-hospital me-2 text-success"></i><strong class="small">installation</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-ok"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-person-circle me-2 text-success"></i><strong class="small">profile</strong></span><span class="badge bg-success">recetté</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-migrate"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-calendar2-week me-2 text-warning"></i><strong class="small">planning</strong></span><span class="badge bg-warning text-dark">Phase 2</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-migrate"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-people me-2 text-warning"></i><strong class="small">disc</strong></span><span class="badge bg-warning text-dark">Phase 1</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-migrate"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-search me-2 text-warning"></i><strong class="small">dork</strong></span><span class="badge bg-warning text-dark">Phase 1</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-migrate"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-kanban me-2 text-warning"></i><strong class="small">collab</strong></span><span class="badge bg-warning text-dark">Phase 1</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-migrate"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-clipboard-pulse me-2 text-warning"></i><strong class="small">paxis</strong></span><span class="badge bg-warning text-dark">Phase 1</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-migrate"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-list-task me-2 text-warning"></i><strong class="small">organisateur</strong></span><span class="badge bg-warning text-dark">Phase 1</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-migrate"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-book me-2 text-warning"></i><strong class="small">thesaurus</strong></span><span class="badge bg-warning text-dark">Phase 1</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-static"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-house me-2 text-primary"></i><strong class="small">accueil</strong></span><span class="badge bg-primary">statique</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-static"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-folder2 me-2 text-primary"></i><strong class="small">ged</strong></span><span class="badge bg-primary">embryon</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-create"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-journal-check me-2 text-purple"></i><strong class="small">carnet_bord</strong></span><span class="badge badge-purple text-white">embryon</span></div></div></div>
+        <div class="col-sm-6 col-lg-4"><div class="card bdb-module-card status-create"><div class="card-body py-2 px-3 d-flex justify-content-between align-items-center"><span><i class="bi bi-bullseye me-2 text-purple"></i><strong class="small">objectifs</strong></span><span class="badge badge-purple text-white">embryon</span></div></div></div>
+      </div>
+
+      <!-- ===== ARCHITECTURE ===== -->
+      <div class="bdb-sep my-4"></div>
+      <h2 class="mb-1 d-flex align-items-center gap-2" id="architecture">
+        <i class="bi bi-layers text-primary"></i>Architecture
+      </h2>
+      <p class="text-muted mb-3">6 couches — du gouvernance au déploiement.</p>
+
+      <div class="row g-2 mb-4">
+        <div class="col-md-6"><div class="card bdb-layer layer-gov p-3"><div class="fw-bold small">Gouvernance</div><div class="bdb-layer-sub text-muted">NOYAU_VERITE · JOURNAL_DECISIONS · CTX modules · CHANTIER_TECHNIQUE · Templates</div></div></div>
+        <div class="col-md-6"><div class="card bdb-layer layer-socle p-3"><div class="fw-bold small">Socle</div><div class="bdb-layer-sub text-muted">supabase-client.js · bdb-shell.js · bdb-preview.js · cds-overrides.css · login.html</div></div></div>
+        <div class="col-md-6"><div class="card bdb-layer layer-data p-3"><div class="fw-bold small">Données</div><div class="bdb-layer-sub text-muted">Supabase cloud (permanent) · Local (disaster recovery) · 24 tables · RLS par module</div></div></div>
+        <div class="col-md-6"><div class="card bdb-layer layer-mod p-3"><div class="fw-bold small">Modules</div><div class="bdb-layer-sub text-muted">21 modules · modules/[nom]/index.html · css/[nom]-ui.css · window.bdbUser</div></div></div>
+        <div class="col-md-6"><div class="card bdb-layer layer-dep p-3"><div class="fw-bold small">Déploiement</div><div class="bdb-layer-sub text-muted">Phase 4 — OVH · CDN @v2.0.0 tag fixe · supabase db push cloud</div></div></div>
+        <div class="col-md-6"><div class="card bdb-layer layer-svc p-3"><div class="fw-bold small">Stack technique</div><div class="bdb-layer-sub text-muted">HTML/JS vanilla · Bootstrap 5.3.2 · Bootstrap Icons 1.11.1 · Supabase JS @2</div></div></div>
+      </div>
+
+      <!-- ===== ROADMAP ===== -->
+      <div class="bdb-sep my-4"></div>
+      <h2 class="mb-1 d-flex align-items-center gap-2" id="roadmap">
+        <i class="bi bi-signpost-split text-primary"></i>Roadmap
+      </h2>
+      <p class="text-muted mb-3">Source : PLAN_ACTIONS_V2 · CHANTIER_ADMIN_V1_0_0 · CHANTIER_TECHNIQUE_V1_0_1</p>
+
+      <div class="d-flex flex-column gap-3 mb-4">
+        <div class="bdb-phase phase-inprogress">
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <span class="badge bg-warning text-dark">EN COURS</span>
+            <strong class="small">Phase 0 — Nettoyage + fondation</strong>
+            <span class="text-muted small">0.1/0.2 ✓ · 0.3 reporté · 0.4 non commencé</span>
+          </div>
+          <div class="d-flex flex-wrap gap-1 small">
+            <span class="badge bg-success">✓ bdb-shell.js créé v1.3.1</span>
+            <span class="badge bg-success">✓ TEMPLATE_MODULE_BDB v2.0.0</span>
+            <span class="badge bg-success">✓ admin premium 5/5</span>
+            <span class="badge bg-warning text-dark">arbitrages disc/dork PENDING</span>
+          </div>
+        </div>
+        <div class="bdb-phase phase-pending">
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <span class="badge bg-primary">PENDING</span>
+            <strong class="small">Phase 1 — Modules localStorage</strong>
+            <span class="text-muted small">2-3 sessions · après arbitrages A2/A3/A4</span>
+          </div>
+          <div class="d-flex flex-wrap gap-1 small">
+            <span class="badge bg-secondary">thesaurus</span>
+            <span class="badge bg-secondary">carnet_bord</span>
+            <span class="badge bg-secondary">objectifs</span>
+            <span class="badge bg-secondary">collab</span>
+            <span class="badge bg-secondary">disc/dork</span>
+            <span class="badge bg-secondary">organisateur/paxis</span>
+          </div>
+        </div>
+        <div class="bdb-phase phase-critical">
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <span class="badge bg-danger">CRITIQUE</span>
+            <strong class="small">Phase 2 — Migration planning → Supabase</strong>
+            <span class="text-muted small">3-5 sessions · bloquée par arbitrage A1</span>
+          </div>
+          <div class="d-flex flex-wrap gap-1 small">
+            <span class="badge bg-secondary">schéma SQL planning (A1 PENDING)</span>
+            <span class="badge bg-secondary">31 membres hardcodés → profiles_directory</span>
+            <span class="badge bg-secondary">localStorage → Supabase</span>
+          </div>
+        </div>
+        <div class="bdb-phase phase-pending">
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <span class="badge bg-primary">PENDING</span>
+            <strong class="small">Phase 3 — Refactoring JS + CDS final</strong>
+            <span class="text-muted small">4-6 sessions · parallélisable Phase 2</span>
+          </div>
+          <div class="d-flex flex-wrap gap-1 small">
+            <span class="badge bg-secondary">bdb-shell → 9 modules restants</span>
+            <span class="badge bg-secondary">style= inline (6 modules)</span>
+            <span class="badge bg-secondary">INTERDIT-17 (annuaire, fiches, thesaurus)</span>
+          </div>
+        </div>
+        <div class="bdb-phase phase-pending">
+          <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+            <span class="badge bg-primary">PENDING</span>
+            <strong class="small">Phase 4 — Déploiement OVH</strong>
+            <span class="text-muted small">1 session · après Phases 1+2+3</span>
+          </div>
+          <div class="d-flex flex-wrap gap-1 small">
+            <span class="badge bg-secondary">supabase db push → cloud</span>
+            <span class="badge bg-secondary">CDN @latest → @v2.0.0 tag fixe</span>
+            <span class="badge bg-secondary">FTP OVH · Smoke tests</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ANOMALIES ===== -->
+      <div class="bdb-sep my-4"></div>
+      <h2 class="mb-1 d-flex align-items-center gap-2" id="anomalies">
+        <i class="bi bi-exclamation-triangle text-primary"></i>Anomalies documentaires
+      </h2>
+      <div class="d-flex gap-3 flex-wrap mb-3 small">
+        <span class="text-danger fw-bold">CRITIQUE</span>
+        <span class="text-warning fw-bold">MAJEUR</span>
+        <span class="text-primary fw-bold">MINEUR</span>
+        <span class="text-success fw-bold">RÉSOLU</span>
+      </div>
+
+      <div class="row g-2 mb-4">
+        <!-- CRITIQUE — ANO-01 résolu -->
+        <div class="col-md-6"><div class="card bdb-ano-card ano-fixed h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-success flex-shrink-0 mt-1">ANO-01</span><div><div class="fw-bold small text-muted">NOYAU_VERITE en deux morceaux non fusionnés</div><div class="small text-muted">v1.18.0 + PATCH v1.19.0 coexistaient. Risque de lecture incomplète.</div><div class="mt-1"><span class="badge bg-success">✓ Résolu → NOYAU_V2_2_0.md (2026-03-15)</span></div></div></div></div></div></div>
+        <!-- CRITIQUE -->
+        <div class="col-md-6"><div class="card bdb-ano-card ano-crit h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-danger flex-shrink-0 mt-1">ANO-02</span><div><div class="fw-bold small">PLAN_ACTIONS_MIGRATION v1.0.0 — obsolète non archivé</div><div class="small text-muted">Contient le terme banni "APP_CDT" (×12). Coexiste avec PLAN_ACTIONS_V2.</div><div class="mt-1"><span class="badge bg-warning text-dark">→ Archiver dans _archive/</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-crit h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-danger flex-shrink-0 mt-1">ANO-03</span><div><div class="fw-bold small">Module profile sans CTX dédié</div><div class="small text-muted">Module opérationnel (#11). Aucun CTX_PROFILE.md dans la gouvernance.</div><div class="mt-1"><span class="badge bg-warning text-dark">→ Créer CTX_PROFILE.md</span></div></div></div></div></div></div>
+        <!-- ANO-04 résolu -->
+        <div class="col-md-6"><div class="card bdb-ano-card ano-fixed h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-success flex-shrink-0 mt-1">ANO-04</span><div><div class="fw-bold small text-muted">HOW_TO_SESSION_BDB.md v1.0.0 — obsolète</div><div class="small text-muted">Date 2026-02-26. Arborescence et statuts incorrects.</div><div class="mt-1"><span class="badge bg-success">✓ Résolu → HOW_TO_V1_1_0.md (2026-03-15)</span></div></div></div></div></div></div>
+        <!-- MAJEUR -->
+        <div class="col-md-6"><div class="card bdb-ano-card ano-major h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-warning text-dark flex-shrink-0 mt-1">ANO-05</span><div><div class="fw-bold small">CTX_SYSTEM_ARCHITECTURE §4.4 — services JS fictifs</div><div class="small text-muted">auth-service.js etc. décrits sans marquage "à créer". Ces fichiers n'existent pas.</div><div class="mt-1"><span class="badge bg-secondary">→ Ajouter mention "cible future — non créés"</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-major h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-warning text-dark flex-shrink-0 mt-1">ANO-06</span><div><div class="fw-bold small">Ordre migration contradictoire CTX_PLANNING vs PLAN_ACTIONS_V2</div><div class="small text-muted">Séquences incompatibles entre les deux documents.</div><div class="mt-1"><span class="badge bg-secondary">→ PLAN_ACTIONS_V2 fait autorité (plus récent)</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-major h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-warning text-dark flex-shrink-0 mt-1">ANO-07</span><div><div class="fw-bold small">Bugs B2/B3 : statut contradictoire entre documents</div><div class="small text-muted">MODULE_DEPENDENCY_MAP : actifs. SESSION_CLOTURE_2026-03-13 : ✅ OPÉRATIONNEL.</div><div class="mt-1"><span class="badge bg-secondary">→ Vérifier console Chrome (INTERDIT-18)</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-major h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-warning text-dark flex-shrink-0 mt-1">ANO-08</span><div><div class="fw-bold small">Appends JOURNAL référencaient une mauvaise version</div><div class="small text-muted">Appends 2026-03-13/14 ciblaient V1_3_0.md. Fusionnés dans JOURNAL_V1_6_0.</div><div class="mt-1"><span class="badge bg-success">✓ Résolu → JOURNAL_V1_6_0.md (2026-03-15)</span></div></div></div></div></div></div>
+        <!-- MINEUR -->
+        <div class="col-md-6"><div class="card bdb-ano-card ano-minor h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-primary flex-shrink-0 mt-1">ANO-09</span><div><div class="fw-bold small">Arbitrage matrice/ — PENDING</div><div class="small text-muted">Module distinct ou extension de collab/ ? Génère du bruit documentaire.</div><div class="mt-1"><span class="badge bg-secondary">→ Trancher ou clore formellement</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-minor h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-primary flex-shrink-0 mt-1">ANO-10</span><div><div class="fw-bold small">Clé localStorage organisateur non documentée</div><div class="small text-muted">Bloquera la migration Phase 1 si non identifiée avant.</div><div class="mt-1"><span class="badge bg-secondary">→ Lire le code avant session migration</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-minor h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-primary flex-shrink-0 mt-1">ANO-11</span><div><div class="fw-bold small">Tag fixe CDN BDB jamais défini</div><div class="small text-muted">@latest interdit en production. Aucun tag de release défini.</div><div class="mt-1"><span class="badge bg-secondary">→ Définir au moment du déploiement Phase 4</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-minor h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-primary flex-shrink-0 mt-1">ANO-12</span><div><div class="fw-bold small">INTERDIT-16 sans définition formelle du critère UI/UX</div><div class="small text-muted">Règle bloquante depuis v1.14.0 mais critère reste subjectif.</div><div class="mt-1"><span class="badge bg-secondary">→ Session dédiée critères UI/UX</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-minor h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-primary flex-shrink-0 mt-1">ANO-13</span><div><div class="fw-bold small">bdb-preview.js absent du NOYAU BLOC 6</div><div class="small text-muted">Listé dans MODULE_DEPENDENCY_MAP. Chemin SHARED/ non formalisé.</div><div class="mt-1"><span class="badge bg-secondary">→ Ajouter dans NOYAU BLOC 6 prochaine version</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-minor h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-primary flex-shrink-0 mt-1">ANO-14</span><div><div class="fw-bold small">Deux fichiers SUPABASE_DATA_MODEL coexistent</div><div class="small text-muted">SUPABASE_DATA_MODEL.md et V12 dans la même gouvernance.</div><div class="mt-1"><span class="badge bg-secondary">→ Archiver l'ancienne version</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-minor h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-primary flex-shrink-0 mt-1">ANO-15</span><div><div class="fw-bold small">Bug flex #bdb-shell hors de main</div><div class="small text-muted">TEMPLATE + admin-memo + admin-index avaient #bdb-shell comme frère de main. Header invisible.</div><div class="mt-1"><span class="badge bg-success">✓ Résolu → INTERDIT-E1 · D-2026-03-15-T10 (2026-03-15)</span></div></div></div></div></div></div>
+        <!-- RÉSOLU historiques -->
+        <div class="col-md-6"><div class="card bdb-ano-card ano-fixed h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-success flex-shrink-0 mt-1">RES-01</span><div><div class="fw-bold small text-muted">CTX_DORK v1.0.0 — hallucination complète</div><div class="small text-muted">Module inventé. Réécrit v2.0.0 depuis code source réel.</div><div class="mt-1"><span class="badge bg-success">✓ Résolu 2026-03-14</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-fixed h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-success flex-shrink-0 mt-1">RES-02</span><div><div class="fw-bold small text-muted">7 CTX avec clauses "INTERDIT Supabase"</div><div class="small text-muted">CTX_DISC, CTX_COLLAB, CTX_PAXIS, CTX_ORGANISATEUR, CTX_THESAURUS, CTX_PLANNING, CTX_DORK patchés.</div><div class="mt-1"><span class="badge bg-success">✓ Résolu 2026-03-14</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-fixed h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-success flex-shrink-0 mt-1">RES-03</span><div><div class="fw-bold small text-muted">Bug E9 admin — approved lu depuis user_roles</div><div class="small text-muted">Corrigé : profiles_directory.approved. menuAvatar neutralisé.</div><div class="mt-1"><span class="badge bg-success">✓ Résolu 2026-03-12</span></div></div></div></div></div></div>
+        <div class="col-md-6"><div class="card bdb-ano-card ano-fixed h-100"><div class="card-body"><div class="d-flex gap-2"><span class="badge bg-success flex-shrink-0 mt-1">RES-04</span><div><div class="fw-bold small text-muted">3 dépendances hallucinées dans MODULE_DEPENDENCY_MAP</div><div class="small text-muted">planning→dork, fiches→dork supprimées v1.1.0.</div><div class="mt-1"><span class="badge bg-success">✓ Résolu 2026-03-14</span></div></div></div></div></div></div>
+      </div>
+
+      <!-- ===== DOCUMENTS ===== -->
+      <div class="bdb-sep my-4"></div>
+      <h2 class="mb-1 d-flex align-items-center gap-2" id="documents">
+        <i class="bi bi-files text-primary"></i>Documents de référence
+      </h2>
+      <p class="text-muted mb-3">Hiérarchie : NOYAU_VERITE &gt; JOURNAL_DECISIONS &gt; CTX module en cours. La conversation n'est jamais une source de vérité.</p>
+
+      <div class="row g-2">
+        <div class="col-md-6 col-lg-4"><div class="card bdb-doc-card doc-primary h-100"><div class="card-body"><div class="bdb-doc-title fw-bold small text-warning"><i class="bi bi-star-fill me-1"></i>NOYAU_VERITE_V2_2_0.md</div><div class="small text-muted mt-1">Source de vérité absolue. 11 blocs. BLOC 0 profil DC. BLOC 6 templates officiels. BLOC 11 validation terrain.</div><div class="mt-2"><span class="badge bg-warning text-dark">v2.2.0 · 2026-03-15 · ACTIF</span></div></div></div></div>
+        <div class="col-md-6 col-lg-4"><div class="card bdb-doc-card doc-primary h-100"><div class="card-body"><div class="bdb-doc-title fw-bold small text-warning"><i class="bi bi-star-fill me-1"></i>JOURNAL_DECISIONS_V1_6_0.md</div><div class="small text-muted mt-1">Append-only. V1.5.0 + T01→T10. Toutes décisions 2026-03-15 intégrées.</div><div class="mt-2"><span class="badge bg-warning text-dark">v1.6.0 · 2026-03-15 · ACTIF</span></div></div></div></div>
+        <div class="col-md-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="fw-bold small">CHANTIER_TECHNIQUE_V1_0_1.md</div><div class="small text-muted mt-1">Architecture technique. INTERDIT-E1 ajouté. Chaîne HTML BLOC E corrigée.</div><div class="mt-2"><span class="badge bg-secondary">v1.0.1 · 2026-03-15</span></div></div></div></div>
+        <div class="col-md-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="fw-bold small">HOW_TO_SESSION_BDB_V1_1_0.md</div><div class="small text-muted mt-1">Protocole session. §1.3-bis templates officiels. Table fichiers à créer mise à jour.</div><div class="mt-2"><span class="badge bg-secondary">v1.1.0 · 2026-03-15</span></div></div></div></div>
+        <div class="col-md-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="fw-bold small">SUPABASE_DATA_MODEL_V12.md</div><div class="small text-muted mt-1">Modèle de données global BDB. 24 tables. Relations. Canon.</div><div class="mt-2"><span class="badge bg-secondary">v1.2.0 · 2026-03-12</span></div></div></div></div>
+        <div class="col-md-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="fw-bold small">PERSONAS_BDB_V1_3_0.md</div><div class="small text-muted mt-1">9 personas + règle de voix. P0 et P8 ajoutés. Obligatoire sessions mini-site.</div><div class="mt-2"><span class="badge bg-secondary">v1.3.0 · 2026-03-15</span></div></div></div></div>
+        <div class="col-md-6 col-lg-4"><div class="card bdb-doc-card doc-primary h-100"><div class="card-body"><div class="bdb-doc-title fw-bold small text-warning"><i class="bi bi-file-earmark-code me-1"></i>TEMPLATE_MODULE_BDB.html/sql/md</div><div class="small text-muted mt-1">Templates officiels nouveau module. 4 variables HTML, 1 SQL, 8 blocs CTX.</div><div class="mt-2"><span class="badge bg-warning text-dark">v2.0.0 · 2026-03-15 · ACTIF</span></div></div></div></div>
+        <div class="col-md-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="fw-bold small">CHANTIER_ADMIN_V1_0_0.md</div><div class="small text-muted mt-1">Plan chantier upgrade admin. 5 vagues. Auto-portant — survit à l'amnésie IA.</div><div class="mt-2"><span class="badge bg-secondary">v1.0.0 · 2026-03-15</span></div></div></div></div>
+        <!-- OBSOLÈTES -->
+        <div class="col-md-6 col-lg-4"><div class="card bdb-doc-card doc-obsolete h-100"><div class="card-body"><div class="bdb-doc-title fw-bold small">PLAN_ACTIONS_MIGRATION.md</div><div class="small text-muted mt-1">Remplacé par PLAN_ACTIONS_V2. Terme banni APP_CDT ×12.</div><div class="mt-2"><span class="badge bg-danger">OBSOLÈTE — archiver</span></div></div></div></div>
+        <div class="col-md-6 col-lg-4"><div class="card bdb-doc-card doc-obsolete h-100"><div class="card-body"><div class="bdb-doc-title fw-bold small">TEMPLATE_CDS_REFERENCE v2.0.0/v2.1.0</div><div class="small text-muted mt-1">Remplacé par TEMPLATE_MODULE_BDB v2.0.0. Auth inline incompatible bdb-shell.</div><div class="mt-2"><span class="badge bg-danger">OBSOLÈTE — _archive/</span></div></div></div></div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>
+        &copy; 2026 Bible de Bloc — Vue d'ensemble v2.0.0 —
+        <span class="badge bg-light text-dark border">CDS Compliant</span>
+        — Audit 2026-03-15 · Manu + Claude
+      </small>
+    </footer>
+
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="./js/supabase-client.js"></script>
+  <script src="./js/bdb-shell.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+
+    await window.bdbShellReady;
+
+    // Guard admin
+    if (!window.bdbUser?.isAdmin) {
+      location.href = './index.html';
+      return;
+    }
+
+    // Tooltips Bootstrap
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+      new bootstrap.Tooltip(el);
+    });
+  });
+  </script>
+</body>
+</html>

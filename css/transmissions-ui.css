@@ -1,0 +1,110 @@
+/* ============================================================
+   transmissions-ui.css — Module Transmissions BDB
+   Règle CDS : CSS spécifique à ce module uniquement.
+   Zéro règle globale non scopée.
+   ============================================================ */
+
+/* Card hover */
+.trans-card {
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+.trans-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
+  transform: translateY(-1px);
+}
+
+/* Upload area */
+.trans-upload-area {
+  transition: background 0.15s, border-color 0.15s;
+  border-color: #dee2e6 !important;
+}
+.trans-upload-area:hover,
+.trans-upload-area.trans-upload-active {
+  background: #f0f4ff !important;
+  border-color: #0d6efd !important;
+}
+
+/* Image preview — miniature formulaire */
+.trans-img-preview {
+  display: block;
+  width: 80px;
+  height: 60px;
+  min-width: 80px;
+  max-width: 80px;
+  max-height: 60px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.trans-img-remove {
+  font-size: 0.65rem;
+  line-height: 20px;
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Avatar initiales (remplace style= inline C1 — v2.0.0) */
+.trans-avatar-circle {
+  width: 40px;
+  height: 40px;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* Avatar image (photo profil) */
+.trans-avatar-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Detail image */
+.trans-detail-img {
+  transition: opacity 0.15s;
+}
+.trans-detail-img:hover {
+  opacity: 0.85;
+}
+
+/* Prose content (rendu HTML Quill) */
+.trans-prose {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: #212529;
+}
+.trans-prose p { margin-bottom: 0.5rem; }
+.trans-prose ul, .trans-prose ol { padding-left: 1.25rem; margin-bottom: 0.5rem; }
+.trans-prose strong { font-weight: 600; }
+.trans-prose em { font-style: italic; }
+
+/* Quill toolbar fix dans la modal */
+.ql-toolbar.ql-snow {
+  border-radius: 0.375rem 0.375rem 0 0;
+  background: #f8f9fa;
+}
+.ql-container.ql-snow {
+  border-radius: 0 0 0.375rem 0.375rem;
+  font-size: 0.9375rem;
+}
+
+/* Stat icon */
+.stat-icon {
+  flex-shrink: 0;
+}
+
+/* Dropdown dans les cartes : empêcher le clic de propager */
+.trans-card .dropdown {
+  z-index: 10;
+}
+
+/* Modal lightbox fond sombre */
+#modalLightbox .modal-dialog {
+  max-width: 90vw;
+}
+#modalLightbox .modal-content {
+  box-shadow: none;
+}

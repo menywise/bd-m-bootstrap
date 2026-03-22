@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"C:\\\\DEV\\\\BIBLE_DE_BLOC\\\\00_GOUVERNANCE\\\\01_JOURNAL_DECISIONS_V1_17_0.md\":*)",
+      "Bash(\"C:/DEV/BIBLE_DE_BLOC/00_GOUVERNANCE/15_BACKLOG_SESSIONS_V2_4_0.md\":*)",
+      "Bash(\"C:/DEV/BIBLE_DE_BLOC/00_GOUVERNANCE/01_JOURNAL_DECISIONS_V1_17_0.md\":*)",
+      "Bash(grep -rn \"''member''\" C:/DEV/BIBLE_DE_BLOC/modules/ --include=\"*.html\" --include=\"*.js\")",
+      "Bash(echo \"=== modules : \"\"member\"\" ===\")",
+      "Bash(grep -rn '\"\"member\"\"' C:/DEV/BIBLE_DE_BLOC/modules/ --include=\"*.html\" --include=\"*.js\")",
+      "Bash(grep -rn \"''membre''\" C:/DEV/BIBLE_DE_BLOC/modules/ --include=\"*.html\" --include=\"*.js\")"
+    ]
+  }
+}

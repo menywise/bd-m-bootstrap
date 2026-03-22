@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tests Anti-Régression | Planning Engine</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet">
+
+  <!-- Dépendances minimales pour charger les modules testés -->
+  <script src="core/planning-core.js"></script>
+  <script src="core/planning-defaults.js"></script>
+  <script src="core/planning-schema.js"></script>
+  <script src="services/members-service.js"></script>
+  <script src="services/cds-storage.js"></script>
+  <script src="services/storage-key-service.js"></script>
+  <script src="services/planning-engine.js"></script>
+  <script src="ui/planning-members.js"></script>
+  <!-- planning-controller.js et planning-matrix.js nécessitent un DOM complet
+       → on les teste par analyse de source (fetch) -->
+</head>
+<body class="d-flex min-vh-100">
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+  <header class="sticky-top bg-white shadow-sm px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <h5 class="mb-0"><i class="bi bi-shield-check text-success me-2"></i>Tests Anti-Régression</h5>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-secondary-subtle text-secondary" id="badgeTotal">—</span>
+      <span class="badge bg-success-subtle text-success"  id="badgePass">—</span>
+      <span class="badge bg-danger-subtle text-danger"    id="badgeFail">—</span>
+      <span class="badge bg-secondary-subtle text-secondary d-none" id="badgeSkip">—</span>
+    </div>
+  </header>
+
+  <div class="container-fluid p-4 bg-light flex-grow-1">
+
+    <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
+      <h1 class="mb-2"><i class="bi bi-bug-fill me-2"></i>Planning Engine — Anti-Régression</h1>
+      <p class="mb-0 opacity-75">Contrôle automatique des invariants critiques · Planning Engine BDB</p>
+    </div>
+
+    <!-- PANNEAU FILE:// — visible uniquement si accès direct sans serveur -->
+    <div id="panelFileProtocol" class="alert alert-warning d-none mb-4">
+      <h5 class="alert-heading"><i class="bi bi-exclamation-triangle me-2"></i>Serveur local requis</h5>
+      <p class="mb-2">
+        Ce fichier est ouvert directement (<code>file://</code>). Les tests qui lisent les fichiers source
+        (CSS, JS) ne peuvent pas fonctionner sans serveur local — c'est une restriction de sécurité du navigateur.
+      </p>
+      <p class="mb-2"><strong>Solution — ouvrir un terminal dans le dossier FRONT, puis taper :</strong></p>
+      <p class="mb-1 fw-semibold">Étape 1 — Ouvrir CMD dans le dossier FRONT</p>
+      <p class="mb-2 small">Explorateur de fichiers → dossier FRONT → cliquer sur la barre d'adresse → taper <code>cmd</code> → Entrée</p>
+      <p class="mb-1 fw-semibold">Étape 2 — Lancer le serveur (copier-coller dans CMD, PAS dans la fenêtre Python)</p>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control font-monospace" id="serverCmd" readonly value="python -m http.server 5500">
+        <button class="btn btn-warning" id="btnCopyCmd"><i class="bi bi-clipboard me-1"></i>Copier</button>
+      </div>
+      <p class="mb-2">Étape 3 — Ouvrir Chrome à cette adresse : <a href="http://localhost:5500/test-antireg.html" class="alert-link" target="_blank">http://localhost:5500/test-antireg.html</a></p>
+      <p class="mb-0 small text-warning-emphasis"><i class="bi bi-exclamation-circle me-1"></i>Ne pas taper la commande dans la fenêtre Python (<code>&gt;&gt;&gt;</code>) — CMD ou PowerShell uniquement.</p>
+    </div>
+
+    <!-- DOC — Ce que ce fichier teste -->
+    <div class="card shadow-sm mb-4 border-info">
+      <div class="card-header bg-info-subtle text-info">
+        <strong><i class="bi bi-info-circle me-2"></i>Ce que ce fichier teste</strong>
+      </div>
+      <div class="card-body small">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <p class="fw-semibold mb-1">Tests fonctionnels (chargement JS direct)</p>
+            <ul class="mb-0">
+              <li><code>planning-schema.js</code> — normalizeSalle, SALLES, CRENEAUX, JOURS</li>
+              <li><code>planning-engine.js</code> — API exposée, checkWeekIntegrity</li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <p class="fw-semibold mb-1">Tests de source (lecture fichiers — nécessite serveur)</p>
+            <ul class="mb-0">
+              <li><code>planning-ui.css</code> — couleurs métier, scoping CSS</li>
+              <li><code>cds-overrides.css</code> — fichier présent</li>
+              <li><code>planning.html</code> — chaîne CSS, modal scrollable, ferme_degrade</li>
+              <li><code>planning-schema.js</code> — ferme_degrade, ETUDIANT dans ROLES</li>
+              <li><code>planning-slot-editor.js</code> — ferme_degrade lu/écrit/togglé</li>
+              <li><code>planning-analytics.js</code> — DEGRADE vs NATUREL séparés</li>
+              <li><code>planning-controller.js</code> — atomDiv, flags</li>
+              <li><code>planning-matrix.js</code> — atomDiv, cellButton</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RÉSUMÉ -->
+    <div class="card shadow-sm mb-4" id="cardSummary">
+      <div class="card-header bg-transparent">
+        <strong><i class="bi bi-clipboard-data me-2"></i>Résumé d'exécution</strong>
+      </div>
+      <div class="card-body" id="summaryBody">
+        <div class="text-muted fst-italic">Exécution en cours…</div>
+      </div>
+    </div>
+
+    <!-- TABLEAU DES TESTS -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <strong>Résultats détaillés</strong>
+        <div class="btn-group btn-group-sm" id="filterBar">
+          <button class="btn btn-primary active" data-filter="all">Tous</button>
+          <button class="btn btn-outline-danger"   data-filter="FAIL">Échecs</button>
+          <button class="btn btn-outline-success"  data-filter="PASS">Succès</button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle" style="min-width:700px;">
+          <thead class="bg-light">
+            <tr>
+              <th scope="col" class="small ps-3" style="width:80px;">Statut</th>
+              <th scope="col" class="small" style="width:160px;">Fichier</th>
+              <th scope="col" class="small" style="width:220px;">Invariant</th>
+              <th scope="col" class="small">Détail</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyResults"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 Planning Engine — Tests Anti-Régression v1.0.0</small>
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/*
+  ══════════════════════════════════════════════════════════
+  RUNNER DE TESTS — Planning Engine Anti-Régression v1.0.0
+  
+  DEUX MODES DE TEST :
+  1. FONCTIONNEL : appel direct des fonctions exposées sur window
+  2. SOURCE      : fetch du fichier JS + search de patterns critiques
+                   (pour les fonctions internes non exposées : atomDiv,
+                    summarizeCell, slotPriority…)
+  
+  RÉSULTAT : PASS (vert) / FAIL (rouge) + détail
+  ══════════════════════════════════════════════════════════
+*/
+
+// ── Registre des résultats ─────────────────────────────
+const results = [];
+
+function assert(fichier, invariant, condition, detail) {
+  results.push({
+    statut:    condition ? "PASS" : "FAIL",
+    fichier,
+    invariant,
+    detail:    detail || (condition ? "OK" : "Attendu : condition vraie")
+  });
+}
+
+function assertThrows(fichier, invariant, fn, detail) {
+  let threw = false;
+  try { fn(); } catch(e) { threw = true; }
+  results.push({
+    statut:    threw ? "PASS" : "FAIL",
+    fichier,
+    invariant,
+    detail:    detail || (threw ? "Exception levée (attendu)" : "Aucune exception — ERREUR")
+  });
+}
+
+// ── SECTION 1 — PlanningSchema (fonctionnel) ───────────
+function testSchema() {
+  const S = window.PlanningSchema;
+  if (!S) {
+    results.push({ statut:"FAIL", fichier:"planning-schema.js",
+      invariant:"Module chargé", detail:"window.PlanningSchema introuvable" });
+    return;
+  }
+
+  // normalizeSalle — conversions
+  (() => {
+    let v;
+    try { v = S.normalizeSalle("5"); } catch(e) { v = null; }
+    assert("planning-schema.js", 'normalizeSalle("5") → "05"',
+      v === "05", `Retourné : ${JSON.stringify(v)}`);
+  })();
+
+  (() => {
+    let v;
+    try { v = S.normalizeSalle(8); } catch(e) { v = null; }
+    assert("planning-schema.js", 'normalizeSalle(8) → "08"',
+      v === "08", `Retourné : ${JSON.stringify(v)}`);
+  })();
+
+  (() => {
+    let v;
+    try { v = S.normalizeSalle("06"); } catch(e) { v = null; }
+    assert("planning-schema.js", 'normalizeSalle("06") → "06" (idempotent)',
+      v === "06", `Retourné : ${JSON.stringify(v)}`);
+  })();
+
+  assertThrows("planning-schema.js", "normalizeSalle(null) → throw",
+    () => S.normalizeSalle(null), "null doit lever une erreur explicite");
+
+  assertThrows("planning-schema.js", "normalizeSalle(undefined) → throw",
+    () => S.normalizeSalle(undefined), "undefined doit lever une erreur explicite");
+
+  assertThrows("planning-schema.js", "normalizeSalle('abc') → throw",
+    () => S.normalizeSalle("abc"), "format non numérique doit lever une erreur");
+
+  // SALLES — string padded canonical
+  assert("planning-schema.js", 'SALLES = ["05","06","07","08"]',
+    JSON.stringify(S.SALLES) === JSON.stringify(["05","06","07","08"]),
+    `Valeur : ${JSON.stringify(S.SALLES)}`);
+
+  assert("planning-schema.js", "SALLES.includes(5) → false (no number)",
+    !S.SALLES.includes(5), "Les salles ne doivent pas contenir d'entiers");
+
+  assert("planning-schema.js", 'SALLES.includes("05") → true',
+    S.SALLES.includes("05"), "String paddée doit être présente");
+
+  // CRENEAUX
+  assert("planning-schema.js", 'CRENEAUX = ["MATIN","APREM","SOIR"]',
+    JSON.stringify(S.CRENEAUX) === JSON.stringify(["MATIN","APREM","SOIR"]),
+    `Valeur : ${JSON.stringify(S.CRENEAUX)}`);
+
+  // JOURS — référentiel complet 7 jours, LUNDI en premier, 5 jours ouvrés présents
+  const OUVRES = ["LUNDI","MARDI","MERCREDI","JEUDI","VENDREDI"];
+  assert("planning-schema.js", "JOURS — commence par LUNDI",
+    Array.isArray(S.JOURS) && S.JOURS[0] === "LUNDI",
+    `Valeur : ${JSON.stringify(S.JOURS)}`);
+  assert("planning-schema.js", "JOURS — contient les 5 jours ouvrés",
+    OUVRES.every(j => S.JOURS.includes(j)),
+    "Manquants : " + OUVRES.filter(j => !S.JOURS.includes(j)).join(", "));
+}
+
+// ── SECTION 2 — PlanningEngine (fonctionnel) ───────────
+function testEngine() {
+  const E = window.PlanningEngine;
+  if (!E) {
+    results.push({ statut:"FAIL", fichier:"planning-engine.js",
+      invariant:"Module chargé", detail:"window.PlanningEngine introuvable" });
+    return;
+  }
+
+  assert("planning-engine.js", "setWeekStatut exposée",
+    typeof E.setWeekStatut === "function",
+    `Type : ${typeof E.setWeekStatut}`);
+
+  assert("planning-engine.js", "getWeekStatut exposée",
+    typeof E.getWeekStatut === "function",
+    `Type : ${typeof E.getWeekStatut}`);
+
+  assert("planning-engine.js", "checkWeekIntegrity exposée",
+    typeof E.checkWeekIntegrity === "function",
+    `Type : ${typeof E.checkWeekIntegrity}`);
+
+  // checkWeekIntegrity retourne un tableau (même sans semaine chargée)
+  (() => {
+    let r;
+    try { r = E.checkWeekIntegrity(); } catch(e) { r = null; }
+    assert("planning-engine.js", "checkWeekIntegrity() → Array",
+      Array.isArray(r),
+      r === null ? "Exception levée" : `Type retourné : ${typeof r}`);
+  })();
+
+  // Si des warnings existent, ils doivent avoir .level et .message (pas des strings)
+  (() => {
+    let r;
+    try { r = E.checkWeekIntegrity(); } catch(e) { r = []; }
+    if (!Array.isArray(r) || r.length === 0) {
+      results.push({ statut:"PASS", fichier:"planning-engine.js",
+        invariant:"Warnings sont des objets {level,message}",
+        detail:"Aucun warning — test non applicable" });
+      return;
+    }
+    const allObjects = r.every(w => typeof w === "object" && w !== null
+                                && "level" in w && "message" in w);
+    assert("planning-engine.js", "Warnings sont des objets {level,message}",
+      allObjects,
+      allObjects ? "Tous les warnings ont level+message"
+                 : `Premier warning : ${JSON.stringify(r[0])}`);
+  })();
+}
+
+// ── SECTION 3 — Analyse de source (patterns critiques) ─
+// XHR synchrone : compatible file:// (USB) et http://
+function readSourceSync(path) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", path, false); // false = synchrone
+  try { xhr.send(null); } catch(e) { return null; }
+  return xhr.status === 0 || xhr.status === 200 ? xhr.responseText : null;
+}
+
+async function testSource(fichier, path, tests) {
+  const src = readSourceSync(path);
+  if (src === null) {
+    results.push({ statut:"SKIP", fichier, invariant:"Fichier lisible",
+      detail:`Fichier non accessible en file:// — ouvrir CMD dans le dossier FRONT, taper : python -m http.server 5500, puis ouvrir http://localhost:5500/test-antireg.html dans Chrome` });
+    return;
+  }
+  for (const t of tests) {
+    let found = t.pattern instanceof RegExp
+      ? t.pattern.test(src)
+      : src.includes(t.pattern);
+    const pass = t.invert ? !found : found;
+    assert(fichier, t.invariant, pass,
+      pass ? "OK" : (t.invert ? `Pattern présent (interdit) : ${String(t.pattern)}` : `Pattern absent : ${String(t.pattern)}`));
+  }
+}
+
+// ── AFFICHAGE ──────────────────────────────────────────
+function renderResults() {
+  const tbody = document.getElementById("tbodyResults");
+  const pass  = results.filter(r => r.statut === "PASS").length;
+  const fail  = results.filter(r => r.statut === "FAIL").length;
+  const skip  = results.filter(r => r.statut === "SKIP").length;
+  const total = results.length;
+
+  document.getElementById("badgeTotal").textContent = `${total} tests`;
+  document.getElementById("badgePass").textContent  = `${pass} ✓`;
+  document.getElementById("badgeFail").textContent  = `${fail} ✗`;
+  if (skip > 0) {
+    document.getElementById("badgeSkip").textContent = `${skip} –`;
+    document.getElementById("badgeSkip").classList.remove("d-none");
+  }
+
+  const summaryBody = document.getElementById("summaryBody");
+  const allOk = fail === 0;
+  summaryBody.innerHTML = `
+    <div class="d-flex align-items-center gap-3">
+      <span class="fs-1">${allOk ? "✅" : "❌"}</span>
+      <div>
+        <div class="fw-bold fs-5 ${allOk ? "text-success" : "text-danger"}">
+          ${allOk ? "Tous les tests passent" : `${fail} test(s) en échec`}
+        </div>
+        <div class="text-muted small">${pass} / ${total}${skip > 0 ? ` — ${skip} SKIP (tests source)` : ""} — ${new Date().toLocaleString("fr-FR")}</div>
+      </div>
+    </div>`;
+
+  function buildRows(filter) {
+    const filtered = filter === "all" ? results
+      : results.filter(r => r.statut === filter);
+    tbody.innerHTML = filtered.map(r => `
+      <tr>
+        <td class="ps-3 align-middle">
+          <span class="badge ${
+            r.statut === "PASS" ? "bg-success-subtle text-success"
+            : r.statut === "SKIP" ? "bg-secondary-subtle text-secondary"
+            : "bg-danger-subtle text-danger"}">
+            ${r.statut === "PASS" ? "✓ PASS" : r.statut === "SKIP" ? "– SKIP" : "✗ FAIL"}
+          </span>
+        </td>
+        <td class="small align-middle text-muted">${r.fichier}</td>
+        <td class="small align-middle fw-semibold">${r.invariant}</td>
+        <td class="small align-middle text-muted">${r.detail}</td>
+      </tr>`).join("");
+  }
+
+  buildRows("all");
+
+  document.getElementById("filterBar").addEventListener("click", e => {
+    const btn = e.target.closest("[data-filter]");
+    if (!btn) return;
+    document.querySelectorAll("#filterBar button")
+      .forEach(b => b.classList.remove("active", "btn-primary", "btn-danger", "btn-success"));
+    btn.classList.add("active");
+    const colorMap = { all:"btn-primary", FAIL:"btn-danger", PASS:"btn-success" };
+    btn.classList.add(colorMap[btn.dataset.filter] || "btn-primary");
+    buildRows(btn.dataset.filter);
+  });
+}
+
+// ── ORCHESTRATION ──────────────────────────────────────
+async function runAll() {
+  // Tests fonctionnels (synchrones)
+  testSchema();
+  testEngine();
+
+  // Tests source (asynchrones)
+  await testSource("planning-engine.js", "services/planning-engine.js", [
+    { invariant: "ouverture — comparaison directe === 1 dans engine.js",
+      pattern: "a.ouverture === 1" },
+    { invariant: "checkWeekIntegrity — .level présent sur les warnings",
+      pattern: /level\s*:\s*["'](error|warning)["']/ },
+    { invariant: "setWeekStatut — statut semaine exposé",
+      pattern: "setWeekStatut" },
+    { invariant: "getWeekStatut — statut semaine exposé",
+      pattern: "getWeekStatut" },
+  ]);
+
+  await testSource("planning-schema.js", "core/planning-schema.js", [
+    { invariant: 'SALLES contient "05" (string padded)',
+      pattern: '"05"' },
+    { invariant: "normalizeSalle — padStart présent",
+      pattern: "padStart(2" },
+    { invariant: "normalizeSalle — throw sur null/undefined",
+      pattern: /throw new Error.*[Ss]alle/ },
+    { invariant: "normalizeSalle — exposée dans l'API publique",
+      pattern: "normalizeSalle," },
+  ]);
+
+  await testSource("planning-controller.js", "ui/planning-controller.js", [
+    { invariant: "atomDiv — présente dans summarizeCell",
+      pattern: "function atomDiv" },
+    { invariant: "atomDiv — ouverture → bg-success-subtle",
+      pattern: "bg-success-subtle" },
+    { invariant: "atomDiv — doublure → bg-warning-subtle",
+      pattern: "bg-warning-subtle" },
+    { invariant: "atomDiv — nuit → bg-info-subtle",
+      pattern: "bg-info-subtle" },
+    { invariant: "atomDiv — flags via Number() pas strict ===",
+      pattern: "Number(a.ouverture) === 1" },
+    { invariant: "slotPriority — tri par nature présent",
+      pattern: "function slotPriority" },
+    { invariant: "slotPriority — COULOIR sans visceral → return 0",
+      pattern: "if (isCouloir && !isVisceral)" },
+    { invariant: "renderWarnings — affiche w.message (pas w directement)",
+      pattern: "w.message" },
+    { invariant: "renderWarnings — trie errors avant warnings",
+      pattern: /w\.level.*error|error.*w\.level/ },
+    { invariant: "normalizeSalle — appelée sur salle dans le controller",
+      pattern: "PlanningSchema.normalizeSalle" },
+    { invariant: "FALLBACK_SALLES — string paddée canonical",
+      pattern: '"05"' },
+  ]);
+
+  await testSource("planning-matrix.js", "ui/planning-matrix.js", [
+    { invariant: "atomDiv — présente (rendu unifié)",
+      pattern: "function atomDiv" },
+    { invariant: "atomDiv — text-truncate (noms longs)",
+      pattern: "text-truncate" },
+    { invariant: "atomDiv — ouverture+visceral simultané : border border-warning",
+      pattern: "border border-warning" },
+    { invariant: "atomDiv — nuit → bg-info-subtle",
+      pattern: "bg-info-subtle" },
+    { invariant: "atomDiv — flags via Number() pas strict ===",
+      pattern: "Number(a.ouverture) === 1" },
+    { invariant: "table — table-layout:fixed (largeurs stables)",
+      pattern: "table-layout:fixed" },
+    { invariant: "table — largeur calculée COL_CRENEAU (responsive scroll)",
+      pattern: "COL_CRENEAU" },
+    { invariant: "cellButton — fonction présente dans la source",
+      pattern: "function cellButton" },
+    { invariant: "cellButton — return avec type=button (pas style= inline)",
+      pattern: "return '<button type=\"button\"" },
+  ]);
+
+  await testSource("planning.html", "planning.html", [
+    { invariant: "table affectations — min-width:700px (scroll tablette)",
+      pattern: "min-width:700px" },
+    { invariant: "matrixGrid — table-responsive présent",
+      pattern: 'id="matrixGrid"' },
+  ]);
+
+  // ═══════════════════════════════════════════════════════
+  // SUITE CSS — Architecture & invariants visuels
+  // ═══════════════════════════════════════════════════════
+
+  await testSource("planning-ui.css", "planning-ui.css", [
+    { invariant: "bg-opening — couleur vert métier #d4edda",
+      pattern: "#d4edda" },
+    { invariant: "bg-visceral — couleur orange métier #ffe8cc",
+      pattern: "#ffe8cc" },
+    { invariant: "bg-couloir — couleur bleu métier #eef3f8",
+      pattern: "#eef3f8" },
+    { invariant: "bg-closed — couleur gris fermée #e9ecef",
+      pattern: "#e9ecef" },
+    { invariant: "bg-closed-degrade — couleur rouge dégradé #f8d7da",
+      pattern: "#f8d7da" },
+    { invariant: "plan-bg-etudiant — couleur violet étudiant #ede9fe",
+      pattern: "#ede9fe" },
+    { invariant: "bg-opening scopé à #matrixGrid (pas global)",
+      pattern: "#matrixGrid .bg-opening" },
+    { invariant: "bg-closed scopé à #matrixGrid (pas global)",
+      pattern: "#matrixGrid .bg-closed" },
+    { invariant: "bg-closed-degrade scopé à #matrixGrid (pas global)",
+      pattern: "#matrixGrid .bg-closed-degrade" },
+    { invariant: "background-image:none sur statuts terrain (protection hover)",
+      pattern: "background-image: none" },
+    { invariant: "row-ferme-degrade — style distinct de row-fermee",
+      pattern: "row-ferme-degrade" },
+    { invariant: "white-space: normal sur .btn (wrap noms longs)",
+      pattern: "white-space: normal" },
+    { invariant: "legacyTableCard — row-fermee gris #e9ecef",
+      pattern: "row-fermee" },
+  ]);
+
+  await testSource("cds-overrides.css", "cds-overrides.css", [
+    { invariant: "cds-overrides.css existe (architecture 3 couches)",
+      pattern: /CSS|modal|btn/ },
+  ]);
+
+  await testSource("planning.html (chaîne CSS)", "planning.html", [
+    { invariant: "planning-ui.css chargé via <link>",
+      pattern: 'planning-ui.css' },
+    { invariant: "cds-overrides.css chargé via <link>",
+      pattern: 'cds-overrides.css' },
+    { invariant: "modal-dialog-scrollable — footer toujours visible",
+      pattern: "modal-dialog-scrollable" },
+    { invariant: "checkboxFermeDegrade — présent dans le modal",
+      pattern: "checkboxFermeDegrade" },
+    { invariant: "fermeDegradesSection — présent dans le modal",
+      pattern: "fermeDegradesSection" },
+    { invariant: "Zéro bloc <style> inline dans planning.html",
+      pattern: /<style>[\s\S]{200,}<\/style>/,
+      invert: true },
+  ]);
+
+  await testSource("planning-schema.js (M3)", "core/planning-schema.js", [
+    { invariant: "ferme_degrade normalisé dans normalizeAffectation",
+      pattern: "ferme_degrade" },
+  ]);
+
+  await testSource("planning-slot-editor.js (M3)", "ui/planning-slot-editor.js", [
+    { invariant: "ferme_degrade lu depuis les données existantes",
+      pattern: "ferme_degrade" },
+    { invariant: "checkboxFermeDegrade lu à la sauvegarde",
+      pattern: "checkboxFermeDegrade" },
+    { invariant: "fermeDegradesSection togglée au changement de fermeture",
+      pattern: "fermeDegradesSection" },
+  ]);
+
+  await testSource("planning-analytics.js (M3)", "services/planning-analytics.js", [
+    { invariant: "SALLE_FERMEE_DEGRADE — type distinct dans les situations",
+      pattern: "SALLE_FERMEE_DEGRADE" },
+    { invariant: "SALLE_FERMEE_NATUREL — type distinct dans les situations",
+      pattern: "SALLE_FERMEE_NATUREL" },
+  ]);
+
+  await testSource("planning-schema.js (M2)", "core/planning-schema.js", [
+    { invariant: "ETUDIANT dans ROLES — validation autorisée",
+      pattern: '"ETUDIANT"' },
+    { invariant: "role ETUDIANT accepté en salle — condition explicite",
+      pattern: /role !== "ETUDIANT"/ },
+  ]);
+
+  await testSource("planning-ui.css (M2)", "planning-ui.css", [
+    { invariant: "plan-text-etudiant — couleur violet #6d28d9",
+      pattern: "#6d28d9" },
+  ]);
+
+  renderResults();
+}
+
+// Lancer après chargement complet des scripts
+window.addEventListener("load", () => {
+  const isFile = location.protocol === "file:";
+  if (isFile) {
+    document.getElementById("panelFileProtocol").classList.remove("d-none");
+    // Bouton copier commande
+    document.getElementById("btnCopyCmd")?.addEventListener("click", () => {
+      const cmd = document.getElementById("serverCmd").value;
+      navigator.clipboard?.writeText(cmd).catch(() => {
+        const ta = document.createElement("textarea");
+        ta.value = cmd;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      });
+      const btn = document.getElementById("btnCopyCmd");
+      btn.innerHTML = '<i class="bi bi-check me-1"></i>Copié !';
+      setTimeout(() => { btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copier'; }, 2000);
+    });
+  }
+  // Lancer les tests dans tous les cas — les tests source afficheront SKIP si file://
+  // mais les tests fonctionnels (schema, engine) fonctionnent toujours
+  runAll();
+});
+</script>
+</body>
+</html>

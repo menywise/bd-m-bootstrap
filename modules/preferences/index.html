@@ -1,0 +1,810 @@
+﻿<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Préférences chirurgien | BDB</title>
+  <!-- 1. Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- 2. Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <!-- 3. CDS tokens — remplacer @latest par tag fixe avant déploiement OVH -->
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
+  <!-- 4. CDS print -->
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
+  <!-- 5. Quill (éditeur rich text) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet"/>
+  <!-- 6. CDS overrides globaux -->
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <!-- 7. CSS module -->
+  <link href="../../css/preferences-ui.css" rel="stylesheet"/>
+</head>
+
+<body class="d-flex min-vh-100">
+<main class="d-flex flex-column flex-grow-1 main-content">
+
+  <!-- SHELL : PREMIER ENFANT de <main> — INTERDIT-E1 -->
+  <div id="bdb-shell"
+       data-module-title="Préférences chirurgiens"
+       data-module-icon="bi-person-gear">
+  </div>
+
+  <!-- CONTENU MODULE -->
+  <div class="container-fluid p-4 bg-light flex-grow-1">
+
+    <!-- Filtres -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-md-5">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+              <input type="text" class="form-control border-start-0" id="pSearch" placeholder="Titre, description..."/>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <select class="form-select" id="pGlobal">
+              <option value="">Toutes</option>
+              <option value="true">Globale</option>
+              <option value="false">Spécifique</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <select class="form-select" id="pChirurgien"><option value="">Tous chirurgiens</option></select>
+          </div>
+          <!-- Slot admin — C.6 -->
+          <div class="col-12 col-md-auto d-none" id="headerAdminSlot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- États C.9 — loading -->
+    <div id="prefsLoading" class="d-none">
+      <div class="placeholder-glow">
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-body">
+            <div class="d-flex align-items-start gap-3">
+              <div class="placeholder rounded-circle pref-chir-avatar"></div>
+              <div class="flex-grow-1">
+                <div class="placeholder col-5 rounded mb-2"></div>
+                <div class="placeholder col-3 rounded mb-2"></div>
+                <div class="placeholder col-8 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-body">
+            <div class="d-flex align-items-start gap-3">
+              <div class="placeholder rounded-circle pref-chir-avatar"></div>
+              <div class="flex-grow-1">
+                <div class="placeholder col-6 rounded mb-2"></div>
+                <div class="placeholder col-4 rounded mb-2"></div>
+                <div class="placeholder col-7 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-start gap-3">
+              <div class="placeholder rounded-circle pref-chir-avatar"></div>
+              <div class="flex-grow-1">
+                <div class="placeholder col-4 rounded mb-2"></div>
+                <div class="placeholder col-5 rounded mb-2"></div>
+                <div class="placeholder col-6 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- États C.9 — empty -->
+    <div id="prefsEmpty" class="d-none">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5 text-muted">
+          <i class="bi bi-person-gear fs-1 d-block mb-3"></i>
+          <p class="mb-0">Aucune préférence trouvée</p>
+          <button class="btn btn-outline-primary mt-3 d-none" id="btnNewEmpty">
+            <i class="bi bi-plus-lg me-1"></i>Créer une préférence
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- États C.9 — error -->
+    <div id="prefsError" class="d-none">
+      <div class="cds-error-state">
+        <i class="bi bi-wifi-off cds-error-icon"></i>
+        <div class="cds-error-title">Données non chargées</div>
+        <div class="cds-error-msg" id="prefsErrorMsg">Impossible de contacter le serveur.</div>
+        <button class="btn btn-sm btn-outline-danger cds-error-retry" id="prefsRetryBtn">
+          <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
+        </button>
+      </div>
+    </div>
+
+    <!-- Liste -->
+    <div id="prefsList"></div>
+
+  </div>
+
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 Bible de Bloc — CDS Compliant</small>
+  </footer>
+</main>
+
+<!-- =====================
+     MODAL CREATE/EDIT
+     ===================== -->
+<div class="modal fade" id="modalPref" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPrefLabel">Nouvelle préférence</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="pFormError" class="alert alert-danger d-none"></div>
+        <div class="row g-3">
+
+          <!-- Chirurgien (création admin uniquement) -->
+          <div class="col-12" id="pChirurgienRow">
+            <label class="form-label fw-semibold">Chirurgien <span class="text-danger">*</span></label>
+            <select class="form-select" id="pFormChirurgien"><option value="">— Sélectionner —</option></select>
+          </div>
+
+          <!-- Titre -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">Titre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="pTitre" placeholder="Ex: Installation standard arthroscopie"/>
+          </div>
+
+          <!-- Globale -->
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="pIsGlobal" role="switch" checked/>
+              <label class="form-check-label fw-semibold" for="pIsGlobal">
+                <i class="bi bi-globe me-1 text-primary"></i>Préférence globale (toutes interventions)
+              </label>
+            </div>
+          </div>
+
+          <!-- Fiche liée (si non globale) -->
+          <div class="col-12 d-none" id="pFicheRow">
+            <label class="form-label fw-semibold">Fiche d'intervention liée</label>
+            <select class="form-select" id="pFormFiche"><option value="">— Sélectionner —</option></select>
+          </div>
+
+          <!-- Description (Quill) -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">Description / Détails</label>
+            <div id="pQuill" class="pref-quill-editor"></div>
+          </div>
+
+          <!-- Tags -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">Tags <span class="text-muted fw-normal">(max 5)</span></label>
+            <div class="d-flex gap-2 mb-2">
+              <input type="text" class="form-control" id="pTagSearch" placeholder="Rechercher (personne, marque, intervention)..."/>
+            </div>
+            <div id="pTagResults" class="d-flex flex-wrap gap-1 mb-2"></div>
+            <div id="pSelectedTags" class="d-flex flex-wrap gap-1">
+              <span class="text-muted small">Aucun tag sélectionné</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="pBtnSave"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================
+     MODAL DÉTAIL (lecture)
+     ===================== -->
+<div class="modal fade" id="modalPrefView" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalViewLabel">Préférence</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="modalViewBody">
+        <div class="placeholder-glow p-3">
+          <div class="placeholder col-5 rounded mb-3"></div>
+          <div class="placeholder col-8 rounded mb-2"></div>
+          <div class="placeholder col-6 rounded"></div>
+        </div>
+      </div>
+      <div class="modal-footer" id="modalViewFooter"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi me-2" id="toastIcon"></i>
+      <strong class="me-auto" id="toastTitle">Info</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    </div>
+    <div class="toast-body" id="toastMsg">—</div>
+  </div>
+</div>
+
+<!-- JS — ordre immuable -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+
+<script>
+/* =========================================================
+   MODULE PRÉFÉRENCES CHIRURGIEN — BDB
+   Table  : preferences_chirurgien
+   Liées  : profiles_directory · fiches_intervention · tag_links · tags
+   RBAC   : admin = tout / chirurgien = ses propres préférences
+   Shell  : bdb-shell.js v1.4.0 — window.bdbUser (INTERDIT-B2)
+   ========================================================= */
+
+const DB = window.bdb;
+
+const state = {
+  user: null, isAdmin: false,
+  prefs: [], doctors: [], fiches: [], allTags: [],
+  editingId: null,
+  formTagIds: [],
+};
+
+let quill, modalPref, modalPrefView;
+
+/* ─── UTILS ─────────────────────────────────────────────── */
+
+/** INTERDIT-C6 : échappement obligatoire sur tout innerHTML avec donnée DB */
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function showToast(msg, type = 'info') {
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').className = 'bi me-2 ' + (
+    type === 'error' ? 'bi-x-circle-fill text-danger' :
+    type === 'success' ? 'bi-check-circle-fill text-success' :
+    'bi-info-circle-fill text-primary'
+  );
+  document.getElementById('toastTitle').textContent =
+    type === 'error' ? 'Erreur' : type === 'success' ? 'Succès' : 'Info';
+  bootstrap.Toast.getOrCreateInstance(document.getElementById('toastInfo')).show();
+}
+
+/* ─── C.9 STATES ────────────────────────────────────────── */
+
+function setPrefsState(s, errMsg) {
+  document.getElementById('prefsLoading').classList.toggle('d-none', s !== 'loading');
+  document.getElementById('prefsEmpty').classList.toggle('d-none', s !== 'empty');
+  document.getElementById('prefsError').classList.toggle('d-none', s !== 'error');
+  document.getElementById('prefsList').classList.toggle('d-none', s !== 'data');
+  if (s === 'error' && errMsg) {
+    document.getElementById('prefsErrorMsg').textContent = errMsg;
+  }
+  if (s === 'empty' && state.isAdmin) {
+    document.getElementById('btnNewEmpty').classList.remove('d-none');
+  }
+}
+
+/* ─── CANWRITE ──────────────────────────────────────────── */
+
+function canEdit(pref) {
+  if (state.isAdmin) return true;
+  return pref.chirurgien_id === state.user.id;
+}
+
+/* ─── DOCTORS ───────────────────────────────────────────── */
+
+async function loadDoctors() {
+  const { data } = await DB.from('profiles_directory')
+    .select('user_id, nom, prenom, name')
+    .eq('fonction', 'medecin')
+    .eq('approved', true)
+    .order('nom');
+  state.doctors = data || [];
+
+  const selFilter = document.getElementById('pChirurgien');
+  const selForm = document.getElementById('pFormChirurgien');
+  state.doctors.forEach(d => {
+    const label = `Dr ${d.nom || ''} ${d.prenom || ''}`.trim();
+    selFilter.add(new Option(label, d.user_id));
+    selForm.add(new Option(label, d.user_id));
+  });
+}
+
+/* ─── FICHES ────────────────────────────────────────────── */
+
+async function loadFiches() {
+  const { data } = await DB.from('fiches_intervention')
+    .select('id, titre')
+    .eq('status', 'published')
+    .order('titre');
+  state.fiches = data || [];
+  const sel = document.getElementById('pFormFiche');
+  state.fiches.forEach(f => sel.add(new Option(f.titre, f.id)));
+}
+
+/* ─── TAGS ──────────────────────────────────────────────── */
+
+async function loadTags() {
+  const { data } = await DB.from('tags')
+    .select('id, label_display, type')
+    .order('label_display');
+  state.allTags = (data || []).filter(t =>
+    ['personne', 'marque', 'intervention'].includes(t.type)
+  );
+}
+
+async function loadTagsForRecord(recordId) {
+  const { data } = await DB.from('tag_links')
+    .select('tag_id, tags(id, label_display, type)')
+    .eq('content_id', recordId)
+    .eq('content_type', 'preferences_chirurgien');
+  return (data || []).map(r => r.tags).filter(Boolean);
+}
+
+async function syncTags(recordId) {
+  await DB.from('tag_links')
+    .delete()
+    .eq('content_id', recordId)
+    .eq('content_type', 'preferences_chirurgien');
+  if (state.formTagIds.length > 0) {
+    await DB.from('tag_links').insert(state.formTagIds.map(tagId => ({
+      content_id: recordId,
+      content_type: 'preferences_chirurgien',
+      tag_id: tagId,
+    })));
+  }
+}
+
+/* ─── TAG SELECTOR ──────────────────────────────────────── */
+
+function renderTagSelector() {
+  const search = document.getElementById('pTagSearch').value.toLowerCase();
+  const filtered = state.allTags
+    .filter(t => !state.formTagIds.includes(t.id) &&
+      (!search || t.label_display.toLowerCase().includes(search)))
+    .slice(0, 10);
+
+  document.getElementById('pTagResults').innerHTML = filtered.map(t =>
+    `<button type="button" class="btn btn-sm btn-outline-secondary" data-tag-id="${escHtml(t.id)}">
+      <i class="bi bi-plus me-1"></i>${escHtml(t.label_display)}
+      <span class="badge bg-light text-muted ms-1 pref-tag-type">${escHtml(t.type)}</span>
+    </button>`).join('');
+
+  document.querySelectorAll('#pTagResults [data-tag-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (state.formTagIds.length >= 5) { showToast('Max 5 tags', 'error'); return; }
+      state.formTagIds.push(btn.dataset.tagId);
+      document.getElementById('pTagSearch').value = '';
+      renderTagSelector();
+    });
+  });
+
+  const selected = state.allTags.filter(t => state.formTagIds.includes(t.id));
+  const container = document.getElementById('pSelectedTags');
+  if (!selected.length) {
+    container.innerHTML = '<span class="text-muted small">Aucun tag sélectionné</span>';
+  } else {
+    container.innerHTML = selected.map(t =>
+      `<span class="badge bg-primary d-flex align-items-center gap-1">
+        ${escHtml(t.label_display)}
+        <button type="button" class="btn-close btn-close-white p-0 pref-tag-remove" data-remove-tag="${escHtml(t.id)}"></button>
+      </span>`).join('');
+    container.querySelectorAll('[data-remove-tag]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.formTagIds = state.formTagIds.filter(id => id !== btn.dataset.removeTag);
+        renderTagSelector();
+      });
+    });
+  }
+}
+
+/* ─── LOAD PREFS ────────────────────────────────────────── */
+
+async function loadPrefs() {
+  setPrefsState('loading');
+
+  let q = DB.from('preferences_chirurgien')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  const search = document.getElementById('pSearch').value.trim();
+  const global = document.getElementById('pGlobal').value;
+  const chir = document.getElementById('pChirurgien').value;
+
+  if (search) q = q.or(`titre.ilike.%${search}%,description.ilike.%${search}%`);
+  if (global === 'true') q = q.eq('is_global', true);
+  if (global === 'false') q = q.eq('is_global', false);
+  if (chir) q = q.eq('chirurgien_id', chir);
+
+  const { data, error } = await q;
+  if (error) {
+    setPrefsState('error', error.message);
+    return;
+  }
+  const prefs = data || [];
+
+  if (!prefs.length) {
+    setPrefsState('empty');
+    return;
+  }
+
+  // Enrich avec profils
+  const ids = [...new Set(prefs.map(p => p.chirurgien_id))];
+  const { data: profiles } = await DB.from('profiles_directory')
+    .select('user_id, name, nom, prenom, initials')
+    .in('user_id', ids);
+  const pMap = Object.fromEntries((profiles || []).map(p => [p.user_id, p]));
+  prefs.forEach(p => { p._profile = pMap[p.chirurgien_id] || null; });
+
+  state.prefs = prefs;
+
+  const list = document.getElementById('prefsList');
+  list.innerHTML = `<div class="d-flex flex-column gap-3">${prefs.map(p => renderPrefCard(p)).join('')}</div>`;
+
+  list.querySelectorAll('[data-open-pref]').forEach(el => {
+    el.addEventListener('click', () => {
+      const p = prefs.find(x => x.id === el.dataset.openPref);
+      if (p && canEdit(p)) openPrefModal(p.id);
+      else openPrefView(el.dataset.openPref);
+    });
+  });
+  list.querySelectorAll('[data-edit-pref]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); openPrefModal(btn.dataset.editPref); });
+  });
+  list.querySelectorAll('[data-del-pref]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); deletePref(btn.dataset.delPref); });
+  });
+
+  setPrefsState('data');
+}
+
+/* ─── RENDER CARD ───────────────────────────────────────── */
+
+function renderPrefCard(p) {
+  const doctorName = p._profile
+    ? `Dr ${p._profile.nom || ''} ${p._profile.prenom || ''}`.trim()
+    : '—';
+  const initials = p._profile?.initials ||
+    ((p._profile?.nom || '')[0] || '') + ((p._profile?.prenom || '')[0] || '') || '?';
+
+  const typeBadge = p.is_global
+    ? `<span class="badge bg-primary"><i class="bi bi-globe me-1"></i>Globale</span>`
+    : `<span class="badge bg-outline border text-secondary"><i class="bi bi-file-earmark me-1"></i>Spécifique</span>`;
+
+  const tags = Array.isArray(p.tags) && p.tags.length > 0
+    ? `<div class="d-flex flex-wrap gap-1 mt-2">${p.tags.map(t =>
+        `<span class="badge bg-light text-dark border">#${escHtml(t)}</span>`
+      ).join('')}</div>`
+    : '';
+
+  const rawText = p.description ? p.description.replace(/<[^>]*>/g, '') : '';
+  const desc = rawText
+    ? `<p class="text-muted small mb-1 pref-desc">${escHtml(rawText.slice(0, 180))}${rawText.length > 180 ? '...' : ''}</p>`
+    : '';
+
+  const canEditThis = canEdit(p);
+  const menuBtns = canEditThis ? `
+    <div class="dropdown">
+      <button class="btn btn-sm pref-menu-btn" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><button class="dropdown-item" data-edit-pref="${escHtml(p.id)}"><i class="bi bi-pencil me-2"></i>Modifier</button></li>
+        ${state.isAdmin ? `<li><hr class="dropdown-divider"></li><li><button class="dropdown-item text-danger" data-del-pref="${escHtml(p.id)}"><i class="bi bi-trash me-2"></i>Supprimer</button></li>` : ''}
+      </ul>
+    </div>` : '';
+
+  return `<div class="card shadow-sm border-0 pref-card" data-open-pref="${escHtml(p.id)}">
+    <div class="card-body">
+      <div class="d-flex align-items-start gap-3">
+        <div class="pref-chir-avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold flex-shrink-0">
+          ${escHtml(initials.toUpperCase().slice(0, 2))}
+        </div>
+        <div class="flex-grow-1 min-w-0">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <h6 class="mb-0 fw-semibold">${escHtml(p.titre)}</h6>
+            ${typeBadge}
+          </div>
+          <p class="text-muted small mb-1"><i class="bi bi-person-badge me-1"></i>${escHtml(doctorName)}</p>
+          ${desc}
+          ${tags}
+        </div>
+        ${menuBtns}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ─── VIEW MODAL ────────────────────────────────────────── */
+
+async function openPrefView(id) {
+  const body = document.getElementById('modalViewBody');
+  const footer = document.getElementById('modalViewFooter');
+  body.innerHTML = `<div class="placeholder-glow p-3">
+    <div class="placeholder col-5 rounded mb-3"></div>
+    <div class="placeholder col-8 rounded mb-2"></div>
+    <div class="placeholder col-6 rounded"></div>
+  </div>`;
+  footer.innerHTML = '';
+  modalPrefView.show();
+
+  const { data: p, error } = await DB.from('preferences_chirurgien')
+    .select('*').eq('id', id).maybeSingle();
+  if (error || !p) {
+    body.innerHTML = '<p class="text-danger">Erreur de chargement.</p>';
+    return;
+  }
+
+  const { data: prof } = await DB.from('profiles_directory')
+    .select('name, nom, prenom')
+    .eq('user_id', p.chirurgien_id).maybeSingle();
+  const tags = await loadTagsForRecord(id);
+  const doctorName = prof
+    ? `Dr ${prof.nom || ''} ${prof.prenom || ''}`.trim()
+    : '—';
+
+  document.getElementById('modalViewLabel').textContent = p.titre;
+
+  const ficheInfo = p.fiche_intervention_id && !p.is_global
+    ? await DB.from('fiches_intervention')
+        .select('titre').eq('id', p.fiche_intervention_id)
+        .maybeSingle().then(r => r.data?.titre || null)
+    : null;
+
+  const tagsHtml = tags.length > 0
+    ? `<div class="d-flex flex-wrap gap-1 mt-3">${tags.map(t =>
+        `<span class="badge bg-light text-dark border">#${escHtml(t.label_display)}</span>`
+      ).join('')}</div>`
+    : '';
+
+  body.innerHTML = `
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+      <span class="badge ${p.is_global ? 'bg-primary' : 'border text-secondary'}">
+        <i class="bi bi-${p.is_global ? 'globe' : 'file-earmark'} me-1"></i>${p.is_global ? 'Globale' : 'Spécifique'}
+      </span>
+      <span class="text-muted small"><i class="bi bi-person-badge me-1"></i>${escHtml(doctorName)}</span>
+      ${ficheInfo ? `<span class="text-muted small"><i class="bi bi-file-earmark-medical me-1"></i>${escHtml(ficheInfo)}</span>` : ''}
+    </div>
+    ${p.description ? `<div class="pref-view-description">${DOMPurify.sanitize(p.description)}</div>` : '<p class="text-muted">Aucune description.</p>'}
+    ${tagsHtml}`;
+
+  footer.innerHTML = `<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>`;
+}
+
+/* ─── FORM MODAL ────────────────────────────────────────── */
+
+async function openPrefModal(id = null) {
+  state.editingId = id;
+  state.formTagIds = [];
+  document.getElementById('pFormError').classList.add('d-none');
+  document.getElementById('pTitre').value = '';
+  document.getElementById('pIsGlobal').checked = true;
+  document.getElementById('pFormChirurgien').value = '';
+  document.getElementById('pFormFiche').value = '';
+  document.getElementById('pTagSearch').value = '';
+  document.getElementById('pFicheRow').classList.add('d-none');
+  if (quill) quill.setContents([]);
+  renderTagSelector();
+
+  document.getElementById('pChirurgienRow').classList.toggle('d-none', !!id || !state.isAdmin);
+
+  if (id) {
+    document.getElementById('modalPrefLabel').textContent = 'Modifier la préférence';
+    document.getElementById('pBtnSave').disabled = true;
+
+    const { data: p } = await DB.from('preferences_chirurgien')
+      .select('*').eq('id', id).maybeSingle();
+    if (!p) { showToast('Préférence introuvable', 'error'); return; }
+
+    if (!canEdit(p)) { showToast('Accès refusé', 'error'); return; }
+
+    document.getElementById('pTitre').value = p.titre || '';
+    document.getElementById('pIsGlobal').checked = p.is_global;
+    document.getElementById('pFicheRow').classList.toggle('d-none', p.is_global);
+    document.getElementById('pFormFiche').value = p.fiche_intervention_id || '';
+    if (quill && p.description) quill.clipboard.dangerouslyPasteHTML(p.description);
+
+    const { data: tagLinks } = await DB.from('tag_links')
+      .select('tag_id')
+      .eq('content_id', id)
+      .eq('content_type', 'preferences_chirurgien');
+    state.formTagIds = (tagLinks || []).map(t => t.tag_id);
+    renderTagSelector();
+
+    document.getElementById('pBtnSave').disabled = false;
+  } else {
+    document.getElementById('modalPrefLabel').textContent = 'Nouvelle préférence chirurgien';
+  }
+  modalPref.show();
+}
+
+/* ─── SAVE ──────────────────────────────────────────────── */
+
+async function savePref() {
+  const titre = document.getElementById('pTitre').value.trim();
+  if (!titre) {
+    document.getElementById('pFormError').textContent = 'Le titre est obligatoire.';
+    document.getElementById('pFormError').classList.remove('d-none');
+    return;
+  }
+
+  const isGlobal = document.getElementById('pIsGlobal').checked;
+  const ficheId = document.getElementById('pFormFiche').value;
+  const description = quill ? quill.root.innerHTML : '';
+
+  let chirurgienId;
+  if (state.editingId) {
+    const { data: existing } = await DB.from('preferences_chirurgien')
+      .select('chirurgien_id').eq('id', state.editingId).maybeSingle();
+    chirurgienId = existing?.chirurgien_id;
+  } else {
+    chirurgienId = document.getElementById('pFormChirurgien').value;
+    if (!chirurgienId) {
+      document.getElementById('pFormError').textContent = 'Veuillez sélectionner un chirurgien.';
+      document.getElementById('pFormError').classList.remove('d-none');
+      return;
+    }
+  }
+
+  const btn = document.getElementById('pBtnSave');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...';
+
+  const payload = {
+    titre,
+    description: description || null,
+    is_global: isGlobal,
+    fiche_intervention_id: isGlobal ? null : (ficheId || null),
+    tags: [],
+    last_modified_by: state.user.id,
+    updated_at: new Date().toISOString(),
+  };
+
+  try {
+    let recordId;
+    if (state.editingId) {
+      const { data, error } = await DB.from('preferences_chirurgien')
+        .update(payload).eq('id', state.editingId).select().single();
+      if (error) throw error;
+      recordId = data.id;
+    } else {
+      const { data, error } = await DB.from('preferences_chirurgien')
+        .insert([{ ...payload, chirurgien_id: chirurgienId }]).select().single();
+      if (error) throw error;
+      recordId = data.id;
+    }
+    await syncTags(recordId);
+    modalPref.hide();
+    showToast(state.editingId ? 'Préférence mise à jour.' : 'Préférence créée.', 'success');
+    loadPrefs();
+  } catch (err) {
+    document.getElementById('pFormError').textContent = err.message;
+    document.getElementById('pFormError').classList.remove('d-none');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer';
+  }
+}
+
+/* ─── DELETE ────────────────────────────────────────────── */
+
+async function deletePref(id) {
+  if (!confirm('Supprimer cette préférence ?')) return;
+  const { error } = await DB.from('preferences_chirurgien').delete().eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Préférence supprimée.', 'success');
+  loadPrefs();
+}
+
+/* ─── INIT ──────────────────────────────────────────────── */
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+  /* ── bdb-shell — INTERDIT-B2 : window.bdbUser seul accès ── */
+  await window.bdbShellReady;
+  const u = window.bdbUser;
+  if (!u) return; // bdb-shell gère la redirection login
+
+  state.user = { id: u.id, email: u.email };
+  state.isAdmin = u.isAdmin ?? false;
+
+  /* ── Admin slot — pattern C.6 ── */
+  if (state.isAdmin) {
+    const slot = document.getElementById('headerAdminSlot');
+    slot.classList.remove('d-none');
+    slot.innerHTML = `<button class="btn btn-primary" id="btnNew">
+      <i class="bi bi-plus-lg me-1"></i>Nouvelle préférence
+    </button>`;
+    document.getElementById('btnNew').addEventListener('click', () => openPrefModal());
+  }
+
+  /* ── Modals + Quill ── */
+  modalPref = new bootstrap.Modal(document.getElementById('modalPref'));
+  modalPrefView = new bootstrap.Modal(document.getElementById('modalPrefView'));
+
+  quill = new Quill('#pQuill', {
+    theme: 'snow',
+    placeholder: 'Décrivez les préférences en détail...',
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['blockquote', 'link'],
+        ['clean'],
+      ],
+    },
+  });
+  /* Fix Quill-in-modal : height:100% collapse quand modal=display:none */
+  document.querySelectorAll('.ql-container').forEach(c => c.style.height = 'auto');
+  document.querySelectorAll('.ql-editor').forEach(e => { e.style.height = 'auto'; e.style.minHeight = '120px'; });
+
+  /* ── Données référentielles ── */
+  await Promise.all([loadDoctors(), loadFiches(), loadTags()]);
+
+  /* ── Deep link ?chirurgien= (depuis annuaire) ── */
+  const urlParams = new URLSearchParams(window.location.search);
+  const chirParam = urlParams.get('chirurgien');
+  if (chirParam) {
+    document.getElementById('pChirurgien').value = chirParam;
+  }
+
+  /* ── Chargement initial ── */
+  await loadPrefs();
+
+  /* ── Filtres ── */
+  let debounce;
+  document.getElementById('pSearch').addEventListener('input', () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(loadPrefs, 400);
+  });
+  document.getElementById('pGlobal').addEventListener('change', loadPrefs);
+  document.getElementById('pChirurgien').addEventListener('change', loadPrefs);
+
+  /* ── Toggle fiche row ── */
+  document.getElementById('pIsGlobal').addEventListener('change', e => {
+    document.getElementById('pFicheRow').classList.toggle('d-none', e.target.checked);
+  });
+
+  /* ── Tags ── */
+  document.getElementById('pTagSearch').addEventListener('input', renderTagSelector);
+
+  /* ── Save ── */
+  document.getElementById('pBtnSave').addEventListener('click', savePref);
+
+  /* ── Cleanup modal state ── */
+  document.getElementById('modalPref').addEventListener('hidden.bs.modal', () => {
+    state.formTagIds = [];
+  });
+
+  /* ── Empty state : bouton créer ── */
+  document.getElementById('btnNewEmpty').addEventListener('click', () => openPrefModal());
+
+  /* ── Retry error ── */
+  document.getElementById('prefsRetryBtn').addEventListener('click', loadPrefs);
+});
+</script>
+</body>
+</html>
