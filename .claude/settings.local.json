@@ -7,7 +7,9 @@
       "Bash(grep -rn \"''member''\" C:/DEV/BIBLE_DE_BLOC/modules/ --include=\"*.html\" --include=\"*.js\")",
       "Bash(echo \"=== modules : \"\"member\"\" ===\")",
       "Bash(grep -rn '\"\"member\"\"' C:/DEV/BIBLE_DE_BLOC/modules/ --include=\"*.html\" --include=\"*.js\")",
-      "Bash(grep -rn \"''membre''\" C:/DEV/BIBLE_DE_BLOC/modules/ --include=\"*.html\" --include=\"*.js\")"
+      "Bash(grep -rn \"''membre''\" C:/DEV/BIBLE_DE_BLOC/modules/ --include=\"*.html\" --include=\"*.js\")",
+      "Bash(grep -v \"//.*console\")",
+      "Bash(ls -1 css/*-ui.css)"
     ]
   }
 }
