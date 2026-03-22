@@ -95,6 +95,9 @@
 .thes-import-log .log-warn { color:#facc15; }
 .thes-import-log .log-err  { color:#f87171; }
 
+/* Icône IA violet custom */
+.thes-ai-icon { color:#7c3aed; }
+
 /* Bouton IA violet custom */
 .thes-ai-btn { border:1px solid #7c3aed; color:#7c3aed; background:#faf5ff; }
 .thes-ai-btn:hover { background:#ede9fe; color:#6d28d9; border-color:#6d28d9; }
@@ -114,3 +117,63 @@
 
 /* Progress qualité hauteur custom */
 .thes-quality-bar { height:14px; border-radius:7px; }
+
+/* ═══════════════════════════════════════════════════
+   CHIRURGIENS — Premium Layout
+   ═══════════════════════════════════════════════════ */
+
+/* KPI cards chirurgien */
+.thes-chir-kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.75rem; margin-bottom:1.25rem; }
+.thes-chir-kpi-card { padding:1rem 1.1rem; border-radius:.75rem; border:1px solid #e5e7eb; background:#fff;
+  display:flex; align-items:flex-start; gap:.75rem; transition:transform .15s,box-shadow .15s; }
+.thes-chir-kpi-card:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.06); }
+.thes-chir-kpi-icon { width:40px; height:40px; border-radius:.5rem; display:flex; align-items:center; justify-content:center;
+  font-size:1.15rem; flex-shrink:0; }
+.thes-chir-kpi-icon.blue   { background:#dbeafe; color:#2563eb; }
+.thes-chir-kpi-icon.green  { background:#dcfce7; color:#16a34a; }
+.thes-chir-kpi-icon.amber  { background:#fef3c7; color:#d97706; }
+.thes-chir-kpi-icon.purple { background:#ede9fe; color:#7c3aed; }
+.thes-chir-kpi-icon.red    { background:#fee2e2; color:#dc2626; }
+.thes-chir-kpi-icon.cyan   { background:#cffafe; color:#0891b2; }
+.thes-chir-kpi-val { font-size:1.5rem; font-weight:700; line-height:1.1; }
+.thes-chir-kpi-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:#6b7280; margin-top:.15rem; }
+
+/* Section headers chirurgien */
+.thes-section-title { font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  color:#374151; margin-bottom:.75rem; padding-bottom:.4rem; border-bottom:2px solid #e5e7eb; }
+.thes-section-title i { margin-right:.4rem; opacity:.6; }
+
+/* Pareto table premium */
+.thes-pareto-rank { width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+  font-size:.7rem; font-weight:700; }
+.thes-pareto-rank.gold   { background:#fef3c7; color:#92400e; }
+.thes-pareto-rank.silver { background:#f3f4f6; color:#4b5563; }
+.thes-pareto-rank.bronze { background:#fed7aa; color:#9a3412; }
+.thes-pareto-rank.normal { background:#f9fafb; color:#9ca3af; }
+.thes-pct-bar { height:6px; border-radius:3px; background:#e5e7eb; overflow:hidden; min-width:60px; }
+.thes-pct-fill { height:100%; border-radius:3px; transition:width .4s ease; }
+
+/* Rare interventions alert */
+.thes-rare-alert { border-left:4px solid #f59e0b; background:#fffbeb; border-radius:0 .5rem .5rem 0; }
+
+/* Zone bars premium */
+.thes-zone-bar-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; }
+.thes-zone-bar-label { width:130px; font-size:.78rem; font-weight:500; text-align:right; color:#374151; flex-shrink:0; }
+.thes-zone-bar-track { flex:1; height:10px; background:#f3f4f6; border-radius:5px; overflow:hidden; }
+.thes-zone-bar-fill { height:100%; border-radius:5px; transition:width .5s ease; }
+.thes-zone-bar-val { width:50px; font-size:.75rem; font-weight:600; color:#6b7280; text-align:right; }
+
+/* Comparison premium */
+.thes-compare-header { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:1rem; }
+.thes-compare-vs { font-size:1.5rem; font-weight:800; color:#d1d5db; }
+.thes-compare-name { font-size:1.1rem; font-weight:700; padding:.4rem 1rem; border-radius:.5rem; }
+.thes-compare-name.a { background:#dbeafe; color:#1d4ed8; }
+.thes-compare-name.b { background:#dcfce7; color:#15803d; }
+.thes-compare-metric-row { display:flex; align-items:center; padding:.6rem 0; border-bottom:1px solid #f3f4f6; }
+.thes-compare-metric-row:last-child { border-bottom:none; }
+.thes-compare-metric-label { flex:1; font-size:.82rem; font-weight:500; color:#6b7280; text-align:center; }
+.thes-compare-metric-val { width:100px; text-align:center; font-size:1.1rem; font-weight:700; }
+
+/* Loading skeleton chirurgien */
+.thes-loading-block { text-align:center; padding:3rem 1rem; color:#9ca3af; }
+.thes-loading-block i { font-size:2rem; margin-bottom:.75rem; display:block; opacity:.3; }
