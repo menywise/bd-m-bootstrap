@@ -119,21 +119,24 @@ secretaires_list        jsonb NOT NULL DEFAULT '[]'
 
 RLS : SELECT public · UPDATE own (user_id=uid()) · ALL admin
 
-## profiles_directory = VUE sur profiles
+## profiles_directory = TABLE sans PK formelle
 
-```sql
-CREATE OR REPLACE VIEW public.profiles_directory AS
-SELECT user_id, id, name, initials, nom, prenom, fonction,
-  avatar_url, bio, couleur_preferentielle, taille_gants,
-  casaque_id, porte_casque, signes_particuliers, secretaires,
-  secretaires_list, telephone_principal, telephone_secondaire,
-  known_as, gant_paire_1_id, gant_paire_2_id, approved,
-  is_dev, created_at, updated_at, email
-FROM public.profiles;
-```
+pg_policies retourne 4 policies sur profiles_directory → c'est une table.
+Le `id` nullable dans information_schema s'explique par l'absence de contrainte NOT NULL (pas de PK formelle).
 
-Preuve : `id` est nullable dans `information_schema.columns` → impossible pour une table PK.
-⚠ `approved` est dans `profiles` (via la vue). PAS dans `user_roles`.
+Colonnes : user_id · id · name · initials · nom · prenom · fonction ·
+avatar_url · bio · couleur_preferentielle · taille_gants · casaque_id ·
+porte_casque · signes_particuliers · secretaires · secretaires_list ·
+telephone_principal · telephone_secondaire · known_as · gant_paire_1_id ·
+gant_paire_2_id · approved · is_dev · created_at · updated_at · email
+
+RLS (cloud exact) :
+- SELECT : is_admin() OR approved=true OR user_id=auth.uid()
+- INSERT : user_id=auth.uid()
+- UPDATE : user_id=auth.uid() OR is_admin()
+- DELETE : is_admin()
+
+⚠ `approved` est ici. PAS dans `user_roles`.
 
 ## user_roles
 
