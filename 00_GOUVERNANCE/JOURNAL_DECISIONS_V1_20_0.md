@@ -247,3 +247,25 @@ IMPACT     : Chaque module a désormais sa triade co-localisée :
              index.html · [module]-ui.css · [module]-app.js
 STATUT     : TERMINÉ — vérifié (inline=0, external=1 pour chaque module)
 ```
+
+---
+
+## D-2026-03-23-INFRA-01 — Backup quotidien automatisé
+```
+DATE       : 2026-03-23
+MODULE     : infrastructure
+DÉCISION   : Script PowerShell bdb-backup.ps1 + tâche planifiée Windows
+             BDB-Backup-Quotidien déclenchée à 09h00.
+             Destination primaire : D:\DEV\BIBLE_DE_BLOC (disque secondaire).
+             Repli automatique : C:\DEV (SAUV) si D: absent.
+             Rotation : 3 derniers BACKUP_* conservés, le reste supprimé.
+             Skip intelligent : aucune copie si zéro modification depuis le dernier backup.
+             Notification Windows à chaque exécution (succès, skip, repli, erreur).
+FICHIERS   : C:\DEV\SCRIPTS\bdb-backup.ps1 (moteur)
+             C:\DEV\SCRIPTS\bdb-backup-install.ps1 (installation tâche planifiée)
+             C:\DEV\SCRIPTS\bdb-backup.log (journal)
+             README-BACKUP.md (documentation)
+SCOPE      : Sauvegarde complète C:\DEV\BIBLE_DE_BLOC\
+HORS SCOPE : Backup Supabase cloud (géré par Supabase). Backup USB (manuel).
+STATUT     : VALIDÉ
+```
