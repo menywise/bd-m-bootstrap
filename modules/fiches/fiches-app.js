@@ -1,0 +1,672 @@
+/* =========================================================
+   MODULE FICHES D'INTERVENTION — BDB v1.0.0
+   Table  : fiches_intervention
+   Liées  : categories, content_types, content_images, tag_links, tags
+   Bucket : content-images
+   ========================================================= */
+
+const DB = window.bdb;
+
+/* ─── XSS — échappement HTML obligatoire (données DB) ──── */
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+const state = {
+  user: null, isAdmin: false,
+  fiches: [], categories: [], allTags: [],
+  contentTypeIds: {},
+  editingId: null,
+  formImages: [],
+  formTagIds: [],
+  etapes: [],
+  filterTag: null, filterCat: null,
+};
+
+let quill;
+let modalFiche, modalFicheView, modalLightbox;
+
+/* ─── TOAST ──────────────────────────────────────────────── */
+function showToast(msg, type = 'info') {
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').className = 'bi me-2 ' + (
+    type === 'error' ? 'bi-x-circle-fill text-danger' :
+    type === 'success' ? 'bi-check-circle-fill text-success' :
+    'bi-info-circle-fill text-primary'
+  );
+  document.getElementById('toastTitle').textContent = type === 'error' ? 'Erreur' : type === 'success' ? 'Succès' : 'Info';
+  bootstrap.Toast.getOrCreateInstance(document.getElementById('toastInfo')).show();
+}
+
+/* ─── INIT FROM SHELL (remplace initAuth — INTERDIT-B3) ── */
+function initFromShell() {
+  state.user = { id: window.bdbUser.id };
+  state.isAdmin = window.bdbUser.isAdmin;
+
+  if (state.isAdmin) {
+    document.getElementById('fichesToolbarAdminSlot').classList.remove('d-none');
+    document.getElementById('btnNew').addEventListener('click', () => openFicheModal());
+  }
+}
+
+/* ─── CONTENT TYPE IDS ───────────────────────────────────── */
+async function loadContentTypeIds() {
+  const { data, error } = await DB.from('content_types').select('id, code');
+  if (error) throw new Error('content_types : ' + error.message);
+  (data || []).forEach(ct => { state.contentTypeIds[ct.code] = ct.id; });
+}
+
+/* ─── CATEGORIES ─────────────────────────────────────────── */
+async function loadCategories() {
+  const ctId = state.contentTypeIds['fiches'];
+  if (!ctId) return;
+  const { data, error } = await DB.from('categories').select('id, label, color').eq('content_type_id', ctId).order('label');
+  if (error) throw new Error('categories : ' + error.message);
+  state.categories = data || [];
+  const sel1 = document.getElementById('fCategory');
+  const sel2 = document.getElementById('fFormCategory');
+  state.categories.forEach(c => {
+    sel1.add(new Option(c.label, c.id));
+    sel2.add(new Option(c.label, c.id));
+  });
+}
+
+/* ─── TAGS ───────────────────────────────────────────────── */
+async function loadTags() {
+  const { data, error } = await DB.from('tags').select('id, label_display, label_normalized, type').order('label_display');
+  if (error) throw new Error('tags : ' + error.message);
+  state.allTags = (data || []).filter(t => ['intervention','fonction','libre'].includes(t.type));
+}
+
+async function loadTagsForRecord(recordId) {
+  const { data } = await DB.from('tag_links').select('tag_id, tags(id, label_display, type)').eq('content_id', recordId).eq('content_type', 'fiche');
+  return (data || []).map(r => r.tags).filter(Boolean);
+}
+
+async function syncTags(recordId) {
+  await DB.from('tag_links').delete().eq('content_id', recordId).eq('content_type', 'fiche');
+  if (state.formTagIds.length > 0) {
+    await DB.from('tag_links').insert(state.formTagIds.map(tagId => ({
+      content_id: recordId, content_type: 'fiche', tag_id: tagId,
+    })));
+  }
+}
+
+/* ─── SIGNED URL ─────────────────────────────────────────── */
+async function getSignedUrl(path) {
+  const { data } = await DB.storage.from('content-images').createSignedUrl(path, 900);
+  return data?.signedUrl || null;
+}
+
+/* ─── UPLOAD IMAGES ──────────────────────────────────────── */
+async function uploadImage(file) {
+  if (state.formImages.length >= 3) { showToast('Max 3 images', 'error'); return null; }
+  if (!file.type.startsWith('image/')) { showToast('Seules les images sont acceptées', 'error'); return null; }
+  if (file.size > 5 * 1024 * 1024) { showToast('Image trop lourde (max 5 Mo)', 'error'); return null; }
+  const ext = file.name.split('.').pop().toLowerCase();
+  const path = `fiches/${state.user.id}/${Date.now()}.${ext}`;
+  const { error } = await DB.storage.from('content-images').upload(path, file, { contentType: file.type, upsert: false });
+  if (error) { showToast('Erreur upload : ' + error.message, 'error'); return null; }
+  return path;
+}
+
+async function renderImagePreviews() {
+  const container = document.getElementById('fImagePreviews');
+  container.innerHTML = '';
+  for (const img of state.formImages) {
+    if (!img.url) { img.url = await getSignedUrl(img.storage_path); }
+    const div = document.createElement('div');
+    div.className = 'position-relative';
+    div.innerHTML = `
+      <img src="${escHtml(img.url || '')}" alt="" class="cds-thumbnail rounded">
+      <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 d-flex align-items-center justify-content-center rounded-circle cds-img-remove-btn" data-path="${escHtml(img.storage_path)}">
+        <i class="bi bi-x cds-text-xxs"></i>
+      </button>`;
+    container.appendChild(div);
+  }
+  container.querySelectorAll('[data-path]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.formImages = state.formImages.filter(i => i.storage_path !== btn.dataset.path);
+      renderImagePreviews();
+    });
+  });
+}
+
+async function saveImages(recordId) {
+  const ctId = state.contentTypeIds['fiches'];
+  if (!ctId || state.formImages.length === 0) return;
+  await DB.from('content_images').insert(state.formImages.map(img => ({
+    content_type_id: ctId, content_id: recordId,
+    storage_path: img.storage_path, position: img.position,
+  })));
+}
+
+async function syncImages(recordId) {
+  const ctId = state.contentTypeIds['fiches'];
+  if (!ctId) return;
+  const { data: existing } = await DB.from('content_images').select('*').eq('content_type_id', ctId).eq('content_id', recordId);
+  const existingPaths = new Set((existing || []).map(i => i.storage_path));
+  const newPaths = new Set(state.formImages.map(i => i.storage_path));
+  const toDelete = (existing || []).filter(i => !newPaths.has(i.storage_path));
+  if (toDelete.length) {
+    await DB.from('content_images').delete().in('id', toDelete.map(i => i.id));
+    await DB.storage.from('content-images').remove(toDelete.map(i => i.storage_path));
+  }
+  const toInsert = state.formImages.filter(i => !existingPaths.has(i.storage_path));
+  if (toInsert.length) {
+    await DB.from('content_images').insert(toInsert.map(img => ({
+      content_type_id: ctId, content_id: recordId,
+      storage_path: img.storage_path, position: img.position,
+    })));
+  }
+}
+
+/* ─── TAG SELECTOR ───────────────────────────────────────── */
+function renderTagSelector() {
+  const search = document.getElementById('fTagSearch').value.toLowerCase();
+  const results = document.getElementById('fTagResults');
+  const selected = document.getElementById('fSelectedTags');
+
+  const filtered = state.allTags
+    .filter(t => !state.formTagIds.includes(t.id) && (!search || t.label_display.toLowerCase().includes(search)))
+    .slice(0, 10);
+
+  results.innerHTML = filtered.map(t => `
+    <button type="button" class="btn btn-sm btn-outline-secondary fiche-tag-btn" data-tag-id="${t.id}">
+      <i class="bi bi-plus me-1"></i>${escHtml(t.label_display)}
+    </button>`).join('');
+  results.querySelectorAll('.fiche-tag-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (state.formTagIds.length >= 5) { showToast('Max 5 tags', 'error'); return; }
+      state.formTagIds.push(btn.dataset.tagId);
+      document.getElementById('fTagSearch').value = '';
+      renderTagSelector();
+    });
+  });
+
+  const selectedTags = state.allTags.filter(t => state.formTagIds.includes(t.id));
+  if (selectedTags.length === 0) {
+    selected.innerHTML = '<span class="text-muted small">Aucun tag sélectionné</span>';
+  } else {
+    selected.innerHTML = selectedTags.map(t => `
+      <span class="badge bg-primary d-flex align-items-center gap-1">
+        ${escHtml(t.label_display)}
+        <button type="button" class="btn-close btn-close-white p-0 cds-text-micro" data-remove-tag="${t.id}"></button>
+      </span>`).join('');
+    selected.querySelectorAll('[data-remove-tag]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.formTagIds = state.formTagIds.filter(id => id !== btn.dataset.removeTag);
+        renderTagSelector();
+      });
+    });
+  }
+}
+
+/* ─── ÉTAPES ─────────────────────────────────────────────── */
+function renderEtapes() {
+  const container = document.getElementById('fEtapes');
+  if (state.etapes.length === 0) {
+    container.innerHTML = '<p class="text-muted small text-center py-3 mb-0" id="fEtapesEmpty">Aucune étape.</p>';
+    return;
+  }
+  container.innerHTML = state.etapes.map((e, i) => `
+    <div class="border rounded-3 p-3 bg-white d-flex gap-3 align-items-start fiche-etape" data-idx="${i}">
+      <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fiche-etape-badge">${i+1}</span>
+      <div class="flex-grow-1 d-flex flex-column gap-2">
+        <input type="text" class="form-control form-control-sm" placeholder="Titre de l'étape" value="${escHtml(e.titre)}" data-field="titre" data-idx="${i}"/>
+        <input type="text" class="form-control form-control-sm text-muted" placeholder="Description (optionnel)" value="${escHtml(e.description)}" data-field="description" data-idx="${i}"/>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-danger" data-remove-etape="${i}"><i class="bi bi-trash"></i></button>
+    </div>`).join('');
+  container.querySelectorAll('input[data-field]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      state.etapes[parseInt(inp.dataset.idx)][inp.dataset.field] = inp.value;
+    });
+  });
+  container.querySelectorAll('[data-remove-etape]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.etapes.splice(parseInt(btn.dataset.removeEtape), 1);
+      state.etapes.forEach((e, i) => e.ordre = i + 1);
+      renderEtapes();
+    });
+  });
+}
+
+/* ─── LOAD FICHES ────────────────────────────────────────── */
+async function loadFiches() {
+  const list = document.getElementById('fichesList');
+  /* Skeleton loader (remplace spinner — D-2026-03-16-T06) */
+  list.innerHTML = `<div class="card border-0 shadow-sm"><div class="card-body placeholder-glow">
+    <div class="placeholder col-6 rounded mb-3 fs-5"></div>
+    <div class="placeholder col-4 rounded mb-2"></div>
+    <div class="placeholder col-8 rounded mb-2"></div>
+    <div class="placeholder col-3 rounded"></div>
+  </div></div>`;
+
+  let q = DB.from('fiches_intervention').select('*, category:categories(id,label,color)').order('created_at', { ascending: false }).limit(100);
+
+  const search = document.getElementById('fSearch').value.trim();
+  const status = document.getElementById('fStatus').value;
+  const cat = document.getElementById('fCategory').value;
+  if (search) q = q.or(`titre.ilike.%${search}%,description.ilike.%${search}%`);
+  if (status) q = q.eq('status', status);
+  if (cat) q = q.eq('category_id', cat);
+  if (state.filterTag) q = q.contains('tags', [state.filterTag]);
+
+  const { data, error } = await q;
+  if (error) {
+    cdsShowGridError(list, error.message, loadFiches);
+    return;
+  }
+  const fiches = data || [];
+  state.fiches = fiches;
+
+  renderActiveFilters();
+
+  if (!fiches.length) {
+    list.innerHTML = `<div class="card border-0 shadow-sm"><div class="card-body text-center py-5 text-muted">
+      <i class="bi bi-file-earmark-medical fs-1 d-block mb-3"></i>
+      <p class="mb-0">Aucune fiche trouvée</p></div></div>`;
+    return;
+  }
+
+  list.innerHTML = `<div class="d-flex flex-column gap-3">${fiches.map(f => renderFicheCard(f)).join('')}</div>`;
+  list.querySelectorAll('[data-open-fiche]').forEach(el => {
+    el.addEventListener('click', () => openFicheView(el.dataset.openFiche));
+  });
+  list.querySelectorAll('[data-edit-fiche]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); openFicheModal(btn.dataset.editFiche); });
+  });
+  list.querySelectorAll('[data-del-fiche]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); deleteFiche(btn.dataset.delFiche); });
+  });
+  list.querySelectorAll('[data-filter-cat]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); document.getElementById('fCategory').value = btn.dataset.filterCat; loadFiches(); });
+  });
+}
+
+function renderFicheCard(f) {
+  const statusBadge = f.status === 'published'
+    ? '<span class="badge bg-success">Publié</span>'
+    : '<span class="badge bg-secondary">Brouillon</span>';
+  const catBadge = f.category
+    ? `<span class="badge border fiche-cat-badge cds-clickable" style="color:${escHtml(f.category.color)||'#6c757d'};border-color:${escHtml(f.category.color)||'#6c757d'}!important" data-filter-cat="${f.category.id}">${escHtml(f.category.label)}</span>`
+    : '';
+  const etapes = Array.isArray(f.etapes) ? f.etapes.length : 0;
+  const duree = f.duree_estimee ? `<span class="text-muted small me-3"><i class="bi bi-clock me-1"></i>${f.duree_estimee} min</span>` : '';
+  const etapesBadge = etapes > 0 ? `<span class="text-muted small me-3"><i class="bi bi-list-ol me-1"></i>${etapes} étape${etapes>1?'s':''}</span>` : '';
+  const tags = Array.isArray(f.tags) && f.tags.length > 0
+    ? `<div class="d-flex flex-wrap gap-1 mt-2">${f.tags.map(t=>`<span class="badge bg-light text-dark border">#${escHtml(t)}</span>`).join('')}</div>` : '';
+  const adminBtns = state.isAdmin ? `
+    <div class="dropdown">
+      <button class="btn btn-sm fiche-btn-ghost" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><button class="dropdown-item" data-edit-fiche="${f.id}"><i class="bi bi-pencil me-2"></i>Modifier</button></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><button class="dropdown-item text-danger" data-del-fiche="${f.id}"><i class="bi bi-trash me-2"></i>Supprimer</button></li>
+      </ul>
+    </div>` : '';
+  const descText = f.description ? f.description.replace(/<[^>]*>/g,'') : '';
+  const desc = descText ? `<p class="text-muted small mb-1 fiche-desc-preview">${escHtml(descText.slice(0,160))}${descText.length>160?'...':''}</p>` : '';
+
+  return `<div class="card shadow-sm border-0 fiche-card cds-clickable" data-open-fiche="${f.id}">
+    <div class="card-body">
+      <div class="d-flex align-items-start gap-3">
+        <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0 fiches-icon-wrap">
+          <i class="bi bi-file-earmark-medical fs-5"></i>
+        </div>
+        <div class="flex-grow-1 min-w-0">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <h6 class="mb-0 fw-semibold">${escHtml(f.titre)}</h6>
+            ${statusBadge}
+            ${catBadge}
+          </div>
+          <div class="d-flex align-items-center flex-wrap mb-1">
+            ${duree}${etapesBadge}
+          </div>
+          ${desc}
+          ${tags}
+        </div>
+        ${adminBtns}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderActiveFilters() {
+  const div = document.getElementById('activeFilters');
+  div.innerHTML = '';
+  if (state.filterTag) {
+    const btn = document.createElement('span');
+    btn.className = 'badge bg-primary d-flex align-items-center gap-1';
+    btn.innerHTML = `#${escHtml(state.filterTag)} <button type="button" class="btn-close btn-close-white p-0 cds-text-micro"></button>`;
+    btn.querySelector('button').addEventListener('click', () => { state.filterTag = null; loadFiches(); });
+    div.appendChild(btn);
+  }
+}
+
+/* ─── VIEW MODAL ─────────────────────────────────────────── */
+async function openFicheView(id) {
+  const body = document.getElementById('modalViewBody');
+  const footer = document.getElementById('modalViewFooter');
+  /* Skeleton loader (remplace spinner — D-2026-03-16-T06) */
+  body.innerHTML = `<div class="placeholder-glow p-3">
+    <div class="placeholder col-8 rounded mb-3 fs-5"></div>
+    <div class="placeholder col-5 rounded mb-2"></div>
+    <div class="placeholder col-7 rounded mb-2"></div>
+    <div class="placeholder col-4 rounded"></div>
+  </div>`;
+  footer.innerHTML = '';
+  modalFicheView.show();
+
+  const { data: f, error } = await DB.from('fiches_intervention').select('*, category:categories(id,label,color)').eq('id', id).maybeSingle();
+  if (error || !f) { body.innerHTML = '<p class="text-danger">Erreur de chargement.</p>'; return; }
+
+  // Images
+  const ctId = state.contentTypeIds['fiches'];
+  let images = [];
+  if (ctId) {
+    const { data: imgs } = await DB.from('content_images').select('*').eq('content_type_id', ctId).eq('content_id', id).order('position');
+    images = imgs || [];
+  }
+
+  // Tags
+  const tags = await loadTagsForRecord(id);
+
+  // Signed URLs
+  const signedImages = await Promise.all(images.map(async img => ({
+    ...img, signedUrl: await getSignedUrl(img.storage_path)
+  })));
+
+  document.getElementById('modalViewLabel').textContent = f.titre;
+
+  const imagesHtml = signedImages.length > 0
+    ? `<div class="d-flex flex-wrap gap-2 mb-4">${signedImages.map(img =>
+        `<img src="${escHtml(img.signedUrl)}" alt="" class="rounded fiche-view-thumb" data-lightbox="${escHtml(img.signedUrl)}">`
+      ).join('')}</div>` : '';
+
+  const etapesHtml = Array.isArray(f.etapes) && f.etapes.length > 0
+    ? `<div class="mb-4">
+        <h6 class="fw-semibold mb-3"><i class="bi bi-list-ol me-2"></i>Étapes</h6>
+        <div class="d-flex flex-column gap-2">${f.etapes.map(e =>
+          `<div class="d-flex gap-3 align-items-start">
+            <span class="badge bg-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fiche-etape-badge-sm">${e.ordre}</span>
+            <div><p class="mb-0 fw-semibold small">${escHtml(e.titre)}</p>${e.description?`<p class="mb-0 text-muted small">${escHtml(e.description)}</p>`:''}</div>
+          </div>`).join('')}</div></div>` : '';
+
+  const tagsHtml = tags.length > 0
+    ? `<div class="d-flex flex-wrap gap-1">${tags.map(t=>`<span class="badge bg-light text-dark border">#${escHtml(t.label_display)}</span>`).join('')}</div>` : '';
+
+  const meta = [];
+  if (f.duree_estimee) meta.push(`<span><i class="bi bi-clock me-1"></i>${f.duree_estimee} min</span>`);
+  if (f.category) meta.push(`<span style="color:${escHtml(f.category.color)||'inherit'}">${escHtml(f.category.label)}</span>`);
+  if (f.status === 'published') meta.push('<span class="badge bg-success">Publié</span>');
+  else meta.push('<span class="badge bg-secondary">Brouillon</span>');
+
+  body.innerHTML = `
+    ${imagesHtml}
+    ${meta.length ? `<div class="d-flex flex-wrap gap-3 align-items-center mb-3 text-muted small">${meta.join('')}</div>` : ''}
+    ${f.description ? `<div class="fiche-view-description mb-4">${DOMPurify.sanitize(f.description)}</div>` : ''}
+    ${etapesHtml}
+    ${tagsHtml ? `<div class="mt-3">${tagsHtml}</div>` : ''}`;
+
+  body.querySelectorAll('[data-lightbox]').forEach(img => {
+    img.addEventListener('click', () => {
+      document.getElementById('lightboxImg').src = img.dataset.lightbox;
+      modalLightbox.show();
+    });
+  });
+
+  if (state.isAdmin) {
+    footer.innerHTML = `
+      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+      <button type="button" class="btn btn-primary" id="btnViewEdit"><i class="bi bi-pencil me-1"></i>Modifier</button>`;
+    document.getElementById('btnViewEdit').addEventListener('click', () => {
+      modalFicheView.hide();
+      openFicheModal(id);
+    });
+  } else {
+    footer.innerHTML = `<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>`;
+  }
+}
+
+/* ─── FORM MODAL ─────────────────────────────────────────── */
+async function openFicheModal(id = null) {
+  state.editingId = id;
+  state.formImages = [];
+  state.formTagIds = [];
+  state.etapes = [];
+  document.getElementById('fFormError').classList.add('d-none');
+  document.getElementById('fImagePreviews').innerHTML = '';
+  document.getElementById('fTitre').value = '';
+  document.getElementById('fDuree').value = '';
+  document.getElementById('fFormCategory').value = '';
+  document.getElementById('fFormStatus').value = 'draft';
+  document.getElementById('fTagSearch').value = '';
+  if (quill) quill.setContents([]);
+  renderEtapes();
+  renderTagSelector();
+
+  if (id) {
+    document.getElementById('modalFicheLabel').textContent = 'Modifier la fiche';
+    document.getElementById('fBtnSave').disabled = true;
+    const { data: f, error: fErr } = await DB.from('fiches_intervention').select('*').eq('id', id).maybeSingle();
+    if (fErr || !f) {
+      document.getElementById('fFormError').textContent = fErr ? fErr.message : 'Fiche introuvable.';
+      document.getElementById('fFormError').classList.remove('d-none');
+      document.getElementById('fBtnSave').disabled = false;
+      modalFiche.show();
+      return;
+    }
+    document.getElementById('fTitre').value = f.titre || '';
+    document.getElementById('fDuree').value = f.duree_estimee || '';
+    document.getElementById('fFormCategory').value = f.category_id || '';
+    document.getElementById('fFormStatus').value = f.status || 'draft';
+    if (quill && f.description) quill.clipboard.dangerouslyPasteHTML(f.description);
+    state.etapes = Array.isArray(f.etapes) ? JSON.parse(JSON.stringify(f.etapes)) : [];
+    renderEtapes();
+
+    // Images
+    const ctId = state.contentTypeIds['fiches'];
+    if (ctId) {
+      const { data: imgs } = await DB.from('content_images').select('*').eq('content_type_id', ctId).eq('content_id', id).order('position');
+      state.formImages = (imgs || []).map(img => ({ id: img.id, storage_path: img.storage_path, position: img.position }));
+      renderImagePreviews();
+    }
+
+    // Tags
+    const { data: tagLinks } = await DB.from('tag_links').select('tag_id').eq('content_id', id).eq('content_type', 'fiche');
+    state.formTagIds = (tagLinks || []).map(t => t.tag_id);
+    renderTagSelector();
+    document.getElementById('fBtnSave').disabled = false;
+  } else {
+    document.getElementById('modalFicheLabel').textContent = 'Nouvelle fiche d\'intervention';
+  }
+  modalFiche.show();
+}
+
+async function saveFiche() {
+  const titre = document.getElementById('fTitre').value.trim();
+  if (!titre) {
+    document.getElementById('fFormError').textContent = 'Le titre est obligatoire.';
+    document.getElementById('fFormError').classList.remove('d-none');
+    return;
+  }
+
+  const btn = document.getElementById('fBtnSave');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...';
+
+  const description = quill ? quill.root.innerHTML : '';
+  const duree = document.getElementById('fDuree').value;
+  const payload = {
+    titre,
+    description: description || null,
+    category_id: document.getElementById('fFormCategory').value || null,
+    duree_estimee: duree ? parseInt(duree) : null,
+    status: document.getElementById('fFormStatus').value,
+    etapes: state.etapes,
+    tags: [],
+    last_modified_by: state.user.id,
+  };
+
+  try {
+    let recordId;
+    if (state.editingId) {
+      const { data, error } = await DB.from('fiches_intervention').update(payload).eq('id', state.editingId).select().single();
+      if (error) throw error;
+      recordId = data.id;
+      await syncImages(recordId);
+    } else {
+      const { data, error } = await DB.from('fiches_intervention').insert([{ ...payload, user_id: state.user.id }]).select().single();
+      if (error) throw error;
+      recordId = data.id;
+      await saveImages(recordId);
+    }
+    await syncTags(recordId);
+    modalFiche.hide();
+    showToast(state.editingId ? 'Fiche mise à jour.' : 'Fiche créée.', 'success');
+    loadFiches();
+  } catch (err) {
+    document.getElementById('fFormError').textContent = err.message;
+    document.getElementById('fFormError').classList.remove('d-none');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer';
+  }
+}
+
+async function deleteFiche(id) {
+  if (!confirm('Supprimer cette fiche ? (action irréversible)')) return;
+  const { error } = await DB.from('fiches_intervention').delete().eq('id', id);
+  if (error) { showToast(error.message, 'error'); return; }
+  showToast('Fiche supprimée.', 'success');
+  loadFiches();
+}
+
+/* ─── INIT ───────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  // Attendre que bdb-shell.js ait fini l'init (session + profil + rôle)
+  await window.bdbShellReady;
+  initFromShell();
+
+  modalFiche = new bootstrap.Modal(document.getElementById('modalFiche'));
+  modalFicheView = new bootstrap.Modal(document.getElementById('modalFicheView'));
+  modalLightbox = new bootstrap.Modal(document.getElementById('modalLightbox'));
+
+  // Quill
+  quill = new Quill('#fQuill', {
+    theme: 'snow',
+    placeholder: 'Description détaillée de la fiche...',
+    modules: {
+      toolbar: [
+        [{ header: [2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['blockquote', 'link'],
+        ['clean'],
+      ],
+    },
+  });
+  /* Fix Quill-in-modal : height:100% collapse quand modal=display:none */
+  document.querySelectorAll('.ql-container').forEach(c => c.style.height = 'auto');
+  document.querySelectorAll('.ql-editor').forEach(e => { e.style.height = 'auto'; e.style.minHeight = '120px'; });
+
+  // stopPropagation dropdowns
+  document.querySelectorAll('.dropdown').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+
+  try {
+    await loadContentTypeIds();
+    await Promise.all([loadCategories(), loadTags()]);
+  } catch (err) {
+    cdsShowGridError(document.getElementById('fichesList'),
+      'Impossible de charger les référentiels : ' + err.message,
+      () => location.reload());
+    return;
+  }
+  await loadFiches();
+
+  // Filtres
+  let debounce;
+  document.getElementById('fSearch').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(loadFiches, 400); });
+  document.getElementById('fStatus').addEventListener('change', loadFiches);
+  document.getElementById('fCategory').addEventListener('change', loadFiches);
+
+  // Étapes
+  document.getElementById('fBtnAddEtape').addEventListener('click', () => {
+    state.etapes.push({ ordre: state.etapes.length + 1, titre: '', description: '' });
+    renderEtapes();
+  });
+
+  // Tags
+  document.getElementById('fTagSearch').addEventListener('input', renderTagSelector);
+
+  // Upload
+  const fInput = document.getElementById('fFileInput');
+  const fArea = document.getElementById('fUploadArea');
+  document.getElementById('fBtnImages').addEventListener('click', () => fInput.click());
+  fInput.addEventListener('change', async e => {
+    for (const file of Array.from(e.target.files || [])) {
+      const path = await uploadImage(file);
+      if (path) state.formImages.push({ storage_path: path, position: state.formImages.length });
+    }
+    renderImagePreviews();
+    e.target.value = '';
+  });
+  fArea.addEventListener('dragover', e => { e.preventDefault(); fArea.classList.add('fiche-upload-active'); });
+  fArea.addEventListener('dragleave', () => fArea.classList.remove('fiche-upload-active'));
+  fArea.addEventListener('drop', async e => {
+    e.preventDefault(); fArea.classList.remove('fiche-upload-active');
+    for (const file of Array.from(e.dataTransfer.files)) {
+      const path = await uploadImage(file);
+      if (path) state.formImages.push({ storage_path: path, position: state.formImages.length });
+    }
+    renderImagePreviews();
+  });
+
+  // Save
+  document.getElementById('fBtnSave').addEventListener('click', saveFiche);
+
+  // Reset on modal close
+  document.getElementById('modalFiche').addEventListener('hidden.bs.modal', () => {
+    state.formImages = []; state.formTagIds = []; state.etapes = [];
+  });
+});
+
+/* ─── CDS resilience helpers ─────────────────────────────── */
+function cdsShowGridError(el, msg, retryFn) {
+  if (!el) return;
+  const retryBtn = retryFn
+    ? `<button class="btn btn-sm btn-outline-danger cds-error-retry" id="cdsRetryBtn">
+         <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
+       </button>`
+    : '';
+  el.innerHTML = `<div class="cds-error-state col-12">
+    <i class="bi bi-wifi-off cds-error-icon"></i>
+    <div class="cds-error-title">Données non chargées</div>
+    <div class="cds-error-msg">${escHtml(msg) || 'Impossible de contacter le serveur. Vérifiez votre connexion.'}</div>
+    ${retryBtn}
+  </div>`;
+  if (retryFn) {
+    const btn = el.querySelector('#cdsRetryBtn');
+    if (btn) btn.addEventListener('click', retryFn);
+  }
+}
+
+function cdsShowOfflineBanner(msg) {
+  let banner = document.getElementById('cdsOfflineBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'cdsOfflineBanner';
+    banner.className = 'cds-offline-banner';
+    document.body.prepend(banner);
+  }
+  banner.textContent = msg || 'Service indisponible — vérifiez votre connexion.';
+  banner.classList.add('show');
+}
+/* ─── Fin CDS resilience helpers ─────────────────────────── */
+
