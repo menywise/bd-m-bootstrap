@@ -195,3 +195,55 @@ HORS SCOPE : Enrichissement thesaurus_interventions (70 361L) — session dédi�
 IMPACT     : Base pour atteindre 420/420 (1 ligne delta restante).
 STATUT     : DOCUMENTÉ — action DATA_METIER en attente
 ```
+
+---
+
+## D-2026-03-23-THES-04 — UX premium thesaurus (10 améliorations V4)
+```
+DATE       : 2026-03-23
+MODULE     : thesaurus
+DÉCISION   : Livraison thesaurus-app.js V4 avec 10 améliorations UX premium :
+             modale structurée, recherche étendue, export enrichi,
+             skeleton loaders, cache footer, proposition nouvel acte,
+             vue chirurgien améliorée, filtres avancés, pagination,
+             affichage zones anatomiques colorées.
+SCOPE      : modules/thesaurus/thesaurus-app.js (V3 → V4)
+             modules/thesaurus/thesaurus-ui.css (v2.2 → v2.3)
+HORS SCOPE : Migration thesaurus_interventions (70 361L) — session dédiée.
+IMPACT     : UX significativement améliorée pour tous les utilisateurs thesaurus.
+             Zéro régression fonctionnelle CRUD.
+STATUT     : LIVRÉ — validé terrain
+```
+
+---
+
+## D-2026-03-23-THES-05 — Fix ACT-0360
+```
+DATE       : 2026-03-23
+MODULE     : thesaurus
+DÉCISION   : Correction du bug ACT-0360 identifié lors de la session thesaurus.
+SCOPE      : modules/thesaurus/thesaurus-app.js
+HORS SCOPE : Autres actes — anomalie isolée à ACT-0360.
+IMPACT     : Acte ACT-0360 correctement enrichi et affiché.
+STATUT     : CORRIGÉ
+```
+
+---
+
+## D-2026-03-23-ARCHI-02 — Externalisation JS inline (10 modules Supabase)
+```
+DATE       : 2026-03-23
+MODULE     : SOCLE — architecture modules
+DÉCISION   : Externalisation du JS métier inline vers [module]-app.js co-localisé
+             pour 10 modules Supabase. Extraction pure — zéro modification du code.
+COMMIT     : 7f3599f
+MODULES    : annuaire(623L) · admin(1181L) · arsenal(1005L) · fiches(672L)
+             transmissions(842L) · cours(572L) · anatomie(498L)
+             installation(704L) · preferences(557L) · supervision(1497L)
+SCOPE      : 20 fichiers modifiés (10 index.html allégés + 10 *-app.js créés).
+HORS SCOPE : Refactoring JS, modules localStorage, planning, collab, disc,
+             paxis, organisateur, dork, thesaurus (déjà fait).
+IMPACT     : Chaque module a désormais sa triade co-localisée :
+             index.html · [module]-ui.css · [module]-app.js
+STATUT     : TERMINÉ — vérifié (inline=0, external=1 pour chaque module)
+```

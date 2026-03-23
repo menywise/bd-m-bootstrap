@@ -641,6 +641,11 @@ E4 — Tout module embryonnaire reçoit son CTX avant toute session de migration
           → thesaurus ✅ (CRUD Supabase + enrichissement 419/420 · 2026-03-23)
           → ÉTAPE 3 TERMINÉE — 25/25 modules migrés (2026-03-23)
 
+ÉTAPE 3B : Externalisation JS ✅ FAIT (10 modules, commit 7f3599f, 2026-03-23)
+           → annuaire · admin · arsenal · fiches · transmissions
+           → cours · anatomie · installation · preferences · supervision
+           → Triade co-localisée : index.html · [module]-ui.css · [module]-app.js
+
 ÉTAPE 4 : Corrections CSS ⏳
           → fiches-ui : scoper .btn-ghost ✅ (renommé .fiche-btn-ghost, session 2026-03-20)
           → annuaire-ui : scoper .badge-fn-*

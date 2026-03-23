@@ -161,7 +161,7 @@ paxis         ← localStorage — Phase 1
 collab        ← localStorage — Phase 1
 organisateur  ← localStorage — Phase 1
 dork          ← localStorage — Phase 1
-thesaurus     ← Supabase (CRUD + enrichi 019) · bdb-shell ✅ migré
+thesaurus     ← Supabase (CRUD + enrichi 019/020) · bdb-shell ✅ migré
 ```
 
 Données UI éphémères autorisées hors Supabase :
@@ -350,7 +350,7 @@ Modules analytiques / recherche (migration Phase 1) :
 
 ```
 dork          ← localStorage → Supabase Phase 1 · bdb-shell ⚠ non migré
-thesaurus     ← Supabase (CRUD + enrichi 019) · bdb-shell ✅ migré
+thesaurus     ← Supabase (CRUD + enrichi 019/020) · bdb-shell ✅ migré
 ```
 
 Modules plateforme :
