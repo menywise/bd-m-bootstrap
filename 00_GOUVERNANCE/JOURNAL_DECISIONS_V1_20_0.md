@@ -124,3 +124,24 @@ ACTION     : Corriger dans js/bdb-shell.js lors de la SESSION N+2
 HORS SCOPE : Ne pas corriger module par module — correction globale bdb-shell uniquement.
 STATUT     : DOCUMENTÉ — correction SESSION N+2
 ```
+
+---
+
+## D-2026-03-23-SAFARI-02 — Fix sticky header Safari iOS (-webkit-sticky)
+```
+DATE       : 2026-03-23
+MODULE     : SOCLE — css/cds-overrides.css
+DÉCISION   : Ajout de position:-webkit-sticky + position:sticky + top:0
+             directement dans .bdb-module-header (cds-overrides.css).
+CAUSE      : Safari WebKit ignore position:sticky délégué via la classe
+             Bootstrap sticky-top quand l'élément est dans un contexte flex.
+             La déclaration doit être sur l'élément lui-même.
+SCOPE      : cds-overrides.css uniquement — 3 lignes ajoutées dans .bdb-module-header.
+             Aucune modification de bdb-shell.js ni des modules HTML.
+HORS SCOPE : Correction module par module (inutile — fix global).
+IMPACT     : Tous les modules utilisant bdb-shell.js bénéficient du fix
+             immédiatement. Aucune régression Chrome/Firefox (déclarations
+             position:sticky redondantes mais inoffensives).
+RÉSULTAT   : Fix appliqué — à valider sur iPad Safari.
+STATUT     : APPLIQUÉ — validation terrain requise
+```
