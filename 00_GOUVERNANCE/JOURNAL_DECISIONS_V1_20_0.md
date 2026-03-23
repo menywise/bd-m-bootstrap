@@ -100,3 +100,27 @@ BACKLOG CDC RESTANT :
   Q1-Q4 Contrôles qualité admin — MOYENNE → session T3
 STATUT     : VALIDÉ — aucun fichier supprimé, aucun déplacé
 ```
+
+---
+
+## D-2026-03-23-SAFARI-01 — Bug sticky header bdb-shell sur Safari iOS
+```
+DATE       : 2026-03-23
+MODULE     : SOCLE — js/bdb-shell.js
+DÉCISION   : Bug documenté — header injecté par bdb-shell.js disparaît au scroll
+             sur Safari iOS (iPad + iPhone).
+CAUSE      : position:sticky ignoré par WebKit quand un ancêtre de la chaîne
+             body.d-flex > main.d-flex.flex-column crée un contexte de formatage
+             qui invalide le sticky. Bug Safari connu, non reproduit sur Chrome/Firefox.
+CONSTAT    : Testé sur module modules/objectifs/index.html — iPad Safari.
+             9/10 points de la checklist Safari validés. Ce point seul en anomalie.
+IMPACT     : Tous les modules BDB utilisant bdb-shell.js sont potentiellement affectés.
+             Non bloquant — les utilisateurs retrouvent le menu via scroll retour haut
+             ou via l'offcanvas.
+ACTION     : Corriger dans js/bdb-shell.js lors de la SESSION N+2
+             (migration bdb-shell aux 7 modules restants).
+             Piste de correction : ajouter -webkit-sticky en complément de sticky
+             sur le header injecté, ET vérifier qu'aucun ancêtre n'a overflow:hidden/auto.
+HORS SCOPE : Ne pas corriger module par module — correction globale bdb-shell uniquement.
+STATUT     : DOCUMENTÉ — correction SESSION N+2
+```
