@@ -284,10 +284,12 @@ Interdiction :
 
 | Champ | Valeur |
 |---|---|
-| Stack | DATA embarquées (const inline) — **cible Supabase Phase 1** |
-| Tables Supabase | aucune — cibles : thesaurus_interventions · thesaurus_protocoles (SQL prêts) |
+| Stack | Supabase (CRUD admin + import) — **migration complète** |
+| Tables Supabase | thesaurus_protocoles (420L enrichies 019/020) · thesaurus_interventions (70 361L) |
 | Volume | 70 361 interventions · 420 protocoles · 2 spécialités · 10 chirurgiens |
-| Migration | VALIDÉE — D-2026-03-13-001 |
+| RPC | thesaurus_distinct_chirurgiens() · thesaurus_distinct_annees() |
+| Shell | ✅ migré |
+| Migration | COMPLÈTE — D-2026-03-23-THES-01 |
 
 ---
 
@@ -365,6 +367,8 @@ MODULES SUPABASE (shell ✅ = migré)                            │
   arsenal ✅ ──┐                                               │
                ├── fiches ──[tag_suggestions]── cours ────     │
   anatomie ✅ ─┤          └── installation                     │
+  cours ✅ ────┘                                               │
+  thesaurus ✅ ─────────────────────────────                   │
                                                                  │
 tags ──── tag_links ──── contenus                              │
       └── tag_suggestions (workflow proposer → valider)        │
@@ -374,8 +378,6 @@ MODULES localStorage (→ migration Supabase)                    │
   disc      [⚠ bdb-members fantôme]                           ─┘
   collab · paxis · organisateur · dork [admin only]
 
-STANDALONE (→ migration Supabase)
-  thesaurus
 ```
 
 ---
