@@ -145,3 +145,53 @@ IMPACT     : Tous les modules utilisant bdb-shell.js bénéficient du fix
 RÉSULTAT   : Fix appliqué — à valider sur iPad Safari.
 STATUT     : APPLIQUÉ — validation terrain requise
 ```
+
+---
+
+## D-2026-03-23-THES-01 — Migration complète thesaurus (CRUD + enrichissement 419/420)
+```
+DATE       : 2026-03-23
+MODULE     : thesaurus
+DÉCISION   : Migration complète du module thesaurus vers Supabase.
+             CRUD opérationnel. Enrichissement 419/420 lignes validé.
+             thesaurus-app.js extrait (V3 — CRUD Supabase réel + import réel).
+SCOPE      : modules/thesaurus/ (index.html · thesaurus-app.js · thesaurus-ui.css)
+HORS SCOPE : Migration 020+ (enrichissement batch complet — session dédiée)
+IMPACT     : thesaurus passe de DATA inline → Supabase (CRUD + enrichi 019).
+             Module Supabase actif, bdb-shell migré.
+RÉSULTAT   : Validé — 419/420 lignes enrichies, 1 ligne delta acceptable.
+STATUT     : TERMINÉ
+```
+
+---
+
+## D-2026-03-23-THES-02 — Palier 1 fermé (25/25 modules shell)
+```
+DATE       : 2026-03-23
+MODULE     : SOCLE — js/bdb-shell.js
+DÉCISION   : Palier 1 fermé — 25/25 modules migrés vers bdb-shell.js.
+             thesaurus était le dernier module non migré de la liste Supabase.
+SCOPE      : Tous les modules BDB (js/bdb-shell.js v1.5.0)
+HORS SCOPE : Modules embryonnaires (carnet_bord, objectifs, ged, accueil)
+             → hors périmètre Palier 1.
+IMPACT     : Aucune VIOLATION ACTIVE bdb-shell restante dans les modules actifs.
+             ÉTAPE 3 du BLOC G.1 (CHANTIER_TECHNIQUE) fermée.
+RÉSULTAT   : ÉTAPE 3 TERMINÉE — 25/25 modules migrés (2026-03-23)
+STATUT     : TERMINÉ
+```
+
+---
+
+## D-2026-03-23-THES-03 — Source enrichissement CSV V4 identifiée
+```
+DATE       : 2026-03-23
+MODULE     : thesaurus (données)
+DÉCISION   : THESAURUS_V4_INTEGRAL.csv identifié comme source canonique
+             pour l'enrichissement batch thesaurus_protocoles.
+             Fichier à verser dans 00_GOUVERNANCE/DATA_METIER/ (répertoire à créer).
+ACTION     : Créer 00_GOUVERNANCE/DATA_METIER/ et y déposer le CSV V4.
+             Migration SQL à préparer en 020_thesaurus_enrichissement_batch.sql.
+HORS SCOPE : Enrichissement thesaurus_interventions (70 361L) — session dédiée.
+IMPACT     : Base pour atteindre 420/420 (1 ligne delta restante).
+STATUT     : DOCUMENTÉ — action DATA_METIER en attente
+```

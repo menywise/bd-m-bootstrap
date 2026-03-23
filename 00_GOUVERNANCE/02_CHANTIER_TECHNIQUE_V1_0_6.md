@@ -579,7 +579,7 @@ Référence : D-2026-03-15-T10 (JOURNAL_DECISIONS)
 | anatomie | modules/anatomie/ | anatomie-ui.css | ✅ migré | 0 ✅ | ✅ | ⏳ à vérifier |
 | installation | modules/installation/ | installation-ui.css | ⏳ à migrer | 8 → corriger | ✅ | ⏳ à migrer |
 | preferences | modules/preferences/ | preferences-ui.css | ⏳ à migrer | 3 → corriger | ✅ | ⏳ à migrer |
-| thesaurus | modules/thesaurus/ | thesaurus-ui.css | ⏳ à migrer | 8 → corriger | ❌ btn-xs | ⏳ à migrer |
+| thesaurus | modules/thesaurus/ | thesaurus-ui.css | ✅ migré | 0 ✅ | ✅ | ✅ escHtml + 3 états |
 
 ### F.2 Modules localStorage — migration Phase 1/2
 
@@ -636,11 +636,10 @@ E4 — Tout module embryonnaire reçoit son CTX avant toute session de migration
 
 ÉTAPE 2 : Migrer admin (module de référence) ✅ FAIT
 
-ÉTAPE 3 : Propagation bdb-shell aux modules Supabase actifs ⏳
+ÉTAPE 3 : Propagation bdb-shell aux modules Supabase actifs ✅
           → annuaire ✅ (corrections CDS) · arsenal ✅ (migration + bugs) · fiches ✅ (migration shell + C.9)
-          → 6 restants : transmissions · cours · installation · preferences · thesaurus · carnet_bord
-          → Corriger position #bdb-shell (INTERDIT-E1) à chaque migration
-          → 15 minutes par module une fois le shell validé
+          → thesaurus ✅ (CRUD Supabase + enrichissement 419/420 · 2026-03-23)
+          → ÉTAPE 3 TERMINÉE — 25/25 modules migrés (2026-03-23)
 
 ÉTAPE 4 : Corrections CSS ⏳
           → fiches-ui : scoper .btn-ghost ✅ (renommé .fiche-btn-ghost, session 2026-03-20)
