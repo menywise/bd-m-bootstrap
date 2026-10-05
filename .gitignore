@@ -1,12 +1,17 @@
-@'
-# Secrets
+# Secrets et configuration locale
 .env*
 js/config.js
+.claude/settings.local.json
+02_INFRASTRUCTURE/Supabase/migrate_avatars.py
+
 # Dumps et sauvegardes base
-_backups/
+/_backups/
 *.dump
+/BACKUP_*/
+
 # Donnees brutes, archives, documents fabricants
-_ARCHIVE/
+/_ARCHIVE/
+/_archives/
 00_GOUVERNANCE/DATA_METIER/
 createur/audit-v5/results/
 *.csv
@@ -16,18 +21,19 @@ createur/audit-v5/results/
 *.zip
 *.7z
 *.rar
+
+# Copies generees (sync-projet-claude.ps1)
+/_PROJET_CLAUDE/
+
 # Ressources sous licence
-_references/
-_CLAUDE_DESIGN/
+/_references/
+/_CLAUDE_DESIGN/
+
+# Fichiers de test serveur
+/test-php-info.php
+
 # Systeme
 Thumbs.db
 desktop.ini
 node_modules/
 *.log
-'@ | Set-Content .gitignore -Encoding ascii
-
-git rm --cached js/config.js
-# Copies generees et scripts a secret
-_PROJET_CLAUDE/
-_archives/
-02_INFRASTRUCTURE/Supabase/migrate_avatars.py
