@@ -4,6 +4,11 @@ js/config.js
 .claude/settings.local.json
 02_INFRASTRUCTURE/Supabase/migrate_avatars.py
 
+# Seeds thesaurus volumineux (donnees, pas schema)
+02_INFRASTRUCTURE/Supabase/migrations/018_thesaurus_seed_interventions*.sql
+02_INFRASTRUCTURE/Supabase/migrations/021b_*.sql
+02_INFRASTRUCTURE/Supabase/migrations/021d_*.sql
+
 # Dumps et sauvegardes base
 /_backups/
 *.dump
