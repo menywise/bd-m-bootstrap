@@ -8,7 +8,7 @@ Ancre sur les **6 documents fondateurs** (A0-A5 ci-dessous). Pas sur ta memoire 
 
 > **57 skills completent ce fichier.** Ils se chargent a la demande. Ce CLAUDE.md ne duplique pas ce qu'un skill couvre deja. Quand une section renvoie a un skill, charge-le avant d'agir.
 
-> **Derniere verification** : 2026-05-03 (session #114 — cascade fondateurs P1+P2)
+> **Derniere verification** : 2026-10-05 (creation depot Git `bd-m-bootstrap` + hygiene secrets)
 
 ---
 
@@ -279,7 +279,14 @@ Projet Supabase : `https://ecpzrygzdugwwkqbsajn.supabase.co`.
 
 ## 14. ENVIRONNEMENT DE DEVELOPPEMENT
 
-**Working directory** : `C:\DEV\BIBLE_DE_BLOC\`. Jamais Desktop, Downloads, ailleurs.
+**Working directory** : `E:\DEV\BIBLE_DE_BLOC\`. Jamais Desktop, Downloads, ailleurs.
+
+**Depot Git** : `menywise/bd-m-bootstrap` (branche `main`), miroir du dossier local `E:\DEV\BIBLE_DE_BLOC\`. Le `.gitignore` exclut volontairement : secrets et config locale (`js/config.js`, `.env*`, `.claude/settings.local.json`), dumps Supabase (`_backups/`), copies de sauvegarde (`BACKUP_*/`), donnees brutes et documents fabricants (`_ARCHIVE/`, `*.csv`, `*.xls*`, `*.pdf`, `*.zip`), copies generees (`_PROJET_CLAUDE/`), ressources sous licence (`_references/`, `_CLAUDE_DESIGN/`). Absent du depot != absent du projet : ces dossiers existent en local.
+
+**Aucun secret dans un fichier versionne.** Cle `service_role`, cle secrete `sb_secret_*`, cle API tierce (Resend, etc.), mot de passe FTP : jamais en clair dans un `.py`, `.ps1`, `.md` ou `.js`. Lecture via variable d'environnement (scripts locaux) ou secrets Supabase (Edge Functions). Seule exception : la cle publique `sb_publishable_*` dans `js/supabase-client.js` (INTERDIT-A1). Controle avant chaque push :
+```powershell
+git grep --cached -nIE "eyJhbGciOi|sb_secret_|(^|[^A-Za-z])re_[A-Za-z0-9_]{20,}"
+```
 
 **Lancer le serveur local** :
 ```powershell
@@ -529,6 +536,7 @@ Lis-les **dans cet ordre** au moindre doute. Ce CLAUDE.md est la synthese operat
 
 | Date | Version | Action |
 |---|---|---|
+| 2026-10-05 | 2.5.1 | **Depot Git + hygiene secrets.** §14 : working directory `C:\DEV` -> `E:\DEV`. Ajout du depot `menywise/bd-m-bootstrap`, de la liste des exclusions `.gitignore` et de la regle "aucun secret dans un fichier versionne" (2 cles trouvees en clair lors du premier push : `service_role` dans `migrate_avatars.py`, cle Resend dans `recueil-situation/CTX_PROJET.md`). |
 | 2026-05-10 | 2.5.0 | **Cascade alignement S129 (D-2026-05-10-S129-CASCADE-ALIGN).** §15 stack technique : `theme-base.css CDN` déprécié pour modules → remplacé par `css/dbm-theme.css` local (source unique vérité visuelle V5.1, préfixe `.app-*`, 70 fichiers HTML). `cds-overrides.css` marqué mort-vivant (plus chargé par modules V5.1, vit en pages V4 résiduelles). `bdb-ui-kit.css` ajouté en position 4 chaîne CSS. §17 pattern module : structure HTML V5.1 vérifiée contre 40+ modules réels (`app-layout` / `app-main` / `app-content` au lieu de `id=middle`). Chaîne CSS V5.1 corrigée (BS → Icons → dbm-theme → bdb-ui-kit → dbm-module-color → module-ui). Chaîne JS V5.1 corrigée (Bootstrap → bdb-modal-a11y → Supabase → ... → bdb-pwa fin). Garde-fou inscrit : GARDE-FOU-CASCADE-EVOL-01 (cascade 5 artefacts aval obligatoire). Dette ouverte : ARB-DETTE-V4-RESIDUELLE-01 (50+ pages V4 résiduelles sur theme-base CDN). Module référence : `modules/glossaire/index.html` (REF-MODULE-DBM-01). |
 | 2026-05-08 | 2.4.0 | **Recadrage canon CONV-CHAIN-E + Carnet V2 — Session #115 phase clotûre.** §15 stack : CDN hash `@63905396` -> **`@4faebd0280e559235fcbfaec2b24d407cebf0a95`** (P-CDS-01 mis a jour 2026-05-08 10:56:24). Ajout `dbm-module-color.css` dans la chaine CSS V5 (CONV-CHAIN-E). Marquage `dbm-premium-components.css` + `bdb-zone-state.js` comme **HORS canon** (a reverser dans `_deltas/`). §17 pattern module : chaine CSS V5 a 6 maillons (Bootstrap -> theme-base@4faebd02 -> Icons -> cds-overrides -> dbm-module-color -> [module]-ui.css). §20 fondateurs : ajout du sas IA `00000_DEBLOQUEZ_MOI`, des 7 voix d'audit, du REFERENTIEL_AFFIRMATIONS, de l'AUDIT_N0_GOUVERNANCE, du **Carnet V2 inter-instances Claude** (REF-MODULE-DBM-01 = `modules/glossaire/`), de l'AUDIT_CONFLITS (10 conflits dont 5 resolus en base 2026-05-08). Ajout des 4 instances Claude (Design/AI/Code/Cowork) avec perimetres opposables. Note 12_CHARTE_PREMIUM partiellement obsolete. |
 | 2026-05-07 | 2.3.0 | **Adoption ciblee Charte d'app DBM v3 (Claude Design) — Session #115.** §15 stack : ajout `dbm-premium-components.css` + `bdb-zone-state.js` (locaux). §17 pattern module : ajout du link CSS premium et du script zone-state dans la chaine. §18 regles : snapshot 257 principes actifs (vs 199 V2.2 — gap S121-S125 + S126), D-2026-05-07-S115-CHARTE-PREMIUM execute en cloud. 4 nouvelles regles critiques : INTERDIT-HOVER-BRIGHTNESS-A15, INTERDIT-CTA-PRIMARY-MODULE-A11, CONV-SURFACE-MARKER-HTML, GARDE-FOU-RFC2119-DOCTRINE. §20 fondateurs : ajout 12_CHARTE_PREMIUM_DBM (RFC 2119 + A1-A15 + R-1 a R-10) et 13_BACKLOG_CHANTIERS_PREMIUM (4 chantiers FAB(3R) differes). Hors scope (FAB(3R) requis) : renommage `bdb-* -> dbm-*` JS/CSS, migration `theme-base.css` CDN -> local, palette HSL 28 modules. Aucune rupture : addition only, fichiers proteges intacts. |
