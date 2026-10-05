@@ -1,0 +1,340 @@
+/*
+ * interview-ui.css — Module PAXIS LOOP
+ * CSS specifique au module PAXIS uniquement.
+ * Ne pas importer depuis un autre module.
+ * CDS compliant — zero style inline dans paxis/index.html
+ * NETTOYAGE : 2026-03-22 — :root scope #paxisApp, toutes classes prefixees .interview-*
+ */
+
+/* -- Tokens scopes au module -- */
+#paxisApp {
+  --paxis-bg: #f8fafc;
+  --paxis-text: #334155;
+  --paxis-muted: #64748b;
+  --paxis-border: #e2e8f0;
+  --paxis-accent: #60a5fa;
+  --paxis-exploration: #60a5fa;
+  --paxis-clarification: #a78bfa;
+  --paxis-tension: #fbbf24;
+  --paxis-criticite: #f87171;
+  --paxis-informel: #34d399;
+}
+
+/* -- Cartes de selection de role -- */
+.interview-role-card {
+  cursor: pointer;
+  transition: box-shadow .15s ease, transform .1s ease;
+}
+.interview-role-card:hover {
+  box-shadow: 0 .25rem .75rem rgba(0,0,0,.12);
+  transform: translateY(-2px);
+}
+
+/* -- Icone fin de questionnaire -- */
+.interview-complete-icon { font-size: 4rem; }
+
+/* -- Badges -- */
+.interview-badge-neutral { background: #f0f0f0; color: #666; }
+.interview-badge-type { flex-shrink: 0; }
+.interview-badge-exploration   { background: rgba(96,165,250,.15); color: #3b82f6; }
+.interview-badge-clarification { background: rgba(167,139,250,.15); color: #8b5cf6; }
+.interview-badge-tension       { background: rgba(251,191,36,.15); color: #d97706; }
+.interview-badge-criticite     { background: rgba(248,113,113,.15); color: #dc2626; }
+.interview-badge-informel      { background: rgba(52,211,153,.15); color: #059669; }
+
+/* -- Sections -- */
+.interview-section {
+  min-height: calc(100vh - 120px);
+  display: none;
+}
+.interview-section.active { display: block; }
+
+/* -- Page accueil -- */
+.interview-hero {
+  padding: 4rem 0;
+  text-align: center;
+}
+.interview-hero h1 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+.interview-hero .lead {
+  font-size: 1.1rem;
+  color: var(--paxis-muted);
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  line-height: 1.8;
+}
+
+.interview-principes-list {
+  list-style: none;
+  padding: 0;
+  max-width: 500px;
+  margin: 2rem auto;
+  text-align: left;
+}
+.interview-principes-list li {
+  padding: .75rem 0;
+  border-bottom: 1px dashed var(--paxis-border);
+  color: var(--paxis-muted);
+  font-size: .95rem;
+}
+.interview-principes-list li:last-child { border-bottom: none; }
+.interview-principes-list li::before {
+  content: "\2014";
+  margin-right: .75rem;
+  color: var(--paxis-accent);
+}
+
+/* -- Questions -- */
+.interview-question-card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--paxis-accent);
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+.interview-question-card.type-exploration   { border-left-color: var(--paxis-exploration); }
+.interview-question-card.type-clarification { border-left-color: var(--paxis-clarification); }
+.interview-question-card.type-tension       { border-left-color: var(--paxis-tension); }
+.interview-question-card.type-criticite     { border-left-color: var(--paxis-criticite); }
+.interview-question-card.type-informel      { border-left-color: var(--paxis-informel); }
+
+.interview-question-meta {
+  display: flex;
+  gap: .5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.interview-question-badge {
+  font-size: .7rem;
+  padding: .25rem .5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+}
+.interview-question-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+
+/* -- Zone de reponse -- */
+.interview-response-area {
+  width: 100%;
+  min-height: 150px;
+  border: 1px solid var(--paxis-border);
+  border-radius: 6px;
+  padding: 1rem;
+  font-size: .95rem;
+  line-height: 1.6;
+  resize: vertical;
+  transition: border-color .2s;
+}
+.interview-response-area:focus {
+  /* UX21 : outline:none OK — border-color + box-shadow fournissent l'indicateur focus */
+  outline: none; /* UX21 OK — border-color + box-shadow fournissent l'indicateur focus */
+  border-color: var(--paxis-accent);
+  box-shadow: 0 0 0 3px rgba(96,165,250,.1);
+}
+.interview-response-options {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.interview-response-options label {
+  font-size: .85rem;
+  color: var(--paxis-muted);
+  cursor: pointer;
+}
+
+/* -- Progress -- */
+.interview-progress-bar {
+  height: 4px;
+  background: var(--paxis-border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.interview-progress-fill {
+  height: 100%;
+  background: var(--paxis-accent);
+  transition: width .3s ease;
+  width: 0%;
+}
+
+/* -- Historique -- */
+.interview-history-item {
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: .75rem;
+  border-left: 3px solid var(--paxis-border);
+}
+.interview-history-item.answered { border-left-color: var(--paxis-informel); }
+.interview-history-item.skipped  { border-left-color: var(--paxis-muted); opacity: .7; }
+.interview-history-question {
+  font-size: .9rem;
+  color: #1e293b;
+  margin-bottom: .5rem;
+}
+.interview-history-response {
+  font-size: .85rem;
+  color: var(--paxis-muted);
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+/* -- Export preview -- */
+.interview-export-preview {
+  background: #1e293b;
+  color: #e2e8f0;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: .8rem;
+  padding: 1.5rem;
+  border-radius: 6px;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* -- Roles -- */
+.interview-role-selector {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.interview-role-btn {
+  padding: .5rem 1rem;
+  border: 1px solid var(--paxis-border);
+  border-radius: 20px;
+  background: white;
+  color: var(--paxis-muted);
+  font-size: .85rem;
+  cursor: pointer;
+  transition: all .2s;
+}
+.interview-role-btn:hover {
+  border-color: var(--paxis-accent);
+  color: var(--paxis-accent);
+}
+.interview-role-btn.active {
+  background: var(--paxis-accent);
+  border-color: var(--paxis-accent);
+  color: white;
+}
+
+/* -- Navigation -- */
+.interview-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--paxis-border);
+}
+
+/* -- Stats -- */
+.interview-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.interview-stat-card {
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+.interview-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+.interview-stat-label {
+  font-size: .75rem;
+  color: var(--paxis-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+/* === Admin section === */
+.interview-admin-filter-select {
+  width: auto;
+  min-width: 200px;
+}
+.interview-admin-empty-icon {
+  font-size: 2rem;
+  color: var(--paxis-muted);
+  display: block;
+}
+.interview-admin-campaign-card {
+  border-left: 4px solid var(--paxis-border);
+  transition: box-shadow .15s;
+}
+.interview-admin-campaign-card.status-active {
+  border-left-color: var(--paxis-informel);
+}
+.interview-admin-campaign-card.status-draft {
+  border-left-color: var(--paxis-tension);
+}
+.interview-admin-campaign-card.status-closed {
+  border-left-color: var(--paxis-muted);
+  opacity: .7;
+}
+.interview-admin-status-badge {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.interview-admin-role-badge {
+  font-size: .65rem;
+  padding: .15rem .4rem;
+}
+.interview-admin-question-text {
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.interview-admin-response-card {
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: .5rem;
+  border-left: 3px solid var(--paxis-border);
+}
+.interview-admin-response-card.status-answered {
+  border-left-color: var(--paxis-informel);
+}
+.interview-admin-response-card.status-unclear {
+  border-left-color: var(--paxis-tension);
+}
+.interview-admin-response-card.status-skipped {
+  border-left-color: var(--paxis-muted);
+}
+.interview-admin-accordion .accordion-button {
+  padding: .75rem 1rem;
+  font-size: .9rem;
+}
+.interview-admin-accordion .accordion-body {
+  padding: .5rem 1rem;
+}
+.interview-admin-kpi-highlight {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.interview-admin-no-session {
+  opacity: .5;
+  font-style: italic;
+}

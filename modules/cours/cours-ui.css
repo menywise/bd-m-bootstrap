@@ -1,6 +1,29 @@
 /* ============================================================
-   cours-ui.css — Module Cours BDB
+   cours-ui.css — Module Cours DBM (V5.1)
    ============================================================ */
+
+/* ── Bandeau page (pattern uniforme cross-modules) ──────────── */
+.cours-page-banner {
+  background: linear-gradient(135deg, var(--module-color) 0%, var(--module-color-strong) 100%);
+  color: var(--module-color-text);
+}
+.cours-page-subtitle {
+  opacity: 0.75;
+}
+
+/* ── Toolbar bar (extrait L91 inline) ────────────── */
+.cours-toolbar-bar {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+/* ── Largeur fixe selects toolbar (180px) ─────────── */
+.toolbar-w-180 {
+  width: 180px;
+}
 
 .cours-card {
   transition: box-shadow 0.15s ease, transform 0.1s ease;
@@ -47,9 +70,151 @@
 #cQuill .ql-toolbar { border-radius: 0.375rem 0.375rem 0 0; border-color: #dee2e6; }
 #cQuill .ql-container { border-radius: 0 0 0.375rem 0.375rem; border-color: #dee2e6; font-size: 0.9rem; }
 
+/* ── Admin (cours-admin-* scopés — INTERDIT-17) ── */
+.cours-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+#coursAdminTabs ~ .tab-content .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+/* ── Lightbox image 80vh ── */
+.cours-lightbox-img {
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+/* ── Bouton suppression image overlay ── */
+.cours-img-remove-btn {
+  width: 20px;
+  height: 20px;
+  font-size: 0.65rem;
+}
+
 /* Miniature image dans la vue détail (remplace style= height:110px inline) */
 .cours-view-thumb {
   height: 110px;
   width: auto;
   object-fit: cover;
+}
+
+/* Skeleton view.html — hauteurs fixes (V5: classes scopées au lieu de style=) */
+#viewContainer .cours-skel-1 { height: 1rem; }
+#viewContainer .cours-skel-2 { height: 2rem; }
+#viewContainer .cours-skel-5 { height: 5rem; }
+#viewContainer .cours-skel-8 { height: 8rem; }
+
+/* =====================================================
+   Topographie anatomique (edit.html) — fusionné depuis
+   cours-ui-additions.css (Session #90 — 2026-04-18)
+   ===================================================== */
+
+/* ── Titre éditable en page edit ──────────────── */
+.topo-titre-input {
+  font-size: 1.25rem;
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px solid var(--bs-border-color);
+  border-radius: 0;
+  background: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+.topo-titre-input:focus {
+  outline: none;
+  border-bottom-color: var(--bs-warning);
+  box-shadow: none;
+  background: transparent;
+}
+
+/* ── Sidebar sticky ──────────────────── */
+.topo-sidebar {
+  position: sticky;
+  top: 70px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+
+/* ── Quill compact dans les blocs région ───────────── */
+.topo-quill .ql-toolbar.ql-snow {
+  border-radius: 6px 6px 0 0;
+  padding: 4px 8px;
+}
+.topo-quill .ql-container.ql-snow {
+  border-radius: 0 0 6px 6px;
+  font-size: 0.875rem;
+  min-height: 80px;
+}
+.topo-quill .ql-editor {
+  min-height: 80px;
+}
+
+/* ── Structures à risque — teinte orange ──────────── */
+.topo-quill-risque .ql-toolbar.ql-snow {
+  border-color: #fd7e14;
+  background-color: rgba(253, 126, 20, 0.05);
+}
+.topo-quill-risque .ql-container.ql-snow {
+  border-color: #fd7e14;
+  background-color: rgba(253, 126, 20, 0.03);
+}
+
+/* ── Nav sidebar active state ──────────────── */
+.topo-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--bs-body-color);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.topo-nav-link:hover,
+.topo-nav-link.active {
+  background: var(--bs-warning-bg-subtle);
+  color: var(--bs-warning-text-emphasis);
+}
+.topo-nav-link i {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+/* ── Bloc section header ───────────────────── */
+.topo-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+/* ── View page — rendu blocs ────────────────── */
+.topo-view-region {
+  border-left: 3px solid var(--bs-warning);
+}
+.topo-view-risque {
+  border-left: 3px solid #fd7e14;
+  background-color: rgba(253, 126, 20, 0.05);
+}
+.topo-view-content p:last-child {
+  margin-bottom: 0;
+}
+.topo-view-situation {
+  border-left: 3px solid var(--bs-primary);
+  background-color: var(--bs-primary-bg-subtle);
+}
+.topo-badge-zone {
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
 }

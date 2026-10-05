@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lunette CRÉATEUR — Conseil</title>
+
+  <!-- CHAÎNE CSS CDS — ORDRE STRICT
+       1. Bootstrap 5.3.3
+       2. theme-base.css Smarty V5 (@63905396c73b061f336f8f5178d738627bca601c)
+       3. Bootstrap Icons 1.11.1
+       4. cds-overrides.css v2.0.1 (couche premium BDB — OBLIGATOIRE)
+       INTERDIT : tout autre fichier CSS module custom en back office -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../../css/cds-overrides.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <div id="bdb-shell"
+         data-module-title="Lunette Créateur"
+         data-module-icon="bi-person-workspace"
+         data-root-path="../../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+        <div class="container-fluid p-3 p-md-4 p-lg-5">
+
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+              <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
+                <span class="badge text-bg-danger">5 — CRÉATEUR</span>
+              </h1>
+              <p class="text-muted mb-0">Est-ce premium, vérifié et non-complaisant&nbsp;?</p>
+            </div>
+          </div>
+
+          <!-- Marqueur de page — lu par conseil-nav.js (data-page) -->
+          <div id="conseil-top" data-page="lunettes" class="d-none"></div>
+
+          <!-- STATE : AUTH REQUIRED -->
+          <div id="cs-auth-overlay" class="d-none bo-auth-overlay" role="dialog" aria-modal="true">
+            <div class="card bo-card bo-accent-primary">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-primary-subtle text-primary">
+                  <i class="bi bi-lock-fill"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Connexion requise</h2>
+                <p class="text-muted mb-4">Le Conseil est réservé au créateur.<br>Connecte-toi puis reviens actualiser.</p>
+                <div class="d-flex justify-content-center gap-2">
+                  <button class="btn btn-primary" id="cs-auth-btn-login" type="button">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Ouvrir la connexion
+                  </button>
+                  <button class="btn btn-outline-secondary" id="cs-auth-btn-refresh" type="button">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : LOADING (skeleton) -->
+          <div id="cs-loading">
+            <div class="card bo-card">
+              <div class="card-body p-4">
+                <div class="placeholder-glow">
+                  <div class="placeholder col-4 mb-3 rounded"></div>
+                  <span class="placeholder col-8 mb-2"></span>
+                  <span class="placeholder col-5"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : ACCESS DENIED -->
+          <div id="cs-denied" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-danger-subtle text-danger">
+                  <i class="bi bi-shield-lock"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Accès réservé</h2>
+                <p class="text-muted mb-0">Cet espace est réservé au créateur de l'instance.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONTENU PRINCIPAL -->
+          <div id="cs-content" class="d-none">
+
+            <div class="card bo-card bo-accent-danger mb-4">
+              <div class="card-header bo-header-tint">
+                <i class="bi bi-person-fill text-primary me-2"></i>Voix
+              </div>
+              <div class="card-body p-4">
+                <p class="mb-0">
+                  <strong>Manu</strong> — DISC D dominant. FAB(3R). 20 ans de terrain. Il a construit BDB.
+                  Il connaît les erreurs que Claude fait par automatisme. Il sait quand un livrable est complaisant
+                  — quand Claude dit « oui » au lieu de « attends, c'est faux ».
+                </p>
+              </div>
+            </div>
+
+            <div class="card bo-card mb-4">
+              <div class="card-header bo-header-tint">
+                <i class="bi bi-search text-primary me-2"></i>Ce que CRÉATEUR traque
+              </div>
+              <div class="card-body p-4">
+
+                <p class="fw-bold mb-1">Complaisance intellectuelle</p>
+                <ul class="mb-3">
+                  <li>Claude qui approuve sans vérifier</li>
+                  <li>Claude qui dit « c'est une excellente approche » sans l'avoir testée</li>
+                  <li>Claude qui formule une hypothèse comme une certitude</li>
+                  <li>Claude qui évite la contradiction pour ne pas décevoir</li>
+                </ul>
+
+                <p class="fw-bold mb-1">Terrain non audité</p>
+                <ul class="mb-3">
+                  <li>Colonne DB supposée sans vérification dans DATA_MODEL</li>
+                  <li>Table supposée sans vérification dans les migrations</li>
+                  <li>Comportement supposé d'un trigger sans lecture du .sql</li>
+                  <li>RLS supposée active sans requête de vérification</li>
+                </ul>
+
+                <p class="fw-bold mb-1">Migrations non vérifiées</p>
+                <ul class="mb-3">
+                  <li>SQL rédigé sans lecture des migrations précédentes</li>
+                  <li>Numéro de migration choisi sans vérification du répertoire</li>
+                  <li>Contrainte ajoutée sans vérifier les données existantes</li>
+                  <li>Rollback non rédigé avant exécution</li>
+                </ul>
+
+                <p class="fw-bold mb-1">Qualité du livrable</p>
+                <ul class="mb-0">
+                  <li>Fichier HTML incomplet (balises non fermées, liens morts)</li>
+                  <li>JS avec console.log en production</li>
+                  <li>CSS avec valeurs hardcodées hors <code>:root</code> (si fichier de design system)</li>
+                  <li>Markdown avec liens vers fichiers inexistants</li>
+                  <li>Template avec placeholders non remplis</li>
+                </ul>
+
+              </div>
+            </div>
+
+            <div class="card bo-card bo-accent-danger mb-4">
+              <div class="card-header bo-header-tint">
+                <i class="bi bi-question-circle text-primary me-2"></i>Les 4 questions du CRÉATEUR
+              </div>
+              <div class="card-body p-4">
+                <ol class="mb-0">
+                  <li><strong>Ai-je vérifié</strong> ou ai-je supposé&nbsp;?</li>
+                  <li><strong>Est-ce que ça tient</strong> ou est-ce que ça semble tenir&nbsp;?</li>
+                  <li><strong>Qu'est-ce que j'ai évité</strong> de dire parce que c'était inconfortable&nbsp;?</li>
+                  <li><strong>Ce livrable mérite-t-il</strong> de porter le nom <span class="app-nom"></span>&nbsp;?</li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="card bo-card mb-4">
+              <div class="card-header bo-header-tint">
+                <i class="bi bi-shield text-primary me-2"></i>GFC — Garde-fous CRÉATEUR
+              </div>
+              <div class="card-body p-4">
+                <div class="table-responsive">
+                  <table class="table table-sm bo-table mb-0">
+                    <thead><tr><th>Code</th><th>Règle</th></tr></thead>
+                    <tbody>
+                      <tr><td><code>GFC-01</code></td><td>Jamais de colonne DB sans vérification dans DATA_MODEL</td></tr>
+                      <tr><td><code>GFC-02</code></td><td>Jamais de migration sans lecture des migrations précédentes</td></tr>
+                      <tr><td><code>GFC-03</code></td><td>Jamais de « probablement » ou « devrait » dans un verdict</td></tr>
+                      <tr><td><code>GFC-04</code></td><td>Jamais de ✅ sans preuve — toujours indiquer la source</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="card bo-card">
+              <div class="card-header bo-header-tint">
+                <i class="bi bi-clipboard-check text-primary me-2"></i>Format de verdict
+              </div>
+              <div class="card-body p-4">
+                <pre class="bg-light p-3 rounded small mb-3">CRÉATEUR : ✅ PREMIUM / ⚠️ ACCEPTABLE / ❌ REJET
+
+Auto-critique :
+- [Ce que j'ai vérifié vs supposé]
+- [Ce que j'ai évité de dire]
+- [Ce qui manque pour que ce soit premium]
+
+Verdict final :
+CRÉATEUR : [PREMIUM|ACCEPTABLE|REJET]</pre>
+                <div class="alert alert-danger small mb-0">
+                  Cette lunette s'active sur <strong>TOUT LIVRABLE. TOUJOURS. SANS EXCEPTION.</strong>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /cs-content -->
+
+        </div><!-- /container-fluid -->
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom fw-semibold"></span>
+        <span class="badge bg-light text-dark border ms-2">CDS Compliant</span>
+      </small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+  <!-- CHAÎNE JS BDB — ORDRE STRICT -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../../js/supabase-client.js"></script>
+  <script src="../../../js/bdb-ui.js"></script>
+  <script src="../../../js/bdb-invite-guard.js"></script>
+  <script src="../../../js/bdb-shell.js"></script>
+  <script src="../conseil-nav.js"></script>
+  <script src="../conseil-app.js"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+/* argumentaire-kpi-ui.css — V2 UX Premium */
+
+/* ── Intro texte ── */
+.arg-intro {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--bs-body-color);
+  max-width: 52rem;
+}
+
+/* ── Section titles ── */
+.arg-section-title {
+  font-weight: 800;
+  font-size: 1.35rem;
+  margin-bottom: .4rem;
+  display: flex;
+  align-items: center;
+}
+.arg-section-intro {
+  color: var(--bs-secondary-color);
+  font-size: .95rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  max-width: 52rem;
+}
+
+/* ── Chiffres clés ── */
+.arg-keyfig {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: .75rem;
+  padding: 1.4rem 1rem;
+  text-align: center;
+  transition: transform .15s, box-shadow .15s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.arg-keyfig:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+.arg-kf-icon { font-size: 1.4rem; margin-bottom: .5rem; }
+.arg-kf-number { font-size: 2rem; font-weight: 800; line-height: 1.1; }
+.arg-kf-label { font-size: .82rem; color: var(--bs-secondary-color); margin-top: .4rem; line-height: 1.4; }
+.arg-kf-source { font-size: .7rem; color: var(--bs-tertiary-color); margin-top: .3rem; }
+
+/* ── KPI group headers ── */
+.arg-kpi-group-header {
+  font-weight: 700;
+  font-size: .9rem;
+  display: flex;
+  align-items: center;
+}
+
+/* ── KPI items (accordéon) ── */
+.arg-kpi-item {
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  padding: .75rem 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  transition: background .15s;
+}
+.arg-kpi-item:last-child { border-bottom: none; }
+.arg-kpi-item:hover { background: var(--bs-tertiary-bg); }
+.arg-kpi-item .arg-kpi-name { font-weight: 600; font-size: .88rem; flex: 1; }
+.arg-kpi-item .arg-kpi-chevron { transition: transform .2s; font-size: .75rem; color: var(--bs-secondary-color); }
+.arg-kpi-item.open .arg-kpi-chevron { transform: rotate(90deg); }
+
+.arg-kpi-detail {
+  display: none;
+  padding: .6rem 1.2rem 1rem 3rem;
+  font-size: .88rem;
+  line-height: 1.7;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+.arg-kpi-detail.show { display: block; }
+.arg-kpi-def { color: var(--bs-secondary-color); margin-bottom: .5rem; font-style: italic; }
+.arg-kpi-bdb { margin-top: .25rem; }
+
+.arg-kpi-impact-tag {
+  display: inline-block;
+  padding: .15rem .55rem;
+  border-radius: 1rem;
+  font-size: .72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.arg-kpi-impact-tag.direct { background: rgba(32,201,151,.12); color: #0d9668; }
+.arg-kpi-impact-tag.indirect { background: rgba(253,126,20,.12); color: #b45309; }
+
+/* ── Personas ── */
+.arg-persona-nav .nav-link { font-weight: 600; font-size: .85rem; }
+.arg-persona-header {
+  padding: 1.2rem 0 1rem;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  margin-bottom: 1rem;
+}
+.arg-persona-desc {
+  font-size: .95rem;
+  line-height: 1.7;
+  max-width: 52rem;
+}
+
+/* ── Objections ── */
+.arg-objection {
+  background: rgba(220,53,69,.04);
+  border-left: 3px solid rgba(220,53,69,.3);
+  border-radius: 0 .5rem .5rem 0;
+  padding: .9rem 1.2rem;
+  margin-bottom: .8rem;
+}
+.arg-obj-q { font-weight: 700; font-size: .92rem; color: #991b1b; margin-bottom: .3rem; }
+.arg-obj-a { font-size: .88rem; line-height: 1.75; color: var(--bs-body-color); }
+
+/* ── Punchline ── */
+.arg-punchline {
+  background: var(--bs-primary-bg-subtle);
+  border-left: 4px solid var(--bs-primary);
+  border-radius: 0 .5rem .5rem 0;
+  padding: 1rem 1.2rem;
+  margin-top: 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--bs-primary-text-emphasis);
+}
+.arg-punchline i { margin-right: .4rem; opacity: .5; }
+
+/* ── ROI note ── */
+.arg-roi-note { font-size: .85rem; color: var(--bs-secondary-color); font-style: italic; }
+
+/* ── Chaîne causale ── */
+.arg-chain-step { display: flex; align-items: flex-start; gap: .7rem; margin-bottom: .6rem; }
+.arg-chain-arrow { color: var(--bs-primary); font-weight: 700; min-width: 1.4rem; text-align: center; padding-top: .15rem; font-size: 1.1rem; }
+.arg-chain-text { font-size: .92rem; line-height: 1.6; }
+.arg-chain-text strong { color: var(--bs-primary); }
+.arg-chain-step:last-child .arg-chain-arrow { color: var(--bs-success); font-size: 1.2rem; }
+.arg-chain-step:last-child .arg-chain-text strong { color: var(--bs-success); }

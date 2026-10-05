@@ -1,0 +1,698 @@
+/* =============================================================
+   MODULE CARNET_BORD — BDB v2.0.0
+   CTX     : CTX_CARNET_BORD_V2_0_0.md
+   CHANTIER: CHANTIER_TECHNIQUE_V1_0_5
+   Tables  : carnet_categories · carnet_items · carnet_progressions
+   Auth    : window.bdbUser (source unique — INTERDIT-B2)
+   ============================================================= */
+
+'use strict';
+
+const DB = window.bdb;
+
+/* ── État applicatif ─────────────────────────────────────────── */
+const state = {
+  isAdmin      : false,
+  userId       : null,
+  categories   : [],
+  items        : [],
+  progressions : {},
+  members      : [],
+  editing      : { itemId: null, progId: null },
+  editingCat   : null,
+  editingItem  : null,
+  itemMentors  : [],
+  itemResources: [],
+};
+
+let modalProg, modalCat, modalItem;
+
+/* ── Utilitaires ─────────────────────────────────────────────── */
+function escHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showState(s) {
+  ['cbLoading','cbEmpty','cbError','cbContent'].forEach(id =>
+    document.getElementById(id)?.classList.toggle('d-none', id !== s)
+  );
+  /* Skeleton : aria-hidden inversé pour accessibilité */
+  const loading = document.getElementById('cbLoading');
+  if (loading) loading.setAttribute('aria-hidden', s !== 'cbLoading');
+}
+
+function showError(msg) {
+  document.getElementById('cbErrorMsg').textContent = msg;
+  showState('cbError');
+}
+
+/* ── Badges niveau ───────────────────────────────────────────── */
+function niveauBadge(niveau) {
+  const map = {
+    debutant      : ['Débutant',      'cb-niveau-debutant'],
+    intermediaire : ['Intermédiaire', 'cb-niveau-intermediaire'],
+    expert        : ['Expert',        'cb-niveau-expert'],
+    na            : ['NA',            'cb-niveau-na'],
+  };
+  const [label, cls] = map[niveau] || [];
+  return label ? `<span class="cb-niveau-badge ${escHtml(cls)}">${escHtml(label)}</span>` : '';
+}
+
+function daysSince(iso) {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+}
+
+/* ── Statistiques catégorie ──────────────────────────────────── */
+function catStats(categoryId) {
+  const catItems = state.items.filter(i => i.category_id === categoryId);
+  const nonNA    = catItems.filter(i => {
+    const p = state.progressions[i.id];
+    return !p || p.niveau !== 'na';
+  });
+  const done     = nonNA.filter(i => state.progressions[i.id]?.date_solo).length;
+  const required = catItems.filter(i => i.required && !state.progressions[i.id]?.date_solo).length;
+  const pct      = nonNA.length ? Math.round((done / nonNA.length) * 100) : 0;
+  return { total: catItems.length, done, required, pct };
+}
+
+/* ── Dashboard ───────────────────────────────────────────────── */
+function renderDashboard() {
+  if (!state.userId) return;
+  const dash = document.getElementById('cbDashboard');
+  dash.classList.remove('d-none');
+
+  const total    = state.items.length;
+  const doneSolo = state.items.filter(i => state.progressions[i.id]?.date_solo).length;
+  const reqLeft  = state.items.filter(i => i.required && !state.progressions[i.id]?.date_solo).length;
+  const progs    = Object.values(state.progressions);
+  let inactHtml  = '';
+  if (progs.length) {
+    const latest = progs.reduce((a, b) =>
+      new Date(a.last_activity_at) > new Date(b.last_activity_at) ? a : b
+    );
+    const days = daysSince(latest.last_activity_at);
+    if (days !== null && days > 30) {
+      inactHtml = `<br><span class="cb-inactivity-warn small"><i class="bi bi-clock-history me-1"></i>${days}j sans activité</span>`;
+    }
+  }
+
+  dash.innerHTML = `
+    <div class="cb-stat-card">
+      <div class="cb-stat-value">${doneSolo}</div>
+      <div class="cb-stat-label">Items solo</div>
+    </div>
+    <div class="cb-stat-card">
+      <div class="cb-stat-value">${total}</div>
+      <div class="cb-stat-label">Total items</div>
+    </div>
+    <div class="cb-stat-card">
+      <div class="cb-stat-value">${reqLeft > 0
+        ? `<span class="text-danger">${reqLeft}</span>`
+        : '<span class="text-success">0</span>'}</div>
+      <div class="cb-stat-label">Requis restants ★</div>
+    </div>
+    <div class="cb-stat-card flex-grow-1">
+      <div class="cb-stat-value">${Math.round((doneSolo / (total || 1)) * 100)}%</div>
+      <div class="cb-stat-label">Progression globale${inactHtml}</div>
+    </div>`;
+}
+
+/* ── Rendu onglets ───────────────────────────────────────────── */
+function renderTabs() {
+  const tabList    = document.getElementById('cbTabList');
+  const tabContent = document.getElementById('cbTabContent');
+  tabList.innerHTML    = '';
+  tabContent.innerHTML = '';
+  /* Listener attaché une seule fois dans DOMContentLoaded — ne pas ajouter ici */
+
+  state.categories.forEach((cat, idx) => {
+    const active = idx === 0;
+    const stats  = catStats(cat.id);
+    const iconId = cat.icon ? cat.icon.replace(/^bi-/,'') : 'journal-medical';
+
+    /* ── Onglet ── */
+    const li = document.createElement('li');
+    li.className = 'nav-item';
+    /* RÈGLE-CB-05 : style dynamique couleur DB — toléré INTERDIT-C3 */
+    li.innerHTML = `
+      <button class="nav-link${active ? ' active' : ''}"
+              id="tab-${escHtml(cat.id)}"
+              data-bs-toggle="tab"
+              data-bs-target="#pane-${escHtml(cat.id)}"
+              type="button" role="tab"
+              aria-controls="pane-${escHtml(cat.id)}"
+              aria-selected="${active}">
+        <i class="bi bi-${escHtml(iconId)} me-1 cb-cat-dot" style="--cat-c:${escHtml(cat.color)}"></i>
+        ${escHtml(cat.label)}
+        <span class="badge ms-1 rounded-pill cb-cat-pill"
+              style="--cat-c:${escHtml(cat.color)}">
+          ${stats.done}/${stats.total}
+        </span>
+      </button>`;
+    tabList.appendChild(li);
+
+    /* ── Panneau ── */
+    const pane = document.createElement('div');
+    pane.className = `tab-pane fade${active ? ' show active' : ''} cb-tab-pane`;
+    pane.id        = `pane-${cat.id}`;
+    pane.setAttribute('role', 'tabpanel');
+    pane.setAttribute('aria-labelledby', `tab-${cat.id}`);
+
+    /* En-tête panneau */
+    const header = document.createElement('div');
+    header.className = 'p-3 border-bottom d-flex align-items-center justify-content-between gap-3 flex-wrap';
+    header.innerHTML = `
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between small text-muted mb-1">
+          <span>Progression</span><span>${stats.pct}% solo</span>
+        </div>
+        <div class="cb-cat-progress" role="progressbar"
+             aria-valuenow="${stats.pct}" aria-valuemin="0" aria-valuemax="100">
+          <div class="cb-cat-progress-fill" style="--cb-w:${stats.pct}%"></div>
+        </div>
+        ${stats.required > 0
+          ? `<div class="small text-danger mt-1"><i class="bi bi-exclamation-circle me-1"></i>${stats.required} item${stats.required > 1 ? 's requis non complétés' : ' requis non complété'}</div>`
+          : ''}
+      </div>
+      ${state.isAdmin
+        ? `<button class="btn btn-outline-secondary btn-sm" type="button"
+                   data-action="edit-cat" data-cat-id="${escHtml(cat.id)}">
+             <i class="bi bi-pencil me-1"></i>Modifier
+           </button>`
+        : ''}`;
+    pane.appendChild(header);
+
+    /* Items par sous-groupe */
+    const catItems    = state.items.filter(i => i.category_id === cat.id);
+    const sousGroupes = [...new Set(catItems.map(i => i.sous_groupe || ''))];
+
+    sousGroupes.forEach(sg => {
+      if (sg) {
+        const sgHeader = document.createElement('div');
+        sgHeader.className   = 'cb-subgroup-header';
+        sgHeader.textContent = sg;
+        pane.appendChild(sgHeader);
+      }
+      catItems.filter(i => (i.sous_groupe || '') === sg)
+              .forEach(item => pane.appendChild(buildItemRow(item)));
+    });
+
+    tabContent.appendChild(pane);
+  });
+}
+
+/* ── Ligne item ─────────────────────────────────────────────── */
+function buildItemRow(item) {
+  const prog = state.progressions[item.id];
+  const ph   = [prog?.date_demo, prog?.date_accompagne, prog?.date_solo];
+  const cls  = ph.map((d, i) => d ? 'done' : (i > 0 && ph[i-1] ? 'partial' : ''));
+
+  const row = document.createElement('div');
+  row.className      = 'cb-item-row';
+  row.dataset.itemId = item.id;
+  row.innerHTML = `
+    <div class="cb-item-label${item.required ? ' cb-item-required' : ''}">${escHtml(item.label)}</div>
+    ${state.userId ? `
+      <div class="cb-progress-badges">
+        <span class="cb-badge-phase ${escHtml(cls[0])}"
+              title="Vu / Démo${prog?.date_demo ? ' — ' + prog.date_demo : ''}">D</span>
+        <span class="cb-badge-phase ${escHtml(cls[1])}"
+              title="Fait accompagné${prog?.date_accompagne ? ' — ' + prog.date_accompagne : ''}">A</span>
+        <span class="cb-badge-phase ${escHtml(cls[2])}"
+              title="Fait seul${prog?.date_solo ? ' — ' + prog.date_solo : ''}">S</span>
+        ${niveauBadge(prog?.niveau)}
+      </div>
+      <button class="cb-btn-open" type="button"
+              data-action="open-prog" data-item-id="${escHtml(item.id)}"
+              title="Saisir / voir">
+        <i class="bi bi-pencil-square"></i>
+      </button>`
+    : '<span class="text-muted small fst-italic">Connexion requise</span>'}
+    ${state.isAdmin ? `
+      <button class="cb-btn-open" type="button"
+              data-action="edit-item" data-item-id="${escHtml(item.id)}"
+              title="Modifier l'item">
+        <i class="bi bi-gear"></i>
+      </button>` : ''}`;
+  return row;
+}
+
+/* ── Délégation clics ────────────────────────────────────────── */
+function handleContentClick(e) {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const { action, itemId, catId } = btn.dataset;
+  if (action === 'open-prog' && state.userId)  openProgressionModal(itemId);
+  if (action === 'edit-cat'  && state.isAdmin) openAdminCatModal(catId);
+  if (action === 'edit-item' && state.isAdmin) openAdminItemModal(itemId);
+}
+
+/* ── Icônes ressources ───────────────────────────────────────── */
+function resourceIcon(type) {
+  return {
+    fiche        : 'bi-file-earmark-medical',
+    cours        : 'bi-mortarboard',
+    materiel     : 'bi-box-seam',
+    installation : 'bi-hospital',
+    anatomie     : 'bi-activity',
+    externe      : 'bi-box-arrow-up-right',
+  }[type] || 'bi-link-45deg';
+}
+
+function buildInternalUrl(type) {
+  return {
+    fiche        : '../../modules/fiches/index.html',
+    cours        : '../../modules/cours/index.html',
+    materiel     : '../../modules/arsenal/index.html',
+    installation : '../../modules/installation/index.html',
+    anatomie     : '../../modules/anatomie/index.html',
+  }[type] || null;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODALE PROGRESSION
+   ═══════════════════════════════════════════════════════════════ */
+function openProgressionModal(itemId) {
+  const item = state.items.find(i => i.id === itemId);
+  if (!item) return;
+  const cat  = state.categories.find(c => c.id === item.category_id);
+  const prog = state.progressions[itemId] || {};
+
+  state.editing = { itemId, progId: prog.id || null };
+
+  document.getElementById('mpItemLabel').textContent   = item.label;
+  document.getElementById('mpItemContext').textContent =
+    [cat?.label, item.sous_groupe].filter(Boolean).join(' › ');
+  document.getElementById('mpDateDemo').value       = prog.date_demo       || '';
+  document.getElementById('mpDateAccompagne').value = prog.date_accompagne || '';
+  document.getElementById('mpDateSolo').value       = prog.date_solo       || '';
+  document.getElementById('mpNiveau').value         = prog.niveau          || '';
+  document.getElementById('mpNote').value           = prog.note            || '';
+
+  /* Ressources */
+  const resources  = item.resources || [];
+  document.getElementById('mpResourcesList').innerHTML = resources.map(r => {
+    const url  = r.url || buildInternalUrl(r.type);
+    const icon = resourceIcon(r.type);
+    return url
+      ? `<a href="${escHtml(url)}" target="_blank" rel="noopener" class="cb-resource-link">
+           <i class="bi ${escHtml(icon)}"></i>${escHtml(r.label)}
+         </a>`
+      : `<span class="cb-resource-link text-muted">
+           <i class="bi ${escHtml(icon)}"></i>${escHtml(r.label)}
+         </span>`;
+  }).join('');
+  document.getElementById('mpResourcesSection').classList.toggle('d-none', !resources.length);
+
+  /* Mentors */
+  const mentorIds = item.mentor_ids || [];
+  document.getElementById('mpMentorsList').innerHTML = mentorIds.map(uid => {
+    const m     = state.members.find(mem => mem.user_id === uid);
+    const label = m ? `${m.prenom || ''} ${m.nom || ''}`.trim() || m.initials
+                    : uid.substring(0, 8) + '…';
+    return `<span class="cb-mentor-chip">
+      <i class="bi bi-person-check"></i>${escHtml(label)}
+    </span>`;
+  }).join('');
+  document.getElementById('mpMentorsSection').classList.toggle('d-none', !mentorIds.length);
+
+  modalProg.show();
+}
+
+async function saveProgression() {
+  const btn = document.getElementById('mpBtnSave');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Enregistrement…';
+
+  const payload = {
+    user_id         : state.userId,
+    item_id         : state.editing.itemId,
+    date_demo       : document.getElementById('mpDateDemo').value       || null,
+    date_accompagne : document.getElementById('mpDateAccompagne').value || null,
+    date_solo       : document.getElementById('mpDateSolo').value       || null,
+    niveau          : document.getElementById('mpNiveau').value         || null,
+    note            : document.getElementById('mpNote').value.trim()    || null,
+    last_activity_at: new Date().toISOString(),
+    updated_at      : new Date().toISOString(),
+  };
+
+  try {
+    const { error } = state.editing.progId
+      ? await DB.from('carnet_progressions').update(payload)
+               .eq('id', state.editing.progId).eq('user_id', state.userId)
+      : await DB.from('carnet_progressions').insert([payload]);
+    if (error) throw error;
+    await loadProgressions();
+    renderDashboard();
+    renderTabs();
+    modalProg.hide();
+    bdbToast('Progression enregistrée.', 'success');
+  } catch (err) {
+    bdbToast('Erreur : ' + err.message, 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODALE ADMIN — Catégorie
+   ═══════════════════════════════════════════════════════════════ */
+function openAdminCatModal(catId = null) {
+  state.editingCat = catId;
+  const cat = catId ? state.categories.find(c => c.id === catId) : null;
+  document.getElementById('modalAdminCatLabel').textContent = cat ? 'Modifier la catégorie' : 'Nouvelle catégorie';
+  document.getElementById('macLabel').value    = cat?.label    || '';
+  document.getElementById('macColor').value    = cat?.color    || '#6c757d';
+  document.getElementById('macIcon').value     = cat ? cat.icon.replace(/^bi-/,'') : '';
+  document.getElementById('macPosition').value = cat?.position ?? 0;
+  document.getElementById('macActive').checked = cat ? cat.is_active : true;
+  document.getElementById('macColorPreview').style.background = cat?.color || '#6c757d';
+  document.getElementById('macError').classList.add('d-none');
+  document.getElementById('macBtnDelete').classList.toggle('d-none', !cat);
+  modalCat.show();
+}
+
+async function saveAdminCat() {
+  const label = document.getElementById('macLabel').value.trim();
+  if (!label) {
+    const el = document.getElementById('macError');
+    el.textContent = 'Le libellé est obligatoire.';
+    el.classList.remove('d-none');
+    return;
+  }
+  const btn = document.getElementById('macBtnSave');
+  btn.disabled = true;
+  const payload = {
+    label,
+    color     : document.getElementById('macColor').value,
+    icon      : 'bi-' + document.getElementById('macIcon').value.replace(/^bi-/,''),
+    position  : parseInt(document.getElementById('macPosition').value, 10) || 0,
+    is_active : document.getElementById('macActive').checked,
+    updated_at: new Date().toISOString(),
+  };
+  try {
+    const { error } = state.editingCat
+      ? await DB.from('carnet_categories').update(payload).eq('id', state.editingCat)
+      : await DB.from('carnet_categories').insert([{ ...payload, created_by: state.userId }]);
+    if (error) throw error;
+    await loadAll();
+    modalCat.hide();
+    bdbToast(state.editingCat ? 'Catégorie mise à jour.' : 'Catégorie créée.', 'success');
+  } catch (err) {
+    const el = document.getElementById('macError');
+    el.textContent = err.message;
+    el.classList.remove('d-none');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteAdminCat() {
+  /* INTERDIT-C5 : pas d'Optimistic Update sur DELETE */
+  if (!state.editingCat || !confirm('Supprimer cette catégorie et tous ses items ?')) return;
+  const { error } = await DB.from('carnet_categories').delete().eq('id', state.editingCat);
+  if (error) { bdbToast(error.message, 'danger'); return; }
+  await loadAll();
+  modalCat.hide();
+  bdbToast('Catégorie supprimée.', 'success');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODALE ADMIN — Item
+   ═══════════════════════════════════════════════════════════════ */
+function openAdminItemModal(itemId = null) {
+  state.editingItem = itemId;
+  const item = itemId ? state.items.find(i => i.id === itemId) : null;
+  document.getElementById('modalAdminItemLabel').textContent = item ? "Modifier l'item" : 'Nouvel item';
+  document.getElementById('maiLabel').value      = item?.label       || '';
+  document.getElementById('maiSousGroupe').value = item?.sous_groupe || '';
+  document.getElementById('maiPosition').value   = item?.position    ?? 0;
+  document.getElementById('maiRequired').checked = item?.required    || false;
+  document.getElementById('maiActive').checked   = item ? item.is_active : true;
+  document.getElementById('maiError').classList.add('d-none');
+  document.getElementById('maiBtnDelete').classList.toggle('d-none', !item);
+
+  document.getElementById('maiCategory').innerHTML = state.categories.map(c =>
+    `<option value="${escHtml(c.id)}"${item?.category_id === c.id ? ' selected' : ''}>${escHtml(c.label)}</option>`
+  ).join('');
+
+  state.itemResources = item ? [...(item.resources   || [])] : [];
+  state.itemMentors   = item ? [...(item.mentor_ids  || [])] : [];
+  renderResourceEditor();
+  renderMentorEditor();
+  modalItem.show();
+}
+
+function renderResourceEditor() {
+  const container = document.getElementById('maiResourcesEditor');
+  container.innerHTML = state.itemResources.map((r, idx) => `
+    <div class="cb-resource-editor-row mb-2">
+      <select class="form-select form-select-sm" data-res-idx="${idx}" data-res-field="type">
+        ${['fiche','cours','materiel','installation','anatomie','externe'].map(t =>
+          `<option value="${t}"${r.type === t ? ' selected' : ''}>${t}</option>`
+        ).join('')}
+      </select>
+      <input type="text" class="form-control form-control-sm" placeholder="Libellé"
+             value="${escHtml(r.label)}" data-res-idx="${idx}" data-res-field="label"/>
+      <input type="text" class="form-control form-control-sm" placeholder="URL si externe"
+             value="${escHtml(r.url || '')}" data-res-idx="${idx}" data-res-field="url"/>
+      <button class="btn btn-outline-danger btn-sm" type="button"
+              data-action="remove-res" data-res-idx="${idx}">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>`).join('');
+
+  container.querySelectorAll('[data-res-idx]').forEach(el => {
+    el.addEventListener('input',  e => {
+      state.itemResources[+e.target.dataset.resIdx][e.target.dataset.resField] = e.target.value;
+    });
+    el.addEventListener('change', e => {
+      state.itemResources[+e.target.dataset.resIdx][e.target.dataset.resField] = e.target.value;
+    });
+  });
+  container.querySelectorAll('[data-action="remove-res"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.itemResources.splice(+btn.dataset.resIdx, 1);
+      renderResourceEditor();
+    });
+  });
+}
+
+function renderMentorEditor() {
+  const list = document.getElementById('maiMentorsList');
+  list.innerHTML = state.itemMentors.map(uid => {
+    const m     = state.members.find(mem => mem.user_id === uid);
+    const label = m ? `${m.prenom || ''} ${m.nom || ''}`.trim() || m.initials
+                    : uid.substring(0, 8) + '…';
+    return `<span class="cb-mentor-chip">
+      <i class="bi bi-person-check"></i>${escHtml(label)}
+      <button class="btn-close ms-1 cb-text-micro" type="button"
+              data-action="remove-mentor" data-uid="${escHtml(uid)}"
+              aria-label="Retirer ${escHtml(label)}"></button>
+    </span>`;
+  }).join('');
+  list.querySelectorAll('[data-action="remove-mentor"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.itemMentors = state.itemMentors.filter(u => u !== btn.dataset.uid);
+      renderMentorEditor();
+    });
+  });
+
+  const sel = document.getElementById('maiMentorSelect');
+  sel.innerHTML = '<option value="">— Ajouter un mentor —</option>' +
+    state.members
+      .filter(m => !state.itemMentors.includes(m.user_id))
+      .map(m => `<option value="${escHtml(m.user_id)}">${escHtml(`${m.prenom || ''} ${m.nom || ''}`.trim() || m.initials)}</option>`)
+      .join('');
+}
+
+async function saveAdminItem() {
+  const label = document.getElementById('maiLabel').value.trim();
+  if (!label) {
+    const el = document.getElementById('maiError');
+    el.textContent = 'Le libellé est obligatoire.';
+    el.classList.remove('d-none');
+    return;
+  }
+  const btn = document.getElementById('maiBtnSave');
+  btn.disabled = true;
+  const payload = {
+    category_id : document.getElementById('maiCategory').value,
+    label,
+    sous_groupe : document.getElementById('maiSousGroupe').value.trim() || null,
+    position    : parseInt(document.getElementById('maiPosition').value, 10) || 0,
+    required    : document.getElementById('maiRequired').checked,
+    is_active   : document.getElementById('maiActive').checked,
+    resources   : state.itemResources,
+    mentor_ids  : state.itemMentors,
+    updated_at  : new Date().toISOString(),
+  };
+  try {
+    const { error } = state.editingItem
+      ? await DB.from('carnet_items').update(payload).eq('id', state.editingItem)
+      : await DB.from('carnet_items').insert([{ ...payload, created_by: state.userId }]);
+    if (error) throw error;
+    await loadAll();
+    modalItem.hide();
+    bdbToast(state.editingItem ? 'Item mis à jour.' : 'Item créé.', 'success');
+  } catch (err) {
+    const el = document.getElementById('maiError');
+    el.textContent = err.message;
+    el.classList.remove('d-none');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteAdminItem() {
+  /* INTERDIT-C5 : confirm + await côté serveur — pas d'Optimistic Update */
+  if (!state.editingItem || !confirm('Supprimer cet item ? Les progressions associées seront perdues.')) return;
+  const { error } = await DB.from('carnet_items').delete().eq('id', state.editingItem);
+  if (error) { bdbToast(error.message, 'danger'); return; }
+  await loadAll();
+  modalItem.hide();
+  bdbToast('Item supprimé.', 'success');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CHARGEMENT
+   ═══════════════════════════════════════════════════════════════ */
+async function loadCategories() {
+  const { data, error } = await DB.from('carnet_categories')
+    .select('*').order('position').order('label');
+  if (error) throw error;
+  state.categories = data || [];
+}
+
+async function loadItems() {
+  const { data, error } = await DB.from('carnet_items')
+    .select('*').order('position').order('label');
+  if (error) throw error;
+  state.items = data || [];
+}
+
+async function loadProgressions() {
+  if (!state.userId) { state.progressions = {}; return; }
+  const { data, error } = await DB.from('carnet_progressions')
+    .select('*').eq('user_id', state.userId);
+  if (error) throw error;
+  state.progressions = {};
+  (data || []).forEach(p => { state.progressions[p.item_id] = p; });
+}
+
+async function loadMembers() {
+  /* RÈGLE-CB-06 + E9 : lecture profiles_directory autorisée pour listing mentors (admin only) */
+  const { data } = await DB.from('profiles_directory')
+    .select('user_id, prenom, nom, initials').order('nom');
+  state.members = data || [];
+}
+
+async function loadDemoData() {
+  const { data } = await window.bdb.from('demo_carnet_bord').select('*');
+  const items = data || [];
+  const tabList = document.getElementById('cbTabList');
+  const tabContent = document.getElementById('cbTabContent');
+  if (tabList) tabList.innerHTML = '';
+  if (tabContent) {
+    tabContent.innerHTML = '<div class="p-3">' + items.map(function(item) {
+      return '<div class="card mb-2 border-0 shadow-sm"><div class="card-body py-2">' +
+        '<strong>' + escHtml(item.label) + '</strong>' +
+        (item.description ? '<p class="text-muted small mb-0">' + escHtml(item.description) + '</p>' : '') +
+        '<span class="badge bg-light text-muted border mt-1">' + escHtml(item.phase || '') + '</span>' +
+        '</div></div>';
+    }).join('') + '</div>';
+  }
+  showState('cbContent');
+}
+
+async function loadAll() {
+  if (window.bdbIsDemo && window.bdbIsDemo()) { await loadDemoData(); return; }
+  showState('cbLoading');
+  await Promise.all([loadCategories(), loadItems()]);
+  await loadProgressions();
+  if (state.isAdmin) await loadMembers();
+  if (!state.categories.length) { showState('cbEmpty'); return; }
+  renderDashboard();
+  renderTabs();
+  showState('cbContent');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+
+  await window.bdbShellReady;
+
+  /* Auth — source unique window.bdbUser (INTERDIT-B2) */
+  state.isAdmin = window.bdbUser?.isAdmin || false;
+  state.userId  = window.bdbUser?.id      || null;
+
+  /* Slot admin toolbar — BLOC C.6 / INTERDIT-C4 */
+  if (state.isAdmin) {
+    document.getElementById('cbToolbarAdminSlot').classList.remove('d-none');
+  }
+
+  /* Instances modales */
+  modalProg = new bootstrap.Modal(document.getElementById('modalProgression'));
+  modalCat  = new bootstrap.Modal(document.getElementById('modalAdminCat'));
+  modalItem = new bootstrap.Modal(document.getElementById('modalAdminItem'));
+
+  /* Délégation clics contenu — une seule fois ici (évite duplication à chaque renderTabs) */
+  document.getElementById('cbTabContent').addEventListener('click', handleContentClick);
+
+  /* Listeners toolbar admin */
+  document.getElementById('btnAdminCat').addEventListener('click',  () => openAdminCatModal());
+  document.getElementById('btnAdminItem').addEventListener('click', () => openAdminItemModal());
+
+  /* Retry */
+  document.getElementById('cbBtnRetry').addEventListener('click', () =>
+    loadAll().catch(err => showError(err.message))
+  );
+
+  /* Modale progression */
+  document.getElementById('mpBtnSave').addEventListener('click', saveProgression);
+
+  /* Modale admin catégorie */
+  document.getElementById('macBtnSave').addEventListener('click', saveAdminCat);
+  document.getElementById('macBtnDelete').addEventListener('click', deleteAdminCat);
+  document.getElementById('macColor').addEventListener('input', e => {
+    document.getElementById('macColorPreview').style.background = e.target.value;
+  });
+
+  /* Modale admin item */
+  document.getElementById('maiBtnSave').addEventListener('click', saveAdminItem);
+  document.getElementById('maiBtnDelete').addEventListener('click', deleteAdminItem);
+  document.getElementById('maiBtnAddResource').addEventListener('click', () => {
+    state.itemResources.push({ type: 'cours', id: null, label: '', url: null });
+    renderResourceEditor();
+  });
+  document.getElementById('maiMentorSelect').addEventListener('change', e => {
+    const uid = e.target.value;
+    if (uid && !state.itemMentors.includes(uid)) {
+      state.itemMentors.push(uid);
+      renderMentorEditor();
+    }
+    e.target.value = '';
+  });
+
+  /* Chargement initial */
+  try {
+    await loadAll();
+  } catch (err) {
+    if (err?.message?.includes('fetch') || err?.code === 'PGRST301') {
+      document.getElementById('cbOfflineBanner').classList.add('show');
+    }
+    showError('Impossible de charger le carnet de bord.');
+  }
+});
+
+/* ── Guard admin (CC-M14) — extrait de admin.html bloc inline #2 ────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  if (!window.bdbUser?.isAdmin) { location.href = '../../index.html'; return; }
+});

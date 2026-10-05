@@ -95,16 +95,99 @@
 .stat-icon {
   flex-shrink: 0;
 }
+/* Dimension normalisée 44×44 */
+.trans-stat-icon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+/* Typographie micro */
+.trans-text-xs { font-size: 0.7rem; }
 
 /* Dropdown dans les cartes : empêcher le clic de propager */
 .trans-card .dropdown {
   z-index: 10;
 }
 
-/* Modal lightbox fond sombre */
+/* Lightbox */
+.trans-z-10 { z-index: 10; }
+.trans-lightbox-img { max-height: 90vh; object-fit: contain; }
 #modalLightbox .modal-dialog {
   max-width: 90vw;
 }
 #modalLightbox .modal-content {
   box-shadow: none;
+}
+
+/* ── Admin (trans-admin-* scopés — INTERDIT-17) ──────────── */
+.trans-admin-filter {
+  width: auto;
+  min-width: 160px;
+}
+
+.trans-admin-search {
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.trans-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.trans-admin-preview-content {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* btn-xs scopé — Bootstrap 5 ne le définit pas */
+#transAdminApp .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   AJOUTS S128 — extraction inline styles index.html (V6 INTERDIT-C2)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.trans-page-banner {
+  background: linear-gradient(135deg, var(--module-color) 0%, var(--module-color-strong) 100%);
+  color: var(--module-color-text);
+}
+.trans-page-subtitle { opacity: 0.75; }
+
+.trans-toolbar-bar {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.trans-select-180 { width: 180px; }
+
+.trans-empty-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 1rem 0 0.25rem;
+}
+
+/* Substituts bg-primary/text-primary → couleur module (S128) */
+.trans-avatar-bg {
+  background-color: var(--module-color-strong);
+  color: #fff;
+}
+
+.trans-text-module {
+  color: var(--module-color-strong);
+}
+
+.trans-badge-module {
+  background-color: var(--module-color-soft);
+  color: var(--module-color-text);
+  border: 1px solid var(--module-color);
 }

@@ -1,0 +1,180 @@
+/* ================================================================
+   rempla-midi-ui.css — Des Blocs & Moi
+   Toutes regles scopees a #remplaMain
+   ================================================================ */
+
+/* --- Badges etat --- */
+#remplaMain .rempla-etat-confortable { background-color: #198754; color: #fff; }
+#remplaMain .rempla-etat-quotidien   { background-color: #198754; color: #fff; }
+#remplaMain .rempla-etat-degrade_leger  { background-color: #ffc107; color: #000; }
+#remplaMain .rempla-etat-degrade_complet { background-color: #fd7e14; color: #fff; }
+#remplaMain .rempla-etat-crise       { background-color: #dc3545; color: #fff; }
+#remplaMain .rempla-etat-bloque      { background-color: #6c757d; color: #fff; }
+
+/* --- Carte salle --- */
+#remplaMain .rempla-salle-card {
+  border-left: 4px solid var(--bs-primary);
+  transition: border-color 0.2s;
+}
+#remplaMain .rempla-salle-card.rempla-salle-ok    { border-left-color: #198754; }
+#remplaMain .rempla-salle-card.rempla-salle-warn   { border-left-color: #ffc107; }
+#remplaMain .rempla-salle-card.rempla-salle-danger { border-left-color: #dc3545; }
+
+/* --- Agent badge dans carte salle --- */
+#remplaMain .rempla-agent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+}
+#remplaMain .rempla-agent-badge.rempla-cat-matin   { border-color: #6f42c1; color: #6f42c1; }
+#remplaMain .rempla-agent-badge.rempla-cat-journee { border-color: #0d6efd; color: #0d6efd; }
+#remplaMain .rempla-agent-badge.rempla-cat-12h     { border-color: #0dcaf0; color: #0a7c8e; }
+#remplaMain .rempla-agent-badge.rempla-cat-soir    { border-color: #fd7e14; color: #c55a00; }
+#remplaMain .rempla-agent-badge.rempla-cat-couloir { border-color: #198754; color: #198754; }
+
+/* --- Timeline --- */
+#remplaMain .rempla-timeline-wrapper {
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+#remplaMain .rempla-timeline {
+  min-width: 600px;
+  position: relative;
+}
+
+#remplaMain .rempla-tl-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--bs-border-color-translucent);
+  min-height: 2.25rem;
+}
+
+#remplaMain .rempla-tl-label {
+  width: 120px;
+  min-width: 120px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#remplaMain .rempla-tl-bar-area {
+  flex: 1;
+  position: relative;
+  height: 2.25rem;
+}
+
+#remplaMain .rempla-tl-block {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.25rem;
+}
+
+#remplaMain .rempla-tl-block.rempla-tl-salle   { background: var(--bs-primary); opacity: 0.7; }
+#remplaMain .rempla-tl-block.rempla-tl-pause    { background: #198754; }
+#remplaMain .rempla-tl-block.rempla-tl-remplace  { background: #fd7e14; }
+#remplaMain .rempla-tl-block.rempla-tl-libre     { background: var(--bs-secondary); opacity: 0.3; }
+
+/* --- Timeline header (heures) --- */
+#remplaMain .rempla-tl-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid var(--bs-border-color);
+  min-height: 1.75rem;
+}
+
+#remplaMain .rempla-tl-hour {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--bs-secondary);
+  text-align: center;
+}
+
+/* --- Niveau badge dans tableau plan --- */
+#remplaMain .rempla-niveau-quotidien {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+#remplaMain .rempla-niveau-crise {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+/* --- Scroll config referentiel --- */
+#remplaMain .rempla-scroll-config { max-height: 400px; overflow-y: auto; }
+
+/* --- Tableau vue salles --- */
+#remplaMain .rempla-th-creneau { width: 70px; }
+
+/* --- Vue salles temps reel --- */
+#remplaMain .rempla-salle-slot {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  background: var(--bs-light);
+  margin-bottom: 0.25rem;
+  font-size: 0.8125rem;
+}
+
+#remplaMain .rempla-salle-slot .rempla-slot-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  color: var(--bs-secondary);
+}
+
+/* --- Diagnostic banner couleurs --- */
+#remplaMain .rempla-diag-confortable   { --bs-alert-bg: #d1e7dd; --bs-alert-color: #0f5132; --bs-alert-border-color: #badbcc; }
+#remplaMain .rempla-diag-quotidien     { --bs-alert-bg: #d1e7dd; --bs-alert-color: #0f5132; --bs-alert-border-color: #badbcc; }
+#remplaMain .rempla-diag-degrade_leger { --bs-alert-bg: #fff3cd; --bs-alert-color: #664d03; --bs-alert-border-color: #ffecb5; }
+#remplaMain .rempla-diag-degrade_complet { --bs-alert-bg: #ffe5d0; --bs-alert-color: #7c3a00; --bs-alert-border-color: #ffd4b0; }
+#remplaMain .rempla-diag-crise         { --bs-alert-bg: #f8d7da; --bs-alert-color: #842029; --bs-alert-border-color: #f5c2c7; }
+#remplaMain .rempla-diag-bloque        { --bs-alert-bg: #e2e3e5; --bs-alert-color: #41464b; --bs-alert-border-color: #d3d6d8; }
+
+/* --- Animation entree --- */
+@keyframes rempla-fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#remplaMain .rempla-animated {
+  animation: rempla-fadeIn 0.3s ease-out;
+}
+
+/* --- Selects compacts pour tableau config --- */
+#remplaMain .rempla-sel-xs {
+  min-width: 90px;
+  max-width: 120px;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+}
+#remplaMain .rempla-sel-sm {
+  min-width: 110px;
+  max-width: 160px;
+  font-size: 0.8125rem;
+}
+
+/* --- Config table responsive --- */
+#remplaMain .rempla-scroll-config {
+  max-height: 450px;
+  overflow-y: auto;
+}

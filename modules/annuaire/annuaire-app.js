@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // ── SHELL AUTH — attend que bdb-shell.js ait initialisé l'auth ──
+  // ── SHELL AUTH — attend que bdb-shell.js ait initialise l auth ──
   await window.bdbShellReady;
 
 
@@ -29,8 +29,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     search:'', fonctionFilter:'all',
     currentUserId:null, isAdmin:false,
     currentMember:null, gants:[], casaques:[],
-    secretairesList:[], avatarFile:null, avatarPreview:null, shouldRemoveAvatar:false
+    secretairesList:[], avatarFile:null, avatarPreview:null, shouldRemoveAvatar:false,
+    config:{} // { fn: { sectionCle: { visible, ordre, champs:{...} } } }
   };
+
+  function sectionVisible(fn, sectionKey) {
+    return state.config[fn]?.[sectionKey]?.visible !== false;
+  }
+  function fieldVisible(fn, sectionKey, fieldKey) {
+    const champs = state.config[fn]?.[sectionKey]?.champs;
+    if (!champs || !(fieldKey in champs)) return true;
+    return champs[fieldKey] !== false;
+  }
 
   const bsModalMembre = new bootstrap.Modal(document.getElementById('modalMembre'));
   const bsModalGant   = new bootstrap.Modal(document.getElementById('modalGant'));
@@ -67,38 +77,65 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cls = FONCTION_BADGE[fn]||'';
     const lbl = FONCTION_LABELS[fn]||fn;
     return '<span class="badge '+cls+' fw-normal">'+
-      '<i class="bi bi-briefcase me-1" cds-text-xs></i>'+esc(lbl)+'</span>';
+      '<i class="bi bi-briefcase me-1" ann-text-xs></i>'+esc(lbl)+'</span>';
   }
-  function showToast(msg, type) {
-    const t = document.getElementById('annuaireToast');
-    t.className = 'toast align-items-center border-0 text-bg-'+(type==='error'?'danger':'success');
-    document.getElementById('toastIcon').className = 'bi bi-'+(type==='error'?'x-circle':'check-circle')+'-fill';
-    document.getElementById('toastMsg').textContent = msg;
-    bootstrap.Toast.getOrCreateInstance(t, {delay:3500}).show();
+
+  async function loadConfig() {
+    try {
+      const { data } = await window.bdb.from('parametrage_modules')
+        .select('section, cle, valeur')
+        .eq('module', 'annuaire')
+        .like('section', 'modale_%');
+      if (data) {
+        const sectionToFn = {
+          'modale_medecin':       'medecin',
+          'modale_cadre':         'cadre',
+          'modale_infirmier':     'infirmier',
+          'modale_aide_soignant': 'aide-soignant',
+        };
+        data.forEach(row => {
+          const fn = sectionToFn[row.section];
+          if (!fn) return;
+          if (!state.config[fn]) state.config[fn] = {};
+          state.config[fn][row.cle] = row.valeur;
+        });
+      }
+    } catch (_) { /* silencieux — visible par défaut si table absente */ }
   }
 
   async function init() {
-    // window.bdbUser fourni par bdb-shell.js (await bdbShellReady déjà résolu)
-    // INTERDIT-B2 : pas de requête profiles_directory / user_roles ici
+    // window.bdbUser fourni par bdb-shell.js (await bdbShellReady deja resolu)
+    // INTERDIT-B2 : pas de requete profiles_directory / user_roles ici
     state.currentUserId = window.bdbUser?.id ?? null;
     state.isAdmin       = window.bdbUser?.isAdmin ?? false;
+    await loadConfig();
     loadGantsCasaques();
     loadMembers();
   }
 
   async function loadMembers() {
+    if (window.bdbIsDemo && window.bdbIsDemo()) {
+      const { data } = await window.bdb.from('demo_annuaire').select('*');
+      state.members = data || [];
+      applyFilter();
+      return;
+    }
     renderSkeleton();
     const { data, error } = await window.bdb
       .from('profiles_directory')
       .select('id,user_id,name,initials,nom,prenom,known_as,fonction,avatar_url,approved,created_at')
       .order('nom');
     if (error) {
-      showToast('Erreur chargement annuaire', 'error');
+      bdbToast("L'annuaire tarde à répondre — réessayez dans un instant", 'danger');
       const g = document.getElementById('membersGrid');
       if (g) cdsShowGridError(g, error.message, loadMembers);
       return;
     }
     state.members = data || [];
+
+    // BdbSearch global non utilise ici : recherche simple includes() dans applyFilter
+    // (cf. fix S128 — BdbSearch.init signature incompatible avec une liste de membres).
+
     applyFilter();
   }
 
@@ -112,13 +149,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function applyFilter() {
-    const q = state.search.toLowerCase();
-    state.filtered = state.members.filter(m => {
-      const nm = !q || (m.prenom+' '+m.nom).toLowerCase().includes(q)
-                    || (m.known_as||'').toLowerCase().includes(q);
-      const fn = state.fonctionFilter==='all' || m.fonction===state.fonctionFilter;
-      return nm && fn;
-    });
+    const q = state.search.trim();
+
+    // ── Recherche : filtre simple includes() sur prenom + nom + known_as ─
+    // Fix S128 : BdbSearch global (cross-module protocoles/faq/glossaire) ne
+    // s'applique pas a une liste de membres. L'ancien branchement renvoyait
+    // un objet {protocoles,faq,glossaire} interprete comme array vide -> "Aucun resultat".
+    let base;
+    if (q) {
+      const qLow = q.toLowerCase();
+      base = state.members.filter(m =>
+        (m.prenom + ' ' + m.nom).toLowerCase().includes(qLow) ||
+        (m.known_as || '').toLowerCase().includes(qLow)
+      );
+    } else {
+      base = state.members.slice();
+    }
+
+    // Filtre fonction applique apres la recherche
+    state.filtered = (state.fonctionFilter === 'all')
+      ? base
+      : base.filter(m => m.fonction === state.fonctionFilter);
+
     renderGrid();
     const total = state.members.length, shown = state.filtered.length;
     const el = document.getElementById('heroCount');
@@ -172,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function openMember(userId) {
     state.avatarFile=null; state.avatarPreview=null; state.shouldRemoveAvatar=false;
     document.getElementById('modalMembreBody').innerHTML =
-      '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+      '<div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>';
     bsModalMembre.show();
     const [dirRes, roleRes] = await Promise.all([
       window.bdb.from('profiles_directory').select('*').eq('user_id',userId).maybeSingle(),
@@ -203,42 +255,58 @@ document.addEventListener('DOMContentLoaded', async () => {
       return [g.tailles_disponibles,g.couleurs_disponibles].filter(Boolean).join(' \u2013 ')||g.titre||'\u2014';
     }
     let proHtml = '';
-    if (m.fonction==='medecin') {
-      const hasTel = m.telephone_principal||m.telephone_secondaire;
-      const hasSec = secs.length>0;
-      if (hasTel||hasSec) {
-        proHtml += '<div class="border-top pt-3 mt-1 w-100 text-start">'+
-          '<div class="text-uppercase fw-bold text-secondary mb-2" cds-label-section>Profil professionnel</div>';
-        if (hasTel) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
-          '<i class="bi bi-telephone text-secondary"></i>'+
-          '<span>'+esc(m.telephone_principal||'')+(m.telephone_secondaire?' / '+esc(m.telephone_secondaire):'')+'</span></div>';
-        secs.forEach(s => {
-          proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
-            '<i class="bi bi-people text-secondary"></i>'+
-            '<span class="fw-medium">'+esc(s.prenom||'')+'</span>'+
-            (s.telephone_court?'<span class="text-muted">\u2014</span><a href="tel:'+esc(s.telephone_court)+'" class="link-equipment">'+esc(s.telephone_court)+'</a>':'')
-            +'</div>';
-        });
-        proHtml += '</div>';
-      }
-      const hasEquip = g1||g2||cq||m.porte_casque;
-      if (hasEquip) {
+    const fn = m.fonction || '';
+
+    // ── Équipement (tous les types de membres qui ont casaque/gants) ──
+    if (sectionVisible(fn, 'equipement_personnel')) {
+      const showG1 = fieldVisible(fn, 'equipement_personnel', 'gants_paire_1')  && g1;
+      const showG2 = fieldVisible(fn, 'equipement_personnel', 'gants_paire_2')  && g2;
+      const showCq = fieldVisible(fn, 'equipement_personnel', 'casaque')         && cq;
+      const showPCq= fieldVisible(fn, 'equipement_personnel', 'porte_casque')    && m.porte_casque;
+      if (showG1||showG2||showCq||showPCq) {
         proHtml += '<div class="border-top pt-3 mt-1 w-100 text-start">'+
           '<div class="text-uppercase fw-bold text-secondary mb-2" cds-label-section>\u00c9quipement personnel</div>';
-        if (g1) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
+        if (showG1) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
           '<i class="bi bi-hand-index text-secondary"></i><span>Paire 1 :</span>'+
           '<button class="link-equipment" data-gant-id="'+esc(g1.id)+'">'+esc(fmtG(g1))+
-          ' <i class="bi bi-box-arrow-up-right" cds-text-xs></i></button></div>';
-        if (g2) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
+          ' <i class="bi bi-box-arrow-up-right" ann-text-xs></i></button></div>';
+        if (showG2) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
           '<i class="bi bi-hand-index text-secondary"></i><span>Paire 2 :</span>'+
           '<button class="link-equipment" data-gant-id="'+esc(g2.id)+'">'+esc(fmtG(g2))+
-          ' <i class="bi bi-box-arrow-up-right" cds-text-xs></i></button></div>';
-        if (cq) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
+          ' <i class="bi bi-box-arrow-up-right" ann-text-xs></i></button></div>';
+        if (showCq) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
           '<i class="bi bi-person-badge text-secondary"></i><span>Casaque :</span>'+
           '<button class="link-equipment" data-casaque-id="'+esc(cq.id)+'">'+esc(cq.titre)+
-          ' <i class="bi bi-box-arrow-up-right" cds-text-xs></i></button></div>';
-        if (m.porte_casque) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
+          ' <i class="bi bi-box-arrow-up-right" ann-text-xs></i></button></div>';
+        if (showPCq) proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
           '<i class="bi bi-shield-check text-secondary"></i><span>Porte un casque</span></div>';
+        proHtml += '</div>';
+      }
+    }
+
+    // ── Profil professionnel (médecin uniquement) ──
+    if (fn === 'medecin' && sectionVisible(fn, 'profil_professionnel')) {
+      const showTel1 = fieldVisible(fn, 'profil_professionnel', 'telephone_principal')  && m.telephone_principal;
+      const showTel2 = fieldVisible(fn, 'profil_professionnel', 'telephone_secondaire') && m.telephone_secondaire;
+      const showSecs = fieldVisible(fn, 'profil_professionnel', 'secretaires')          && secs.length > 0;
+      if (showTel1||showTel2||showSecs) {
+        proHtml += '<div class="border-top pt-3 mt-1 w-100 text-start">'+
+          '<div class="text-uppercase fw-bold text-secondary mb-2" cds-label-section>Profil professionnel</div>';
+        if (showTel1||showTel2) {
+          const telStr = [showTel1&&esc(m.telephone_principal), showTel2&&esc(m.telephone_secondaire)]
+            .filter(Boolean).join(' / ');
+          proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
+            '<i class="bi bi-telephone text-secondary"></i><span>'+telStr+'</span></div>';
+        }
+        if (showSecs) {
+          secs.forEach(s => {
+            proHtml += '<div class="d-flex align-items-center gap-2 small py-1">'+
+              '<i class="bi bi-people text-secondary"></i>'+
+              '<span class="fw-medium">'+esc(s.prenom||'')+'</span>'+
+              (s.telephone_court?'<span class="text-muted">\u2014</span><a href="tel:'+esc(s.telephone_court)+'" class="link-equipment">'+esc(s.telephone_court)+'</a>':'')
+              +'</div>';
+          });
+        }
         proHtml += '</div>';
       }
     }
@@ -256,21 +324,65 @@ document.addEventListener('DOMContentLoaded', async () => {
       (m.known_as&&m.known_as!==displayName(m)?'<p class="text-muted small fst-italic mb-1">\u00ab '+esc(m.known_as)+' \u00bb</p>':'')
       +'<p class="text-muted small mb-0">'+esc(m.prenom||'')+' '+esc(m.nom||'')+'</p></div>'
       +'<div class="d-flex flex-wrap justify-content-center gap-2">'+fnBadge(m.fonction)
-      +(m.role==='admin'?'<span class="badge badge-admin-role rounded-pill"><i class="bi bi-shield me-1 cds-text-xs"></i>Admin</span>':'')
-      +(m.approved?'<span class="badge badge-approved rounded-pill"><i class="bi bi-check-circle me-1 cds-text-xs"></i>Approuv\u00e9</span>'
-                  :'<span class="badge badge-pending rounded-pill"><i class="bi bi-clock me-1 cds-text-xs"></i>En attente</span>')
+      +(m.role==='admin'?'<span class="badge badge-admin-role rounded-pill"><i class="bi bi-shield me-1 ann-text-xs"></i>Admin</span>':'')
+      +(m.approved?'<span class="badge badge-approved rounded-pill"><i class="bi bi-check-circle me-1 ann-text-xs"></i>Approuv\u00e9</span>'
+                  :'<span class="badge badge-pending rounded-pill"><i class="bi bi-clock me-1 ann-text-xs"></i>En attente</span>')
       +'</div>'
-      +(m.bio?'<p class="text-secondary small lh-sm cds-max-280">'+esc(m.bio)+'</p>':'')
-      +(m.signes_particuliers?'<p class="text-muted small fst-italic cds-max-280">'+esc(m.signes_particuliers)+'</p>':'')
+      +(sectionVisible(m.fonction||'','bio')&&m.bio?'<p class="text-secondary small lh-sm cds-max-280">'+esc(m.bio)+'</p>':'')
+      +(sectionVisible(m.fonction||'','signes_particuliers')&&m.signes_particuliers?'<p class="text-muted small fst-italic cds-max-280">'+esc(m.signes_particuliers)+'</p>':'')
       +proHtml+prefsHtml
       +(dateStr?'<p class="text-muted annuaire-date-text"><i class="bi bi-calendar3 me-1"></i>Membre depuis '+dateStr+'</p>':'')
       +(canEdit?'<button class="btn btn-outline-secondary btn-sm mt-1" id="btnEditMember"><i class="bi bi-pencil me-2"></i>Modifier</button>':'')
+      +(state.isAdmin?'<button class="btn btn-module-outline btn-sm mt-1" id="btnSendInvite"><i class="bi bi-envelope-arrow-up me-2"></i>Envoyer un lien de connexion</button>':'')
       +'</div>';
 
     document.getElementById('btnEditMember')?.addEventListener('click', renderEditMode);
+    document.getElementById('btnSendInvite')?.addEventListener('click', sendInvite);
     document.querySelectorAll('[data-gant-id]').forEach(b=>b.addEventListener('click',()=>openGant(b.dataset.gantId)));
     document.querySelectorAll('[data-casaque-id]').forEach(b=>b.addEventListener('click',()=>openCasaque(b.dataset.casaqueId)));
     if (m.fonction==='medecin') loadPreferences(m.user_id);
+  }
+
+  async function sendInvite() {
+    const m = state.currentMember;
+    const email = m.email;
+    if (!email) {
+      bdbToast("Ajoutez d'abord un email dans le profil pour envoyer le lien", 'danger');
+      renderEditMode();
+      return;
+    }
+    const btn = document.getElementById('btnSendInvite');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Envoi...'; }
+
+    const ADMIN_URL = 'https://ecpzrygzdugwwkqbsajn.supabase.co/functions/v1/admin-update-user';
+    const ANON_KEY  = 'sb_publishable_jc9PQQF85LgiPwHxnevqTQ_q8nWd4es';
+    try {
+      const { data: { session } } = await window.bdb.auth.getSession();
+      if (!session) throw new Error('Session expirée');
+      const res = await fetch(ADMIN_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + session.access_token,
+          'apikey': ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action:         'create-and-invite',
+          target_user_id: m.user_id,
+          email,
+          prenom:         m.prenom || '',
+          nom:            m.nom    || '',
+          fonction:       m.fonction || 'infirmier',
+          redirect_to:    window.location.origin + '/bdb/reset-password.html',
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) throw new Error(json.error || 'Erreur');
+      bdbToast('Lien de connexion envoy\u00e9 \u00e0 ' + email);
+    } catch (err) {
+      bdbToast((err.message || "Le lien n'a pu être envoyé — réessayez dans un instant"), 'danger');
+    }
+    renderViewMode();
   }
 
   async function loadPreferences(chirurgienId) {
@@ -280,7 +392,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!el) return;
     if (!data||!data.length) {
       el.innerHTML = '<span>Aucune pr\u00e9f\u00e9rence renseign\u00e9e</span>'
-        +(state.isAdmin?'<div class="mt-1"><button class="btn btn-outline-secondary btn-sm ms-2" id="btnCreatePref"><i class="bi bi-plus-lg me-1"></i>Créer</button></div>':'');
+        +(state.isAdmin?'<div class="mt-1"><button class="btn btn-outline-secondary btn-sm ms-2" id="btnCreatePref"><i class="bi bi-plus-lg me-1"></i>Cr\u00e9er</button></div>':'');
       document.getElementById('btnCreatePref')?.addEventListener('click', () => {
         const uid = state.currentMember?.user_id;
         if (uid) window.location.href = '../preferences/index.html?chirurgien=' + encodeURIComponent(uid);
@@ -292,10 +404,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       '<i class="bi bi-clipboard-check text-secondary"></i>'+
       '<span class="flex-grow-1 text-truncate small">'+esc(p.titre)+'</span>'+
       (p.is_global?'<span class="badge bg-light text-secondary border cds-text-xxs">Globale</span>':'')
-      +'<i class="bi bi-box-arrow-up-right text-secondary cds-text-xs"></i></button>'
+      +'<i class="bi bi-box-arrow-up-right text-secondary ann-text-xs"></i></button>'
     ).join('');
 
-    // Listeners : clic sur une fiche → ouvre preferences/index.html filtré sur ce chirurgien
+    // Listeners : clic sur une fiche → ouvre preferences/index.html filtre sur ce chirurgien
     el.querySelectorAll('.pref-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const uid = state.currentMember?.user_id;
@@ -344,8 +456,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       '<div class="col"><label class="form-label small mb-1" for="editNom">Nom *</label>'+
       '<input type="text" id="editNom" class="form-control form-control-sm" value="'+esc(m.nom||'')+'"/></div></div>'+
       // Surnom
-      '<div class="mb-3"><label class="form-label small mb-1" for="editKnownAs">Surnom / Nom d’usage</label>'+
+      '<div class="mb-3"><label class="form-label small mb-1" for="editKnownAs">Surnom / Nom d\u2019usage</label>'+
       '<input type="text" id="editKnownAs" class="form-control form-control-sm" value="'+esc(m.known_as||'')+'" placeholder="Ex : Vivi, Dr V."/></div>'+
+      // Email (admin only) — UPDATE direct profiles_directory, sans Edge Function
+      (state.isAdmin?
+      '<div class="mb-3"><label class="form-label small mb-1" for="editEmail"><i class="bi bi-envelope me-1"></i>Email</label>'+
+      '<input type="email" id="editEmail" class="form-control form-control-sm" value="'+esc(m.email||'')+'" placeholder="prenom.nom@hopital.fr"/></div>':'')+
       // Fonction Role
       '<div class="row g-2 mb-3">'+
       '<div class="col"><label class="form-label small mb-1">Fonction</label>'+
@@ -387,7 +503,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       '<div class="d-flex justify-content-between pt-3 border-top mt-2">'+
       '<button class="btn btn-outline-danger btn-sm" id="btnDeleteMember"><i class="bi bi-trash me-1"></i>Supprimer</button>'+
       '<div class="d-flex gap-2"><button class="btn btn-outline-secondary btn-sm" id="btnCancelEdit">Annuler</button>'+
-      '<button class="btn btn-primary btn-sm" id="btnSaveEdit"><span id="btnSaveSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>Enregistrer</button>'+
+      '<button class="btn btn-module btn-sm" id="btnSaveEdit"><span id="btnSaveSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>Enregistrer</button>'+
       '</div></div></div>';
 
     renderSecsEdit();
@@ -437,7 +553,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     avatarInput.addEventListener('change', e=>{
       const file=e.target.files&&e.target.files[0];
       if(!file) return;
-      if(file.size>2*1024*1024){showToast("L'image ne doit pas d\u00e9passer 2 Mo",'error');return;}
+      if(file.size>2*1024*1024){bdbToast("Cette image dépasse 2 Mo — choisissez-en une plus légère", 'danger');return;}
       state.avatarFile=file; state.avatarPreview=URL.createObjectURL(file); state.shouldRemoveAvatar=false;
       document.getElementById('avatarZone').innerHTML=buildAvatarZoneHtml(state.currentMember);
       wireAvatarRemove();
@@ -465,7 +581,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const m=state.currentMember;
     const prenom=document.getElementById('editPrenom').value.trim();
     const nom=document.getElementById('editNom').value.trim();
-    if(!prenom||!nom){showToast('Nom et pr\u00e9nom requis','error');return;}
+    if(!prenom||!nom){bdbToast("Le nom et le prénom sont nécessaires pour continuer", 'danger');return;}
     const sp=document.getElementById('btnSaveSpinner');
     const btn=document.getElementById('btnSaveEdit');
     sp.classList.remove('d-none');btn.disabled=true;
@@ -492,8 +608,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         telephone_principal:tel1||null,telephone_secondaire:tel2||null,
         secretaires_list:state.secretairesList,
         gant_paire_1_id:gant1||null,gant_paire_2_id:gant2||null,
-        casaque_id:casaque||null,porte_casque:porteCasque
-      }).eq('user_id',m.user_id);
+        casaque_id:casaque||null,porte_casque:porteCasque,
+        ...(state.isAdmin&&document.getElementById('editEmail')
+          ? { email: document.getElementById('editEmail').value.trim()||null }
+          : {})
+      }).eq('user_id',m.user_id).select();
       if(r1.error) throw r1.error;
       if(role!==m.role){
         const r2=await window.bdb.from('user_roles').upsert({user_id:m.user_id,role},{onConflict:'user_id'});
@@ -502,35 +621,37 @@ document.addEventListener('DOMContentLoaded', async () => {
       if(state.shouldRemoveAvatar&&m.avatar_url){
         const match=m.avatar_url.match(/\/avatars\/(.+?)(?:\?|$)/);
         if(match) await window.bdb.storage.from('avatars').remove([match[1]]);
-        await window.bdb.from('profiles_directory').update({avatar_url:null}).eq('user_id',m.user_id);
+        await window.bdb.from('profiles_directory').update({avatar_url:null}).eq('user_id',m.user_id).select();
       } else if(state.avatarFile){
         if(m.avatar_url){const match2=m.avatar_url.match(/\/avatars\/(.+?)(?:\?|$)/);if(match2) await window.bdb.storage.from('avatars').remove([match2[1]]);}
         const ext=state.avatarFile.name.split('.').pop();
         const path=m.user_id+'/avatar-'+Date.now()+'.'+ext;
         const up=await window.bdb.storage.from('avatars').upload(path,state.avatarFile,{upsert:true});
-        if(!up.error){const u=window.bdb.storage.from('avatars').getPublicUrl(path);await window.bdb.from('profiles_directory').update({avatar_url:u.data.publicUrl}).eq('user_id',m.user_id);}
+        if(!up.error){const u=window.bdb.storage.from('avatars').getPublicUrl(path);await window.bdb.from('profiles_directory').update({avatar_url:u.data.publicUrl}).eq('user_id',m.user_id).select();}
       }
-      showToast(prenom+' '+nom+' mis \u00e0 jour');
+      bdbToast(prenom+' '+nom+' mis \u00e0 jour');
       const upd=await window.bdb.from('profiles_directory').select('*').eq('user_id',m.user_id).maybeSingle();
       state.currentMember=Object.assign({},upd.data,{role,user_id:m.user_id});
       const idx=state.members.findIndex(x=>x.user_id===m.user_id);
       if(idx>=0) Object.assign(state.members[idx],{nom,prenom,name:nameNew,initials:initialsNew,fonction:fn});
+      // Fix S128 : BdbSearch.init retire (signature incompatible — recherche simple via applyFilter)
       applyFilter(); renderViewMode();
-    } catch(err){showToast((err&&err.message)||'Erreur','error');}
+    } catch(err){bdbToast((err&&err.message)||'Erreur', 'danger');}
     finally{sp.classList.add('d-none');btn.disabled=false;}
   }
 
   document.getElementById('btnConfirmDelete').addEventListener('click', async()=>{
     const m=state.currentMember; bsModalDelete.hide();
     try {
-      await window.bdb.from('user_roles').delete().eq('user_id',m.user_id);
-      await window.bdb.from('profiles').delete().eq('user_id',m.user_id);
-      await window.bdb.from('profiles_directory').delete().eq('user_id',m.user_id);
-      showToast((m.prenom||'')+' '+(m.nom||'')+' supprim\u00e9');
+      await window.bdb.from('user_roles').delete().eq('user_id',m.user_id).select();
+      await window.bdb.from('profiles').delete().eq('user_id',m.user_id).select();
+      await window.bdb.from('profiles_directory').delete().eq('user_id',m.user_id).select();
+      bdbToast((m.prenom||'')+' '+(m.nom||'')+' supprim\u00e9');
       bsModalMembre.hide();
       state.members=state.members.filter(x=>x.user_id!==m.user_id);
+      // Fix S128 : BdbSearch.init retire (signature incompatible)
       applyFilter();
-    } catch(err){showToast((err&&err.message)||'Erreur suppression','error');}
+    } catch(err){bdbToast((err&&err.message)||'Erreur suppression', 'danger');}
   });
 
   async function openGant(id) {
@@ -540,14 +661,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(!g){const r=await window.bdb.from('gants').select('*').eq('id',id).maybeSingle();if(r.data){state.gants.push(r.data);g=r.data;}}
     const body=document.getElementById('modalGantBody');
     if(!g){body.innerHTML='<div class="alert alert-warning m-2">Gant introuvable</div>';return;}
-    document.getElementById('modalGantTitle').innerHTML='<i class="bi bi-hand-index text-primary me-2"></i>'+esc(g.titre);
+    document.getElementById('modalGantTitle').innerHTML='<i class="bi bi-hand-index me-2"></i>'+esc(g.titre);
     body.innerHTML=[
       g.marque&&['Marque',esc(g.marque)],g.modele&&['Mod\u00e8le',esc(g.modele)],
       g.matiere&&['Mati\u00e8re',esc(g.matiere)],g.tailles_disponibles&&['Tailles',esc(g.tailles_disponibles)],
       g.couleurs_disponibles&&['Couleurs',esc(g.couleurs_disponibles)],g.localisation&&['Localisation',esc(g.localisation)]
     ].filter(Boolean).map(r=>'<div class="d-flex align-items-start gap-2 small py-1"><span class="text-secondary fw-medium annuaire-detail-label">'+r[0]+'</span><span>'+r[1]+'</span></div>').join('')
     +(g.sans_latex?'<div class="mt-2"><span class="badge bg-success-subtle text-success-emphasis rounded-pill"><i class="bi bi-check-circle me-1"></i>Sans latex</span></div>':'')
-    +(g.remarques_usage?'<div class="border-top pt-3 mt-2"><div class="text-uppercase fw-bold text-secondary mb-1 annuaire-label-xs">Remarques d’usage</div><p class="small">'+esc(g.remarques_usage)+'</p></div>':'')
+    +(g.remarques_usage?'<div class="border-top pt-3 mt-2"><div class="text-uppercase fw-bold text-secondary mb-1 annuaire-label-xs">Remarques d\u2019usage</div><p class="small">'+esc(g.remarques_usage)+'</p></div>':'')
     +(g.description?'<div class="border-top pt-3 mt-2"><div class="text-uppercase fw-bold text-secondary mb-1 annuaire-label-xs">Description</div><div class="small">'+g.description+'</div></div>':'');
   }
 
@@ -558,26 +679,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(!c){const r=await window.bdb.from('casaques').select('*').eq('id',id).maybeSingle();if(r.data){state.casaques.push(r.data);c=r.data;}}
     const body=document.getElementById('modalCasaqueBody');
     if(!c){body.innerHTML='<div class="alert alert-warning m-2">Casaque introuvable</div>';return;}
-    document.getElementById('modalCasaqueTitle').innerHTML='<i class="bi bi-person-badge text-primary me-2"></i>'+esc(c.titre);
+    document.getElementById('modalCasaqueTitle').innerHTML='<i class="bi bi-person-badge me-2"></i>'+esc(c.titre);
     body.innerHTML=[
       c.categorie&&['Cat\u00e9gorie',esc(c.categorie)],c.specialite&&['Sp\u00e9cialit\u00e9',esc(c.specialite)],
       c.taille_disponible&&['Tailles',esc(c.taille_disponible)],c.localisation&&['Localisation',esc(c.localisation)]
     ].filter(Boolean).map(r=>'<div class="d-flex align-items-start gap-2 small py-1"><span class="text-secondary fw-medium annuaire-detail-label">'+r[0]+'</span><span>'+r[1]+'</span></div>').join('')
-    +(c.renforcee?'<div class="mt-2"><span class="badge bg-primary-subtle text-primary-emphasis rounded-pill"><i class="bi bi-shield-check me-1"></i>Renforc\u00e9e</span></div>':'')
-    +(c.remarques_usage?'<div class="border-top pt-3 mt-2"><div class="text-uppercase fw-bold text-secondary mb-1 annuaire-label-xs">Remarques d’usage</div><p class="small">'+esc(c.remarques_usage)+'</p></div>':'')
+    +(c.renforcee?'<div class="mt-2"><span class="badge ann-badge-module-soft rounded-pill"><i class="bi bi-shield-check me-1"></i>Renforc\u00e9e</span></div>':'')
+    +(c.remarques_usage?'<div class="border-top pt-3 mt-2"><div class="text-uppercase fw-bold text-secondary mb-1 annuaire-label-xs">Remarques d\u2019usage</div><p class="small">'+esc(c.remarques_usage)+'</p></div>':'')
     +(c.description?'<div class="border-top pt-3 mt-2"><div class="text-uppercase fw-bold text-secondary mb-1 annuaire-label-xs">Description</div><div class="small">'+c.description+'</div></div>':'');
   }
 
+  // ── Listener recherche — debounce 300ms (BdbSearch) ──────────────────────
   let searchTimer;
   document.getElementById('searchInput').addEventListener('input', function(){
     clearTimeout(searchTimer);
-    searchTimer=setTimeout(()=>{state.search=this.value;applyFilter();},200);
+    searchTimer = setTimeout(() => { state.search = this.value; applyFilter(); }, 300);
   });
-  document.getElementById('filterChips').addEventListener('click', e=>{
-    const chip=e.target.closest('.filter-chip');if(!chip)return;
-    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');state.fonctionFilter=chip.dataset.fn;applyFilter();
-  });
+
+  // Filter par fonction (select au lieu de chips depuis recettage Manu 2026-05-06)
+  const filterFnEl = document.getElementById('filterFn');
+  if (filterFnEl) {
+    filterFnEl.addEventListener('change', e => {
+      state.fonctionFilter = e.target.value;
+      applyFilter();
+    });
+  }
 
   (async () => {
     try {
@@ -587,37 +713,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   })();
 });
-
-  // ── CDS resilience helpers ─────────────────────────────────────────────
-  function cdsShowGridError(el, msg, retryFn) {
-    if (!el) return;
-    const retryBtn = retryFn
-      ? `<button class="btn btn-sm btn-outline-danger cds-error-retry" id="cdsRetryBtn">
-           <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-         </button>`
-      : '';
-    el.innerHTML = `<div class="cds-error-state col-12">
-      <i class="bi bi-wifi-off cds-error-icon"></i>
-      <div class="cds-error-title">Données non chargées</div>
-      <div class="cds-error-msg">${msg || 'Impossible de contacter le serveur. Vérifiez votre connexion.'}</div>
-      ${retryBtn}
-    </div>`;
-    if (retryFn) {
-      const btn = el.querySelector('#cdsRetryBtn');
-      if (btn) btn.addEventListener('click', retryFn);
-    }
-  }
-
-  function cdsShowOfflineBanner(msg) {
-    let banner = document.getElementById('cdsOfflineBanner');
-    if (!banner) {
-      banner = document.createElement('div');
-      banner.id = 'cdsOfflineBanner';
-      banner.className = 'cds-offline-banner';
-      document.body.prepend(banner);
-    }
-    banner.textContent = msg || 'Service indisponible — vérifiez votre connexion.';
-    banner.classList.add('show');
-  }
-  // ── Fin CDS resilience helpers ──────────────────────────────────────────
-

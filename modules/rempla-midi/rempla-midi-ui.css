@@ -1,0 +1,784 @@
+/* ================================================================
+   rempla-midi-ui.css — Des Blocs & Moi — V7
+   ----------------------------------------------------------------
+   Module : rempla-midi (groupe equipe, draft)
+   Couleur module : app_modules.color = #7ec8c8 (sarcelle pastel)
+   Cascade : --module-color, --module-color-strong, --module-color-soft,
+             --module-color-text (injectees par dbm-module-color.css
+             + :root inline HEAD pour modales — CONV-MODULE-COLOR-02)
+   ----------------------------------------------------------------
+   PALETTE V7
+   1. Tokens module (--module-color-*) : hero, salle, KPI, nav-pills,
+      header card, accent texte fort
+   2. Tokens Bootstrap natifs (--bs-*) : borders, body bg, secondary,
+      tertiary bg — INTERDIT-MODULE-COLOR-01 respecte (zero hardcode
+      de la couleur module)
+   3. Palette status standards (CONV-COLOR-STATUS-01) :
+      success (#198754), info (#0d6efd), warning (#ffc107),
+      orange (#fd7e14), danger (#dc3545), secondary (#6c757d)
+      Utilisee pour : diagnostic 6 etats, alerts 4 niveaux, niveaux
+      plan (quotidien/crise), timeline (pause/remplace), rules-dot,
+      preset-ic dots, train cell-13h
+   4. Palette CATEGORIES AGENTS (taxonomie metier, exception assumee)
+      Sem
+      antique non transposable au module-color : chaque categorie
+      doit etre identifiable au coup d'oeil sur les 5 cards.
+        matin (13h)  : violet #6f42c1  (exception, debauche tot)
+        journee      : bleu   #0d6efd  (standard)
+        12h          : sarcelle saturee #0a7c8e (recirculation)
+        soir         : orange #fd7e14  (deja mange)
+        couloir      : vert   #198754  (variable d'ajustement)
+        doublure     : gris   #6c757d  (renfort)
+   ----------------------------------------------------------------
+   SCOPE : toutes regles prefixees #remplaMain (CONV-CARD-03)
+   AUDIT  : zero `--rm-warm-*`, zero hardcode couleur module,
+            classes alignees rempla-midi-app.js V6 (cartographie
+            session #115)
+   ================================================================ */
+
+/* ── 1. ANIMATION ───────────────────────────────────────────── */
+@keyframes rempla-fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+#remplaMain .rempla-animated { animation: rempla-fadeIn 0.25s ease-out; }
+
+/* ── 2. HERO ───────────────────────────────────────────────── */
+#remplaMain .rempla-hero {
+  background: linear-gradient(135deg, var(--module-color), var(--module-color-strong));
+  color: #fff;
+  padding: 1.5rem;
+  border-radius: 0.85rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+#remplaMain .rempla-hero::after {
+  content: "";
+  position: absolute;
+  right: -40px; top: -40px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+#remplaMain .rempla-hero h2 {
+  font-size: 1.25rem; font-weight: 700; margin: 0 0 0.3rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+#remplaMain .rempla-hero .hero-lede {
+  font-size: 0.9rem; opacity: 0.92;
+  margin: 0 0 0.85rem; max-width: 640px;
+}
+#remplaMain .rempla-hero .hero-meta {
+  display: flex; flex-wrap: wrap; gap: 1.25rem;
+  font-size: 0.78rem; opacity: 0.92;
+}
+#remplaMain .rempla-hero .hero-meta b {
+  font-weight: 700; font-size: 1rem; display: block;
+}
+
+/* ── 3. TOOLBAR ────────────────────────────────────────────── */
+#remplaMain .rempla-toolbar {
+  display: flex; flex-wrap: wrap; align-items: flex-end;
+  gap: 0.65rem;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.55rem;
+  padding: 0.75rem 0.85rem;
+  margin-bottom: 1rem;
+}
+#remplaMain .rempla-toolbar label {
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--bs-secondary-color);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  display: block; margin-bottom: 0.2rem;
+}
+
+/* ── 4. CARDS GENERIQUES (CONV-CARD-03) ────────────────────── */
+#remplaMain .rempla-card {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.6rem;
+  overflow: hidden;
+}
+#remplaMain .rempla-card .card-header {
+  background: var(--module-color-soft);
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--module-color-text);
+}
+#remplaMain .rempla-card .card-header i { color: var(--module-color-strong); }
+
+#remplaMain .rempla-empty {
+  text-align: center; padding: 2rem 1rem;
+  color: var(--bs-secondary-color);
+}
+#remplaMain .rempla-empty i {
+  font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5;
+}
+
+#remplaMain .rempla-muted { color: var(--bs-secondary-color); }
+
+/* ── 5. SALLE CARD (effectif jour, exclusion croisee) ──────── */
+#remplaMain .rempla-salle-card {
+  border-left: 3px solid var(--module-color-strong);
+  transition: border-color 0.2s;
+}
+#remplaMain .rempla-slot-row {
+  display: flex; align-items: center;
+  gap: 0.25rem; margin-bottom: 0.25rem;
+}
+#remplaMain .rempla-slot-label {
+  min-width: 38px; flex-shrink: 0;
+  font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--bs-secondary-color);
+}
+#remplaMain .rempla-slot-row .form-select { flex: 1; }
+
+#remplaMain .rempla-cat-sel {
+  width: 52px !important; flex: 0 0 52px !important;
+  font-size: 0.72rem !important; padding: 2px 4px !important;
+  text-align: center; font-weight: 600; border-radius: 4px;
+}
+
+/* ── 6. GROUPS HORS SALLE (couloir, soir, doublure, autres) ── */
+#remplaMain .rempla-group-card {
+  border-left: 3px solid var(--bs-border-color);
+}
+#remplaMain .rempla-gc-couloir  { border-left-color: #198754; }
+#remplaMain .rempla-gc-soir     { border-left-color: #fd7e14; }
+#remplaMain .rempla-gc-doublure { border-left-color: #6c757d; }
+#remplaMain .rempla-gc-autres   { border-left-color: var(--module-color-strong); }
+#remplaMain .rempla-gc-doublure .card-header { background: rgba(255, 193, 7, 0.08); }
+
+#remplaMain .rempla-group-count {
+  margin-left: auto;
+  font-size: 0.7rem; font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 1rem;
+  background: var(--bs-body-bg);
+  color: var(--bs-secondary-color);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* ── 7. AGENT BADGES (categories metier — palette taxonomique) ─
+   Voir entete de fichier §4 pour la justification de la palette
+   non-module et son lien avec les 5 categories horaires. ────── */
+#remplaMain .rempla-agent-badge {
+  display: inline-flex; align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.35rem;
+  font-size: 0.78rem; font-weight: 500;
+  border: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+}
+#remplaMain .rempla-cat-matin    { border-color: #6f42c1; color: #5a3494; background: #f3e7fb; }
+#remplaMain .rempla-cat-journee  { border-color: #0d6efd; color: #0a58ca; background: #cfe2ff; }
+#remplaMain .rempla-cat-12h      { border-color: #0a7c8e; color: #055160; background: #cff4fc; }
+#remplaMain .rempla-cat-soir     { border-color: #fd7e14; color: #8a4500; background: #fff3cd; }
+#remplaMain .rempla-cat-couloir  { border-color: #198754; color: #0f5132; background: #d1e7dd; }
+#remplaMain .rempla-cat-doublure { border-color: #6c757d; color: #495057; background: #e9ecef; }
+
+/* ── 8. SELECTS COMPACTS (config + groupes) ─────────────────── */
+#remplaMain .rempla-sel-xs {
+  min-width: 90px; max-width: 120px;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.3rem;
+}
+#remplaMain .rempla-sel-sm {
+  min-width: 110px; max-width: 160px;
+  font-size: 0.8rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.3rem;
+}
+
+/* ── 9. CONFIG FORM-ROW (parametres creneau) ────────────────── */
+#remplaMain .rempla-form-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 0.5rem; align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.83rem;
+}
+#remplaMain .rempla-form-row label {
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--bs-secondary-color);
+}
+#remplaMain .rempla-form-row .pair { display: flex; gap: 0.3rem; }
+#remplaMain .rempla-form-row .pair input { flex: 1; }
+
+/* ── 10. KPI STRIP (plan resume) ────────────────────────────── */
+#remplaMain .rempla-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+#remplaMain .rempla-kpi {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-left: 3px solid var(--module-color-strong);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+}
+#remplaMain .rempla-kpi-label {
+  font-size: 0.68rem;
+  color: var(--bs-secondary-color);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600; margin-bottom: 0.15rem;
+}
+#remplaMain .rempla-kpi-value {
+  font-size: 1.35rem; font-weight: 700;
+  color: var(--module-color-strong);
+  line-height: 1;
+}
+
+/* ── 11. DIAGNOSTIC BANNER (6 etats — palette status) ───────── */
+#remplaMain .rempla-diag {
+  display: flex; align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  border-left: 4px solid transparent;
+  margin-bottom: 0.85rem;
+}
+#remplaMain .rempla-diag .diag-ic { font-size: 1.4rem; }
+#remplaMain .rempla-diag .diag-label { font-weight: 700; font-size: 0.95rem; }
+#remplaMain .rempla-diag .diag-detail {
+  font-size: 0.78rem;
+  color: var(--bs-secondary-color);
+  margin-top: 0.1rem;
+}
+#remplaMain .rempla-diag-confortable    { background: #d1e7dd; border-left-color: #198754; }
+#remplaMain .rempla-diag-confortable .diag-ic,
+#remplaMain .rempla-diag-confortable .diag-label    { color: #0f5132; }
+#remplaMain .rempla-diag-quotidien      { background: #cfe2ff; border-left-color: #0d6efd; }
+#remplaMain .rempla-diag-quotidien .diag-ic,
+#remplaMain .rempla-diag-quotidien .diag-label      { color: #084298; }
+#remplaMain .rempla-diag-degrade_leger  { background: #fff3cd; border-left-color: #ffc107; }
+#remplaMain .rempla-diag-degrade_leger .diag-ic,
+#remplaMain .rempla-diag-degrade_leger .diag-label  { color: #664d03; }
+#remplaMain .rempla-diag-degrade_complet { background: #ffe5d0; border-left-color: #fd7e14; }
+#remplaMain .rempla-diag-degrade_complet .diag-ic,
+#remplaMain .rempla-diag-degrade_complet .diag-label { color: #7c3a00; }
+#remplaMain .rempla-diag-crise          { background: #f8d7da; border-left-color: #dc3545; }
+#remplaMain .rempla-diag-crise .diag-ic,
+#remplaMain .rempla-diag-crise .diag-label          { color: #842029; }
+#remplaMain .rempla-diag-bloque         { background: #e2e3e5; border-left-color: #6c757d; }
+#remplaMain .rempla-diag-bloque .diag-ic,
+#remplaMain .rempla-diag-bloque .diag-label         { color: #41464b; }
+
+/* ── 12. PLAN TABLE (mouvements rotation) ───────────────────── */
+#remplaMain .rempla-plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+#remplaMain .rempla-plan-table thead th {
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.7rem;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--bs-secondary-color);
+  border-bottom: 1px solid var(--bs-border-color);
+  background: var(--module-color-soft);
+  font-weight: 700;
+}
+#remplaMain .rempla-plan-table td {
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid var(--bs-border-color);
+}
+#remplaMain .rempla-plan-table tbody tr:hover { background: var(--module-color-soft); }
+#remplaMain .rempla-creneau-cell {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.78rem;
+  color: var(--bs-secondary-color);
+}
+#remplaMain .rempla-niv-quotidien {
+  background: #d1e7dd; color: #0f5132;
+  padding: 0.1rem 0.45rem; border-radius: 0.3rem;
+  font-size: 0.7rem; font-weight: 600;
+}
+#remplaMain .rempla-niv-crise {
+  background: #f8d7da; color: #842029;
+  padding: 0.1rem 0.45rem; border-radius: 0.3rem;
+  font-size: 0.7rem; font-weight: 600;
+}
+#remplaMain .rempla-row-libre td { opacity: 0.65; font-style: italic; }
+
+/* ── 13. ALERTS (4 niveaux — palette status) ─────────────────── */
+#remplaMain .rempla-alert {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.35rem;
+  border: 1px solid transparent;
+  display: flex; align-items: flex-start; gap: 0.35rem;
+}
+#remplaMain .rempla-alert.lvl-info     { background: #cfe2ff; color: #084298; border-color: #b6d4fe; }
+#remplaMain .rempla-alert.lvl-warning  { background: #fff3cd; color: #664d03; border-color: #ffecb5; }
+#remplaMain .rempla-alert.lvl-crise    { background: #f8d7da; color: #842029; border-color: #f5c2c7; }
+#remplaMain .rempla-alert.lvl-bloquant { background: #e2e3e5; color: #41464b; border-color: #d3d6d8; }
+
+/* ── 14. TIMELINE — VUE AGENT ────────────────────────────────── */
+/* ── 14bis. VUE AGENT ──────────────────────────────────────── */
+#remplaMain .rempla-tl-wrap {
+  overflow-x: auto; padding: 0.5rem 0;
+  background: #fff; border: 1px solid #dee2e6; border-radius: 0.5rem;
+}
+.va-container { min-width: 560px; padding: 0 0.65rem 0.65rem; }
+.va-header {
+  display: flex; border-bottom: 2px solid #5bbcbc; padding-top: 0.35rem;
+}
+.va-hour {
+  font-size: .68rem; font-weight: 700; color: #6c757d;
+  text-align: center; flex: 1;
+}
+.va-section { margin-top: 8px; }
+.va-section-title {
+  font-size: .7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; padding: 4px 8px; border-radius: 4px; margin-bottom: 2px;
+}
+.va-section-instru .va-section-title { color: #5b21b6; background: rgba(124,58,237,.06); }
+.va-section-circu .va-section-title { color: #155e75; background: rgba(8,145,178,.06); }
+.va-row {
+  display: flex; align-items: center;
+  border-bottom: 1px solid #f1f3f5; min-height: 2rem;
+}
+.va-row:last-child { border-bottom: none; }
+.va-label {
+  width: 140px; min-width: 140px; padding: 0.2rem 0.5rem;
+  font-size: .75rem; font-weight: 600;
+  text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
+}
+.va-label-instru { color: #5b21b6; border-left: 3px solid #7c3aed; }
+.va-label-circu { color: #155e75; border-left: 3px solid #0891b2; }
+.va-bar-area { flex: 1; position: relative; height: 2rem; }
+.va-block {
+  position: absolute; top: 3px; bottom: 3px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .68rem; font-weight: 600; color: #fff;
+  overflow: hidden; padding: 0 0.3rem;
+}
+.va-pause { background: #6c757d; }
+.va-rempl-instru { background: #7c3aed; }
+.va-rempl-circu { background: #0891b2; }
+
+/* Bug 1 — etats supplementaires de la vue agent */
+.va-poste-instru { background: #c4b5fd; color: #4c1d95; }
+.va-poste-circu  { background: #a5f3fc; color: #155e75; }
+.va-couloir { background: #fcd34d; color: #78350f; }
+.va-doublure { background: #fbcfe8; color: #831843; }
+.va-parti { background: #e5e7eb; color: #6b7280; font-style: italic; }
+.va-empty { background: transparent; color: transparent; }
+.va-extra { opacity: 0.55; border: 1px dashed rgba(0,0,0,.1); }
+.va-crise { outline: 2px solid #dc2626; outline-offset: -2px; }
+.va-hour-extra { color: #adb5bd; font-style: italic; }
+.va-section-count {
+  display: inline-block; margin-left: 4px;
+  background: rgba(0,0,0,.06); color: inherit;
+  border-radius: 8px; padding: 0 6px; font-size: .65rem;
+}
+
+/* ── 15. PETIT TRAIN — VUE CADRE ─────────────────────────────── */
+#remplaMain .rempla-train { overflow-x: auto; }
+
+/* Table */
+.train-table {
+  width: 100%; table-layout: fixed;
+  border-collapse: separate; border-spacing: 0; font-size: .82rem;
+}
+.train-table th, .train-table td {
+  padding: 6px 8px; vertical-align: middle; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; height: 56px;
+}
+.train-th-poste, .train-td-poste { width: 60px; }
+.train-th-poste {
+  font-weight: 600; color: #6c757d; font-size: .75rem;
+  text-transform: uppercase; letter-spacing: .03em;
+}
+.train-th-slot {
+  text-align: center; font-weight: 600; font-size: .75rem;
+  color: #6c757d; border-bottom: 2px solid #5bbcbc;
+}
+.train-th-sep, .train-sep {
+  width: 18px !important; min-width: 18px; max-width: 18px;
+  text-align: center; color: #adb5bd; font-size: .65rem; padding: 0 !important;
+}
+.train-td-poste {
+  font-weight: 600; font-size: .78rem;
+  border-right: 2px solid #dee2e6;
+}
+.train-salle { color: #5bbcbc; }
+.train-poste-instru { color: #7c3aed; font-weight: 700; }
+.train-poste-circu { color: #0891b2; font-weight: 700; }
+
+/* Cases damier */
+.train-cell { text-align: center; border-radius: 4px; border: 1px solid #e9ecef; }
+.train-cell-instru { background: rgba(124,58,237,.05); }
+.train-cell-circu { background: rgba(8,145,178,.05); }
+.train-row-instru .train-td-poste { border-left: 3px solid #7c3aed; }
+.train-row-circu .train-td-poste { border-left: 3px solid #0891b2; }
+
+/* Separateur entre salles */
+.train-sep-row td { height: 10px !important; border: none; background: transparent; padding: 0 !important; }
+
+/* Salle fermee */
+.train-row-fermee { opacity: .25; }
+.train-cell-fermee {
+  background: #f8f9fa;
+  background-image: repeating-linear-gradient(90deg, #e9ecef 0px, #e9ecef 6px, transparent 6px, transparent 12px);
+  background-size: 12px 2px; background-position: center; background-repeat: repeat-x;
+}
+
+/* Mouvement : Remplaçant > Titulaire */
+.train-mvt {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.train-arrow {
+  font-size: .72rem; font-weight: 600; color: #495057;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.train-arrow::before { content: '\25B8 '; color: #0891b2; }
+
+/* Colonnes extra minimisees (zones de drop vides) */
+.train-th-extra, .train-cell-extra {
+  max-width: 20px; width: 20px; overflow: hidden; padding: 2px !important; opacity: .35;
+}
+.train-th-extra { font-size: .55rem !important; }
+.train-extra { max-width: 4px !important; width: 4px !important; }
+/* Expansion au survol drag */
+.train-th-extra.train-extra-open,
+.train-cell-extra.train-extra-open { max-width: none; width: auto; padding: 6px 8px !important; opacity: 1; }
+.train-extra.train-extra-open { max-width: 18px !important; width: 18px !important; }
+
+/* === PIONS === */
+.pion {
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  font-size: .72rem; font-weight: 600;
+  padding: 4px 10px; margin: 2px; border-radius: 5px;
+  cursor: grab; white-space: nowrap;
+  min-width: 70px; height: 28px; text-align: center;
+}
+.pion:active { cursor: grabbing; }
+.pion-dragging { opacity: .35 !important; }
+
+/* Couleurs par role — contraste fort */
+.pion-instru { background: #7c3aed; color: #fff; border: 1.5px solid #6d28d9; }
+.pion-circu { background: #0891b2; color: #fff; border: 1.5px solid #0e7490; }
+
+/* Badges — 4 couleurs franches, toutes distinctes */
+.pion-badge {
+  font-size: .55rem; font-weight: 700; padding: 1px 4px;
+  border-radius: 3px; vertical-align: middle; line-height: 1.2;
+}
+.pion-b-13h { background: #f59e0b; color: #fff; font-size: .6rem; padding: 1px 5px; }
+.pion-b-soir { background: #6366f1; color: #fff; }
+.pion-b-couloir { background: #06b6d4; color: #fff; }
+.pion-b-sortant { background: #78716c; color: #fff; }
+
+/* Pion 13h = visuellement distinct — fond orange, bordure epaisse */
+.pion-13h {
+  background: #fef3c7 !important; color: #92400e !important;
+  border: 2.5px solid #f59e0b !important;
+}
+.pion-13h.pion-instru { background: #fef3c7 !important; color: #92400e !important; }
+.pion-13h.pion-circu { background: #fef3c7 !important; color: #92400e !important; }
+/* Case ou le 13h part — vide avec indication */
+.train-cell-13h-parti {
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(245,158,11,.08) 3px, rgba(245,158,11,.08) 6px) !important;
+}
+.train-13h-parti-label {
+  font-size: .6rem; color: #b45309; font-weight: 600; font-style: italic;
+}
+/* I5 : poste vacant car agent matin parti a 13:00 sans releve */
+.train-cell-vacant-13h {
+  background: repeating-linear-gradient(-45deg, #fee2e2, #fee2e2 4px, #fecaca 4px, #fecaca 8px) !important;
+}
+.train-vacant-13h {
+  font-size: .65rem; color: #991b1b; font-weight: 700; text-align: center;
+  padding: 2px 4px; line-height: 1.1;
+}
+/* Pion sortant (arrive au couloir après cascade) */
+.pion-sortant { opacity: .8; border-style: dashed !important; }
+
+/* Legende pions */
+.pion-leg { cursor: default; font-size: .65rem; min-width: 50px; height: 22px; padding: 2px 8px; margin-right: 6px; }
+.train-legende {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 10px; font-size: .72rem; color: #6c757d;
+}
+
+/* Toggle 13h dans les groupes hors-salle */
+#remplaMain .rempla-toggle-13h {
+  display: inline-flex; align-items: center; gap: 2px;
+  font-size: .62rem; cursor: pointer; white-space: nowrap;
+}
+#remplaMain .rempla-toggle-13h input { width: 12px; height: 12px; accent-color: #f59e0b; }
+#remplaMain .rempla-toggle-13h small { color: #f59e0b; font-weight: 700; }
+
+/* Badge renfort */
+#remplaMain .rempla-cat-renfort { background: rgba(99,102,241,.1); border-color: #6366f1; color: #4338ca; }
+#remplaMain .rempla-gc-renforts .card-header { border-bottom-color: #6366f1; }
+
+/* === ZONES TAMPONS (couloir + banc) === */
+.train-zones {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 12px;
+}
+.train-zone {
+  width: 100%; min-height: 48px;
+  border: 2px dashed #adb5bd; border-radius: 8px;
+  padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+}
+.train-zone-couloir { border-color: #0891b2; background: rgba(8,145,178,.04); }
+.train-zone-banc { border-color: #6c757d; background: #f8f9fa; }
+.train-zone-label {
+  font-size: .75rem; font-weight: 700; color: #495057;
+  white-space: nowrap; min-width: 110px;
+}
+.train-zone-pions {
+  display: flex; flex-wrap: wrap; gap: 4px; min-height: 28px;
+}
+
+/* Drag feedback */
+.drag-ok { outline: 2px solid #5bbcbc !important; outline-offset: -2px; background: rgba(91,188,188,.08) !important; }
+.drag-no { outline: 2px dashed #dc3545 !important; outline-offset: -2px; background: rgba(220,53,69,.06) !important; cursor: not-allowed; }
+.train-zone.drag-ok { border-color: #5bbcbc !important; background: rgba(91,188,188,.06) !important; }
+.train-zone-banc.drag-ok { border-color: #6c757d !important; background: rgba(108,117,125,.04) !important; }
+
+/* === ALERTES TIMELINE === */
+.train-alerts {
+  margin-top: 10px; display: flex; flex-direction: column; gap: 4px;
+}
+.train-alert {
+  font-size: .75rem; padding: 5px 10px; border-radius: 5px;
+  display: flex; align-items: center;
+}
+.train-alert-danger { background: rgba(220,53,69,.08); color: #a71d2a; border-left: 3px solid #dc3545; }
+.train-alert-warning { background: rgba(255,193,7,.08); color: #997404; border-left: 3px solid #ffc107; }
+.train-alert-info { background: rgba(13,110,253,.06); color: #084298; border-left: 3px solid #0d6efd; }
+/* ── 16. BADGE 13H (agent matin sur le plan) ────────────────── */
+#remplaMain .rempla-badge-13h {
+  display: inline-block;
+  font-size: 0.62rem; font-weight: 700;
+  color: #000;
+  background: #ffc107;
+  border-radius: 3px;
+  padding: 0 4px; margin-left: 3px;
+  vertical-align: middle;
+}
+
+/* ── 17. PRESETS BAR (4 scenarios pre-definis) ──────────────── */
+#remplaMain .rempla-presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+#remplaMain .rempla-preset {
+  display: flex; align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--bs-border-color);
+  border-radius: 8px;
+  background: var(--bs-body-bg);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex: 1 1 0;
+  min-width: 140px;
+}
+#remplaMain .rempla-preset:hover {
+  border-color: var(--module-color-strong);
+  box-shadow: 0 0 0 2px var(--module-color-soft);
+}
+#remplaMain .rempla-preset.active {
+  border-color: var(--module-color-strong);
+  background: var(--module-color-soft);
+  box-shadow: 0 0 0 2px var(--module-color-soft);
+}
+#remplaMain .rempla-preset-ic { font-size: 1.1rem; line-height: 1; }
+#remplaMain .rempla-preset-label {
+  font-weight: 600; font-size: 0.82rem; white-space: nowrap;
+}
+#remplaMain .rempla-preset-detail {
+  font-size: 0.68rem;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+#remplaMain .rempla-dot-ok   { color: #198754; }
+#remplaMain .rempla-dot-quot { color: #0d6efd; }
+#remplaMain .rempla-dot-warn { color: #ffc107; }
+#remplaMain .rempla-dot-crit { color: #dc3545; }
+
+/* ── 18. SAVED CONFIGS (journees enregistrees) ──────────────── */
+#remplaMain .rempla-saved-list {
+  display: flex; flex-wrap: wrap;
+  gap: 6px; margin-top: 8px;
+}
+#remplaMain .rempla-saved-btn {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 6px;
+  background: var(--bs-body-bg);
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.15s;
+}
+#remplaMain .rempla-saved-btn:hover {
+  border-color: var(--module-color-strong);
+  background: var(--module-color-soft);
+}
+#remplaMain .rempla-saved-btn .rempla-saved-del {
+  color: #dc3545;
+  font-size: 0.7rem;
+  opacity: 0.5;
+  cursor: pointer;
+}
+#remplaMain .rempla-saved-btn .rempla-saved-del:hover { opacity: 1; }
+
+/* ── 19. RULES GRID (R01-R26 compliance) ────────────────────── */
+#remplaMain .rempla-rules-grid {
+  display: flex; flex-wrap: wrap;
+  gap: 4px; margin-top: 8px;
+}
+#remplaMain .rempla-rule-dot {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 32px; height: 22px;
+  border-radius: 4px;
+  font-size: 0.62rem; font-weight: 700;
+  cursor: default;
+  border: 1px solid transparent;
+}
+#remplaMain .rempla-rule-ok   { background: #d1e7dd; color: #0f5132; border-color: #badbcc; }
+#remplaMain .rempla-rule-warn { background: #fff3cd; color: #664d03; border-color: #ffecb5; }
+#remplaMain .rempla-rule-fail { background: #f8d7da; color: #842029; border-color: #f5c2c7; }
+#remplaMain .rempla-rule-na   { background: var(--bs-tertiary-bg); color: var(--bs-tertiary-color); }
+
+/* ── 20. GLOSSAIRE & REGLES (config tab) ────────────────────── */
+#remplaMain .rempla-glossaire {
+  font-size: 0.82rem;
+  columns: 2;
+  column-gap: 24px;
+}
+#remplaMain .rempla-glo-section {
+  break-inside: avoid;
+  margin-bottom: 16px;
+}
+#remplaMain .rempla-glo-titre {
+  font-weight: 700; font-size: 0.75rem;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--module-color-strong);
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--bs-border-color);
+  padding-bottom: 3px;
+}
+#remplaMain .rempla-glo-dl { margin: 0; }
+#remplaMain .rempla-glo-dl dt {
+  font-weight: 600; font-size: 0.78rem;
+  margin-top: 6px;
+}
+#remplaMain .rempla-glo-dl dd {
+  margin: 0 0 2px;
+  color: var(--bs-secondary-color);
+  line-height: 1.35;
+}
+
+/* ── 21. CONFIG TABLE (agents IDE/IBODE + chirurgiens) ──────── */
+#remplaMain .rempla-cfg-table {
+  width: 100%;
+  font-size: 0.82rem;
+  border-collapse: collapse;
+}
+#remplaMain .rempla-cfg-table thead {
+  background: var(--module-color-soft);
+  border-bottom: 2px solid var(--module-color-strong);
+}
+#remplaMain .rempla-cfg-table thead th {
+  font-weight: 600; font-size: 0.68rem;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--module-color-text);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--bs-border-color);
+  position: sticky; top: 0;
+}
+#remplaMain .rempla-cfg-table tbody tr { transition: background 0.12s; }
+#remplaMain .rempla-cfg-table tbody tr:hover { background: var(--module-color-soft); }
+#remplaMain .rempla-cfg-table tbody td {
+  padding: 0.4rem 0.75rem;
+  vertical-align: middle;
+  border-top: 1px solid var(--bs-border-color);
+}
+#remplaMain .rempla-cfg-table tr.row-disabled {
+  opacity: 0.5;
+  background: var(--bs-tertiary-bg);
+}
+#remplaMain .rempla-cfg-scroll {
+  max-height: 480px;
+  overflow-y: auto;
+}
+#remplaMain .rempla-cfg-sub {
+  font-size: 0.7rem;
+  color: var(--bs-secondary-color);
+}
+#remplaMain .rempla-comp-badge {
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.72rem;
+}
+
+/* ── 22. NAV PILLS — couleur module ─────────────────────────── */
+#remplaMain .nav-pills .nav-link.active {
+  background: var(--module-color-strong);
+  color: #fff;
+}
+#remplaMain .nav-pills .nav-link {
+  color: var(--bs-secondary-color);
+  font-size: 0.85rem; font-weight: 500;
+}
+#remplaMain .nav-pills .nav-link:hover {
+  background: var(--module-color-soft);
+  color: var(--module-color-text);
+}
+
+/* ── 23. RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  #remplaMain .rempla-glossaire { columns: 1; }
+}
+@media (max-width: 576px) {
+  #remplaMain .rempla-preset {
+    min-width: 100%;
+    padding: 6px 10px;
+  }
+}
+
+/* ── FIN rempla-midi-ui.css V7 ──────────────────────────────── */
+
+
+/* ════════════════════════════════════════════════════════════
+   PATCH 2026-05-09 — padding entêtes first-child
+   Bug : th et td first-child de rempla-plan-table, rempla-cfg-table
+   touchent la bordure gauche de leur card-body p-0.
+   Fix : padding-left 1rem pour respirer.
+   Append-only — protège le V7 disque Windows.
+   ════════════════════════════════════════════════════════════ */
+#remplaMain .rempla-plan-table th:first-child,
+#remplaMain .rempla-plan-table td:first-child,
+#remplaMain .rempla-cfg-table th:first-child,
+#remplaMain .rempla-cfg-table td:first-child {
+  padding-left: 1rem;
+}
+/* ── 25. PADDING HORIZONTAL CARD-HEADER (fix py-2 sans px) ── */
+#remplaMain .rempla-card .card-header {
+  padding-inline: 1rem;
+}

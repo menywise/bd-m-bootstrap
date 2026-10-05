@@ -1,0 +1,651 @@
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  CONSENSUS DESIGN SYSTEM - TEMPLATE SHOWCASE                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  FILE     : theme-showcase.html                                              ║
+║  VERSION  : 2.0.0                                                            ║
+║  TYPE     : Showcase (Documentation composants)                              ║
+║  UPDATE   : 2026-01-12                                                       ║
+║  STATUT   : SOURCE DE VERITE                                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  USAGE    : Documentation interne, catalogue composants, guide style         ║
+║  SECTIONS : Tous composants CDS avec exemples visuels                        ║
+║  PUBLIC   : Developpeurs, designers, integrateurs                            ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  REGLE    : Ce fichier est la REFERENCE catalogue. Il documente tous les     ║
+║             composants autorises dans CDS. Modifications = validation Manu.  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════════════════════════
+ OBJECTIF SHOWCASE
+ 
+ Ce template a un role PEDAGOGIQUE et NORMATIF :
+ 1. Montrer TOUS les composants CDS autorises
+ 2. Fournir le code EXACT a copier
+ 3. Documenter les anti-patterns INTERDITS
+ 4. Servir de reference audit (auditor_v321.html)
+ 
+ STRUCTURE :
+ - Section par famille composants
+ - Exemple visuel + code
+ - Pattern BON vs MAUVAIS quand pertinent
+═══════════════════════════════════════════════════════════════════════════════
+-->
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showcase Composants | Consensus DS</title>
+    
+    <!-- CDN Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- CDN CDS -->
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-print.css" rel="stylesheet" media="print"/>
+  <!-- 5 · CDS overrides globaux (scope global délibéré — CHANTIER BLOC C.2) -->
+  <!-- 6 · CSS propre au module — INTERDIT-17 : toutes les règles scopées -->
+  <link href="../../css/[module]-ui.css" rel="stylesheet"/>
+
+</head>
+<body class="d-flex min-vh-100">
+
+<!-- OFFCANVAS MENU -->
+
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+    <div id="bdb-shell"
+         data-module-title="[TITRE_MODULE]"
+         data-module-icon="bi-[ICON_MODULE]">
+    </div>
+
+    <div class="container-fluid p-4 bg-light flex-grow-1">
+        
+        <!-- DOC-HEADER-PRIMARY -->
+        <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+            <h1 class="mb-2"><i class="bi bi-grid-1x2-fill me-2"></i>Consensus Design System</h1>
+            <p class="mb-0 opacity-75">Catalogue complet des composants - Reference unique</p>
+        </div>
+        
+        <!-- INTRO -->
+        <div class="card shadow-sm mb-4 border-primary border-2">
+            <div class="card-header bg-primary text-white">
+                <strong><i class="bi bi-info-circle me-2"></i>Guide d'utilisation</strong>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success"><i class="bi bi-check-circle me-2"></i>Regles CDS</h6>
+                        <ul class="small mb-0">
+                            <li>100% classes Bootstrap natives</li>
+                            <li>Classes CDS custom en complement</li>
+                            <li>Sans theme-base.css = fonctionnel</li>
+                            <li>Avec theme-base.css = ameliore</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-danger"><i class="bi bi-x-circle me-2"></i>Interdits</h6>
+                        <ul class="small mb-0">
+                            <li>CSS inline (style="...")</li>
+                            <li>JS inline (onclick="...")</li>
+                            <li>Mix icons (Bootstrap + Font Awesome)</li>
+                            <li>Gradients custom sur headers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECTION : HEADERS
+             ═══════════════════════════════════════════════════════════════════ -->
+        <section id="sec-headers" class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">
+                <i class="bi bi-card-heading text-primary me-2"></i>1. Headers
+            </h4>
+            
+            <div class="row g-4">
+                <!-- bg-primary bg-gradient -->
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-transparent">
+                            <strong>bg-primary bg-gradient</strong>
+                            <span class="badge bg-success-subtle text-success ms-2">Obligatoire</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Header principal de page. UN SEUL par page.</p>
+                            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white">
+                                <h1 class="mb-2"><i class="bi bi-star me-2"></i>Titre Principal</h1>
+                                <p class="mb-0 opacity-75">Description courte de la page</p>
+                            </div>
+                            <pre class="bg-dark text-light p-3 rounded mt-3 small"><code>&lt;div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white"&gt;
+    &lt;h1 class="mb-2"&gt;&lt;i class="bi bi-star me-2"&gt;&lt;/i&gt;Titre&lt;/h1&gt;
+    &lt;p class="mb-0 opacity-75"&gt;Description&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- header-sticky -->
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-transparent">
+                            <strong>header-sticky</strong>
+                            <span class="badge bg-success-subtle text-success ms-2">Obligatoire</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Barre navigation superieure. Reste visible au scroll.</p>
+                            <div class="border rounded p-3 bg-white shadow-sm d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-3">
+                                    <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-list"></i></button>
+                                    <strong>Titre Page</strong>
+                                </div>
+                                <button class="btn btn-primary btn-sm">Action</button>
+                            </div>
+                            <pre class="bg-dark text-light p-3 rounded mt-3 small"><code>&lt;header class="sticky-top bg-white shadow-sm px-4 py-3 d-flex align-items-center justify-content-between header-sticky"&gt;
+    &lt;!-- Gauche : menu + titre --&gt;
+    &lt;!-- Droite : actions --&gt;
+&lt;/header&gt;</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECTION : CARDS
+             ═══════════════════════════════════════════════════════════════════ -->
+        <section id="sec-cards" class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">
+                <i class="bi bi-card-text text-primary me-2"></i>2. Cards
+            </h4>
+            
+            <div class="row g-4">
+                <!-- Card standard -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-transparent">
+                            <strong>Card standard</strong>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Card Bootstrap de base avec shadow-sm.</p>
+                            <div class="card shadow-sm">
+                                <div class="card-body">Contenu card</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pole card -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-transparent">
+                            <strong>pole-card</strong>
+                            <span class="badge bg-info-subtle text-info ms-2">Stats</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">Card avec bordure superieure coloree.</p>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="card shadow-sm text-center p-3 border-top border-4 border-primary pole-card">
+                                        <i class="bi bi-folder fs-3 text-primary"></i>
+                                        <strong>47</strong>
+                                        <small class="text-muted">Total</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card shadow-sm text-center p-3 border-top border-4 border-success pole-card">
+                                        <i class="bi bi-check fs-3 text-success"></i>
+                                        <strong>32</strong>
+                                        <small class="text-muted">OK</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECTION : BADGES
+             ═══════════════════════════════════════════════════════════════════ -->
+        <section id="sec-badges" class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">
+                <i class="bi bi-award text-primary me-2"></i>3. Badges & Statuts
+            </h4>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6>Badges semantiques (statuts)</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge bg-success-subtle text-success">Termine</span>
+                        <span class="badge bg-warning-subtle text-dark">En cours</span>
+                        <span class="badge bg-danger-subtle text-danger">En retard</span>
+                        <span class="badge bg-info-subtle text-info">Information</span>
+                        <span class="badge bg-secondary-subtle text-secondary">Archive</span>
+                    </div>
+                    
+                    <h6>Badges neutres (categories)</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge bg-light text-dark border">Categorie</span>
+                        <span class="badge bg-primary-subtle text-primary">Tag</span>
+                    </div>
+                    
+                    <div class="alert alert-warning small mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Accessibilite :</strong> Utiliser <code>text-dark</code> sur bg-warning-subtle (contraste WCAG).
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECTION : TABLES
+             ═══════════════════════════════════════════════════════════════════ -->
+        <section id="sec-tables" class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">
+                <i class="bi bi-table text-primary me-2"></i>4. Tables
+            </h4>
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <strong>Table responsive CRUD</strong>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th scope="col">Nom</th>
+                                <th scope="col">Statut</th>
+                                <th scope="col">Date</th>
+                                <th scope="col" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-label="Nom">Projet Alpha</td>
+                                <td data-label="Statut"><span class="badge bg-success-subtle text-success">Termine</span></td>
+                                <td data-label="Date">12/01/2026</td>
+                                <td data-label="Actions" class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-secondary"><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-transparent small">
+                    <strong>Regles :</strong> table-responsive obligatoire, data-label sur td, thead bg-light
+                </div>
+            </div>
+        </section>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECTION : FORMULAIRES
+             ═══════════════════════════════════════════════════════════════════ -->
+        <section id="sec-forms" class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">
+                <i class="bi bi-input-cursor text-primary me-2"></i>5. Formulaires
+            </h4>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="demoInput" class="form-label">Input standard</label>
+                            <input type="text" class="form-control" id="demoInput" placeholder="Placeholder...">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="demoSelect" class="form-label">Select</label>
+                            <select class="form-select" id="demoSelect">
+                                <option>Option 1</option>
+                                <option>Option 2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Input group</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="search" class="form-control" placeholder="Rechercher...">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Checkbox & Switch</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="demoCheck">
+                                <label class="form-check-label" for="demoCheck">Checkbox</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="demoSwitch">
+                                <label class="form-check-label" for="demoSwitch">Switch</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent small">
+                    <strong>Regles :</strong> Toujours label avec for="id", champs required marques *, row g-3 pour layout
+                </div>
+            </div>
+        </section>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECTION : BOUTONS
+             ═══════════════════════════════════════════════════════════════════ -->
+        <section id="sec-buttons" class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">
+                <i class="bi bi-hand-index text-primary me-2"></i>6. Boutons
+            </h4>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6>Boutons primaires</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <button class="btn btn-primary"><i class="bi bi-plus me-1"></i>Nouveau</button>
+                        <button class="btn btn-success"><i class="bi bi-check me-1"></i>Valider</button>
+                        <button class="btn btn-danger"><i class="bi bi-trash me-1"></i>Supprimer</button>
+                        <button class="btn btn-secondary">Annuler</button>
+                    </div>
+                    
+                    <h6>Boutons outline</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <button class="btn btn-outline-primary">Primary</button>
+                        <button class="btn btn-outline-secondary">Secondary</button>
+                        <button class="btn btn-outline-danger">Danger</button>
+                    </div>
+                    
+                    <h6>Button groups (actions table)</h6>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent small">
+                    <strong>Regles :</strong> Icone Bootstrap Icons uniquement, texte apres icone (me-1)
+                </div>
+            </div>
+        </section>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECTION : ALERTES
+             ═══════════════════════════════════════════════════════════════════ -->
+        <section id="sec-alerts" class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">
+                <i class="bi bi-exclamation-triangle text-primary me-2"></i>7. Alertes & Feedback
+            </h4>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>Succes !</strong> Operation effectuee.
+                    </div>
+                    <div class="alert alert-danger">
+                        <i class="bi bi-x-circle me-2"></i>
+                        <strong>Erreur !</strong> Une erreur est survenue.
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Attention !</strong> Verifiez les informations.
+                    </div>
+                    <div class="alert alert-info mb-0">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Information :</strong> Message informatif.
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             SECTION : ANTI-PATTERNS
+             
+             SECTION CRITIQUE - Documente ce qui est INTERDIT
+             ═══════════════════════════════════════════════════════════════════ -->
+        <section id="sec-antipatterns" class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2 text-danger">
+                <i class="bi bi-x-octagon me-2"></i>8. Anti-patterns INTERDITS
+            </h4>
+            
+            <div class="row g-4">
+                
+                <!-- Anti-pattern 1 : CSS inline -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-header bg-danger-subtle text-danger">
+                            <strong>1. CSS inline</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="border border-danger rounded p-2 small">
+                                        <strong class="text-danger">INTERDIT</strong>
+                                        <code class="d-block mt-1">&lt;div style="color:red"&gt;</code>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border border-success rounded p-2 small">
+                                        <strong class="text-success">CORRECT</strong>
+                                        <code class="d-block mt-1">&lt;div class="text-danger"&gt;</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Anti-pattern 2 : JS inline -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-header bg-danger-subtle text-danger">
+                            <strong>2. JS inline</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="border border-danger rounded p-2 small">
+                                        <strong class="text-danger">INTERDIT</strong>
+                                        <code class="d-block mt-1">&lt;button onclick="..."&gt;</code>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border border-success rounded p-2 small">
+                                        <strong class="text-success">CORRECT</strong>
+                                        <code class="d-block mt-1">addEventListener('click')</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Anti-pattern 3 : Mix icons -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-header bg-danger-subtle text-danger">
+                            <strong>3. Mix icons</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="border border-danger rounded p-2 small">
+                                        <strong class="text-danger">INTERDIT</strong>
+                                        <code class="d-block mt-1">&lt;i class="fa fa-star"&gt;</code>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border border-success rounded p-2 small">
+                                        <strong class="text-success">CORRECT</strong>
+                                        <code class="d-block mt-1">&lt;i class="bi bi-star"&gt;</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Anti-pattern 4 : Gradient custom -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-header bg-danger-subtle text-danger">
+                            <strong>4. Gradient custom header</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="border border-danger rounded p-2 small">
+                                        <strong class="text-danger">INTERDIT</strong>
+                                        <code class="d-block mt-1">background: linear-gradient(...)</code>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border border-success rounded p-2 small">
+                                        <strong class="text-success">CORRECT</strong>
+                                        <code class="d-block mt-1">class="bg-primary bg-gradient"</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Anti-pattern 5 : Copyright 2025 -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-header bg-danger-subtle text-danger">
+                            <strong>5. Copyright obsolete</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="border border-danger rounded p-2 small">
+                                        <strong class="text-danger">INTERDIT</strong>
+                                        <code class="d-block mt-1">&copy; 2025</code>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border border-success rounded p-2 small">
+                                        <strong class="text-success">CORRECT</strong>
+                                        <code class="d-block mt-1">&copy; 2026</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Anti-pattern 6 : Scripts hors head -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-danger">
+                        <div class="card-header bg-danger-subtle text-danger">
+                            <strong>6. Scripts hors head</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="border border-danger rounded p-2 small">
+                                        <strong class="text-danger">INTERDIT</strong>
+                                        <code class="d-block mt-1">&lt;/head&gt;&lt;script&gt;...</code>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border border-success rounded p-2 small">
+                                        <strong class="text-success">CORRECT</strong>
+                                        <code class="d-block mt-1">Scripts DANS head</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="alert alert-danger mt-4">
+                <i class="bi bi-shield-exclamation me-2"></i>
+                <strong>Audit automatique :</strong> Ces anti-patterns sont detectes par <code>auditor_v321.html</code>. 
+                Score impacte de -5 a -15 points par violation.
+            </div>
+        </section>
+        
+    </div>
+    
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+        <small>&copy; 2026 Consensus Design System - Showcase v2.0 - 
+        <span class="badge bg-light text-dark border">Sentinelle CSS Compliant</span></small>
+    </footer>
+    
+</main>
+
+<!-- MODAL EXEMPLE -->
+<div class="modal fade" id="modalExample" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-info-circle text-primary me-2"></i>Modale standard</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Contenu de la modale Bootstrap standard.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastDemo" class="toast" role="alert">
+        <div class="toast-header text-success">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong class="me-auto">Succes</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">Message toast.</div>
+    </div>
+</div>
+
+  <!-- Supabase SDK -->
+    <!-- Client Supabase BDB (source unique — INTERDIT-A1) -->
+    <!-- Shell BDB v1.3.1 — auth + offcanvas + header + window.bdbUser -->
+    <!-- ── SCRIPTS — ordre obligatoire (CHANTIER BLOC E) ────────── -->
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../../js/bdb-modal-a11y.js"></script>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Client Supabase BDB (source unique — INTERDIT-A1) -->
+  <script src="../../js/supabase-client.js"></script>
+  <!-- Shell BDB v1.3.1 — auth + offcanvas + header + window.bdbUser -->
+  <script src="../../js/bdb-shell.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Init tooltips
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        new bootstrap.Tooltip(el);
+    });
+    
+    // Smooth scroll navigation
+    document.querySelectorAll('a[href^="#sec-"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

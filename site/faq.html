@@ -1,0 +1,168 @@
+<!--
+  PROJECT  : Des Blocs & Moi (DB&M)
+  FILE     : faq.html v5.0.0
+  MODULE   : site/
+  DATE     : 2026-04-06
+  AUTEUR   : Manu + Claude
+  DELTA    : v4→v5 — Branché Supabase (table site_faq, show_in_site=true).
+             JS externalisé dans faq-site.js v1.0.0.
+             Slot admin : ajout/modification/suppression de questions.
+             Structure HTML : squelette + div#faqContent (3 états async).
+             Contenu statique supprimé — tout vient de Supabase.
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../js/bdb-pwa.js"></script>
+  <title>FAQ DBM — Questions des soignants du bloc</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../css/dbm-theme.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="site-ui.css" rel="stylesheet"/>
+  <meta name="description" content="FAQ Des Blocs & Moi : questions fréquentes des soignants du bloc opératoire et réponses validées."/>
+  <meta name="keywords" content="FAQ DBM, questions soignants bloc opératoire"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/site/faq.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="FAQ Des Blocs & Moi"/>
+  <meta property="og:description" content="Questions fréquentes des soignants du bloc opératoire et réponses validées."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/site/faq.html"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="FAQ Des Blocs & Moi"/>
+  <meta name="twitter:description" content="Questions fréquentes des soignants du bloc opératoire et réponses validées."/>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","name":"Des Blocs & Moi","url":"https://lebloc.fr/dbm/site/faq.html","inLanguage":"fr-FR","publisher":{"@type":"Organization","name":"Des Blocs & Moi"}}
+</script>
+</head>
+<body>
+
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#mainMenu" aria-controls="mainMenu"
+        aria-label="Ouvrir le menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <span class="fw-semibold">Questions fréquentes</span>
+    </div>
+    <a href="../login.html"
+      class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1">
+      <i class="bi bi-grid-3x3-gap me-1"></i>Mon espace
+    </a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <div class="container py-4">
+      <div class="bg-primary bg-gradient text-white doc-header-primary">
+        <h1 class="mb-2"><i class="bi bi-question-circle me-2"></i>Les questions qu'on se pose</h1>
+        <p class="mb-0 opacity-75">Des réponses directes — sans jargon</p>
+      </div>
+    </div>
+
+    <div class="container pb-4">
+      <!-- Zone de contenu async (loading / empty / error / data) -->
+      <div id="faqContent">
+        <!-- Peuplé par faq-site.js -->
+        <div class="placeholder-glow">
+          <div class="placeholder col-12 rounded mb-2"></div>
+          <div class="placeholder col-12 rounded mb-2"></div>
+          <div class="placeholder col-12 rounded mb-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire de contact -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-6">
+            <div class="panel">
+              <i class="bi bi-chat-heart text-primary fs-2 d-block mb-3 text-center"></i>
+              <h4 class="fw-semibold mb-1 text-center">Une question pas encore là ?</h4>
+              <p class="text-muted text-center mb-4 small">L'équipe répondra dans les meilleurs délais.</p>
+
+              <!-- État succès -->
+              <div id="contactSuccess" class="d-none text-center py-3">
+                <i class="bi bi-check-circle text-success fs-2 d-block mb-2"></i>
+                <p class="mb-0 fw-semibold">Message envoyé — merci !</p>
+                <p class="text-muted small mt-1">L'équipe prendra en compte ta question.</p>
+              </div>
+
+              <!-- État erreur -->
+              <div id="contactError" class="alert alert-danger d-none small mb-3"></div>
+
+              <!-- Formulaire -->
+              <div id="contactForm">
+                <div class="mb-3">
+                  <label class="form-label form-label-sm">Ton prénom (optionnel)</label>
+                  <input type="text" class="form-control form-control-sm" id="contactNom" maxlength="80" placeholder="Jean"/>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label form-label-sm">Ta question *</label>
+                  <textarea class="form-control form-control-sm" id="contactMessage" rows="4"
+                    placeholder="Décris ta question en quelques mots…" minlength="10" maxlength="1000"></textarea>
+                </div>
+                <!-- Honeypot anti-bot -->
+                <div class="visually-hidden">
+                  <input type="text" id="contactHoneypot" tabindex="-1" autocomplete="off"/>
+                </div>
+                <button class="btn btn-module w-100" id="btnContactSend">
+                  <i class="bi bi-send me-2"></i>Envoyer ma question
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-4 site-nav-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6">
+            <a href="adoption.html" class="text-primary text-decoration-none fw-semibold">
+              <i class="bi bi-arrow-left me-2"></i>Comment ça s'adopte
+            </a>
+          </div>
+          <div class="col-6 text-end">
+            <a href="index.html" class="text-primary text-decoration-none fw-semibold">
+              Accueil<i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="py-3 text-center text-muted bg-white">
+    <small>
+      &copy; 2026 <span class="app-nom"></span> — Consensus Design System —
+      <a href="accessibilite.html" class="text-muted text-decoration-none">Accessibilité : WCAG AA</a>
+    </small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="site-nav.js"></script>
+<script src="faq-site.js"></script>
+  <!-- Hydratation app-nom (sans bdb-shell) — réutilise window.bdb chargé ci-dessus -->
+  <script src="../js/bdb-site-hydrate.js"></script>
+</body>
+</html>

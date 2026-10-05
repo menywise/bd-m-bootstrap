@@ -1,0 +1,249 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "date": "2026-05-06",
+    "source": "S121_doctrine_audit_v5.sql + brainstorm Manu",
+    "total_familles": 16,
+    "total_dimensions_estimees": 130
+  },
+  "criticite_descriptions": {
+    "P0": "Bloquant — casse l app si violation (interdits absolus)",
+    "P1": "Majeur — violation pattern DBM ou doctrine",
+    "P2": "Mineur — ecart de conformite mais fonctionnel",
+    "P3": "Cosmetique — harmonisation finale"
+  },
+  "scope": {
+    "modules": "modules/*/index.html",
+    "site": "site/*.html",
+    "racine": "*.html"
+  },
+  "familles": [
+    {
+      "ref": "F01",
+      "titre": "Structure et chaine chargement",
+      "dimensions": [
+        {"ref": "F01-D01", "titre": "Chaine CSS BLOC E ordre exact", "criticite": "P0", "methode": "regex order"},
+        {"ref": "F01-D02", "titre": "Chaine JS BLOC E ordre exact", "criticite": "P0", "methode": "regex order"},
+        {"ref": "F01-D03", "titre": "bdb-shell premier enfant de wrapper", "criticite": "P0", "methode": "parser HTML"},
+        {"ref": "F01-D04", "titre": "data-shell-theme=dbm", "criticite": "P1", "methode": "regex"},
+        {"ref": "F01-D05", "titre": "Pas de theme-base.css legacy", "criticite": "P0", "methode": "grep"},
+        {"ref": "F01-D06", "titre": "Pas de cds-overrides.css legacy", "criticite": "P0", "methode": "grep"},
+        {"ref": "F01-D07", "titre": "Pas de @latest sur CDN", "criticite": "P0", "methode": "regex"},
+        {"ref": "F01-D08", "titre": "bdb-pwa.js charge en HEAD", "criticite": "P1", "methode": "grep"}
+      ]
+    },
+    {
+      "ref": "F02",
+      "titre": "HEAD et metadonnees",
+      "dimensions": [
+        {"ref": "F02-D01", "titre": "meta charset UTF-8", "criticite": "P0", "methode": "grep"},
+        {"ref": "F02-D02", "titre": "meta viewport responsive", "criticite": "P0", "methode": "grep"},
+        {"ref": "F02-D03", "titre": "Title contient Des Blocs & Moi", "criticite": "P1", "methode": "regex"},
+        {"ref": "F02-D04", "titre": "Aucun Bible de Bloc en surface", "criticite": "P1", "methode": "grep"},
+        {"ref": "F02-D05", "titre": "Aucun BDB en surface (titres, h1, commentaires visibles)", "criticite": "P1", "methode": "grep"},
+        {"ref": "F02-D06", "titre": "Bloc :root inline avec 4 variables couleur module", "criticite": "P1", "methode": "regex"},
+        {"ref": "F02-D07", "titre": "Commentaire header surface DBM", "criticite": "P3", "methode": "regex"}
+      ]
+    },
+    {
+      "ref": "F03",
+      "titre": "Structure app-zone",
+      "dimensions": [
+        {"ref": "F03-D01", "titre": "Ordre Breadcrumb -> Page Title -> Filters -> Content", "criticite": "P1", "methode": "parser order"},
+        {"ref": "F03-D02", "titre": "Chaque zone enveloppee dans section.app-zone", "criticite": "P1", "methode": "regex count"},
+        {"ref": "F03-D03", "titre": "Bandeau Page Title pattern p-4 + linear-gradient", "criticite": "P1", "methode": "regex"},
+        {"ref": "F03-D04", "titre": "data-module-color sur app-content + style inline 4 variables", "criticite": "P1", "methode": "regex"},
+        {"ref": "F03-D05", "titre": "Footer hors app-content", "criticite": "P2", "methode": "parser"},
+        {"ref": "F03-D06", "titre": "Modales hors wrapper (portal BS5)", "criticite": "P1", "methode": "parser"}
+      ]
+    },
+    {
+      "ref": "F04",
+      "titre": "Toolbar et filtres",
+      "dimensions": [
+        {"ref": "F04-D01", "titre": "Pattern input-group flex-grow + icone bi-search", "criticite": "P1", "methode": "regex"},
+        {"ref": "F04-D02", "titre": "Selects largeur fixe 180px", "criticite": "P2", "methode": "regex"},
+        {"ref": "F04-D03", "titre": "CTA principal largeur fixe 180px en btn-module", "criticite": "P2", "methode": "regex"},
+        {"ref": "F04-D04", "titre": "btn-sm + form-control-sm + form-select-sm partout", "criticite": "P2", "methode": "regex"},
+        {"ref": "F04-D05", "titre": "Slot admin avec d-none par defaut", "criticite": "P1", "methode": "regex"},
+        {"ref": "F04-D06", "titre": "Toolbar responsive < 768px (stacking)", "criticite": "P3", "methode": "CSS analysis"}
+      ]
+    },
+    {
+      "ref": "F05",
+      "titre": "Modales",
+      "dimensions": [
+        {"ref": "F05-D01", "titre": "modal-header-module sur toutes (hors lightbox bg-dark + danger volontaire)", "criticite": "P1", "methode": "grep + parser"},
+        {"ref": "F05-D02", "titre": "modal-dialog-centered + modal-dialog-scrollable", "criticite": "P2", "methode": "regex"},
+        {"ref": "F05-D03", "titre": "Largeur uniforme par module (modal-lg standard)", "criticite": "P2", "methode": "regex"},
+        {"ref": "F05-D04", "titre": "Titre judicieux dans chaque modale", "criticite": "P2", "methode": "parser HTML"},
+        {"ref": "F05-D05", "titre": "btn-module sur CTA (jamais btn-primary)", "criticite": "P1", "methode": "grep"},
+        {"ref": "F05-D06", "titre": "aria-labelledby + aria-hidden=true", "criticite": "P2", "methode": "regex"},
+        {"ref": "F05-D07", "titre": "tabindex=-1 sur modales", "criticite": "P2", "methode": "regex"},
+        {"ref": "F05-D08", "titre": "btn-close avec aria-label=Fermer", "criticite": "P3", "methode": "regex"}
+      ]
+    },
+    {
+      "ref": "F06",
+      "titre": "Couleurs et CSS (palette pastel totale)",
+      "dimensions": [
+        {"ref": "F06-D01", "titre": "Aucun hex hardcode (#0d6efd, #198754, etc.)", "criticite": "P1", "methode": "regex"},
+        {"ref": "F06-D02", "titre": "Variables --module-color* utilisees", "criticite": "P1", "methode": "grep"},
+        {"ref": "F06-D03", "titre": "Aucun btn-danger hors signaux destruction/erreur", "criticite": "P1", "methode": "grep + contexte"},
+        {"ref": "F06-D04", "titre": "Aucun btn-warning ou btn-info comme CTA module", "criticite": "P1", "methode": "grep"},
+        {"ref": "F06-D05", "titre": "Toasts gardent status semantique universel", "criticite": "P1", "methode": "grep"},
+        {"ref": "F06-D06", "titre": "Aucun style inline color/background hex hors gradient bandeau", "criticite": "P2", "methode": "regex"},
+        {"ref": "F06-D07", "titre": "Aucune classe legacy cds-error-* / bdb-module-header", "criticite": "P2", "methode": "grep"},
+        {"ref": "F06-D08", "titre": "Palette pastel totale (CONV-PALETTE-PASTEL-TOTALE-01)", "criticite": "P1", "methode": "audit visuel"}
+      ]
+    },
+    {
+      "ref": "F07",
+      "titre": "JavaScript et runtime",
+      "dimensions": [
+        {"ref": "F07-D01", "titre": "Aucun console.log en prod (INTERDIT-D6)", "criticite": "P1", "methode": "grep"},
+        {"ref": "F07-D02", "titre": "escHtml() obligatoire sur innerHTML avec donnee DB (INTERDIT-C6)", "criticite": "P0", "methode": "regex pattern"},
+        {"ref": "F07-D03", "titre": "3 etats async loading/empty/error (C.9)", "criticite": "P1", "methode": "parser id"},
+        {"ref": "F07-D04", "titre": "cdsShowGridError() utilise sur erreurs fetch", "criticite": "P2", "methode": "grep"},
+        {"ref": "F07-D05", "titre": "Aucun initAuth() local (INTERDIT-B3)", "criticite": "P0", "methode": "grep"},
+        {"ref": "F07-D06", "titre": "Aucune redefinition window.bdb (INTERDIT-A3)", "criticite": "P0", "methode": "grep"},
+        {"ref": "F07-D07", "titre": "Comparaison role en FR : membre pas member (INTERDIT-B4)", "criticite": "P1", "methode": "regex"},
+        {"ref": "F07-D08", "titre": "Aucun localStorage role/admin (INTERDIT-B2)", "criticite": "P0", "methode": "grep"},
+        {"ref": "F07-D09", "titre": "Aucun credential hors supabase-client.js (INTERDIT-A1)", "criticite": "P0", "methode": "grep cross-fichier"}
+      ]
+    },
+    {
+      "ref": "F08",
+      "titre": "Console et reseau (runtime check)",
+      "dimensions": [
+        {"ref": "F08-D01", "titre": "Aucune erreur 4xx / 5xx au chargement", "criticite": "P0", "methode": "manuel ou Puppeteer"},
+        {"ref": "F08-D02", "titre": "Aucune erreur JS console au chargement", "criticite": "P0", "methode": "manuel"},
+        {"ref": "F08-D03", "titre": "Aucun warning aria-hidden focus (a11y BS5)", "criticite": "P2", "methode": "manuel"},
+        {"ref": "F08-D04", "titre": "Aucun warning CORS / RLS 401-403", "criticite": "P0", "methode": "manuel"},
+        {"ref": "F08-D05", "titre": "Tous les fetch finissent en succes (200)", "criticite": "P1", "methode": "manuel reseau"},
+        {"ref": "F08-D06", "titre": "Aucune ressource bloquee (CSP, mixed content)", "criticite": "P1", "methode": "manuel"}
+      ]
+    },
+    {
+      "ref": "F09",
+      "titre": "Permissions et roles (post S119+S120)",
+      "dimensions": [
+        {"ref": "F09-D01", "titre": "CTA principal bascule selon role", "criticite": "P1", "methode": "JS analysis"},
+        {"ref": "F09-D02", "titre": "window.bdbUser.permissions[mod] charge au login", "criticite": "P1", "methode": "shell analysis"},
+        {"ref": "F09-D03", "titre": "Modales edition reservees admin/redacteur publish=true", "criticite": "P1", "methode": "JS analysis"},
+        {"ref": "F09-D04", "titre": "Modales proposition pour membre + redacteur publish=false", "criticite": "P1", "methode": "JS analysis"}
+      ]
+    },
+    {
+      "ref": "F10",
+      "titre": "Anonymisation et RGPD",
+      "dimensions": [
+        {"ref": "F10-D01", "titre": "Aucun nom reel en surface non operationnelle (INTERDIT-PERSO-01)", "criticite": "P0-RGPD", "methode": "grep"},
+        {"ref": "F10-D02", "titre": "app_modules.label anonymise (INTERDIT-PERSO-02)", "criticite": "P0-RGPD", "methode": "SQL query"},
+        {"ref": "F10-D03", "titre": "Vrais noms autorises uniquement L1/L2 connectes", "criticite": "P0-RGPD", "methode": "contexte"},
+        {"ref": "F10-D04", "titre": "Aucun nom dossier filesystem (medacta-coste, etc.)", "criticite": "P0-RGPD", "methode": "filesystem scan"}
+      ]
+    },
+    {
+      "ref": "F11",
+      "titre": "SEO et metadonnees publiques (site/ + modules mode demo)",
+      "dimensions": [
+        {"ref": "F11-D01", "titre": "meta description (155 char max, persona-targeted)", "criticite": "P2", "methode": "regex"},
+        {"ref": "F11-D02", "titre": "meta keywords pertinents (sans bourrage)", "criticite": "P3", "methode": "regex"},
+        {"ref": "F11-D03", "titre": "meta robots (noindex sur modules auth)", "criticite": "P1", "methode": "regex"},
+        {"ref": "F11-D04", "titre": "Open Graph tags (og:title, og:description, og:image, og:url)", "criticite": "P2", "methode": "regex"},
+        {"ref": "F11-D05", "titre": "Twitter card tags", "criticite": "P3", "methode": "regex"},
+        {"ref": "F11-D06", "titre": "Structured data JSON-LD (Article, Organization, FAQPage)", "criticite": "P3", "methode": "regex"},
+        {"ref": "F11-D07", "titre": "Canonical URL", "criticite": "P2", "methode": "regex"},
+        {"ref": "F11-D08", "titre": "Lang attribute correct (lang=fr)", "criticite": "P1", "methode": "regex"},
+        {"ref": "F11-D09", "titre": "Title unique par page (pas de doublon)", "criticite": "P1", "methode": "cross-fichier"},
+        {"ref": "F11-D10", "titre": "h1 unique par page", "criticite": "P2", "methode": "regex"},
+        {"ref": "F11-D11", "titre": "Hierarchie h1 -> h2 -> h3 sans saut", "criticite": "P2", "methode": "parser"},
+        {"ref": "F11-D12", "titre": "Alt text sur toutes les images", "criticite": "P2", "methode": "regex"},
+        {"ref": "F11-D13", "titre": "Modules mode demo (glossaire/faq/cours/anatomie) ont meta description ciblee bloc", "criticite": "P2", "methode": "regex"},
+        {"ref": "F11-D14", "titre": "Modules demo : title format SEO bloc", "criticite": "P2", "methode": "regex"},
+        {"ref": "F11-D15", "titre": "Modules demo : structured data Article/CourseEducational", "criticite": "P3", "methode": "regex"},
+        {"ref": "F11-D16", "titre": "Modules demo : og:image cible (avatar persona)", "criticite": "P3", "methode": "regex"},
+        {"ref": "F11-D17", "titre": "Modules demo : robots index,follow autorise", "criticite": "P1", "methode": "regex"}
+      ]
+    },
+    {
+      "ref": "F12",
+      "titre": "Liens et navigation",
+      "dimensions": [
+        {"ref": "F12-D01", "titre": "Tous les liens internes resolvent (filesystem)", "criticite": "P0", "methode": "parser cross-fichier"},
+        {"ref": "F12-D02", "titre": "Pas de chemins absolus /bdb/... (cassent en local)", "criticite": "P1", "methode": "regex"},
+        {"ref": "F12-D03", "titre": "Pas de chemins absolus /dbm/... non plus", "criticite": "P1", "methode": "regex"},
+        {"ref": "F12-D04", "titre": "Aucun http:// (force https://)", "criticite": "P1", "methode": "regex"},
+        {"ref": "F12-D05", "titre": "Liens externes ouvrent target=_blank rel=noopener", "criticite": "P2", "methode": "regex"},
+        {"ref": "F12-D06", "titre": "Aucune URL ancien projet (lebloc.fr/bdb/) hardcoded", "criticite": "P1", "methode": "grep"},
+        {"ref": "F12-D07", "titre": "Redirections JS valides", "criticite": "P1", "methode": "regex + check"},
+        {"ref": "F12-D08", "titre": "Email mailto valides", "criticite": "P3", "methode": "regex"},
+        {"ref": "F12-D09", "titre": "Pas de liens morts vers fichiers supprimes", "criticite": "P0", "methode": "cross-fichier"},
+        {"ref": "F12-D10", "titre": "Manifest PWA reference les bonnes routes", "criticite": "P1", "methode": "JSON check"}
+      ]
+    },
+    {
+      "ref": "F13",
+      "titre": "Conformite Supabase DB-first",
+      "dimensions": [
+        {"ref": "F13-D01", "titre": "Toute table cite dans JS existe en cloud", "criticite": "P0", "methode": "SQL cross-check"},
+        {"ref": "F13-D02", "titre": "Toute colonne citee existe (ANTI-02)", "criticite": "P0", "methode": "SQL cross-check"},
+        {"ref": "F13-D03", "titre": "Tous les enum cites correspondent", "criticite": "P0", "methode": "SQL cross-check"},
+        {"ref": "F13-D04", "titre": "Toutes les RPC citees existent", "criticite": "P0", "methode": "SQL cross-check"},
+        {"ref": "F13-D05", "titre": "Toutes les FK respectees dans INSERT", "criticite": "P0", "methode": "JS analysis"},
+        {"ref": "F13-D06", "titre": "RLS active sur toutes tables sensibles", "criticite": "P0", "methode": "SQL query"},
+        {"ref": "F13-D07", "titre": "Policies par role coherentes avec module_permissions", "criticite": "P1", "methode": "cross-check"},
+        {"ref": "F13-D08", "titre": "Pas de credentials hardcoded JS", "criticite": "P0", "methode": "grep"},
+        {"ref": "F13-D09", "titre": "Migrations numerotees et tracees en atelier_decisions", "criticite": "P1", "methode": "SQL query"},
+        {"ref": "F13-D10", "titre": "Schema cloud aligne avec 02_SUPABASE_DATA_MODEL", "criticite": "P1", "methode": "doc cross-check"}
+      ]
+    },
+    {
+      "ref": "F14",
+      "titre": "Conformite documentation et doctrine",
+      "dimensions": [
+        {"ref": "F14-D01", "titre": "Aucune contradiction Manifeste DBM V1.4", "criticite": "P0", "methode": "doc cross-check"},
+        {"ref": "F14-D02", "titre": "Aucune contradiction Canon DBM V1.0.6", "criticite": "P0", "methode": "doc cross-check"},
+        {"ref": "F14-D03", "titre": "Conforme Doctrine Terrain V1.2.0", "criticite": "P1", "methode": "doc cross-check"},
+        {"ref": "F14-D04", "titre": "Conforme Niveau 0 DBM V0.5", "criticite": "P0", "methode": "doc cross-check"},
+        {"ref": "F14-D05", "titre": "Conforme Pedagogie DBM V1.1", "criticite": "P1", "methode": "doc cross-check"},
+        {"ref": "F14-D06", "titre": "Aucun nommage methode pedago en surface", "criticite": "P1", "methode": "grep"},
+        {"ref": "F14-D07", "titre": "Conforme Philosophie Participative", "criticite": "P1", "methode": "UI analysis"},
+        {"ref": "F14-D08", "titre": "Conforme 7 STB", "criticite": "P1", "methode": "app_modules check"},
+        {"ref": "F14-D09", "titre": "atelier_decisions a jour pour chaque session", "criticite": "P1", "methode": "SQL query"},
+        {"ref": "F14-D10", "titre": "atelier_principes accessibles et tracables", "criticite": "P2", "methode": "SQL query"}
+      ]
+    },
+    {
+      "ref": "F15",
+      "titre": "Conformite skills locaux",
+      "dimensions": [
+        {"ref": "F15-D01", "titre": "Skills declenches sur les bons triggers", "criticite": "P1", "methode": "session analysis"},
+        {"ref": "F15-D02", "titre": "Skill bdb-module-generator suivi", "criticite": "P1", "methode": "doctrine match"},
+        {"ref": "F15-D03", "titre": "Skill conseil-bdb avant migration SQL", "criticite": "P0", "methode": "doctrine match"},
+        {"ref": "F15-D04", "titre": "Skill fab3r-bdb sur tout choix technique", "criticite": "P0", "methode": "atelier_decisions check"},
+        {"ref": "F15-D05", "titre": "Skill atelier-session-bdb en ouverture/cloture", "criticite": "P1", "methode": "trace check"},
+        {"ref": "F15-D06", "titre": "Skill recettage-bdb apres production HTML", "criticite": "P1", "methode": "trace check"},
+        {"ref": "F15-D07", "titre": "Skill ftp-deploy-checklist avant deploiement", "criticite": "P0", "methode": "trace check"},
+        {"ref": "F15-D08", "titre": "Skills synchronises local vs claude.ai", "criticite": "P3", "methode": "skill-sync-audit"}
+      ]
+    },
+    {
+      "ref": "F16",
+      "titre": "Anti-regression et anti-hallucination",
+      "dimensions": [
+        {"ref": "F16-D01", "titre": "Aucune fonction citee qui n existe pas", "criticite": "P0", "methode": "grep + cross-check"},
+        {"ref": "F16-D02", "titre": "Aucune table inventee", "criticite": "P0", "methode": "SQL cross-check"},
+        {"ref": "F16-D03", "titre": "Aucune colonne inventee", "criticite": "P0", "methode": "SQL cross-check"},
+        {"ref": "F16-D04", "titre": "Aucune valeur enum inventee", "criticite": "P0", "methode": "SQL cross-check"},
+        {"ref": "F16-D05", "titre": "Pas de magic strings hardcoded sans constante", "criticite": "P2", "methode": "grep"},
+        {"ref": "F16-D06", "titre": "Tous les id cibles par JS existent dans HTML", "criticite": "P0", "methode": "parser cross-link"},
+        {"ref": "F16-D07", "titre": "Tous les class references par JS existent", "criticite": "P0", "methode": "parser cross-link"},
+        {"ref": "F16-D08", "titre": "Aucun event listener sur element inexistant", "criticite": "P0", "methode": "parser cross-link"},
+        {"ref": "F16-D09", "titre": "Coherence labels FR (pas de mix EN-FR)", "criticite": "P2", "methode": "grep"},
+        {"ref": "F16-D10", "titre": "Module declared in app_modules EXISTS in modules/", "criticite": "P0", "methode": "filesystem cross-check"}
+      ]
+    }
+  ]
+}

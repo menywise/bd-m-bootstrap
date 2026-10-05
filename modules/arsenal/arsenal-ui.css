@@ -15,12 +15,13 @@
   transition: box-shadow 0.15s ease, transform 0.1s ease;
 }
 #arsenalMain .ars-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
 
 /* ── Zone upload ─────────────────────────────────────────────── */
+/* !important requis — override Bootstrap .border (conflit spécificité, voir D-2026-04-01) */
 .ars-upload-area {
   transition: background 0.15s, border-color 0.15s;
   border-color: #dee2e6 !important;
@@ -51,8 +52,10 @@
 
 
 /* ── Skeleton zone filtre ────────────────────────────────────── */
-/* Le skeleton #arsenalSkeletonMateriel utilise les classes Bootstrap
-   .placeholder-glow / .placeholder — aucune règle supplémentaire requise. */
+/* Hauteurs fixes skeleton (D-2026-03-15-T04) — V5: classes scopées au lieu de style= */
+#arsenalSkeletonMateriel .ars-skel-row   { height: 38px; }
+#arsenalSkeletonMateriel .ars-skel-title { height: 20px; }
+#arsenalSkeletonMateriel .ars-skel-line  { height: 14px; }
 
 
 /* ── Badges Famille 4D ───────────────────────────────────────── */
@@ -101,20 +104,40 @@
 }
 
 
-/* ── Bannière offline (injectée dynamiquement) ───────────────── */
-#cdsOfflineBanner.cds-offline-banner {
-  display: none;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  background: #fff3cd;
-  border-bottom: 1px solid #ffc107;
-  color: #856404;
-  font-size: 0.875rem;
-  position: sticky;
-  top: 0;
-  z-index: 1050;
+/* ── Lightbox image ─────────────────────────────────────── */
+.ars-lightbox-img {
+  max-height: 90vh;
+  object-fit: contain;
 }
-#cdsOfflineBanner.cds-offline-banner.show {
-  display: flex;
+
+/* ── Bouton suppression image overlay ───────────────────── */
+.ars-img-remove-btn {
+  width: 20px;
+  height: 20px;
+  font-size: 0.65rem;
+}
+
+/* ── Admin (ars-admin-* scopés — INTERDIT-17) ───────────── */
+.ars-admin-filter {
+  width: auto;
+  min-width: 150px;
+}
+
+.ars-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* btn-xs scopé — Bootstrap 5 ne le définit pas */
+#arsAdminApp .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.ars-admin-intangible-note {
+  font-size: 0.75rem;
+  color: var(--bs-warning-text-emphasis);
+  font-style: italic;
 }

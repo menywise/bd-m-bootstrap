@@ -1,0 +1,352 @@
+<!--
+  PROJECT  : Des Blocs & Moi (DB&M)
+  FILE     : fonctionnalites.html v4.0.0
+  MODULE   : site/
+  DATE     : 2026-03-14
+  AUTEUR   : Manu + Claude
+  DELTA    : v3→v4 — Réécriture contenu DISC/Spirale compliant.
+             Personas : P5 (ORANGE — prouver avant structurer), P3 (BLEU/ORANGE).
+             Réordonnancement : bénéfice concret avant organisation interne.
+             Titres humanisés : "Recherche intelligente" → "Chercher. Trouver."
+             Règle de voix : tu partout. Termes techniques contextualisés.
+             Structure préservée. CSS inchangé.
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../js/bdb-pwa.js"></script>
+  <title>Fonctionnalités DBM — Glossaire, fiches, anatomie</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../css/dbm-theme.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="site-ui.css" rel="stylesheet"/>
+  <meta name="description" content="Fonctionnalités Des Blocs & Moi : glossaire, fiches intervention, anatomie, transmissions, planning. Outil métier IBODE."/>
+  <meta name="keywords" content="fonctionnalités, glossaire, fiches, anatomie, IBODE, bloc"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/site/fonctionnalites.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Fonctionnalités DBM"/>
+  <meta property="og:description" content="Glossaire, fiches intervention, anatomie, transmissions, planning. Tout l outil métier IBODE."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/site/fonctionnalites.html"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Fonctionnalités DBM"/>
+  <meta name="twitter:description" content="Glossaire, fiches intervention, anatomie, transmissions, planning. Tout l outil métier IBODE."/>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Des Blocs & Moi","url":"https://lebloc.fr/dbm/site/fonctionnalites.html","inLanguage":"fr-FR","publisher":{"@type":"Organization","name":"Des Blocs & Moi"}}
+</script>
+</head>
+<body>
+
+
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-controls="mainMenu" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">Ce que <span class="app-nom"></span> fait</span>
+    </div>
+    <a href="../login.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1"><i class="bi bi-grid-3x3-gap me-1"></i>Mon espace</a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <div class="container py-4">
+      <div class="bg-primary bg-gradient text-white doc-header-primary">
+        <h1 class="mb-2">Ce que <span class="app-nom"></span> fait concrètement</h1>
+        <p class="mb-0 opacity-75">Chercher, partager, protéger — et retrouver ce qui compte</p>
+      </div>
+    </div>
+
+    <!-- RECHERCHE — ORANGE : preuve immédiate, P5 en tête -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-search me-2 text-primary"></i>Chercher. Trouver.</h2>
+        <p class="text-muted mb-4">
+          Tu tapes un mot. <span class="app-nom"></span> cherche dans trois directions à la fois.
+        </p>
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="panel h-100">
+              <h5 class="fw-semibold mb-4">Trois façons de trouver</h5>
+              <div class="d-flex flex-column gap-2">
+                <div class="panel-approach d-flex align-items-center gap-3">
+                  <i class="bi bi-geo-alt text-primary fs-4 flex-shrink-0"></i>
+                  <div>
+                    <div class="fw-semibold text-primary small">OÙ — Localisation</div>
+                    <div class="text-muted small">Salle 3, armoire gauche, Bloc B...</div>
+                  </div>
+                </div>
+                <div class="panel-approach d-flex align-items-center gap-3">
+                  <i class="bi bi-person text-primary fs-4 flex-shrink-0"></i>
+                  <div>
+                    <div class="fw-semibold text-primary small">QUI — Personne</div>
+                    <div class="text-muted small">Dr Dupont, équipe du matin, référent matériel...</div>
+                  </div>
+                </div>
+                <div class="panel-approach d-flex align-items-center gap-3">
+                  <i class="bi bi-tag text-primary fs-4 flex-shrink-0"></i>
+                  <div>
+                    <div class="fw-semibold text-primary small">QUOI — Sujet</div>
+                    <div class="text-muted small">Stérilisation, allergie, matériel spécifique...</div>
+                  </div>
+                </div>
+              </div>
+              <div class="alert alert-secondary mt-3 mb-0 small">
+                <i class="bi bi-info-circle me-1"></i>
+                La recherche est tolérante — "S3" trouve "Salle 3",
+                "sterili" trouve "stérilisateur".
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="panel h-100">
+              <h5 class="fw-semibold mb-4"><i class="bi bi-tags me-2"></i>Les mots-clés s'organisent seuls</h5>
+              <ul class="text-muted mb-3">
+                <li class="mb-2">Les termes les plus utilisés sont normalisés automatiquement</li>
+                <li class="mb-2">Les synonymes sont gérés — "autoclave" et "stérilisateur" renvoient au même résultat</li>
+                <li class="mb-2">Un nettoyage hebdomadaire fusionne les doublons</li>
+                <li>Le vocabulaire de l'équipe — spatial et thématique — est indexé ensemble</li>
+              </ul>
+              <p class="text-muted small mb-0 fst-italic">
+                Tu n'as pas besoin de savoir exactement comment quelque chose s'appelle pour le trouver.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUAND ON NE TROUVE PAS — ORANGE : pas de dead-end -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-arrow-up-right me-2 text-primary"></i>Quand tu ne trouves pas</h2>
+        <p class="text-muted mb-4">
+          Pas de résultat — ce n'est pas une impasse. C'est une information utile.
+        </p>
+        <div class="row justify-content-center">
+          <div class="col-lg-7">
+            <div class="d-flex flex-column gap-2">
+              <div class="panel panel-accent-primary d-flex justify-content-between align-items-center">
+                <div><span class="badge bg-primary me-2">1</span><strong>Tu cherches — rien ne remonte</strong></div>
+                <i class="bi bi-arrow-down text-muted flex-shrink-0 ms-2"></i>
+              </div>
+              <div class="panel panel-accent-primary">
+                <div class="mb-2"><span class="badge bg-primary me-2">2</span><strong>L'app te propose trois options</strong></div>
+                <div class="d-flex flex-wrap gap-1 mt-2">
+                  <span class="badge bg-secondary">Écrire ce que tu sais</span>
+                  <span class="badge bg-secondary">Contacter un expert</span>
+                  <span class="badge bg-secondary">Poser la question à l'équipe</span>
+                </div>
+              </div>
+              <div class="panel panel-accent-success">
+                <div class="mb-1"><span class="badge bg-success me-2">3</span><strong>Le manque est signalé — et comblé</strong></div>
+                <p class="text-muted small mb-0">
+                  <i class="bi bi-bell me-1"></i>
+                  Quand plusieurs recherches échouent sur le même mot,
+                  l'équipe admin est alertée. Le trou dans la documentation est identifié — et on peut le combler.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CE QU'ON TROUVE — BLEU : deux types de contenu -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <h2 class="fw-bold mb-4"><i class="bi bi-layers me-2 text-primary"></i>Deux types de contenu</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="panel panel-accent-danger h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 fw-semibold">Fiches d'intervention</h5>
+                <span class="badge bg-danger">Validées</span>
+              </div>
+              <p class="mb-0 text-muted">
+                Rédigées et validées par un groupe de référents.
+                Protocoles, matériel, préférences chirurgien.
+                La base stable sur laquelle tout le reste s'appuie.
+              </p>
+              <p class="mb-0 text-muted mt-2 fst-italic small">
+                Quand les préférences d'un chirurgien sont documentées,
+                l'équipe les connaît avant d'entrer en salle — même si c'est la première fois.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel panel-accent-success h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0 fw-semibold">Transmissions libres</h5>
+                <span class="badge bg-success">Ouvert</span>
+              </div>
+              <p class="mb-0 text-muted">
+                Les contributions spontanées de l'équipe —
+                astuces du terrain, retours d'expérience, informations ponctuelles.
+                Écrites par ceux qui savent, consultées par ceux qui cherchent.
+              </p>
+              <p class="mb-0 text-muted mt-2 fst-italic small">
+                Si tu connais quelque chose que les autres cherchent encore,
+                tu peux l'écrire une fois — et ne plus jamais avoir à le répéter.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Usage terrain — P3 : affirmer l'usage mobile rapide -->
+        <div class="mt-4 p-3 rounded bg-primary bg-opacity-10 d-flex align-items-center gap-3">
+          <i class="bi bi-phone text-primary fs-4 flex-shrink-0"></i>
+          <p class="mb-0 text-dark">
+            <strong>Dans le couloir, avant d'entrer en salle, en 5 secondes.</strong>
+            <span class="app-nom"></span> est conçu pour le téléphone — pas pour un bureau.
+            Tu cherches debout, entre deux salles, sans avoir à déranger personne.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DURÉE DE VIE — BLEU : l'info ne périme pas silencieusement -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-clock-history me-2 text-primary"></i>L'information ne vieillit pas en silence</h2>
+        <p class="text-muted mb-4">
+          Certaines infos sont utiles quelques heures. D'autres, des années.
+          <span class="app-nom"></span> fait la différence — et gère les deux.
+        </p>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="panel panel-accent-warning h-100">
+              <h4 class="fw-semibold mb-2"><i class="bi bi-clock-history me-2 text-warning"></i>Info du moment</h4>
+              <p class="text-muted mb-3">
+                Panne de matériel, absence d'un référent, urgence ponctuelle.
+                Utile aujourd'hui, plus utile demain.
+              </p>
+              <ul class="mb-0 text-muted">
+                <li>Tu définis sa durée de vie à la création</li>
+                <li>Elle s'archive automatiquement à l'échéance</li>
+                <li>Elle reste consultable dans les archives si besoin</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel panel-accent-success h-100">
+              <h4 class="fw-semibold mb-2"><i class="bi bi-infinity me-2 text-success"></i>Info qui dure</h4>
+              <p class="text-muted mb-3">
+                Protocoles, habitudes, savoir-faire.
+                Pertinent sur le long terme — et qui évolue avec l'équipe.
+              </p>
+              <ul class="mb-0 text-muted">
+                <li>Chaque modification crée une nouvelle version (V1, V2...)</li>
+                <li>L'historique des changements est visible</li>
+                <li>La contribution d'origine reste attribuée</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONFIANCE — BLEU : savoir si on peut faire confiance à une info -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-shield-check me-2 text-primary"></i>Savoir à qui faire confiance</h2>
+        <p class="text-muted mb-4">
+          Toutes les informations ne se valent pas. <span class="app-nom"></span> le montre — sans le cacher.
+        </p>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="panel text-center h-100">
+              <span class="badge bg-primary mb-3 fs-6 px-3 py-2"><i class="bi bi-building me-1"></i>Validé Direction</span>
+              <h5 class="fw-semibold mb-2">Validé officiellement</h5>
+              <p class="text-muted mb-0 small">
+                Relu et approuvé par la direction ou les référents.
+                La source la plus fiable pour les situations critiques.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel text-center h-100">
+              <span class="badge bg-warning mb-3 fs-6 px-3 py-2"><i class="bi bi-star me-1"></i>Expert Salle 3</span>
+              <h5 class="fw-semibold mb-2">Reconnu par l'équipe</h5>
+              <p class="text-muted mb-0 small">
+                Écrit par quelqu'un dont l'expertise est reconnue sur ce sujet.
+                Pas officiel — mais fiable.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel text-center h-100">
+              <span class="badge bg-success mb-3 fs-6 px-3 py-2"><i class="bi bi-people me-1"></i>Utilisé 50 fois</span>
+              <h5 class="fw-semibold mb-2">Validé par l'usage</h5>
+              <p class="text-muted mb-0 small">
+                Beaucoup de gens l'ont consulté et s'en sont servis.
+                La preuve collective que ça fonctionne.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROTECTION — BLEU : ce qui protège celui qui contribue -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-4"><i class="bi bi-shield me-2 text-primary"></i>Ce qui protège ceux qui contribuent</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="panel h-100">
+              <h5 class="fw-semibold mb-3"><i class="bi bi-shield-check me-2 text-success"></i>Pour toi, si tu écris</h5>
+              <ul class="text-muted mb-0">
+                <li class="mb-2"><strong>Tout est tracé</strong> — on sait qui a écrit quoi et quand</li>
+                <li class="mb-2"><strong>Tu peux signaler</strong> — un bouton "contester" pour marquer une info douteuse</li>
+                <li class="mb-2"><strong>Tu choisis ta visibilité</strong> — ton nom ou "Équipe Salle 3" selon ta préférence</li>
+                <li><strong>Pas de classement</strong> — personne ne compare les contributions individuelles</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel h-100">
+              <h5 class="fw-semibold mb-3"><i class="bi bi-eye me-2 text-primary"></i>Pour toi, si tu consultes</h5>
+              <ul class="text-muted mb-0">
+                <li class="mb-2"><strong>La version est visible</strong> — tu sais si c'est récent ou ancien</li>
+                <li class="mb-2"><strong>L'auteur est visible</strong> — tu sais d'où ça vient</li>
+                <li class="mb-2"><strong>La date est visible</strong> — tu évalues la fraîcheur de l'info</li>
+                <li><strong>Les modifications sont visibles</strong> — tu vois l'évolution dans le temps</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-4 site-nav-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6"><a href="audiences.html" class="text-primary text-decoration-none fw-semibold"><i class="bi bi-arrow-left me-2"></i>Pour qui</a></div>
+          <div class="col-6 text-end"><a href="risques.html" class="text-primary text-decoration-none fw-semibold">Ce qui pourrait mal tourner<i class="bi bi-arrow-right ms-2"></i></a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <footer class="py-3 text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System — <a href="accessibilite.html" class="text-muted text-decoration-none">Accessibilité : WCAG AA</a></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="site-nav.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el)); });</script>
+  <!-- Hydratation app-nom (sans bdb-shell) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/bdb-site-hydrate.js"></script>
+</body>
+</html>

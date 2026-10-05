@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: ADMIN | Auth: admin uniquement | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carnet de Bord — Administration</title>
+
+  <!-- BLOC E CSS — Chaîne V5.1 (CONV-CHAIN-E) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="carnet-bord-ui.css" rel="stylesheet"/>
+
+  <!-- Variables couleur module (CONV-MODULE-COLOR-02) -->
+  <style>
+    :root {
+      --module-color: #fdba74;
+      --module-color-strong: #fb923c;
+      --module-color-text: #7c2d12;
+      --module-color-soft: rgba(253, 186, 116, 0.20);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <div id="bdb-shell"
+       data-module-title="Carnet de Bord — Administration"
+       data-module-icon="bi-journal-bookmark"
+       data-root-path="../../"
+       data-shell-kind="backoffice"
+       data-login-mode="modal"
+       data-shell-theme="dbm">
+  </div>
+
+  <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+    <a href="../admin/index.html" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Administration
+    </a>
+    <span class="text-muted">›</span>
+    <span class="small fw-medium">
+      <i class="bi bi-journal-bookmark me-1 text-primary"></i>Carnet de Bord
+    </span>
+  </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+      <!-- CONTENEUR PRINCIPAL MODULE -->
+  <div class="container-fluid p-4 bg-light flex-grow-1" id="cbMain">
+
+    <!-- TOOLBAR -->
+    <div class="card border-0 shadow-sm mb-3" id="cbToolbar">
+      <div class="card-body p-3">
+        <div class="row g-2 align-items-center">
+          <div class="col-12 col-md">
+            <p class="mb-0 text-muted small">
+              <i class="bi bi-journal-medical me-1 text-danger"></i>
+              Suivi personnel de progression — auto-déclaré, confidentiel.
+            </p>
+          </div>
+          <!-- SLOT ADMIN — INTERDIT-C4 / BLOC C.6 : masqué par défaut, affiché via window.bdbUser.isAdmin -->
+          <div class="col-12 col-md-auto d-none" id="cbToolbarAdminSlot">
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-outline-secondary btn-sm" id="btnAdminCat" type="button">
+                <i class="bi bi-folder-plus me-1"></i>Catégorie
+              </button>
+              <button class="btn btn-module btn-sm" id="btnAdminItem" type="button">
+                <i class="bi bi-plus-lg me-1"></i>Nouvel item
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD STATISTIQUES -->
+    <div id="cbDashboard" class="d-none"></div>
+
+    <!-- ═══════════════════════════════════════════════════
+         ÉTATS UI — BLOC C.7 : Skeleton Loaders (violation V1 corrigée)
+         ═══════════════════════════════════════════════════ -->
+
+    <!-- ÉTAT : CHARGEMENT (skeleton) -->
+    <div id="cbLoading" aria-hidden="false">
+      <!-- Skeleton dashboard -->
+      <div class="d-flex gap-3 mb-3 placeholder-glow">
+        <div class="cb-stat-card flex-fill"><span class="placeholder col-6 rounded"></span><div class="cb-stat-label mt-2"><span class="placeholder col-8 rounded"></span></div></div>
+        <div class="cb-stat-card flex-fill"><span class="placeholder col-6 rounded"></span><div class="cb-stat-label mt-2"><span class="placeholder col-8 rounded"></span></div></div>
+        <div class="cb-stat-card flex-fill"><span class="placeholder col-6 rounded"></span><div class="cb-stat-label mt-2"><span class="placeholder col-8 rounded"></span></div></div>
+        <div class="cb-stat-card flex-fill"><span class="placeholder col-6 rounded"></span><div class="cb-stat-label mt-2"><span class="placeholder col-8 rounded"></span></div></div>
+      </div>
+      <!-- Skeleton onglets -->
+      <div class="placeholder-glow d-flex gap-2 mb-0">
+        <span class="placeholder rounded-top"></span>
+        <span class="placeholder rounded-top"></span>
+        <span class="placeholder rounded-top"></span>
+      </div>
+      <!-- Skeleton lignes -->
+      <div class="cb-skeleton-pane placeholder-glow p-3 d-flex flex-column gap-2">
+        <span class="placeholder col-12 rounded"</span>
+        <span class="placeholder col-11 rounded"</span>
+        <span class="placeholder col-12 rounded"</span>
+        <span class="placeholder col-10 rounded"</span>
+        <span class="placeholder col-12 rounded"</span>
+        <span class="placeholder col-9  rounded"</span>
+      </div>
+    </div>
+
+    <!-- ÉTAT : VIDE -->
+    <div id="cbEmpty" class="d-none" role="status">
+      <i class="bi bi-journal-medical fs-1 mb-2 opacity-50"></i>
+      <div class="fw-semibold mb-1">Carnet vide</div>
+      <p class="small mb-2">Aucune catégorie configurée. Un administrateur doit initialiser le carnet.</p>
+    </div>
+
+    <!-- ÉTAT : ERREUR -->
+    <div id="cbError" class="d-none" role="alert">
+      <i class="bi bi-exclamation-triangle fs-1 mb-2 opacity-50"></i>
+      <div class="fw-semibold mb-1">Erreur de chargement</div>
+      <p class="small mb-2" id="cbErrorMsg">Une erreur est survenue.</p>
+      <button class="btn btn-outline-secondary btn-sm" id="cbBtnRetry" type="button">
+        <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
+      </button>
+    </div>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div id="cbContent" class="d-none">
+      <ul class="nav bdb-tabs" id="cbTabList" role="tablist"></ul>
+      <div class="tab-content" id="cbTabContent"></div>
+    </div>
+
+  </div><!-- /#cbMain -->
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — CDS Compliant v2.0.0</small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALE PROGRESSION (membre)
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalProgression" tabindex="-1"
+     aria-labelledby="modalProgressionLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalProgressionLabel">
+          <i class="bi bi-journal-check me-2 text-danger"></i>
+          <span id="mpItemLabel">—</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+
+        <p class="text-muted small mb-3" id="mpItemContext"></p>
+
+        <div class="card border-0 bg-light rounded-3 p-3 mb-3">
+          <p class="fw-semibold small text-uppercase text-muted mb-2">
+            <i class="bi bi-calendar3 me-1"></i>Dates de progression
+          </p>
+          <div class="cb-phase-row">
+            <div>
+              <label class="form-label small fw-semibold" for="mpDateDemo">
+                <span class="badge bg-secondary me-1">1</span>Vu / Démo
+              </label>
+              <input type="date" class="form-control form-control-sm" id="mpDateDemo"/>
+            </div>
+            <div>
+              <label class="form-label small fw-semibold" for="mpDateAccompagne">
+                <span class="badge cb-badge-phase2 me-1">2</span>Fait accompagné
+              </label>
+              <input type="date" class="form-control form-control-sm" id="mpDateAccompagne"/>
+            </div>
+            <div>
+              <label class="form-label small fw-semibold" for="mpDateSolo">
+                <span class="badge bg-success me-1">3</span>Fait seul / Solo
+              </label>
+              <input type="date" class="form-control form-control-sm" id="mpDateSolo"/>
+            </div>
+            <div>
+              <label class="form-label small fw-semibold" for="mpNiveau">Niveau de maîtrise</label>
+              <select class="form-select form-select-sm" id="mpNiveau">
+                <option value="">— Non renseigné —</option>
+                <option value="debutant">Débutant</option>
+                <option value="intermediaire">Intermédiaire</option>
+                <option value="expert">Expert</option>
+                <option value="na">NA — Non applicable</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold" for="mpNote">
+            Note personnelle <span class="text-muted fw-normal">(optionnel)</span>
+          </label>
+          <textarea class="form-control form-control-sm" id="mpNote"
+                    rows="2" placeholder="Remarque, rappel, contexte…"></textarea>
+        </div>
+
+        <div id="mpResourcesSection" class="d-none mb-3">
+          <p class="fw-semibold small text-uppercase text-muted mb-2">
+            <i class="bi bi-link-45deg me-1"></i>Ressources disponibles
+          </p>
+          <div id="mpResourcesList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+
+        <div id="mpMentorsSection" class="d-none">
+          <p class="fw-semibold small text-uppercase text-muted mb-2">
+            <i class="bi bi-person-check me-1"></i>Mentors reconnus sur cet item
+          </p>
+          <div id="mpMentorsList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-module" id="mpBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALE ADMIN — Catégorie
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalAdminCat" tabindex="-1"
+     aria-labelledby="modalAdminCatLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen-md-down">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdminCatLabel">Catégorie</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="macError" class="alert alert-danger d-none" role="alert"></div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="macLabel">
+            Libellé <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control" id="macLabel"
+                 placeholder="Ex : Chirurgie Vasculaire"/>
+        </div>
+        <div class="row g-2 mb-3">
+          <div class="col">
+            <label class="form-label fw-semibold">Couleur</label>
+            <div class="d-flex gap-2 align-items-center">
+              <div class="cb-color-preview" id="macColorPreview"></div>
+              <input type="color" class="form-control form-control-color"
+                     id="macColor" value="#6c757d"/>
+            </div>
+          </div>
+          <div class="col">
+            <label class="form-label fw-semibold" for="macIcon">Icône Bootstrap Icons</label>
+            <input type="text" class="form-control" id="macIcon"
+                   placeholder="heart-pulse"/>
+            <div class="form-text">Sans le préfixe "bi-"</div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="macPosition">Position</label>
+          <input type="number" class="form-control" id="macPosition"
+                 value="0" min="0"/>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="macActive" checked/>
+          <label class="form-check-label" for="macActive">Catégorie active</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger d-none" id="macBtnDelete">
+          <i class="bi bi-trash3 me-1"></i>Supprimer
+        </button>
+        <button type="button" class="btn btn-outline-secondary ms-auto"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-module" id="macBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALE ADMIN — Item
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalAdminItem" tabindex="-1"
+     aria-labelledby="modalAdminItemLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalAdminItemLabel">Item</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="maiError" class="alert alert-danger d-none" role="alert"></div>
+        <div class="row g-3 mb-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="maiLabel">
+              Libellé <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="maiLabel"
+                   placeholder="Ex : Arthroscopie de genou"/>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold" for="maiCategory">
+              Catégorie <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" id="maiCategory"></select>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold" for="maiSousGroupe">Sous-groupe</label>
+            <input type="text" class="form-control" id="maiSousGroupe"
+                   placeholder="ACTES ou MATERIEL SPECIFIQUE"/>
+          </div>
+          <div class="col-4">
+            <label class="form-label fw-semibold" for="maiPosition">Position</label>
+            <input type="number" class="form-control" id="maiPosition"
+                   value="0" min="0"/>
+          </div>
+          <div class="col-4 d-flex align-items-end pb-1">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="maiRequired"/>
+              <label class="form-check-label fw-semibold" for="maiRequired">Requis ★</label>
+            </div>
+          </div>
+          <div class="col-4 d-flex align-items-end pb-1">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="maiActive" checked/>
+              <label class="form-check-label" for="maiActive">Actif</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Ressources liées</label>
+          <div id="maiResourcesEditor" class="mb-2"></div>
+          <button type="button" class="btn btn-outline-secondary btn-sm"
+                  id="maiBtnAddResource">
+            <i class="bi bi-plus-lg me-1"></i>Ajouter une ressource
+          </button>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Mentors reconnus</label>
+          <div id="maiMentorsList" class="d-flex flex-wrap gap-2 mb-2"></div>
+          <select class="form-select form-select-sm" id="maiMentorSelect">
+            <option value="">— Ajouter un mentor —</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger d-none" id="maiBtnDelete">
+          <i class="bi bi-trash3 me-1"></i>Supprimer
+        </button>
+        <button type="button" class="btn btn-outline-secondary ms-auto"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-module" id="maiBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="cbToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi me-2" id="cbToastIcon"></i>
+      <strong class="me-auto" id="cbToastTitle">Info</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"
+              aria-label="Fermer"></button>
+    </div>
+    <div class="toast-body" id="cbToastMsg"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CHAÎNE JS — ordre immuable BLOC E
+     ═══════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+
+<!-- TOAST — pattern bdbToast (bdb-ui.js) -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastMsg" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastText">Message</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+</div>
+
+<script src="carnet-bord-admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+Structure du dossier
+Le num�ro de s�rie du volume est 765B-EBCD
+C:\DEV\BIBLE_DE_BLOC
++---.claude
++---.vscode
++---00_GOUVERNANCE
+|   +---DATA_METIER
+|   +---migration_v5
+|   \---_deltas
++---app
++---assets
+|   \---icons
++---createur
+|   +---atelier
+|   |   +---cds
+|   |   |   +---pages-manquantes
+|   |   |   +---pages-racine
+|   |   |   \---template-vierge
+|   |   \---doctrine
+|   +---back-office
+|   +---bernard
+|   \---conseil
+|       +---corrections
+|       +---lunettes
+|       +---prompts
+|       +---soumissions
+|       +---templates
+|       \---verdicts
++---css
++---js
++---migrations
+|   +---.claude
+|   \---_sessions
++---modules
+|   +---admin
+|   +---anatomie
+|   +---annuaire
+|   +---arsenal
+|   +---boite-a-idees
+|   +---carnet-bord
+|   +---cours
+|   +---disc
+|   +---faq
+|   +---fiches
+|   +---ged
+|   +---glossaire
+|   +---installation
+|   +---interview
+|   +---medacta-coste
+|   +---objectifs
+|   +---organisateur
+|   +---pedagogie
+|   +---planning
+|   +---preferences
+|   +---profile
+|   +---recueil-situation
+|   +---supervision
+|   +---template
+|   +---thesaurus
+|   +---transmissions
+|   \---veille-documentaire
++---scripts
+|   \---_archives
++---site
+|   +---editorial
+|   \---landing
++---supabase
+|   +---.temp
+|   \---functions
+|       +---admin-update-user
+|       \---delete-user
+\---_PROJET_CLAUDE

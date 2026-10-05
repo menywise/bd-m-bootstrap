@@ -1,3 +1,33 @@
+@'
+# Secrets
+.env*
+js/config.js
+# Dumps et sauvegardes base
+_backups/
+*.dump
+# Donnees brutes, archives, documents fabricants
+_ARCHIVE/
+00_GOUVERNANCE/DATA_METIER/
+createur/audit-v5/results/
+*.csv
+*.xls
+*.xlsx
+*.pdf
+*.zip
+*.7z
+*.rar
+# Ressources sous licence
+_references/
+_CLAUDE_DESIGN/
+# Systeme
+Thumbs.db
+desktop.ini
 node_modules/
-.env.local
 *.log
+'@ | Set-Content .gitignore -Encoding ascii
+
+git rm --cached js/config.js
+# Copies generees et scripts a secret
+_PROJET_CLAUDE/
+_archives/
+02_INFRASTRUCTURE/Supabase/migrate_avatars.py

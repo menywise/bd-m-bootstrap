@@ -1,0 +1,683 @@
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  CONSENSUS DESIGN SYSTEM - TEMPLATE WIZARD                                   ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  FILE     : theme-wizard.html                                                ║
+║  VERSION  : 2.0.0                                                            ║
+║  TYPE     : Wizard (Assistant multi-etapes)                                  ║
+║  UPDATE   : 2026-01-12                                                       ║
+║  STATUT   : SOURCE DE VERITE                                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  USAGE    : Configuration, onboarding, formulaires longs, inscriptions       ║
+║  SECTIONS : Progress, Steps indicator, Forms par etape, Resume, Confirm      ║
+║  PUBLIC   : Nouveaux utilisateurs, configuration initiale                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  REGLE    : Ce fichier est la REFERENCE. Tout wizard CDS doit                ║
+║             heriter de cette structure. Modifications = validation Manu.     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Configuration | Mon Projet CDS</title>
+    
+    <!-- CDN Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- CDN CDS -->
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-print.css" rel="stylesheet" media="print"/>
+  <!-- 5 · CDS overrides globaux (scope global délibéré — CHANTIER BLOC C.2) -->
+  <!-- 6 · CSS propre au module — INTERDIT-17 : toutes les règles scopées -->
+  <link href="../../css/[module]-ui.css" rel="stylesheet"/>
+
+</head>
+<body class="d-flex min-vh-100">
+
+<!-- OFFCANVAS MENU -->
+
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+    <div id="bdb-shell"
+         data-module-title="[TITRE_MODULE]"
+         data-module-icon="bi-[ICON_MODULE]">
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         HEADER WIZARD
+         REGLE : Badge temps estime a droite (UX guidance)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CONTAINER WIZARD
+         
+         REGLE SPECIFIQUE : Contenu centre (col-lg-8 col-xl-6)
+         Wizard = focus utilisateur, pas ecran large
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="container-fluid p-4 bg-light flex-grow-1">
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-6">
+                
+                <!-- DOC-HEADER-PRIMARY centre -->
+                <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4 text-center">
+                    <h1 class="mb-2">
+                        <i class="bi bi-signpost-split me-2"></i>
+                        Configurez votre Projet
+                    </h1>
+                    <p class="mb-0 opacity-75">Suivez les etapes pour configurer votre environnement</p>
+                </div>
+                
+                <!-- ═══════════════════════════════════════════════════════════
+                     COMPOSANT : PROGRESS BAR
+                     
+                     WIZARD OBLIGATOIRE
+                     REGLE : Card avec progress bar Bootstrap
+                     REGLE : Texte "Etape X/Y" dynamique
+                     REGLE : aria-valuenow pour accessibilite
+                     ═══════════════════════════════════════════════════════════ -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">Progression</small>
+                            <small class="fw-bold text-primary" id="progressText">Etape 1/4</small>
+                        </div>
+                        <div class="progress wiz-progress" role="progressbar" aria-label="Progression" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                            <div class="progress-bar bg-primary" id="progressBar" style="width: 25%"></div><!-- toléré CHANTIER C.4 — valeur initiale, mise à jour par JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ═══════════════════════════════════════════════════════════
+                     COMPOSANT : STEPS INDICATOR
+                     
+                     WIZARD OBLIGATOIRE
+                     REGLE : 4 colonnes egales (col-3)
+                     REGLE : Cercle + icone + label
+                     REGLE : Etats visuels :
+                       - Complete : bg-success + check + text-success
+                       - Active : bg-primary + icone + text-primary fw-bold
+                       - Future : bg-light border + icone muted + text-muted
+                     ═══════════════════════════════════════════════════════════ -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="row text-center">
+                            <div class="col-3">
+                                <div class="d-flex flex-column align-items-center step-item" data-step="1">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white mb-2 step-circle wiz-step-circle">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <small class="fw-bold text-primary">Profil</small>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="d-flex flex-column align-items-center step-item" data-step="2">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-muted border mb-2 step-circle wiz-step-circle">
+                                        <i class="bi bi-gear-fill"></i>
+                                    </div>
+                                    <small class="text-muted">Parametres</small>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="d-flex flex-column align-items-center step-item" data-step="3">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-muted border mb-2 step-circle wiz-step-circle">
+                                        <i class="bi bi-cloud-arrow-up-fill"></i>
+                                    </div>
+                                    <small class="text-muted">Connexions</small>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="d-flex flex-column align-items-center step-item" data-step="4">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-muted border mb-2 step-circle wiz-step-circle">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                    <small class="text-muted">Confirmation</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ═══════════════════════════════════════════════════════════
+                     COMPOSANT : WIZARD STEPS CONTENT
+                     
+                     REGLE : Une card par etape avec data-step="N"
+                     REGLE : Une seule visible a la fois (display:none autres)
+                     REGLE : Formulaire avec validation required
+                     ═══════════════════════════════════════════════════════════ -->
+                <form id="wizardForm">
+                    
+                    <!-- ETAPE 1 : Profil -->
+                    <div class="card shadow-sm mb-4 wizard-step" data-step="1">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h5 class="mb-0">
+                                <i class="bi bi-person-fill text-primary me-2"></i>
+                                Etape 1 : Informations Personnelles
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">
+                                        Prenom <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">
+                                        Nom <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                </div>
+                                <div class="col-12">
+                                    <label for="email" class="form-label">
+                                        Email professionnel <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="company" class="form-label">Entreprise</label>
+                                    <input type="text" class="form-control" id="company">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="role" class="form-label">Fonction</label>
+                                    <select class="form-select" id="role">
+                                        <option value="">Choisir...</option>
+                                        <option>Developpeur</option>
+                                        <option>Designer</option>
+                                        <option>Chef de projet</option>
+                                        <option>Manager</option>
+                                        <option>Autre</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ETAPE 2 : Parametres -->
+                    <div class="card shadow-sm mb-4 wizard-step" data-step="2">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h5 class="mb-0">
+                                <i class="bi bi-gear-fill text-primary me-2"></i>
+                                Etape 2 : Configuration Projet
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="projectName" class="form-label">
+                                        Nom du projet <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="projectName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="projectType" class="form-label">
+                                        Type de projet <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select" id="projectType" required>
+                                        <option value="">Choisir...</option>
+                                        <option>Site web</option>
+                                        <option>Application mobile</option>
+                                        <option>API / Backend</option>
+                                        <option>Design System</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="teamSize" class="form-label">Taille equipe</label>
+                                    <select class="form-select" id="teamSize">
+                                        <option value="">Choisir...</option>
+                                        <option>1-5 personnes</option>
+                                        <option>6-20 personnes</option>
+                                        <option>21-50 personnes</option>
+                                        <option>50+ personnes</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Fonctionnalites souhaitees</label>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="featAuth">
+                                                <label class="form-check-label" for="featAuth">Authentification</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="featNotif">
+                                                <label class="form-check-label" for="featNotif">Notifications</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="featAnalytics">
+                                                <label class="form-check-label" for="featAnalytics">Analytics</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="featExport">
+                                                <label class="form-check-label" for="featExport">Export donnees</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ETAPE 3 : Connexions -->
+                    <div class="card shadow-sm mb-4 wizard-step" data-step="3">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h5 class="mb-0">
+                                <i class="bi bi-cloud-arrow-up-fill text-primary me-2"></i>
+                                Etape 3 : Integrations
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <p class="text-muted mb-4">Connectez vos services pour une experience optimale.</p>
+                            
+                            <!-- ┌─────────────────────────────────────────────┐
+                                 │ PATTERN : Integration cards                 │
+                                 │ REGLE : Card avec icone + texte + switch    │
+                                 └─────────────────────────────────────────────┘ -->
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="bi bi-github fs-3"></i>
+                                                <div>
+                                                    <strong>GitHub</strong>
+                                                    <small class="d-block text-muted">Sync repositories</small>
+                                                </div>
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="connectGithub">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="bi bi-slack fs-3"></i>
+                                                <div>
+                                                    <strong>Slack</strong>
+                                                    <small class="d-block text-muted">Notifications</small>
+                                                </div>
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="connectSlack">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="bi bi-google fs-3"></i>
+                                                <div>
+                                                    <strong>Google Drive</strong>
+                                                    <small class="d-block text-muted">Stockage fichiers</small>
+                                                </div>
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="connectDrive">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-body d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <i class="bi bi-envelope fs-3"></i>
+                                                <div>
+                                                    <strong>Email</strong>
+                                                    <small class="d-block text-muted">Notifications email</small>
+                                                </div>
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="connectEmail" checked>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ETAPE 4 : Resume & Confirmation -->
+                    <div class="card shadow-sm mb-4 wizard-step" data-step="4">
+                        <div class="card-header bg-transparent border-bottom">
+                            <h5 class="mb-0">
+                                <i class="bi bi-check-circle-fill text-primary me-2"></i>
+                                Etape 4 : Confirmation
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="alert alert-success mb-4">
+                                <i class="bi bi-check-circle me-2"></i>
+                                <strong>Configuration complete !</strong> Verifiez vos informations avant validation.
+                            </div>
+                            
+                            <!-- ┌─────────────────────────────────────────────┐
+                                 │ PATTERN : Resume en 3 sections              │
+                                 │ REGLE : list-group pour affichage propre    │
+                                 └─────────────────────────────────────────────┘ -->
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="bi bi-person me-2"></i>Profil
+                                    </h6>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item px-0">
+                                            <small class="text-muted d-block">Nom</small>
+                                            <span id="summaryName">-</span>
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <small class="text-muted d-block">Email</small>
+                                            <span id="summaryEmail">-</span>
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <small class="text-muted d-block">Entreprise</small>
+                                            <span id="summaryCompany">-</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="bi bi-gear me-2"></i>Projet
+                                    </h6>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item px-0">
+                                            <small class="text-muted d-block">Nom projet</small>
+                                            <span id="summaryProject">-</span>
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <small class="text-muted d-block">Type</small>
+                                            <span id="summaryType">-</span>
+                                        </li>
+                                        <li class="list-group-item px-0">
+                                            <small class="text-muted d-block">Equipe</small>
+                                            <span id="summaryTeam">-</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="bi bi-cloud me-2"></i>Integrations
+                                    </h6>
+                                    <div id="summaryIntegrations">
+                                        <span class="badge bg-light text-dark border">Aucune</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="acceptTerms" required>
+                                <label class="form-check-label" for="acceptTerms">
+                                    J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialite</a>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </form>
+                
+                <!-- ═══════════════════════════════════════════════════════════
+                     COMPOSANT : NAVIGATION WIZARD
+                     
+                     OBLIGATOIRE - Boutons Precedent/Suivant/Terminer
+                     REGLE : justify-content-between
+                     REGLE : Precedent disabled etape 1
+                     REGLE : Terminer visible uniquement derniere etape
+                     REGLE : Bouton brouillon optionnel
+                     ═══════════════════════════════════════════════════════════ -->
+                <div class="card shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <button type="button" class="btn btn-outline-secondary" id="btnPrevious" disabled>
+                            <i class="bi bi-chevron-left me-1"></i>Precedent
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnSaveDraft">
+                            <i class="bi bi-save me-1"></i>Sauvegarder brouillon
+                        </button>
+                        <div>
+                            <button type="button" class="btn btn-primary" id="btnNext">
+                                Suivant<i class="bi bi-chevron-right ms-1"></i>
+                            </button>
+                            <button type="button" class="btn btn-success d-none" id="btnFinish">
+                                <i class="bi bi-check-lg me-1"></i>Terminer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+    
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+        <small>&copy; 2026 Assistant Configuration - Consensus Design System - 
+        <span class="badge bg-light text-dark border">Sentinelle CSS Compliant</span></small>
+    </footer>
+    
+</main>
+
+<!-- MODAL SUCCESS -->
+<div class="modal fade" id="modalSuccess" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+            <div class="modal-body p-5">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white mb-4 wiz-circle-lg">
+                    <i class="bi bi-check-lg fs-1"></i>
+                </div>
+                <h4 class="mb-3">Configuration terminee !</h4>
+                <p class="text-muted mb-4">Votre projet a ete configure avec succes. Vous pouvez maintenant commencer a travailler.</p>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    Acceder au tableau de bord
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastDraft" class="toast" role="alert">
+        <div class="toast-header text-success">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong class="me-auto">Brouillon sauvegarde</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">Vous pourrez reprendre plus tard.</div>
+    </div>
+</div>
+
+  <!-- Supabase SDK -->
+    <!-- Client Supabase BDB (source unique — INTERDIT-A1) -->
+    <!-- Shell BDB v1.3.1 — auth + offcanvas + header + window.bdbUser -->
+    <!-- ── SCRIPTS — ordre obligatoire (CHANTIER BLOC E) ────────── -->
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../../js/bdb-modal-a11y.js"></script>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Client Supabase BDB (source unique — INTERDIT-A1) -->
+  <script src="../../js/supabase-client.js"></script>
+  <!-- Shell BDB v1.3.1 — auth + offcanvas + header + window.bdbUser -->
+  <script src="../../js/bdb-shell.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // ══════════════════════════════════════════════════════════════════════
+    // LOGIQUE WIZARD
+    // 
+    // ARCHITECTURE :
+    // - currentStep : Etape courante (1-N)
+    // - totalSteps : Nombre total etapes
+    // - updateUI() : Met a jour tous les elements visuels
+    // - validateStep() : Valide champs required etape courante
+    // - updateSummary() : Remplit resume etape finale
+    // ══════════════════════════════════════════════════════════════════════
+    
+    let currentStep = 1;
+    const totalSteps = 4;
+    
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const btnPrevious = document.getElementById('btnPrevious');
+    const btnNext = document.getElementById('btnNext');
+    const btnFinish = document.getElementById('btnFinish');
+    const btnSaveDraft = document.getElementById('btnSaveDraft');
+    const wizardSteps = document.querySelectorAll('.wizard-step');
+    const stepItems = document.querySelectorAll('.step-item');
+    
+    function updateUI() {
+        // Progress bar
+        const progress = (currentStep / totalSteps) * 100;
+        progressBar.style.width = progress + '%';
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressText.textContent = `Etape ${currentStep}/${totalSteps}`;
+        
+        // Steps content visibility
+        wizardSteps.forEach((step, index) => {
+            step.style.display = (index + 1 === currentStep) ? 'block' : 'none';
+        });
+        
+        // Steps indicator
+        stepItems.forEach((item, index) => {
+            const stepNum = index + 1;
+            const circle = item.querySelector('.step-circle');
+            const label = item.querySelector('small');
+            
+            if (stepNum < currentStep) {
+                // Complete
+                circle.className = 'd-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white mb-2 step-circle';
+                circle.style.cssText = 'width: 40px; height: 40px;';
+                circle.innerHTML = '<i class="bi bi-check"></i>';
+                label.className = 'fw-bold text-success';
+            } else if (stepNum === currentStep) {
+                // Active
+                circle.className = 'd-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white mb-2 step-circle';
+                circle.style.cssText = 'width: 40px; height: 40px;';
+                label.className = 'fw-bold text-primary';
+            } else {
+                // Future
+                circle.className = 'd-inline-flex align-items-center justify-content-center rounded-circle bg-light text-muted border mb-2 step-circle';
+                circle.style.cssText = 'width: 40px; height: 40px;';
+                label.className = 'text-muted';
+            }
+        });
+        
+        // Navigation buttons
+        btnPrevious.disabled = currentStep === 1;
+        
+        if (currentStep === totalSteps) {
+            btnNext.classList.add('d-none');
+            btnFinish.classList.remove('d-none');
+            updateSummary();
+        } else {
+            btnNext.classList.remove('d-none');
+            btnFinish.classList.add('d-none');
+        }
+    }
+    
+    function validateStep() {
+        const currentStepEl = document.querySelector(`.wizard-step[data-step="${currentStep}"]`);
+        const requiredFields = currentStepEl.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value || (field.type === 'checkbox' && !field.checked)) {
+                isValid = false;
+                field.classList.add('is-invalid');
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        return isValid;
+    }
+    
+    function updateSummary() {
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        
+        document.getElementById('summaryName').textContent = `${firstName} ${lastName}` || '-';
+        document.getElementById('summaryEmail').textContent = document.getElementById('email').value || '-';
+        document.getElementById('summaryCompany').textContent = document.getElementById('company').value || 'Non renseignee';
+        document.getElementById('summaryProject').textContent = document.getElementById('projectName').value || '-';
+        document.getElementById('summaryType').textContent = document.getElementById('projectType').value || '-';
+        document.getElementById('summaryTeam').textContent = document.getElementById('teamSize').value || 'Non renseignee';
+        
+        const integrations = [];
+        if (document.getElementById('connectGithub').checked) integrations.push('GitHub');
+        if (document.getElementById('connectSlack').checked) integrations.push('Slack');
+        if (document.getElementById('connectDrive').checked) integrations.push('Google Drive');
+        if (document.getElementById('connectEmail').checked) integrations.push('Email');
+        
+        const container = document.getElementById('summaryIntegrations');
+        if (integrations.length > 0) {
+            container.innerHTML = integrations.map(i => 
+                `<span class="badge bg-primary-subtle text-primary me-1">${i}</span>`
+            ).join('');
+        } else {
+            container.innerHTML = '<span class="badge bg-light text-dark border">Aucune</span>';
+        }
+    }
+    
+    // Event listeners
+    btnNext.addEventListener('click', () => {
+        if (validateStep() && currentStep < totalSteps) {
+            currentStep++;
+            updateUI();
+        }
+    });
+    
+    btnPrevious.addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep--;
+            updateUI();
+        }
+    });
+    
+    btnFinish.addEventListener('click', () => {
+        if (validateStep()) {
+            new bootstrap.Modal(document.getElementById('modalSuccess')).show();
+        }
+    });
+    
+    btnSaveDraft.addEventListener('click', () => {
+        // Sauvegarde localStorage (exemple)
+        try {
+            const formData = {
+                step: currentStep,
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                projectName: document.getElementById('projectName').value
+            };
+            localStorage.setItem('wizard_draft', JSON.stringify(formData));
+            new bootstrap.Toast(document.getElementById('toastDraft')).show();
+        } catch (e) {
+            console.error('Save draft failed:', e);
+        }
+    });
+    
+    // Init
+    updateUI();
+});
+</script>
+</body>
+</html>

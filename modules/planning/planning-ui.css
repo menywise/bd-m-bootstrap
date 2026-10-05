@@ -19,6 +19,16 @@
    ============================================================ */
 
 /* ════════════════════════════════════════════════════════════
+   [0] plan-toolbar — sticky sous le navbar #bdb-shell
+   ════════════════════════════════════════════════════════════ */
+.plan-toolbar {
+  position: sticky;
+  top: 0;          /* colle sous le bdb-shell qui gère son propre sticky */
+  z-index: 100;    /* sous le shell (z-index ~1030), au-dessus du contenu */
+  pointer-events: auto;
+}
+
+/* ════════════════════════════════════════════════════════════
    [1] matrixGrid — vue matrice
    Classes JS actives injectées par planning-matrix.js :
    day-alt-0/1, room-alt, bg-couloir, bg-closed, bg-opening, bg-visceral
@@ -232,7 +242,8 @@
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
 }
 #modalCloseSalles table input[type="checkbox"]:focus {
-  border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); outline: none;
+  /* UX21 : outline:none OK — border-color + box-shadow fournissent l'indicateur focus */
+  border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); outline: none; /* UX21 OK — border-color + box-shadow fournissent l'indicateur focus */
 }
 #modalCloseSalles table .form-check { display: flex; justify-content: center; margin: 0; }
 
@@ -258,6 +269,9 @@
 
 /* Colonne Salle/Rôle modale IDEs */
 .plan-batch-th-role-label { width: 90px; }
+
+/* ════════════════════════════════════════════════════════════
+   [5] modalCreate — saisie slot (form controls scopés)
    (évite tout conflit avec les checkboxes amber de modalCloseSalles)
    ════════════════════════════════════════════════════════════ */
 #modalCreate .form-select,
@@ -388,3 +402,7 @@
 .plan-batch-btn-add-doublure {
   font-size: 0.78rem;
 }
+
+/* ── Inputs semaine toolbar ──────────────────────────────────────────────── */
+.plan-week-input { width: 60px; }
+.plan-year-input { width: 80px; }

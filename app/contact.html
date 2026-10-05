@@ -1,0 +1,153 @@
+﻿<!--
+  PROJECT  : Des Blocs & Moi (BDB)
+  FILE     : contact.html
+  MODULE   : Racine
+  DATE     : 2026-04-13
+  AUTEUR   : Manu + Claude
+  RÔLE     : Page contact et support — publique, URL déclarée dans la fiche Play Store.
+             OBLIGATOIRE Play Store (support URL dans la fiche développeur).
+             Deux audiences : membres app (support technique) + prospects (démo/accès).
+  AUTH     : Aucune — page publique.
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact et support | DBM</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/cds-overrides.css" rel="stylesheet"/>
+  <style>
+    body { background-color: #f8f9fa; }
+    .contact-header { background: var(--bs-primary); color: #fff; padding: 2.5rem 0 2rem; }
+    .contact-body { max-width: 700px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    .legal-meta { font-size: .8rem; color: rgba(255,255,255,.7); }
+  </style>
+</head>
+<body>
+
+  <div class="contact-header">
+    <div class="contact-body py-0">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <i class="bi bi-hospital fs-3"></i>
+        <span class="fw-bold fs-5">Des Blocs & Moi (BDB)</span>
+      </div>
+      <h1 class="h3 fw-bold mb-1">Contact et support</h1>
+      <p class="legal-meta mb-0">Réponse sous 48 h ouvrées.</p>
+    </div>
+  </div>
+
+  <div class="contact-body">
+
+    <div class="row g-4">
+
+      <!-- Support membres -->
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-white fw-semibold">
+            <i class="bi bi-person-circle me-2 text-primary"></i>Membres — Support technique
+          </div>
+          <div class="card-body">
+            <p class="text-muted small mb-4">
+              Tu utilises BDB dans ton établissement et tu as une question,
+              un bug ou un problème d'accès ?
+            </p>
+            <div class="d-flex flex-column gap-3">
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-flag text-warning flex-shrink-0 mt-1"></i>
+                <div class="small">
+                  <strong>Depuis l'app :</strong> utilise le bouton drapeau
+                  en bas à droite de chaque page pour signaler directement.
+                </div>
+              </div>
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-envelope text-primary flex-shrink-0 mt-1"></i>
+                <div class="small">
+                  <strong>Par email :</strong>
+                  <a href="mailto:contact@bdb.app">contact@bdb.app</a>
+                </div>
+              </div>
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-question-circle text-primary flex-shrink-0 mt-1"></i>
+                <div class="small">
+                  <strong>Centre d'aide :</strong>
+                  <a href="aide.html">aide.html</a> — questions fréquentes par thème.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prospects / démo -->
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-white fw-semibold">
+            <i class="bi bi-building me-2 text-primary"></i>Établissements — Démo et déploiement
+          </div>
+          <div class="card-body">
+            <p class="text-muted small mb-4">
+              Vous représentez un établissement de santé et souhaitez
+              découvrir BDB ou initier un déploiement ?
+            </p>
+            <div class="d-flex flex-column gap-3">
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-calendar-check text-primary flex-shrink-0 mt-1"></i>
+                <div class="small">
+                  <strong>Demander une démo :</strong>
+                  depuis la page
+                  <a href="../site/audiences.html#direction">Présentation BDB → Direction</a>.
+                </div>
+              </div>
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-envelope text-primary flex-shrink-0 mt-1"></i>
+                <div class="small">
+                  <strong>Contact direct :</strong>
+                  <a href="mailto:contact@bdb.app?subject=Demande%20d%27information%20BDB">contact@bdb.app</a>
+                </div>
+              </div>
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-bar-chart text-primary flex-shrink-0 mt-1"></i>
+                <div class="small">
+                  <strong>Données réelles :</strong>
+                  <a href="../site/instances.html">Voir les chiffres d'un déploiement</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suppression compte -->
+      <div class="col-12">
+        <div class="card shadow-sm border-0 bg-danger bg-opacity-10">
+          <div class="card-body d-flex align-items-center gap-3">
+            <i class="bi bi-trash text-danger fs-4 flex-shrink-0"></i>
+            <div>
+              <div class="fw-semibold small">Supprimer mon compte</div>
+              <div class="text-muted small">
+                Pour exercer ton droit à l'effacement (RGPD) —
+                <a href="suppression-compte.html" class="text-danger">page dédiée à la suppression de compte</a>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="my-4"/>
+    <p class="text-muted small text-center">
+      &copy; 2026 Des Blocs & Moi —
+      <a href="../politique-confidentialite.html" class="text-muted">Politique de confidentialité</a> ·
+      <a href="../mentions-legales.html" class="text-muted">Mentions légales</a>
+    </p>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

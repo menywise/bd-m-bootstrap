@@ -1,0 +1,4 @@
+# Conseil BDB — L3 LOCAL UNIQUEMENT
+# Ce dossier ne doit JAMAIS être déployé sur OVH.
+# Si ce fichier est lisible depuis internet, c'est une erreur de déploiement.
+Deny from all

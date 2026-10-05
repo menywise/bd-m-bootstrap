@@ -1,0 +1,217 @@
+﻿<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compte en attente | Bible de Bloc</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="css/login-ui.css" rel="stylesheet"/>
+</head>
+<body class="login-bg">
+<!-- REFERENCE FIGEE -- ne pas modifier -- original a la racine -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:#dc3545;color:#fff;font-size:.8rem;text-align:center;padding:.35rem;font-weight:600;font-family:monospace;">
+  &#9888; REFERENCE FIGEE &mdash; Modifier l original a la racine &middot; Ne pas deployer
+</div>
+<div style="height:32px;"></div>
+
+<div class="card login-card">
+  <div class="card-body text-center py-4">
+
+    <div class="login-icon-wrap mb-3" id="iconWrap">
+      <i class="bi bi-hourglass-split fs-3 text-white"></i>
+    </div>
+
+    <h5 class="fw-bold mb-1">Bienvenue dans l&rsquo;\u00e9quipe</h5>
+    <p class="text-muted small mb-0">Bible de Bloc · Bloc ortho-neurochirurgie</p>
+
+    <hr class="my-3"/>
+
+    <div id="userInfo" class="mb-4 d-none">
+      <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white cds-avatar-md" id="userInitials">?</div>
+        <div class="text-start">
+          <div class="fw-semibold small" id="userName">—</div>
+          <div class="text-muted" class="cds-text-xs text-muted" id="userEmail">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warning d-flex align-items-start gap-2 text-start mb-4" role="alert">
+      <i class="bi bi-clock-history flex-shrink-0 mt-1"></i>
+      <div>
+        <strong>Votre inscription est bien enregistr\u00e9e.</strong><br>
+        <span class="small">
+          Un administrateur va valider votre acc\u00e8s tr\u00e8s prochainement.
+          Si vous \u00eates press\u00e9(e), un mot \u00e0 votre responsable de bloc suffira pour acc\u00e9l\u00e9rer les choses.
+        </span>
+      </div>
+    </div>
+
+    <div class="pending-steps mb-4">
+      <div class="pending-step pending-step-done">
+        <div class="pending-step-icon"><i class="bi bi-check-lg"></i></div>
+        <div class="small">Inscription</div>
+      </div>
+      <div class="pending-step-line"></div>
+      <div class="pending-step pending-step-done">
+        <div class="pending-step-icon"><i class="bi bi-envelope-check"></i></div>
+        <div class="small">Email v\u00e9rifi\u00e9</div>
+      </div>
+      <div class="pending-step-line"></div>
+      <div class="pending-step pending-step-active">
+        <div class="pending-step-icon"><i class="bi bi-person-check"></i></div>
+        <div class="small">Validation admin</div>
+      </div>
+      <div class="pending-step-line"></div>
+      <div class="pending-step pending-step-waiting">
+        <div class="pending-step-icon"><i class="bi bi-door-open"></i></div>
+        <div class="small">Acc\u00e8s complet</div>
+      </div>
+    </div>
+
+    <button class="btn btn-outline-primary w-100 mb-2" id="btnCheck" type="button">
+      <i class="bi bi-arrow-clockwise me-2"></i>
+      <span id="btnCheckText">V\u00e9rifier si mon acc\u00e8s est activ\u00e9</span>
+      <span id="btnCheckSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+    </button>
+
+    <div class="demo-link-wrap">
+      <button class="btn-demo" id="btnLogout" type="button">
+        <i class="bi bi-box-arrow-left"></i>
+        <span>Me d\u00e9connecter</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.pending-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.pending-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3rem;
+  min-width: 64px;
+}
+.pending-step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+}
+.pending-step-done .pending-step-icon {
+  background: var(--bs-success);
+  color: #fff;
+}
+.pending-step-active .pending-step-icon {
+  background: var(--bs-warning);
+  color: #fff;
+  animation: pulse-pending 1.8s ease-in-out infinite;
+}
+.pending-step-waiting .pending-step-icon {
+  background: var(--bs-light);
+  color: var(--bs-secondary-color);
+  border: 1.5px solid var(--bs-border-color);
+}
+.pending-step .small {
+  font-size: .7rem;
+  color: var(--bs-secondary-color);
+  text-align: center;
+}
+.pending-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--bs-border-color);
+  margin-bottom: 1.2rem;
+  min-width: 16px;
+}
+@keyframes pulse-pending {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .75; transform: scale(1.08); }
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/bdb-invite-guard.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+
+  const session = await window.bdbGetSession();
+  if (!session) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const user = session.user;
+  const meta = user.user_metadata || {};
+  const nom    = meta.nom    || '';
+  const prenom = meta.prenom || '';
+  const name   = meta.name   || (prenom + ' ' + nom).trim() || user.email;
+  const ini    = ((prenom[0] || '') + (nom[0] || '')).toUpperCase() || user.email[0].toUpperCase();
+
+  document.getElementById('userInitials').textContent = ini;
+  document.getElementById('userName').textContent     = name || '—';
+  document.getElementById('userEmail').textContent    = user.email;
+  document.getElementById('userInfo').classList.remove('d-none');
+
+  async function checkApproval() {
+    const btn     = document.getElementById('btnCheck');
+    const spinner = document.getElementById('btnCheckSpinner');
+    const text    = document.getElementById('btnCheckText');
+
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+    text.textContent = 'V\u00e9rification en cours\u2026';
+
+    const { data } = await window.bdb
+      .from('profiles_directory')
+      .select('approved')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    btn.disabled = false;
+    spinner.classList.add('d-none');
+    text.textContent = 'V\u00e9rifier si mon acc\u00e8s est activ\u00e9';
+
+    if (data && data.approved === true) {
+      window.location.href = 'index.html';
+    } else {
+      btn.classList.remove('btn-outline-primary');
+      btn.classList.add('btn-outline-secondary');
+      btn.innerHTML = '<i class="bi bi-hourglass me-2"></i>Pas encore activ\u00e9 \u2014 r\u00e9essayez dans quelques instants';
+      setTimeout(() => {
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-outline-primary');
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i><span id="btnCheckText">V\u00e9rifier si mon acc\u00e8s est activ\u00e9</span><span id="btnCheckSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>';
+        document.getElementById('btnCheck').addEventListener('click', checkApproval);
+      }, 3000);
+    }
+  }
+
+  document.getElementById('btnCheck').addEventListener('click', checkApproval);
+
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+    await window.bdb.auth.signOut();
+    window.location.href = 'login.html';
+  });
+
+});
+</script>
+</body>
+</html>

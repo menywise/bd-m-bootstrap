@@ -4,6 +4,9 @@
    INTERDIT-17 : toutes les classes sont préfixées module.
    ═══════════════════════════════════════════════════════════ */
 
+/* ── Quill éditeur fiche ──────────────────────────────────── */
+.fiche-quill-edit { height: 200px; }
+
 /* ── Cards ────────────────────────────────────────────────── */
 .fiche-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -100,6 +103,17 @@
   min-height: 180px;
 }
 
+/* ── Admin ────────────────────────────────────────────────── */
+.fiches-admin-filter-select { width: auto; min-width: 160px; }
+
+.fiches-admin-kpi { font-size: 2rem; font-weight: 700; line-height: 1; }
+
+#fichesAdminApp .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
 /* ── View description (Quill HTML rendu) ──────────────────── */
 .fiche-view-description img {
   max-width: 100%;
@@ -111,3 +125,7 @@
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
+
+/* ── Lightbox ──────────────────────────────────────────────── */
+.fich-z-10 { z-index: 10; }
+.fich-lightbox-img { max-height: 90vh; object-fit: contain; }

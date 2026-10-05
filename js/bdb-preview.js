@@ -86,7 +86,7 @@
       initials: '?',
       fonction: null,
       approved: false,
-      role:     null,
+      role:     'invite',
     },
 
     // Stats fictives affichées en mode anonymous (données Lovable démo)

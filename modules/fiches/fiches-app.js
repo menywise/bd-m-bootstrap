@@ -7,16 +7,6 @@
 
 const DB = window.bdb;
 
-/* ─── XSS — échappement HTML obligatoire (données DB) ──── */
-function escHtml(str) {
-  if (str == null) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 const state = {
   user: null, isAdmin: false,
@@ -40,19 +30,51 @@ function showToast(msg, type = 'info') {
     type === 'success' ? 'bi-check-circle-fill text-success' :
     'bi-info-circle-fill text-primary'
   );
-  document.getElementById('toastTitle').textContent = type === 'error' ? 'Erreur' : type === 'success' ? 'Succès' : 'Info';
+  document.getElementById('toastTitle').textContent = type === 'error' ? 'Attention' : type === 'success' ? 'Enregistré' : 'À noter';
   bootstrap.Toast.getOrCreateInstance(document.getElementById('toastInfo')).show();
 }
 
 /* ─── INIT FROM SHELL (remplace initAuth — INTERDIT-B3) ── */
 function initFromShell() {
-  state.user = { id: window.bdbUser.id };
-  state.isAdmin = window.bdbUser.isAdmin;
+  state.user        = { id: window.bdbUser.id };
+  state.isAdmin     = window.bdbUser.isAdmin === true;
+  state.isRedacteur = window.bdbUser.isRedacteur === true;
+  state.isMember    = window.bdbUser.isMember === true;
 
-  if (state.isAdmin) {
-    document.getElementById('fichesToolbarAdminSlot').classList.remove('d-none');
-    document.getElementById('btnNew').addEventListener('click', () => openFicheModal());
-  }
+  // S120 : bouton "Proposer une fiche" visible selon parametrage_modules.
+  // L'admin "Nouvelle fiche" reste accessible via modules/admin/.
+  initProposerButton();
+}
+
+/* ─── BOUTON PROPOSER (S120 pilote — pattern reutilisable) ── */
+async function initProposerButton() {
+  try {
+    const { data } = await DB.from('parametrage_modules')
+      .select('valeur')
+      .eq('module', 'fiches')
+      .eq('section', 'permissions')
+      .eq('cle', 'peut_proposer')
+      .maybeSingle();
+
+    const roleMin = data?.valeur?.role_min || 'admin';
+    if (!_userCanProposer(roleMin)) return;
+
+    const slot = document.getElementById('fichesToolbarProposerSlot');
+    const btn  = document.getElementById('btnProposer');
+    if (!slot || !btn) return;
+    slot.classList.remove('d-none');
+    btn.addEventListener('click', () => openFicheModal());
+  } catch (_) { /* silent : pas de bouton si lecture impossible */ }
+}
+
+/* Hierarchie roles : invite < membre < redacteur < admin (+ creator englobant). */
+function _userCanProposer(roleMin) {
+  if (state.isAdmin) return true;
+  if (roleMin === 'admin') return false;
+  if (state.isRedacteur) return true;
+  if (roleMin === 'redacteur') return false;
+  if (state.isMember) return true;
+  return false;
 }
 
 /* ─── CONTENT TYPE IDS ───────────────────────────────────── */
@@ -90,7 +112,7 @@ async function loadTagsForRecord(recordId) {
 }
 
 async function syncTags(recordId) {
-  await DB.from('tag_links').delete().eq('content_id', recordId).eq('content_type', 'fiche');
+  await DB.from('tag_links').delete().eq('content_id', recordId).eq('content_type', 'fiche').select(); // UX06 : caller confirms
   if (state.formTagIds.length > 0) {
     await DB.from('tag_links').insert(state.formTagIds.map(tagId => ({
       content_id: recordId, content_type: 'fiche', tag_id: tagId,
@@ -155,7 +177,7 @@ async function syncImages(recordId) {
   const newPaths = new Set(state.formImages.map(i => i.storage_path));
   const toDelete = (existing || []).filter(i => !newPaths.has(i.storage_path));
   if (toDelete.length) {
-    await DB.from('content_images').delete().in('id', toDelete.map(i => i.id));
+    await DB.from('content_images').delete().in('id', toDelete.map(i => i.id)).select(); // UX06 : caller confirms
     await DB.storage.from('content-images').remove(toDelete.map(i => i.storage_path));
   }
   const toInsert = state.formImages.filter(i => !existingPaths.has(i.storage_path));
@@ -239,7 +261,23 @@ function renderEtapes() {
 }
 
 /* ─── LOAD FICHES ────────────────────────────────────────── */
+async function loadDemoData() {
+  const { data } = await window.bdb.from('demo_fiches').select('*');
+  const fiches = data || [];
+  state.fiches = fiches;
+  const list = document.getElementById('fichesList');
+  if (!fiches.length) {
+    list.innerHTML = `<div class="card border-0 shadow-sm"><div class="card-body text-center py-5 text-muted"><i class="bi bi-file-earmark-medical fs-1 d-block mb-3"></i><p class="mb-0">Aucune fiche démo</p></div></div>`;
+    return;
+  }
+  list.innerHTML = `<div class="d-flex flex-column gap-3">${fiches.map(f => renderFicheCard(f)).join('')}</div>`;
+  list.querySelectorAll('[data-open-fiche]').forEach(el => {
+    el.addEventListener('click', () => window.bdbDemoToast && window.bdbDemoToast());
+  });
+}
+
 async function loadFiches() {
+  if (window.bdbIsDemo && window.bdbIsDemo()) { await loadDemoData(); return; }
   const list = document.getElementById('fichesList');
   /* Skeleton loader (remplace spinner — D-2026-03-16-T06) */
   list.innerHTML = `<div class="card border-0 shadow-sm"><div class="card-body placeholder-glow">
@@ -494,7 +532,7 @@ async function openFicheModal(id = null) {
 async function saveFiche() {
   const titre = document.getElementById('fTitre').value.trim();
   if (!titre) {
-    document.getElementById('fFormError').textContent = 'Le titre est obligatoire.';
+    document.getElementById('fFormError').textContent = 'Un titre est nécessaire pour continuer.';
     document.getElementById('fFormError').classList.remove('d-none');
     return;
   }
@@ -541,8 +579,8 @@ async function saveFiche() {
 }
 
 async function deleteFiche(id) {
-  if (!confirm('Supprimer cette fiche ? (action irréversible)')) return;
-  const { error } = await DB.from('fiches_intervention').delete().eq('id', id);
+  if (!confirm("Retirer cette fiche définitivement ? Cette action ne peut pas être annulée.")) return;
+  const { error } = await DB.from('fiches_intervention').delete().eq('id', id).select();
   if (error) { showToast(error.message, 'error'); return; }
   showToast('Fiche supprimée.', 'success');
   loadFiches();
@@ -585,6 +623,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } catch (err) {
     cdsShowGridError(document.getElementById('fichesList'),
       'Impossible de charger les référentiels : ' + err.message,
+      // UX32 : reload justifie — recuperation d'erreur fatale d'initialisation
       () => location.reload());
     return;
   }
@@ -637,36 +676,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
-/* ─── CDS resilience helpers ─────────────────────────────── */
-function cdsShowGridError(el, msg, retryFn) {
-  if (!el) return;
-  const retryBtn = retryFn
-    ? `<button class="btn btn-sm btn-outline-danger cds-error-retry" id="cdsRetryBtn">
-         <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-       </button>`
-    : '';
-  el.innerHTML = `<div class="cds-error-state col-12">
-    <i class="bi bi-wifi-off cds-error-icon"></i>
-    <div class="cds-error-title">Données non chargées</div>
-    <div class="cds-error-msg">${escHtml(msg) || 'Impossible de contacter le serveur. Vérifiez votre connexion.'}</div>
-    ${retryBtn}
-  </div>`;
-  if (retryFn) {
-    const btn = el.querySelector('#cdsRetryBtn');
-    if (btn) btn.addEventListener('click', retryFn);
-  }
-}
-
-function cdsShowOfflineBanner(msg) {
-  let banner = document.getElementById('cdsOfflineBanner');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.id = 'cdsOfflineBanner';
-    banner.className = 'cds-offline-banner';
-    document.body.prepend(banner);
-  }
-  banner.textContent = msg || 'Service indisponible — vérifiez votre connexion.';
-  banner.classList.add('show');
-}
-/* ─── Fin CDS resilience helpers ─────────────────────────── */
 

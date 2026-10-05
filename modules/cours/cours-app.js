@@ -1,43 +1,74 @@
 /* =========================================================
-   MODULE COURS — BDB v2.0.0
+   MODULE COURS — BDB v2.1.0
    Table  : cours · categories · content_images · tag_links · tags
+            cours_zones_anatomiques
    Bucket : content-images (sous-dossier cours/)
-   Shell  : bdb-shell.js v1.4.0 — window.bdbUser source unique
+   Shell  : bdb-shell.js — window.bdbUser source unique
+   Delta  : v2.1.0 — zones anatomiques + filtre type_cours
+            + liens view.html/edit.html pour cours topo
    ========================================================= */
 
 const DB     = window.bdb;
 const BUCKET = 'content-images';
 
-const NIVEAU_LABELS = { debutant: 'Débutant', intermediaire: 'Intermédiaire', avance: 'Avancé' };
+const NIVEAU_LABELS = { debutant: 'Débutant', intermediaire: 'Intermédiaire', avance: 'Expert' };
 const NIVEAU_COLORS = { debutant: '#198754', intermediaire: '#fd7e14', avance: '#dc3545' };
 const STATUS_LABELS = { draft: 'Brouillon', published: 'Publié', archived: 'Archivé' };
+const TYPE_LABELS   = { libre: 'Cours libre', topo: 'Topographie', protocole: 'Protocole', procedure: 'Procédure' };
 
 const state = {
   isAdmin: false,
-  items: [], categories: [], allTags: [],
+  items: [], categories: [], zones: [], allTags: [],
   editingId: null, formTagIds: [], formImages: [],
   contentTypeId: null,
 };
 
 let quill, modalCours, modalCoursView, modalLightbox;
 
-/* ─── SÉCURITÉ — escHtml (INTERDIT-C6) ───────────────────── */
-function escHtml(s) {
-  if (s == null) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
 /* ─── TOAST ──────────────────────────────────────────────── */
 function showToast(msg, type = 'info') {
   document.getElementById('toastMsg').textContent = msg;
   const iconMap = { error: 'bi-x-circle-fill text-danger', success: 'bi-check-circle-fill text-success', info: 'bi-info-circle-fill text-primary' };
   document.getElementById('toastIcon').className  = 'bi me-2 ' + (iconMap[type] || iconMap.info);
-  document.getElementById('toastTitle').textContent = type === 'error' ? 'Erreur' : type === 'success' ? 'Succès' : 'Info';
+  document.getElementById('toastTitle').textContent = type === 'error' ? 'Attention' : type === 'success' ? 'Enregistré' : 'À noter';
   bootstrap.Toast.getOrCreateInstance(document.getElementById('toastInfo')).show();
 }
 
-/* ─── CONTENT TYPE + CATEGORIES
-     B-08 corrigé : 2 requêtes content_types fusionnées en 1 ── */
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/* ─── ZONES ANATOMIQUES (v2.1.0) ─────────────────────────── */
+async function loadZones() {
+  const { data, error } = await DB
+    .from('cours_zones_anatomiques')
+    .select('id, label, membre')
+    .order('membre').order('ordre');
+  if (error) throw new Error('zones : ' + error.message);
+  state.zones = data || [];
+
+  const sel = document.getElementById('cZone');
+  if (!sel) return;
+  const MEMBRE_LABELS = { superieur: 'Membre supérieur', inferieur: 'Membre inférieur', rachis: 'Rachis', tronc: 'Tronc' };
+  sel.innerHTML = '<option value="">Toutes zones</option>';
+  let currentMembre = null;
+  let group = null;
+  state.zones.forEach(z => {
+    if (z.membre !== currentMembre) {
+      currentMembre = z.membre;
+      group = document.createElement('optgroup');
+      group.label = MEMBRE_LABELS[z.membre] || z.membre;
+      sel.appendChild(group);
+    }
+    group.appendChild(new Option(z.label, z.id));
+  });
+}
+
+/* ─── CONTENT TYPE + CATEGORIES ─────────────────────────── */
 async function loadContentTypeAndCategories() {
   const { data: ct, error: ctErr } = await DB.from('content_types').select('id').eq('code', 'cours').maybeSingle();
   if (ctErr) throw ctErr;
@@ -69,7 +100,7 @@ async function loadTagsForRecord(id) {
 }
 
 async function syncTags(recordId) {
-  await DB.from('tag_links').delete().eq('content_id', recordId).eq('content_type', 'cours');
+  await DB.from('tag_links').delete().eq('content_id', recordId).eq('content_type', 'cours').select(); // UX06 : caller confirms
   if (state.formTagIds.length > 0) {
     await DB.from('tag_links').insert(
       state.formTagIds.map(tagId => ({ content_id: recordId, content_type: 'cours', tag_id: tagId }))
@@ -83,7 +114,6 @@ function renderTagSelector() {
     .filter(t => !state.formTagIds.includes(t.id) && (!search || t.label_display.toLowerCase().includes(search)))
     .slice(0, 10);
 
-  /* V3 corrigé : style="font-size:0.6rem" → class="cds-text-micro" (INTERDIT-C2) */
   document.getElementById('cTagResults').innerHTML = filtered.map(t =>
     `<button type="button" class="btn btn-sm btn-outline-secondary" data-tag-id="${t.id}">${escHtml(t.label_display)} <span class="badge bg-light text-muted cds-text-micro">${escHtml(t.type)}</span></button>`
   ).join('');
@@ -99,7 +129,6 @@ function renderTagSelector() {
 
   const selected = state.allTags.filter(t => state.formTagIds.includes(t.id));
   const el = document.getElementById('cSelectedTags');
-  /* V3 corrigé : style="font-size:0.6rem" → class="cds-text-micro" (INTERDIT-C2) */
   el.innerHTML = !selected.length
     ? '<span class="text-muted small">Aucun tag</span>'
     : selected.map(t => `<span class="badge bg-warning text-dark d-flex align-items-center gap-1">${escHtml(t.label_display)}
@@ -118,14 +147,10 @@ function renderTagSelector() {
 function renderImagePreviews() {
   const container = document.getElementById('cImagePreviews');
   if (!state.formImages.length) { container.innerHTML = ''; return; }
-  /* V3 corrigé :
-     style="width:90px;height:70px;object-fit:cover" → class="cds-thumbnail-lg rounded"
-     style="width:20px;height:20px;font-size:0.65rem" → class="cds-img-remove-btn"
-     (INTERDIT-C2) */
   container.innerHTML = state.formImages.map((img, i) =>
     `<div class="position-relative">
       <img src="${img.url || img._local}" alt="" class="cds-thumbnail-lg rounded border"/>
-      <button type="button" class="btn btn-danger cds-img-remove-btn position-absolute top-0 end-0 p-0" data-idx="${i}">×</button>
+      <button type="button" class="btn btn-danger cours-img-remove-btn position-absolute top-0 end-0 p-0" data-idx="${i}">×</button>
     </div>`
   ).join('');
   container.querySelectorAll('[data-idx]').forEach(btn => {
@@ -161,12 +186,9 @@ async function uploadPendingImages(recordId) {
 async function syncImages(recordId) {
   if (!state.contentTypeId) return;
   await uploadPendingImages(recordId);
-  /* Stratégie : delete all + re-insert all pour ce record.
-     Élimine les conflits position (409 Conflict) et gère le réordonnancement. */
   await DB.from('content_images').delete()
-    .eq('content_type_id', state.contentTypeId).eq('content_id', recordId);
+    .eq('content_type_id', state.contentTypeId).eq('content_id', recordId).select();
   const toInsert = state.formImages.filter(i => i.storage_path);
-  /* position 1-based — CHECK constraint content_images_position_check */
   if (toInsert.length) await DB.from('content_images').insert(
     toInsert.map((img, idx) => ({ content_type_id: state.contentTypeId, content_id: recordId, storage_path: img.storage_path, position: idx + 1 }))
   );
@@ -174,212 +196,175 @@ async function syncImages(recordId) {
 
 async function getSignedUrls(paths) {
   if (!paths.length) return {};
-  const { data } = await DB.storage.from(BUCKET).createSignedUrls(paths, 900);
+  const { data } = await DB.storage.from(BUCKET).createSignedUrls(paths, 3600);
   const map = {};
   (data || []).forEach(r => { if (r.signedUrl) map[r.path] = r.signedUrl; });
   return map;
 }
 
-/* ─── SKELETON GRID (V6 — remplace spinner-border dans loadItems) ── */
-function renderGridSkeleton() {
-  return Array.from({ length: 6 }).map(() => `
-    <div class="col-12 col-md-6 col-lg-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="placeholder-glow card-body">
-          <div class="d-flex gap-2 mb-2">
-            <span class="placeholder rounded" style="width:38px;height:38px;flex-shrink:0"></span><!-- style= OK : valeur fixe skeleton D-2026-03-15-T04 -->
-            <div class="flex-grow-1">
-              <span class="placeholder col-8 rounded d-block mb-1"></span>
-              <span class="placeholder col-5 rounded d-block"></span>
-            </div>
+/* ─── RENDU CARTE ─────────────────────────────────────────── */
+function renderCard(c) {
+  const isTopo  = c.type_cours === 'topo';
+  const zone    = c.cours_zones_anatomiques;
+  const nColor  = { debutant: '#198754', intermediaire: '#fd7e14', avance: '#dc3545' }[c.niveau] || '#6c757d';
+  const nLabel  = NIVEAU_LABELS[c.niveau] || c.niveau || '';
+
+  const viewHref = isTopo ? `view.html?id=${c.id}` : null;
+  const editHref = isTopo ? `edit.html?id=${c.id}`  : null;
+
+  // Badge type pour cours non-libre
+  const typeBadge = isTopo
+    ? `<span class="badge bg-warning text-dark me-1 small">Topographie</span>`
+    : '';
+
+  // Badge zone pour topo
+  const zoneBadge = zone
+    ? `<span class="badge bg-light text-muted border small">${escHtml(zone.label)}</span>`
+    : '';
+
+  const cardEl = document.createElement('div');
+  cardEl.className = 'col-12 col-sm-6 col-xl-4';
+  cardEl.innerHTML = `
+    <div class="card border-0 shadow-sm h-100 ${isTopo ? 'border-start border-warning border-3' : ''}">
+      <div class="card-body d-flex flex-column gap-2 p-3">
+        <div class="d-flex align-items-start justify-content-between gap-2">
+          <div class="flex-fill">
+            ${typeBadge}${zoneBadge}
+            <h6 class="mb-0 mt-1">${escHtml(c.titre)}</h6>
           </div>
-          <span class="placeholder col-12 rounded d-block mb-1"></span>
-          <span class="placeholder col-9 rounded d-block"></span>
+          <span class="badge rounded-pill text-white flex-shrink-0" style="background:${nColor}">${escHtml(nLabel)}</span>
+        </div>
+        ${c.description ? `<p class="text-muted small mb-0 line-clamp-2">${escHtml(c.description)}</p>` : ''}
+        <div class="mt-auto d-flex gap-2 pt-1">
+          ${isTopo
+            ? `<a href="${viewHref}" class="btn btn-sm btn-outline-warning flex-fill">
+                 <i class="bi bi-eye me-1"></i>Consulter
+               </a>
+               ${state.isAdmin ? `<a href="${editHref}" class="btn btn-sm btn-outline-secondary">
+                 <i class="bi bi-pencil"></i>
+               </a>` : ''}`
+            : `<button class="btn btn-sm btn-outline-warning flex-fill" data-view-id="${c.id}">
+                 <i class="bi bi-eye me-1"></i>Consulter
+               </button>
+               ${state.isAdmin ? `<button class="btn btn-sm btn-outline-secondary" data-edit-id="${c.id}">
+                 <i class="bi bi-pencil"></i>
+               </button>` : ''}`
+          }
+          ${state.isAdmin ? `<button class="btn btn-sm btn-outline-danger" data-del-id="${c.id}">
+            <i class="bi bi-trash"></i>
+          </button>` : ''}
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+
+  // Events pour cours libre uniquement
+  cardEl.querySelector('[data-view-id]')?.addEventListener('click', () => openCoursView(c.id));
+  cardEl.querySelector('[data-edit-id]')?.addEventListener('click', () => openCoursModal(c.id));
+  cardEl.querySelector('[data-del-id]')?.addEventListener('click', () => deleteItem(c.id));
+
+  return cardEl;
 }
 
-/* ─── LOAD ───────────────────────────────────────────────── */
+/* ─── CHARGEMENT LISTE ───────────────────────────────────── */
 async function loadItems() {
   const grid = document.getElementById('coursGrid');
-  /* V6 corrigé : spinner → skeleton */
-  grid.innerHTML = renderGridSkeleton();
+  grid.innerHTML = `<div class="col-12"><div class="placeholder-glow row g-3">
+    ${Array(3).fill(`<div class="col-12 col-sm-6 col-xl-4"><div class="placeholder rounded" style="height:140px"></div></div>`).join('')}
+  </div></div>`;
+
+  const search   = document.getElementById('cSearch').value.trim();
+  const niveau   = document.getElementById('cNiveau').value;
+  const status   = document.getElementById('cStatus')?.value || '';
+  const category = document.getElementById('cCategory').value;
+  const typeFilt = document.getElementById('cType')?.value || '';
+  const zoneFilt = document.getElementById('cZone')?.value || '';
 
   let q = DB.from('cours')
-    .select('*, category:categories(id, label, color)')
-    .order('created_at', { ascending: false })
-    .limit(100);
+    .select('*, cours_zones_anatomiques(id, label, membre)')
+    .order('updated_at', { ascending: false });
 
-  const search = document.getElementById('cSearch').value.trim();
-  const niveau = document.getElementById('cNiveau').value;
-  const status = document.getElementById('cStatus').value;
-  const cat    = document.getElementById('cCategory').value;
+  if (search)   q = q.ilike('titre', `%${search}%`);
+  if (niveau)   q = q.eq('niveau', niveau);
+  if (status)   q = q.eq('status', status);
+  if (category) q = q.eq('category_id', category);
+  if (typeFilt) q = q.eq('type_cours', typeFilt);
+  if (zoneFilt) q = q.eq('zone_id', zoneFilt);
 
-  if (search) q = q.or(`titre.ilike.%${search}%,description.ilike.%${search}%`);
-  if (niveau) q = q.eq('niveau', niveau);
-  if (status) q = q.eq('status', status);
-  if (cat)    q = q.eq('category_id', cat);
+  if (!state.isAdmin) q = q.eq('status', 'published');
 
   const { data, error } = await q;
 
   if (error) {
-    /* B-07 corrigé : cdsShowGridError + offline banner */
-    cdsShowGridError(grid, 'Impossible de charger les cours.', loadItems);
-    if (error.message?.includes('fetch') || error.code === 'PGRST301') {
-      document.getElementById('offlineBanner').classList.add('show');
-    }
+    grid.innerHTML = `<div class="col-12"><div class="alert alert-danger">Erreur : ${escHtml(error.message)}</div></div>`;
     return;
   }
 
   state.items = data || [];
+  grid.innerHTML = '';
 
   if (!state.items.length) {
-    grid.innerHTML = `<div class="col-12"><div class="card border-0 shadow-sm"><div class="card-body text-center py-5 text-muted">
-      <i class="bi bi-mortarboard fs-1 d-block mb-3"></i><p class="mb-0">Aucun cours trouvé</p>
-      ${state.isAdmin ? `<button class="btn btn-outline-warning mt-3" id="btnNewEmpty"><i class="bi bi-plus-lg me-1"></i>Créer un cours</button>` : ''}
-    </div></div></div>`;
-    document.getElementById('btnNewEmpty')?.addEventListener('click', () => openCoursModal());
+    grid.innerHTML = `<div class="col-12 text-center text-muted py-5">
+      <i class="bi bi-mortarboard fs-1 d-block mb-2 opacity-25"></i>
+      <p>Aucun cours trouvé.</p>
+    </div>`;
     return;
   }
 
-  grid.innerHTML = state.items.map(c => renderCard(c)).join('');
-  grid.querySelectorAll('[data-open]').forEach(el => {
-    el.addEventListener('click', () => {
-      if (state.isAdmin) openCoursModal(el.dataset.open);
-      else openCoursView(el.dataset.open);
-    });
-  });
-  grid.querySelectorAll('[data-edit]').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); openCoursModal(btn.dataset.edit); });
-  });
-  grid.querySelectorAll('[data-del]').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); deleteItem(btn.dataset.del); });
-  });
+  state.items.forEach(c => grid.appendChild(renderCard(c)));
 }
 
-function renderCard(c) {
-  const niveauColor = NIVEAU_COLORS[c.niveau] || '#6c757d'; /* couleur dynamique JS D-2026-03-15-T04 */
-  const niveauLabel = NIVEAU_LABELS[c.niveau] || c.niveau;
-  const statusBadge = c.status === 'published'
-    ? '<span class="badge bg-success">Publié</span>'
-    : '<span class="badge bg-secondary">Brouillon</span>';
-  /* style= OK : couleur dynamique Supabase D-2026-03-15-T04 */
-  const catBadge = c.category
-    ? `<span class="badge" style="background:${c.category.color}20;color:${c.category.color};border:1px solid ${c.category.color}">${escHtml(c.category.label)}</span>`
-    : '';
-  const tags = Array.isArray(c.tags) && c.tags.length
-    ? c.tags.slice(0,3).map(t => `<span class="badge bg-light text-dark border">#${escHtml(t)}</span>`).join('')
-    : '';
-  const menu = state.isAdmin ? `
-    <div class="dropdown">
-      <button class="btn btn-sm cours-card-menu" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li><button class="dropdown-item" data-edit="${c.id}"><i class="bi bi-pencil me-2"></i>Modifier</button></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><button class="dropdown-item text-danger" data-del="${c.id}"><i class="bi bi-trash me-2"></i>Supprimer</button></li>
-      </ul>
-    </div>` : '';
-
-  /* V3 corrigé : style="cursor:pointer" → class="cds-clickable" (INTERDIT-C2) */
-  return `<div class="col-12 col-md-6 col-lg-4">
-    <div class="card border-0 shadow-sm cours-card h-100 cds-clickable" data-open="${c.id}">
-      <div class="cours-card-accent" style="background:${niveauColor}"></div><!-- style= OK : couleur dynamique JS D-2026-03-15-T04 -->
-      <div class="card-body">
-        <div class="d-flex align-items-start gap-2 mb-2">
-          <div class="cours-icon-wrap flex-shrink-0" style="background:${niveauColor}18"><!-- style= OK : couleur dynamique JS D-2026-03-15-T04 -->
-            <i class="bi bi-mortarboard" style="color:${niveauColor}"></i><!-- style= OK -->
-          </div>
-          <div class="flex-grow-1 min-w-0">
-            <h6 class="mb-1 fw-semibold text-truncate">${escHtml(c.titre)}</h6>
-            <div class="d-flex flex-wrap gap-1">
-              <span class="badge text-white" style="background:${niveauColor}">${niveauLabel}</span><!-- style= OK : couleur dynamique JS D-2026-03-15-T04 -->
-              ${statusBadge}
-              ${catBadge}
-            </div>
-          </div>
-          ${menu}
-        </div>
-        ${c.description ? `<p class="text-muted small cours-desc mb-2">${escHtml(c.description)}</p>` : ''}
-        ${tags ? `<div class="d-flex flex-wrap gap-1">${tags}</div>` : ''}
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ─── VIEW ───────────────────────────────────────────────── */
+/* ─── MODAL VIEW (cours libre) ───────────────────────────── */
 async function openCoursView(id) {
   const body   = document.getElementById('modalViewBody');
   const footer = document.getElementById('modalViewFooter');
-  /* V6 corrigé : spinner → skeleton */
   body.innerHTML = `<div class="placeholder-glow">
     <span class="placeholder col-4 mb-2 rounded d-block"></span>
     <span class="placeholder col-8 mb-3 rounded d-block"></span>
     <span class="placeholder col-12 mb-1 rounded d-block"></span>
-    <span class="placeholder col-10 rounded d-block"></span>
   </div>`;
   footer.innerHTML = '';
   modalCoursView.show();
 
-  const { data: c } = await DB.from('cours').select('*, category:categories(id, label, color)').eq('id', id).maybeSingle();
-  if (!c) { body.innerHTML = '<p class="text-danger">Erreur de chargement.</p>'; return; }
+  const { data: c } = await DB.from('cours').select('*').eq('id', id).maybeSingle();
+  if (!c) { body.innerHTML = '<p class="text-danger">Cours introuvable.</p>'; return; }
 
-  document.getElementById('modalViewLabel').innerHTML = `<i class="bi bi-mortarboard me-2 text-warning"></i>${escHtml(c.titre)}`;
+  document.getElementById('modalViewLabel').innerHTML =
+    `<i class="bi bi-mortarboard me-2 text-warning"></i>${escHtml(c.titre)}`;
 
   const tags = await loadTagsForRecord(id);
-  let imagesHtml = '';
-  if (state.contentTypeId) {
-    const { data: imgRows } = await DB.from('content_images').select('storage_path')
-      .eq('content_type_id', state.contentTypeId).eq('content_id', id).order('position');
-    const paths = (imgRows || []).map(r => r.storage_path);
-    const urls  = await getSignedUrls(paths);
-    if (paths.length) {
-      /* V3 corrigé : style="height:110px;...cursor:pointer" → class="cours-view-thumb cds-clickable" (INTERDIT-C2) */
-      imagesHtml = `<div class="border-top pt-3 mb-3">
-        <p class="small text-muted text-uppercase fw-semibold mb-2">Images</p>
-        <div class="d-flex flex-wrap gap-2">${paths.map(p => urls[p]
-          ? `<img src="${urls[p]}" alt="" class="cours-view-thumb cds-clickable rounded border" data-src="${urls[p]}">`
-          : '').join('')}</div>
-      </div>`;
-    }
-  }
-
-  const niveauColor = NIVEAU_COLORS[c.niveau] || '#6c757d'; /* couleur dynamique JS D-2026-03-15-T04 */
-  const tagsHtml = tags.length
-    ? `<div class="border-top pt-3 mt-3"><p class="small text-muted text-uppercase fw-semibold mb-2">Tags</p><div class="d-flex flex-wrap gap-1">${tags.map(t=>`<span class="badge bg-light text-dark border">${escHtml(t.label_display)}</span>`).join('')}</div></div>`
-    : '';
+  const tagHtml = tags.map(t => `<span class="badge bg-light text-dark border">${escHtml(t.label_display)}</span>`).join(' ');
 
   body.innerHTML = `
-    <div class="d-flex flex-wrap gap-2 mb-3">
-      <span class="badge text-white" style="background:${niveauColor}">${NIVEAU_LABELS[c.niveau]||escHtml(c.niveau)}</span><!-- style= OK : couleur dynamique JS D-2026-03-15-T04 -->
-      ${c.status === 'published' ? '<span class="badge bg-success">Publié</span>' : '<span class="badge bg-secondary">Brouillon</span>'}
-      ${c.category ? `<span class="badge" style="background:${c.category.color}20;color:${c.category.color};border:1px solid ${c.category.color}">${escHtml(c.category.label)}</span>` : ''}<!-- style= OK : couleur dynamique Supabase D-2026-03-15-T04 -->
+    <div class="mb-3 d-flex flex-wrap gap-2">
+      <span class="badge rounded-pill text-white" style="background:${NIVEAU_COLORS[c.niveau] || '#6c757d'}">${escHtml(NIVEAU_LABELS[c.niveau] || '')}</span>
+      ${tagHtml}
     </div>
-    ${imagesHtml}
-    ${c.description ? `<p class="text-muted mb-3">${escHtml(c.description)}</p>` : ''}
-    ${c.contenu ? `<div class="cours-view-content border-top pt-3">${DOMPurify.sanitize(c.contenu)}</div>` : ''}
-    ${tagsHtml}`;
+    ${c.description ? `<p class="text-muted">${escHtml(c.description)}</p>` : ''}
+    <div class="cours-view-content">${DOMPurify ? DOMPurify.sanitize(c.contenu || '') : escHtml(c.contenu || '')}</div>`;
 
-  body.querySelectorAll('img[data-src]').forEach(img => {
-    img.addEventListener('click', () => {
-      document.getElementById('lightboxImg').src = img.dataset.src;
-      modalLightbox.show();
+  if (state.isAdmin) {
+    footer.innerHTML = `
+      <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+      <button class="btn btn-warning text-white btn-sm" id="btnViewEdit">
+        <i class="bi bi-pencil me-1"></i>Modifier
+      </button>`;
+    footer.querySelector('#btnViewEdit').addEventListener('click', () => {
+      modalCoursView.hide();
+      openCoursModal(id);
     });
-  });
-
-  footer.innerHTML = `
-    ${state.isAdmin ? `<button class="btn btn-outline-warning me-auto" data-edit-view="${id}"><i class="bi bi-pencil me-1"></i>Modifier</button>` : ''}
-    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>`;
-  footer.querySelector('[data-edit-view]')?.addEventListener('click', () => { modalCoursView.hide(); openCoursModal(id); });
+  } else {
+    footer.innerHTML = `<button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>`;
+  }
 }
 
-/* ─── FORM ───────────────────────────────────────────────── */
+/* ─── MODAL FORM (cours libre) ───────────────────────────── */
 async function openCoursModal(id = null) {
   state.editingId = id;
-  state.formTagIds = []; state.formImages = [];
+  state.formTagIds = [];
+  state.formImages = [];
   document.getElementById('cFormError').classList.add('d-none');
-  document.getElementById('cTitre').value        = '';
-  document.getElementById('cDesc').value         = '';
+  document.getElementById('cTitre').value = '';
+  document.getElementById('cDesc').value  = '';
   document.getElementById('cFormNiveau').value   = 'debutant';
   document.getElementById('cFormCategory').value = '';
   document.getElementById('cFormStatus').value   = 'draft';
@@ -423,17 +408,17 @@ async function openCoursModal(id = null) {
 async function saveItem() {
   const titre = document.getElementById('cTitre').value.trim();
   if (!titre) {
-    document.getElementById('cFormError').textContent = 'Le titre est obligatoire.';
+    document.getElementById('cFormError').textContent = 'Un titre est nécessaire pour continuer.';
     document.getElementById('cFormError').classList.remove('d-none');
     return;
   }
   const btn = document.getElementById('cBtnSave');
-  /* spinner dans bouton d'action = acceptable (state d'action, pas de chargement données) */
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...';
 
   const payload = {
     titre,
+    type_cours  : 'libre',
     description : document.getElementById('cDesc').value.trim() || null,
     contenu     : quill ? quill.root.innerHTML : '',
     niveau      : document.getElementById('cFormNiveau').value,
@@ -450,7 +435,6 @@ async function saveItem() {
       if (error) throw error;
       recordId = data.id;
     } else {
-      /* B-09 corrigé : window.bdbUser?.id null-safe (INTERDIT-B2) */
       const { data, error } = await DB.from('cours').insert([{ ...payload, user_id: window.bdbUser?.id }]).select().single();
       if (error) throw error;
       recordId = data.id;
@@ -469,7 +453,7 @@ async function saveItem() {
   }
 }
 
-/* ─── DELETE — confirm() natif → modale Bootstrap ────────── */
+/* ─── DELETE ─────────────────────────────────────────────── */
 function deleteItem(id) {
   const item  = state.items.find(c => c.id === id);
   const label = item?.titre?.substring(0, 60) || 'ce cours';
@@ -480,7 +464,7 @@ function deleteItem(id) {
   const handler = async () => {
     modal.hide();
     btn.removeEventListener('click', handler);
-    const { error } = await DB.from('cours').delete().eq('id', id);
+    const { error } = await DB.from('cours').delete().eq('id', id).select();
     if (error) { showToast(error.message, 'error'); return; }
     showToast('Cours supprimé.', 'success');
     loadItems();
@@ -493,18 +477,17 @@ function deleteItem(id) {
 
 /* ─── INIT ───────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', async () => {
-
-  /* V1 corrigé : bdb-shell.js gère auth + header + offcanvas.
-     initAuth() local supprimé. BDB header inline supprimé.
-     window.bdbUser = source unique (INTERDIT-B1/B2/B3). */
   await window.bdbShellReady;
   state.isAdmin = window.bdbUser?.isAdmin ?? false;
 
-  /* V2 corrigé : slot #adminActions dans toolbar — pas d'injection innerHTML (INTERDIT-C4) */
   if (state.isAdmin) {
     document.getElementById('adminActions').classList.remove('d-none');
     document.getElementById('cStatusWrapper').classList.remove('d-none');
     document.getElementById('btnNew').addEventListener('click', () => openCoursModal());
+    // Lien cours topo → edit.html sans id = nouveau cours topo
+    document.getElementById('btnNewTopo')?.addEventListener('click', () => {
+      location.href = 'edit.html';
+    });
   }
 
   modalCours     = new bootstrap.Modal(document.getElementById('modalCours'));
@@ -516,18 +499,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     placeholder: 'Rédigez le contenu du cours...',
     modules: { toolbar: [[{ header: [2, 3, false] }], ['bold','italic','underline'], [{ list:'ordered'},{list:'bullet'}], ['blockquote','link'], ['clean']] },
   });
-  /* Fix Quill-in-modal : height:100% collapse quand modal=display:none */
   document.querySelectorAll('.ql-container').forEach(c => c.style.height = 'auto');
   document.querySelectorAll('.ql-editor').forEach(e => { e.style.height = 'auto'; e.style.minHeight = '120px'; });
 
-  document.querySelectorAll('.dropdown').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
-
-  /* C.9 — référentiels : throw + catch centralisé. Si les fondations cassent, le module s'arrête. */
   try {
-    await Promise.all([loadContentTypeAndCategories(), loadTags()]);
+    await Promise.all([loadContentTypeAndCategories(), loadTags(), loadZones()]);
   } catch (err) {
     cdsShowGridError(document.getElementById('coursGrid'),
-      'Impossible de charger les référentiels. Rechargez la page.', () => location.reload());
+      'Impossible de charger les référentiels. Rechargez la page.',
+      () => location.reload());
     return;
   }
   await loadItems();
@@ -535,8 +515,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   let debounce;
   document.getElementById('cSearch').addEventListener('input',    () => { clearTimeout(debounce); debounce = setTimeout(loadItems, 400); });
   document.getElementById('cNiveau').addEventListener('change',   loadItems);
-  document.getElementById('cStatus').addEventListener('change',   loadItems);
+  document.getElementById('cStatus')?.addEventListener('change',  loadItems);
   document.getElementById('cCategory').addEventListener('change', loadItems);
+  document.getElementById('cType')?.addEventListener('change',    () => {
+    const isTopo = document.getElementById('cType').value === 'topo';
+    document.getElementById('cZoneWrapper')?.classList.toggle('d-none', !isTopo);
+    loadItems();
+  });
+  document.getElementById('cZone')?.addEventListener('change',    loadItems);
   document.getElementById('cTagSearch').addEventListener('input', renderTagSelector);
 
   const zone = document.getElementById('cImageUploadZone');
@@ -549,24 +535,3 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cBtnSave').addEventListener('click', saveItem);
   document.getElementById('modalCours').addEventListener('hidden.bs.modal', () => { state.formTagIds = []; state.formImages = []; });
 });
-
-/* ── CDS resilience helpers ─────────────────────────────── */
-function cdsShowGridError(el, msg, retryFn) {
-  if (!el) return;
-  const retryBtn = retryFn
-    ? `<button class="btn btn-sm btn-outline-danger cds-error-retry" id="cdsRetryBtn">
-         <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-       </button>`
-    : '';
-  el.innerHTML = `<div class="cds-error-state col-12">
-    <i class="bi bi-wifi-off cds-error-icon"></i>
-    <div class="cds-error-title">Données non chargées</div>
-    <div class="cds-error-msg">${msg || 'Impossible de contacter le serveur. Vérifiez votre connexion.'}</div>
-    ${retryBtn}
-  </div>`;
-  if (retryFn) {
-    const btn = el.querySelector('#cdsRetryBtn');
-    if (btn) btn.addEventListener('click', retryFn);
-  }
-}
-/* ── Fin CDS resilience helpers ─────────────────────────── */

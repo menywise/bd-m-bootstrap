@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Slug: rempla-midi | Univers: planning -->
+<html lang="fr" data-bs-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rempla Midi — Des Blocs &amp; Moi</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="css/dbm-theme.css" rel="stylesheet"/>
+<link href="css/rempla-midi.css" rel="stylesheet"/>
+
+<style>
+  /* ── Couleur module : sarcelle (univers Planning / Équipe — coordination temps) ── */
+  :root{
+    --module-color:        #b8d8d6;
+    --module-color-strong: #2f6e6c;
+    --module-color-text:   #143230;
+    --module-color-soft:   rgba(184,216,214,0.22);
+    --u-color: #2f6e6c; --u-soft:#d6e8e6; --u-tint:#e7f1f0;
+  }
+
+  body{background:#fbfaf7;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;color:#1a1a1a}
+
+  /* Faux shell */
+  .mock-header{background:#fff;border-bottom:1px solid #ebe7dc;padding:.65rem 1.25rem;display:flex;align-items:center;gap:1rem}
+  .mock-brand{font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:.5rem;color:var(--module-color-strong);text-decoration:none}
+  .mock-brand i{font-size:1.2rem}
+  .mock-search{flex:1;max-width:480px;position:relative}
+  .mock-search input{padding-left:2.25rem;border-color:#ebe7dc;background:#fbfaf7}
+  .mock-search i{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:#7a6e5b}
+  .mock-userchip{display:flex;align-items:center;gap:.5rem;padding:.4rem .75rem;background:#fbfaf7;border:1px solid #ebe7dc;border-radius:999px;font-size:.85rem;font-weight:600}
+  .mock-userchip i{font-size:1.05rem;color:var(--module-color-strong)}
+  .mock-back{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;color:#7a6e5b;text-decoration:none;padding:.3rem .6rem;border-radius:.4rem}
+  .mock-back:hover{background:#f4efe6;color:var(--module-color-strong)}
+
+  /* Page hero */
+  .page-hero{background:linear-gradient(135deg,var(--module-color),var(--module-color-strong));color:#fff;padding:1.75rem 1.75rem;border-radius:.85rem;box-shadow:0 6px 18px rgba(60,40,15,.06);position:relative;overflow:hidden}
+  .page-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.08)}
+  .page-hero h1{font-size:1.7rem;font-weight:700;margin:0 0 .35rem;letter-spacing:-.01em;display:flex;align-items:center;gap:.6rem}
+  .page-hero .lede{font-size:1rem;opacity:.92;margin:0 0 1.1rem;max-width:640px}
+  .page-hero .hero-meta{display:flex;flex-wrap:wrap;gap:1.5rem;font-size:.82rem;opacity:.92}
+  .page-hero .hero-meta b{font-weight:700;font-size:1rem;display:block;letter-spacing:-.01em}
+
+  .btn-universe{background:var(--module-color-strong);border:1px solid var(--module-color-strong);color:#fff;font-weight:600;padding:.45rem .95rem;border-radius:.4rem;display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem}
+  .btn-universe:hover{background:#1f5654;border-color:#1f5654;color:#fff}
+  .btn-universe-outline{background:transparent;border:1px solid var(--module-color-strong);color:var(--module-color-strong);font-weight:600;padding:.45rem .95rem;border-radius:.4rem;display:inline-flex;align-items:center;gap:.4rem;font-size:.85rem}
+  .btn-universe-outline:hover{background:var(--module-color-soft);color:var(--module-color-strong)}
+
+  /* ── Diagnostic banner ── */
+  .diag-banner{display:flex;align-items:center;gap:.85rem;padding:.85rem 1.1rem;border-radius:.6rem;border:1px solid transparent;margin:1rem 0}
+  .diag-banner i.diag-ic{font-size:1.5rem}
+  .diag-banner .diag-label{font-weight:700;font-size:1rem;letter-spacing:-.01em}
+  .diag-banner .diag-detail{font-size:.82rem;color:#5a5040;margin-top:.1rem}
+  .diag-confortable,.diag-quotidien{background:#e7f1ee;border-color:#bcd9d2;color:#1f5e54}
+  .diag-degrade_leger{background:#fbeed1;border-color:#ecd49e;color:#7a5410}
+  .diag-degrade_complet{background:#fbe1cd;border-color:#ecbf94;color:#8c4d12}
+  .diag-crise{background:#f5dad4;border-color:#e7b9ad;color:#8c2a1c}
+  .diag-bloque{background:#e6e3df;border-color:#cbc5bb;color:#3a3328}
+
+  /* ── Tabs (nav-pills custom) ── */
+  .rm-tabs{display:flex;gap:.25rem;background:#fff;border:1px solid #ebe7dc;border-radius:.55rem;padding:.3rem;margin-bottom:1.1rem;flex-wrap:nowrap;overflow-x:auto}
+  .rm-tab{flex:0 0 auto;padding:.5rem .85rem;border:none;background:transparent;border-radius:.4rem;font-size:.85rem;font-weight:500;color:#5a5040;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;transition:background .15s,color .15s}
+  .rm-tab:hover{background:#f4efe6;color:#1a1a1a}
+  .rm-tab.active{background:var(--module-color-strong);color:#fff}
+  .rm-tab.active i{color:#fff}
+
+  /* ── Cards ── */
+  .rm-card{background:#fff;border:1px solid #ebe7dc;border-radius:.6rem;overflow:hidden}
+  .rm-card-h{padding:.55rem .85rem;border-bottom:1px solid #ebe7dc;background:#faf7f2;display:flex;align-items:center;gap:.45rem;font-size:.85rem;font-weight:600}
+  .rm-card-h i{color:var(--module-color-strong)}
+  .rm-card-b{padding:.85rem}
+
+  /* Salle card */
+  .salle-card{border-left:3px solid var(--module-color-strong)}
+  .salle-card.salle-ok{border-left-color:#4f7d4a}
+  .salle-card.salle-warn{border-left-color:#c98410}
+  .salle-card.salle-danger{border-left-color:#b3372a}
+  .slot-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7a6e5b;margin:.45rem 0 .2rem}
+  .slot-label:first-child{margin-top:0}
+
+  /* Agent badge */
+  .agent-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .5rem;border-radius:.35rem;font-size:.78rem;font-weight:500;border:1px solid #d8cdb8;background:#fff}
+  .agent-badge .x{cursor:pointer;color:#b3372a;font-size:.85rem;line-height:1;padding:0 0 0 .15rem;background:transparent;border:none}
+  .agent-badge.cat-matin{border-color:#7d4391;color:#7d4391;background:#f5ecf7}
+  .agent-badge.cat-journee{border-color:#3d6b8c;color:#3d6b8c;background:#dde9f1}
+  .agent-badge.cat-12h{border-color:#0a7c8e;color:#0a7c8e;background:#d5eef0}
+  .agent-badge.cat-soir{border-color:#c98410;color:#7a5410;background:#fbeed1}
+  .agent-badge.cat-couloir{border-color:#4f7d4a;color:#4f7d4a;background:#e6efd8}
+
+  /* Hors salle card */
+  .group-card{border-left:3px solid #d8cdb8}
+  .group-card.gc-couloir{border-left-color:#4f7d4a;background:#f4f7ec}
+  .group-card.gc-soir{border-left-color:#c98410;background:#fdf6e3}
+  .group-card.gc-autres{border-left-color:#3d6b8c;background:#eef4f8}
+  .group-count{margin-left:auto;font-size:.7rem;font-weight:700;padding:.1rem .45rem;border-radius:1rem;background:#fff;color:#5a5040;border:1px solid #ebe7dc}
+
+  /* ── Plan table ── */
+  .plan-table{width:100%;border-collapse:collapse;font-size:.85rem}
+  .plan-table thead th{text-align:left;padding:.55rem .75rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:#7a6e5b;border-bottom:1px solid #ebe7dc;background:#faf7f2;font-weight:700}
+  .plan-table td{padding:.6rem .75rem;border-bottom:1px solid #f0ebe0}
+  .plan-table tr:last-child td{border-bottom:none}
+  .plan-table tbody tr:hover{background:#f7f4ed}
+  .niv-quotidien{background:#dde9d2;color:#3a5a35;padding:.1rem .45rem;border-radius:.3rem;font-size:.7rem;font-weight:600}
+  .niv-crise{background:#f5dad4;color:#8c2a1c;padding:.1rem .45rem;border-radius:.3rem;font-size:.7rem;font-weight:600}
+  .creneau-cell{font-family:ui-monospace,Consolas,monospace;font-size:.78rem;color:#5a5040}
+
+  /* ── Timeline ── */
+  .tl-wrap{overflow-x:auto;padding:.5rem 0;background:#faf7f2;border:1px solid #ebe7dc;border-radius:.5rem}
+  .tl{min-width:560px;padding:0 .65rem .65rem}
+  .tl-row{display:flex;align-items:center;border-bottom:1px solid #f0ebe0;min-height:2rem}
+  .tl-row:last-child{border-bottom:none}
+  .tl-label{width:120px;min-width:120px;padding:.2rem .4rem;font-size:.78rem;font-weight:600}
+  .tl-bar-area{flex:1;position:relative;height:2rem}
+  .tl-block{position:absolute;top:3px;bottom:3px;border-radius:.25rem;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:600;color:#fff;overflow:hidden;padding:0 .3rem}
+  .tl-pause{background:#4f7d4a}
+  .tl-remplace{background:#c98410}
+  .tl-header{display:flex;border-bottom:2px solid #d8cdb8;padding-top:.35rem}
+  .tl-hour{font-size:.68rem;font-weight:700;color:#7a6e5b;text-align:center;flex:1}
+
+  /* KPI mini */
+  .kpi-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.65rem;margin-bottom:1rem}
+  .kpi{background:#fff;border:1px solid #ebe7dc;border-left:3px solid var(--module-color-strong);border-radius:.5rem;padding:.7rem .85rem}
+  .kpi-l{font-size:.68rem;color:#7a6e5b;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:.2rem}
+  .kpi-v{font-size:1.45rem;font-weight:700;color:var(--module-color-strong);line-height:1;letter-spacing:-.02em}
+  .kpi-s{font-size:.74rem;color:#5a5040;margin-top:.15rem}
+
+  /* Alertes */
+  .rm-alert{padding:.5rem .75rem;border-radius:.4rem;font-size:.82rem;margin-bottom:.4rem;border:1px solid transparent}
+  .rm-alert.lvl-info{background:#dde9f1;color:#1c4663;border-color:#bdd2e1}
+  .rm-alert.lvl-warning{background:#fbeed1;color:#7a5410;border-color:#ecd49e}
+  .rm-alert.lvl-crise{background:#f5dad4;color:#8c2a1c;border-color:#e7b9ad}
+  .rm-alert.lvl-bloquant{background:#e6e3df;color:#3a3328;border-color:#cbc5bb}
+  .rm-alert i{margin-right:.35rem}
+
+  /* Empty / hidden */
+  .empty-state{text-align:center;padding:2rem 1rem;color:#7a6e5b}
+  .empty-state i{font-size:2rem;display:block;margin-bottom:.5rem;opacity:.5}
+
+  /* Layout helpers */
+  .grid-salles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.65rem;margin-bottom:.85rem}
+  .grid-groupes{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.65rem;margin-bottom:.85rem}
+  .toolbar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:.65rem;background:#fff;border:1px solid #ebe7dc;border-radius:.55rem;padding:.75rem .85rem;margin-bottom:1rem}
+  .toolbar label{font-size:.7rem;font-weight:600;color:#7a6e5b;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.2rem}
+  .toolbar input,.toolbar select{font-size:.85rem;padding:.32rem .55rem;border:1px solid #d8cdb8;border-radius:.35rem;background:#fff}
+  .toolbar .grow{flex:1}
+
+  /* Skip link */
+  .skip-link{position:absolute;left:-9999px}
+  .skip-link:focus{position:static;display:inline-block;padding:.5rem .75rem;background:var(--module-color-strong);color:#fff;z-index:9999}
+
+  .pane{display:none}
+  .pane.active{display:block;animation:fadeIn .25s ease-out}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* Config table */
+  .cfg-table{width:100%;font-size:.82rem;border-collapse:collapse}
+  .cfg-table th{background:#faf7f2;padding:.5rem .65rem;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:#7a6e5b;border-bottom:1px solid #ebe7dc;font-weight:700;position:sticky;top:0}
+  .cfg-table td{padding:.45rem .65rem;border-bottom:1px solid #f0ebe0}
+  .cfg-table tr.row-disabled{opacity:.5;background:#faf7f2}
+  .cfg-table select{font-size:.78rem;padding:.2rem .35rem;border:1px solid #d8cdb8;border-radius:.3rem;background:#fff;min-width:90px}
+  .cfg-scroll{max-height:480px;overflow-y:auto;border:1px solid #ebe7dc;border-radius:.5rem;background:#fff}
+  .cfg-grid{display:grid;grid-template-columns:340px 1fr;gap:1rem;align-items:start}
+  @media (max-width:900px){.cfg-grid{grid-template-columns:1fr}}
+
+  .form-row{display:grid;grid-template-columns:120px 1fr;gap:.5rem;align-items:center;margin-bottom:.55rem;font-size:.83rem}
+  .form-row input{padding:.3rem .5rem;border:1px solid #d8cdb8;border-radius:.3rem;font-size:.82rem;width:100%}
+  .form-row .pair{display:flex;gap:.3rem}
+  .form-row .pair input{flex:1}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#middle">Aller au contenu</a>
+
+<div id="wrapper" class="d-flex flex-column min-vh-100">
+
+  <!-- Mock shell -->
+  <div id="dbm-shell" data-module-slug="rempla-midi" data-module-title="Rempla Midi">
+    <header class="mock-header">
+      <a class="mock-brand" href="portail.html"><i class="bi bi-grid-1x2"></i><span>Des Blocs &amp; Moi</span></a>
+      <a class="mock-back" href="portail.html"><i class="bi bi-chevron-left"></i>Portail</a>
+      <div class="mock-search">
+        <i class="bi bi-search"></i>
+        <input type="search" class="form-control form-control-sm" placeholder="Rechercher…" aria-label="Recherche transverse"/>
+      </div>
+      <div class="mock-userchip"><i class="bi bi-person-circle"></i><span>Camille L.</span></div>
+    </header>
+  </div>
+
+  <main id="middle" class="container-fluid p-3 p-md-4" style="max-width:1280px;margin:0 auto;width:100%">
+
+    <!-- HERO -->
+    <section class="app-zone" data-zone="Page Title">
+      <div class="page-hero">
+        <h1><i class="bi bi-arrow-repeat"></i>Rempla Midi</h1>
+        <p class="lede">Rotation des pauses repas — bloc ortho-neuro. Diagnostic, plan automatique et timeline pour les salles 05, 06, 07 et 08.</p>
+        <div class="hero-meta">
+          <div><b id="heroEffectif">—</b><span>Agents présents</span></div>
+          <div><b id="heroSalles">4</b><span>Salles ouvertes</span></div>
+          <div><b id="heroFenetre">12:00 → 13:00</b><span>Fenêtre nominale</span></div>
+          <div><b id="heroEtat">À diagnostiquer</b><span>État prévu</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIAGNOSTIC BANNER -->
+    <div id="diagBanner" class="diag-banner" style="display:none">
+      <i class="bi diag-ic"></i>
+      <div><div class="diag-label" id="diagLabel"></div><div class="diag-detail" id="diagDetail"></div></div>
+    </div>
+
+    <!-- TABS -->
+    <section class="app-zone" data-zone="Navigation">
+      <div class="rm-tabs" role="tablist">
+        <button class="rm-tab active" data-tab="effectif"><i class="bi bi-people"></i>Effectif</button>
+        <button class="rm-tab" data-tab="plan"><i class="bi bi-calendar-check"></i>Plan</button>
+        <button class="rm-tab" data-tab="timeline"><i class="bi bi-bar-chart-steps"></i>Timeline</button>
+        <button class="rm-tab" data-tab="config"><i class="bi bi-gear"></i>Config</button>
+        <button class="rm-tab" data-tab="affinites"><i class="bi bi-person-x"></i>Affinités</button>
+      </div>
+    </section>
+
+    <!-- ===== EFFECTIF ===== -->
+    <div class="pane active" data-pane="effectif">
+      <section class="app-zone" data-zone="Toolbar">
+        <div class="toolbar">
+          <div><label>Date</label><input type="date" id="inputDate"/></div>
+          <div><label>Préset</label>
+            <select id="presetEffectif">
+              <option value="confortable">Confortable (2 couloirs + 2 soir)</option>
+              <option value="nominal" selected>Nominal (1 couloir + 2 soir)</option>
+              <option value="tendu">Tendu (1 couloir, 0 soir)</option>
+              <option value="critique">Critique (0 couloir, 1 soir)</option>
+            </select>
+          </div>
+          <div class="grow"></div>
+          <button class="btn-universe-outline" id="btnDiag"><i class="bi bi-lightning"></i>Diagnostic</button>
+          <button class="btn-universe" id="btnCalcAuto"><i class="bi bi-cpu"></i>Calcul auto</button>
+        </div>
+      </section>
+
+      <section class="app-zone" data-zone="Salles">
+        <div class="grid-salles" id="grSalles"></div>
+      </section>
+
+      <section class="app-zone" data-zone="Hors salle">
+        <div class="grid-groupes" id="grGroupes"></div>
+      </section>
+    </div>
+
+    <!-- ===== PLAN ===== -->
+    <div class="pane" data-pane="plan">
+      <section class="app-zone" data-zone="Plan">
+        <div id="planEmpty" class="empty-state rm-card"><i class="bi bi-calendar-x"></i>Cliquer <strong>Calcul auto</strong> dans l'onglet Effectif pour générer le plan.</div>
+        <div id="planResult" style="display:none">
+          <div class="kpi-strip" id="planKpis"></div>
+          <div class="rm-card">
+            <div class="rm-card-h"><i class="bi bi-list-ol"></i>Mouvements de rotation</div>
+            <div style="overflow-x:auto">
+              <table class="plan-table"><thead><tr><th>#</th><th>Créneau</th><th>Pause</th><th>Salle</th><th>Poste</th><th>Remplaçant</th><th>Niv.</th></tr></thead><tbody id="planBody"></tbody></table>
+            </div>
+          </div>
+          <div id="planAlertes" style="margin-top:1rem"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== TIMELINE ===== -->
+    <div class="pane" data-pane="timeline">
+      <section class="app-zone" data-zone="Timeline">
+        <div id="tlEmpty" class="empty-state rm-card"><i class="bi bi-bar-chart-steps"></i>Calculer un plan pour voir la timeline.</div>
+        <div id="tlContent" style="display:none">
+          <div style="display:flex;gap:1rem;font-size:.78rem;color:#5a5040;margin-bottom:.5rem;flex-wrap:wrap">
+            <span><span style="display:inline-block;width:14px;height:10px;background:#4f7d4a;border-radius:2px;margin-right:.3rem"></span>Pause repas</span>
+            <span><span style="display:inline-block;width:14px;height:10px;background:#c98410;border-radius:2px;margin-right:.3rem"></span>Remplacement</span>
+          </div>
+          <div class="tl-wrap"><div class="tl" id="tlInner"></div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== CONFIG ===== -->
+    <div class="pane" data-pane="config">
+      <section class="app-zone" data-zone="Configuration">
+        <div class="cfg-grid">
+          <div>
+            <div class="rm-card" style="margin-bottom:.85rem">
+              <div class="rm-card-h"><i class="bi bi-sliders2"></i>Paramètres créneau</div>
+              <div class="rm-card-b">
+                <div class="form-row"><label>Pause (min)</label><input type="number" id="cfgDureePause" value="30" min="15" max="60" step="5"/></div>
+                <div class="form-row"><label>Nominal</label><div class="pair"><input type="time" id="cfgNomDebut" value="12:00"/><input type="time" id="cfgNomFin" value="13:00"/></div></div>
+                <div class="form-row"><label>Dégradé max</label><div class="pair"><input type="time" id="cfgDegDebut" value="11:30"/><input type="time" id="cfgDegFin" value="13:30"/></div></div>
+              </div>
+            </div>
+            <div class="rm-card">
+              <div class="rm-card-h"><i class="bi bi-heart-pulse"></i>Chirurgiens (<span id="ctChir">0</span>)</div>
+              <div class="cfg-scroll" style="max-height:240px;border-radius:0;border-left:0;border-right:0;border-bottom:0">
+                <table class="cfg-table"><thead><tr><th>Nom</th><th>Spécialité</th></tr></thead><tbody id="chirBody"></tbody></table>
+              </div>
+            </div>
+          </div>
+          <div class="rm-card">
+            <div class="rm-card-h"><i class="bi bi-person-badge"></i>Membres IDE / IBODE (<span id="ctAg">0</span>)</div>
+            <div class="cfg-scroll" style="border-radius:0;border-left:0;border-right:0;border-bottom:0">
+              <table class="cfg-table"><thead><tr><th>Nom</th><th>Rôle bloc</th><th>Cat. déf.</th><th>Pref. repas</th><th style="text-align:center">Comp.</th><th style="text-align:center">Actif</th></tr></thead><tbody id="agBody"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== AFFINITES ===== -->
+    <div class="pane" data-pane="affinites">
+      <section class="app-zone" data-zone="Affinites">
+        <p style="color:#7a6e5b;font-size:.85rem">Préférences et incompatibilités prises en compte par le moteur en mode <strong>crise</strong> uniquement (affectations exceptionnelles).</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="rm-card">
+            <div class="rm-card-h"><i class="bi bi-person-x"></i>Chirurgien → IDE (refus / accord)</div>
+            <div class="cfg-scroll" style="max-height:280px;border-radius:0;border:0">
+              <table class="cfg-table"><thead><tr><th>Chirurgien</th><th>IDE</th><th>Avis</th></tr></thead><tbody id="affChirBody"></tbody></table>
+            </div>
+          </div>
+          <div class="rm-card">
+            <div class="rm-card-h"><i class="bi bi-emoji-frown"></i>IDE → Chirurgien (préférence)</div>
+            <div class="cfg-scroll" style="max-height:280px;border-radius:0;border:0">
+              <table class="cfg-table"><thead><tr><th>IDE</th><th>Chirurgien</th><th>Avis</th></tr></thead><tbody id="affIdeBody"></tbody></table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <footer style="padding:1rem;border-top:1px solid #ebe7dc;text-align:center;color:#7a6e5b;font-size:.78rem;background:#fff">
+    &copy; 2026 Des Blocs &amp; Moi · Module Rempla Midi (POC v3) · <span style="background:#dde9d2;color:#3a5a35;padding:.1rem .45rem;border-radius:.3rem;font-weight:600;font-size:.7rem">CDS Compliant</span>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/rotation-engine.js"></script>
+<script>
+/* ============ Demo data (référentiels mock) ============ */
+const AGENTS = [
+  {id:'a1', nomCourt:'Marie',   nom:'Marie Lefèvre',  roleBloc:'instru',         categDefaut:'journee', prefRepas:'tot',         desactive:false},
+  {id:'a2', nomCourt:'Julie',   nom:'Julie Bernard',  roleBloc:'instru',         categDefaut:'12h',     prefRepas:'indifferent', desactive:false},
+  {id:'a3', nomCourt:'Isa',     nom:'Isabelle Petit', roleBloc:'panseur_crise',  categDefaut:'journee', prefRepas:'tard',        desactive:false},
+  {id:'a4', nomCourt:'Thomas',  nom:'Thomas Roux',    roleBloc:'panseur',        categDefaut:'journee', prefRepas:'indifferent', desactive:false},
+  {id:'a5', nomCourt:'Sabine',  nom:'Sabine Durand',  roleBloc:'instru',         categDefaut:'matin',   prefRepas:'indifferent', desactive:false},
+  {id:'a6', nomCourt:'Hugo',    nom:'Hugo Mercier',   roleBloc:'panseur',        categDefaut:'journee', prefRepas:'indifferent', desactive:false},
+  {id:'a7', nomCourt:'Léa',     nom:'Léa Dubois',     roleBloc:'panseur_crise',  categDefaut:'12h',     prefRepas:'tot',         desactive:false},
+  {id:'a8', nomCourt:'Antoine', nom:'Antoine Caron',  roleBloc:'instru',         categDefaut:'soir',    prefRepas:'indifferent', desactive:false},
+  {id:'a9', nomCourt:'Nadia',   nom:'Nadia Berger',   roleBloc:'panseur',        categDefaut:'soir',    prefRepas:'indifferent', desactive:false},
+  {id:'a10',nomCourt:'Camille', nom:'Camille Lacroix',roleBloc:'panseur_crise',  categDefaut:'couloir', prefRepas:'indifferent', desactive:false},
+  {id:'a11',nomCourt:'Yann',    nom:'Yann Fournier',  roleBloc:'instru',         categDefaut:'couloir', prefRepas:'indifferent', desactive:false},
+  {id:'a12',nomCourt:'Eva',     nom:'Eva Marchand',   roleBloc:'panseur',        categDefaut:'12h',     prefRepas:'tard',        desactive:true}
+];
+const CHIRURGIENS = [
+  {id:'c1', nom:'Dr Dupont',   spe:'Hanche'},
+  {id:'c2', nom:'Dr Martin',   spe:'Genou'},
+  {id:'c3', nom:'Pr Chenieux', spe:'Rachis'},
+  {id:'c4', nom:'Dr Vasseur',  spe:'Épaule'}
+];
+const AFF_CHIR = [
+  {chirId:'c2', agentId:'a3', avis:'non'},
+  {chirId:'c3', agentId:'a7', avis:'ok'}
+];
+const AFF_IDE  = [
+  {agentId:'a4', chirId:'c2', avis:'non'}
+];
+
+/* ============ État ============ */
+const competences = {};
+function applyComp(a){
+  if(a.roleBloc==='instru')        competences[a.id]={instru:'quotidien',circu:'quotidien'};
+  else if(a.roleBloc==='panseur_crise') competences[a.id]={instru:'crise',circu:'quotidien'};
+  else                              competences[a.id]={instru:'interdit',circu:'quotidien'};
+}
+AGENTS.forEach(applyComp);
+
+const config = {
+  dureePause:30,
+  creneauNominal:{debut:'12:00',fin:'13:00'},
+  creneauDegrade:{debut:'11:30',fin:'13:30'}
+};
+
+const PRESETS = {
+  confortable: {
+    salles: [
+      {id:'05', occupee:true, chirurgienId:'c1', instru:'a1', circu:'a4'},
+      {id:'06', occupee:true, chirurgienId:'c2', instru:'a2', circu:'a6'},
+      {id:'07', occupee:true, chirurgienId:'c3', instru:'a5', circu:'a7'},
+      {id:'08', occupee:true, chirurgienId:'c4', instru:'a3', circu:'a12'}
+    ],
+    horsSalle: [
+      {agentId:'a8', categorie:'soir'},
+      {agentId:'a9', categorie:'soir'},
+      {agentId:'a10', categorie:'couloir'},
+      {agentId:'a11', categorie:'couloir'}
+    ]
+  },
+  nominal: {
+    salles: [
+      {id:'05', occupee:true, chirurgienId:'c1', instru:'a1', circu:'a4'},
+      {id:'06', occupee:true, chirurgienId:'c2', instru:'a2', circu:'a6'},
+      {id:'07', occupee:true, chirurgienId:'c3', instru:'a5', circu:'a7'},
+      {id:'08', occupee:true, chirurgienId:'c4', instru:'a3', circu:'a12'}
+    ],
+    horsSalle: [
+      {agentId:'a8', categorie:'soir'},
+      {agentId:'a9', categorie:'soir'},
+      {agentId:'a10', categorie:'couloir'}
+    ]
+  },
+  tendu: {
+    salles: [
+      {id:'05', occupee:true, chirurgienId:'c1', instru:'a1', circu:'a4'},
+      {id:'06', occupee:true, chirurgienId:'c2', instru:'a2', circu:'a6'},
+      {id:'07', occupee:true, chirurgienId:'c3', instru:'a5', circu:'a7'},
+      {id:'08', occupee:true, chirurgienId:'c4', instru:'a3', circu:'a12'}
+    ],
+    horsSalle: [
+      {agentId:'a10', categorie:'couloir'}
+    ]
+  },
+  critique: {
+    salles: [
+      {id:'05', occupee:true, chirurgienId:'c1', instru:'a1', circu:'a4'},
+      {id:'06', occupee:true, chirurgienId:'c2', instru:'a2', circu:'a6'},
+      {id:'07', occupee:true, chirurgienId:'c3', instru:'a5', circu:'a7'},
+      {id:'08', occupee:true, chirurgienId:'c4', instru:'a3', circu:'a12'}
+    ],
+    horsSalle: [
+      {agentId:'a8', categorie:'soir'}
+    ]
+  }
+};
+
+let effectifJour = null;
+function loadPreset(key){
+  const p = PRESETS[key];
+  effectifJour = {
+    salles: p.salles.map(s=>({id:s.id, occupee:s.occupee, chirurgienId:s.chirurgienId})),
+    agents: []
+  };
+  // En salle
+  p.salles.forEach(s=>{
+    ['instru','circu'].forEach(poste=>{
+      const aid = s[poste]; if(!aid) return;
+      const ag = AGENTS.find(x=>x.id===aid); if(!ag||ag.desactive) return;
+      effectifJour.agents.push({
+        id:ag.id, nom:ag.nomCourt, categorie:ag.categDefaut, salle:s.id, poste,
+        competences:competences[ag.id], preferenceCreneau:ag.prefRepas
+      });
+    });
+  });
+  // Hors salle
+  p.horsSalle.forEach(h=>{
+    const ag = AGENTS.find(x=>x.id===h.agentId); if(!ag||ag.desactive) return;
+    effectifJour.agents.push({
+      id:ag.id, nom:ag.nomCourt, categorie:h.categorie, salle:null, poste:null,
+      competences:competences[ag.id], preferenceCreneau:ag.prefRepas
+    });
+  });
+}
+
+/* ============ Helpers ============ */
+const $ = (s,p=document)=>p.querySelector(s);
+const $$ = (s,p=document)=>[...p.querySelectorAll(s)];
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const ETAT_LABELS = {confortable:'Confortable', quotidien:'Quotidien', degrade_leger:'Dégradé léger', degrade_complet:'Dégradé complet', crise:'Crise', bloque:'Bloqué'};
+const ETAT_ICONS  = {confortable:'check-circle-fill', quotidien:'check-circle-fill', degrade_leger:'exclamation-triangle-fill', degrade_complet:'exclamation-triangle-fill', crise:'x-octagon-fill', bloque:'slash-circle-fill'};
+
+/* ============ Render ============ */
+function renderSalles(){
+  const c = $('#grSalles'); c.innerHTML = '';
+  effectifJour.salles.forEach(s=>{
+    const ins = effectifJour.agents.find(a=>a.salle===s.id&&a.poste==='instru');
+    const cir = effectifJour.agents.find(a=>a.salle===s.id&&a.poste==='circu');
+    const chir = CHIRURGIENS.find(x=>x.id===s.chirurgienId);
+    const cls = (!ins||!cir) ? 'salle-danger' : 'salle-ok';
+    c.innerHTML += `
+      <div class="rm-card salle-card ${cls}">
+        <div class="rm-card-h"><i class="bi bi-door-open"></i>Salle ${esc(s.id)}</div>
+        <div class="rm-card-b">
+          <div class="slot-label">Chirurgien</div>
+          <div style="font-size:.85rem">${chir?esc(chir.nom):'<span style="color:#7a6e5b">—</span>'}</div>
+          <div class="slot-label">Instru</div>
+          <div>${ins?`<span class="agent-badge cat-${esc(ins.categorie)}"><i class="bi bi-person-fill"></i>${esc(ins.nom)}</span>`:'<span style="color:#b3372a;font-size:.78rem">vacant</span>'}</div>
+          <div class="slot-label">Circulant</div>
+          <div>${cir?`<span class="agent-badge cat-${esc(cir.categorie)}"><i class="bi bi-person-fill"></i>${esc(cir.nom)}</span>`:'<span style="color:#b3372a;font-size:.78rem">vacant</span>'}</div>
+        </div>
+      </div>`;
+  });
+}
+
+function renderGroupes(){
+  const hors = effectifJour.agents.filter(a=>!a.salle);
+  const couloirs = hors.filter(a=>a.categorie==='couloir');
+  const soirs = hors.filter(a=>a.categorie==='soir');
+  const autres = hors.filter(a=>a.categorie!=='couloir' && a.categorie!=='soir');
+  const renderG = (title,icon,cls,arr,empty)=>`
+    <div class="rm-card group-card ${cls}">
+      <div class="rm-card-h"><i class="bi ${icon}"></i>${esc(title)}<span class="group-count">${arr.length}</span></div>
+      <div class="rm-card-b">
+        ${arr.length?`<div style="display:flex;flex-wrap:wrap;gap:.3rem">${arr.map(a=>`<span class="agent-badge cat-${esc(a.categorie)}"><i class="bi bi-person-fill"></i>${esc(a.nom)}</span>`).join('')}</div>`:`<div style="color:#7a6e5b;font-size:.78rem;font-style:italic">${esc(empty)}</div>`}
+      </div>
+    </div>`;
+  $('#grGroupes').innerHTML =
+    renderG('Couloir','bi-signpost-split','gc-couloir',couloirs,'Aucun couloir — variable d\u2019ajustement absente') +
+    renderG('Soir (a déjà mangé)','bi-moon','gc-soir',soirs,'Aucun agent soir disponible') +
+    renderG('Autres remplaçants','bi-people','gc-autres',autres,'—');
+}
+
+function renderHero(diag){
+  $('#heroEffectif').textContent = effectifJour.agents.length;
+  $('#heroFenetre').textContent = config.creneauNominal.debut+' → '+config.creneauNominal.fin;
+  if(diag) $('#heroEtat').textContent = ETAT_LABELS[diag.etatPrevu]||diag.etatPrevu;
+}
+
+function renderDiagBanner(diag){
+  const b = $('#diagBanner');
+  b.style.display = 'flex';
+  b.className = 'diag-banner diag-'+diag.etatPrevu;
+  b.querySelector('.diag-ic').className = 'bi diag-ic bi-'+(ETAT_ICONS[diag.etatPrevu]||'question-circle');
+  $('#diagLabel').textContent = ETAT_LABELS[diag.etatPrevu]||diag.etatPrevu;
+  $('#diagDetail').textContent = `${diag.nbAgentsANourrir} à nourrir · ${diag.nbRemplacants12h} remplaçants · ${diag.nbCouloirs} couloir(s) · ${diag.nbSoir} soir`;
+}
+
+function renderPlan(plan){
+  $('#planEmpty').style.display='none';
+  $('#planResult').style.display='block';
+  // KPIs
+  $('#planKpis').innerHTML = [
+    {l:'État',v:ETAT_LABELS[plan.etatResultant]||plan.etatResultant,s:plan.fenetreDebut+' → '+plan.fenetreFin},
+    {l:'Mouvements',v:plan.mouvements.length,s:'rotations programmées'},
+    {l:'Affect. crise',v:plan.nbAffectationsCrise,s:plan.nbAffectationsCrise>0?'tracées et signalées':'aucune'},
+    {l:'Alertes',v:plan.alertes.length,s:plan.alertes.filter(a=>a.severite==='crise'||a.severite==='bloquant').length+' bloquantes'}
+  ].map(k=>`<div class="kpi"><div class="kpi-l">${esc(k.l)}</div><div class="kpi-v">${esc(k.v)}</div><div class="kpi-s">${esc(k.s)}</div></div>`).join('');
+  // Body
+  $('#planBody').innerHTML = plan.mouvements.length===0
+    ? '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#7a6e5b">Aucun mouvement — voir alertes</td></tr>'
+    : plan.mouvements.map((m,i)=>`<tr>
+        <td style="color:#7a6e5b;font-weight:600">${i+1}</td>
+        <td class="creneau-cell">${esc(m.creneauDebut)} → ${esc(m.creneauFin)}</td>
+        <td><strong>${esc(m.agentPauseNom)}</strong></td>
+        <td><span class="agent-badge" style="background:#f4efe6">S${esc(m.salle)}</span></td>
+        <td style="text-transform:capitalize">${esc(m.poste)}</td>
+        <td>${esc(m.remplacantNom)}</td>
+        <td><span class="niv-${esc(m.niveau)}">${esc(m.niveau)}</span></td>
+      </tr>`).join('');
+  // Alertes
+  $('#planAlertes').innerHTML = plan.alertes.length===0
+    ? '<div class="rm-alert lvl-info"><i class="bi bi-check-circle-fill"></i>Aucune alerte — plan conforme.</div>'
+    : plan.alertes.map(a=>{
+        const lvl = a.severite==='bloquant'?'bloquant':a.severite==='crise'?'crise':a.severite==='warning'?'warning':'info';
+        const ic = lvl==='bloquant'?'slash-circle-fill':lvl==='crise'?'x-octagon-fill':lvl==='warning'?'exclamation-triangle-fill':'info-circle-fill';
+        return `<div class="rm-alert lvl-${lvl}"><i class="bi bi-${ic}"></i>${esc(a.message)}</div>`;
+      }).join('');
+}
+
+function renderTimeline(plan){
+  if(!plan || plan.mouvements.length===0){
+    $('#tlEmpty').style.display='block'; $('#tlContent').style.display='none'; return;
+  }
+  $('#tlEmpty').style.display='none'; $('#tlContent').style.display='block';
+  const d = RotationEngine.parseTime(plan.fenetreDebut), f = RotationEngine.parseTime(plan.fenetreFin), T = f-d;
+  const ids = new Set();
+  plan.mouvements.forEach(m=>{ids.add(m.agentPauseId); ids.add(m.remplacantId);});
+  const am = {}; effectifJour.agents.forEach(a=>am[a.id]=a);
+  let h = '<div class="tl-header"><div class="tl-label" style="border:0"></div><div class="tl-bar-area" style="display:flex">';
+  for(let t=d;t<=f;t+=30) h += `<div class="tl-hour">${RotationEngine.formatTime(t)}</div>`;
+  h += '</div></div>';
+  [...ids].forEach(id=>{
+    const ag = am[id];
+    h += `<div class="tl-row"><div class="tl-label">${esc(ag?ag.nom:'?')}</div><div class="tl-bar-area">`;
+    plan.mouvements.forEach(m=>{
+      const md = RotationEngine.parseTime(m.creneauDebut), mf = RotationEngine.parseTime(m.creneauFin);
+      const l = ((md-d)/T*100).toFixed(1), w = ((mf-md)/T*100).toFixed(1);
+      if(m.agentPauseId===id) h += `<div class="tl-block tl-pause" style="left:${l}%;width:${w}%">Pause</div>`;
+      if(m.remplacantId===id) h += `<div class="tl-block tl-remplace" style="left:${l}%;width:${w}%">S${esc(m.salle)} ${esc(m.poste)}</div>`;
+    });
+    h += '</div></div>';
+  });
+  $('#tlInner').innerHTML = h;
+}
+
+function renderConfig(){
+  $('#ctAg').textContent = AGENTS.filter(a=>!a.desactive).length+' / '+AGENTS.length;
+  $('#ctChir').textContent = CHIRURGIENS.length;
+  const roles = {panseur:'Panseur', instru:'Instru', panseur_crise:'Panseur + crise'};
+  $('#agBody').innerHTML = AGENTS.map(a=>{
+    const c = competences[a.id]||{};
+    const compTxt = (c.instru==='quotidien'?'I':c.instru==='crise'?'i':'·')+' / '+(c.circu==='quotidien'?'C':'·');
+    const rc = a.desactive?' class="row-disabled"':'';
+    return `<tr${rc}><td><strong>${esc(a.nomCourt)}</strong><div style="font-size:.7rem;color:#7a6e5b">${esc(a.nom)}</div></td>
+      <td>${esc(roles[a.roleBloc])}</td>
+      <td style="text-transform:capitalize">${esc(a.categDefaut)}</td>
+      <td>${esc(a.prefRepas)}</td>
+      <td style="text-align:center"><span style="background:#faf7f2;border:1px solid #ebe7dc;padding:.1rem .35rem;border-radius:.3rem;font-family:monospace;font-size:.72rem">${esc(compTxt)}</span></td>
+      <td style="text-align:center"><input type="checkbox" ${a.desactive?'':'checked'} disabled/></td></tr>`;
+  }).join('');
+  $('#chirBody').innerHTML = CHIRURGIENS.map(c=>`<tr><td><strong>${esc(c.nom)}</strong></td><td>${esc(c.spe)}</td></tr>`).join('');
+}
+
+function renderAffinites(){
+  $('#affChirBody').innerHTML = AFF_CHIR.length===0?'<tr><td colspan="3" style="color:#7a6e5b;text-align:center;padding:1rem">Aucune affinité saisie</td></tr>':AFF_CHIR.map(x=>{
+    const ch = CHIRURGIENS.find(c=>c.id===x.chirId), ag=AGENTS.find(a=>a.id===x.agentId);
+    return `<tr><td>${esc(ch?ch.nom:'?')}</td><td>${esc(ag?ag.nomCourt:'?')}</td>
+      <td><span class="${x.avis==='non'?'niv-crise':'niv-quotidien'}">${x.avis==='non'?'Refuse':'Accepte'}</span></td></tr>`;
+  }).join('');
+  $('#affIdeBody').innerHTML = AFF_IDE.length===0?'<tr><td colspan="3" style="color:#7a6e5b;text-align:center;padding:1rem">Aucune affinité saisie</td></tr>':AFF_IDE.map(x=>{
+    const ag=AGENTS.find(a=>a.id===x.agentId), ch=CHIRURGIENS.find(c=>c.id===x.chirId);
+    return `<tr><td>${esc(ag?ag.nomCourt:'?')}</td><td>${esc(ch?ch.nom:'?')}</td>
+      <td><span class="${x.avis==='non'?'niv-crise':'niv-quotidien'}">${x.avis==='non'?'N\u2019aime pas':'OK'}</span></td></tr>`;
+  }).join('');
+}
+
+/* ============ Actions ============ */
+function syncConfig(){
+  config.dureePause = parseInt($('#cfgDureePause').value,10)||30;
+  config.creneauNominal.debut = $('#cfgNomDebut').value||'12:00';
+  config.creneauNominal.fin   = $('#cfgNomFin').value||'13:00';
+  config.creneauDegrade.debut = $('#cfgDegDebut').value||'11:30';
+  config.creneauDegrade.fin   = $('#cfgDegFin').value||'13:30';
+}
+
+function lancerDiag(){
+  syncConfig();
+  const diag = RotationEngine.diagnostiquer(effectifJour, config);
+  renderDiagBanner(diag); renderHero(diag);
+}
+
+function lancerCalc(){
+  syncConfig();
+  const prefCrise = AFF_CHIR.map(x=>({chirurgienId:x.chirId, agentId:x.agentId, poste:'instru', accepte:x.avis==='ok'}));
+  const plan = RotationEngine.calculerPlan(effectifJour, config, competences, prefCrise);
+  renderDiagBanner(plan.diagnostic); renderHero(plan.diagnostic);
+  renderPlan(plan); renderTimeline(plan);
+  switchTab('plan');
+}
+
+function switchTab(name){
+  $$('.rm-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  $$('.pane').forEach(p=>p.classList.toggle('active', p.dataset.pane===name));
+}
+
+/* ============ Init ============ */
+document.addEventListener('DOMContentLoaded', ()=>{
+  $('#inputDate').value = new Date().toISOString().split('T')[0];
+  loadPreset('nominal');
+  renderSalles(); renderGroupes(); renderConfig(); renderAffinites();
+  renderHero(null);
+
+  // Tabs
+  $$('.rm-tab').forEach(t=>t.addEventListener('click', ()=>switchTab(t.dataset.tab)));
+
+  // Preset switch
+  $('#presetEffectif').addEventListener('change', e=>{
+    loadPreset(e.target.value);
+    renderSalles(); renderGroupes(); renderHero(null);
+    $('#diagBanner').style.display = 'none';
+    $('#planEmpty').style.display='block'; $('#planResult').style.display='none';
+    $('#tlEmpty').style.display='block'; $('#tlContent').style.display='none';
+    $('#heroEtat').textContent = 'À diagnostiquer';
+  });
+
+  $('#btnDiag').addEventListener('click', lancerDiag);
+  $('#btnCalcAuto').addEventListener('click', lancerCalc);
+
+  // Auto-diagnostic au chargement
+  setTimeout(lancerDiag, 80);
+});
+</script>
+</body>
+</html>

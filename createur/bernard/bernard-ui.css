@@ -1,0 +1,155 @@
+/* ================================================================
+   bernard-ui.css — Styles scopes module Bernard (L3 Creator)
+   Version 2.0.0 — 2026-04-24
+   Convention : prefixe .bernard-* pour isolation CDS
+   Classes generiques bo-* dans cds-overrides.css (pas ici)
+   Pas de @import, pas de Google Fonts (INTERDIT-CDS-03)
+   Pas de Font Awesome (INTERDIT-CDS-04)
+   ================================================================ */
+
+/* --- KPIs -------------------------------------------------------- */
+.bernard-kpi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--bs-emphasis-color, #212529);
+}
+.bernard-kpi-label {
+  font-size: .75rem;
+  color: var(--bs-secondary-color, #6c757d);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+/* --- Fiches cards ------------------------------------------------ */
+.bernard-fiche-card {
+  cursor: pointer;
+  transition: box-shadow .15s, border-color .15s;
+}
+.bernard-fiche-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  border-color: var(--bs-primary, #0d6efd);
+}
+
+/* --- Ref badges jurisprudence ------------------------------------ */
+.bernard-ref-badge {
+  font-size: .65rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: .15rem;
+}
+.bernard-desc-truncate {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* --- Cotation strip (vue liste compacte) ------------------------- */
+.bernard-cot-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: .25rem;
+}
+.bernard-cot-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: .7rem;
+  border-radius: .2rem;
+  cursor: default;
+}
+
+/* --- Cotation grid (vue detail offcanvas) ------------------------ */
+.bernard-axe-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--bs-emphasis-color, #212529);
+  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+  padding-bottom: .25rem;
+}
+
+.bernard-cot-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.bernard-cot-row {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  padding: .35rem .5rem;
+  border-radius: .25rem;
+  font-size: .8rem;
+  line-height: 1.4;
+}
+
+.bernard-cot-sym {
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+  font-size: .85rem;
+}
+
+.bernard-cot-item {
+  flex-shrink: 0;
+  width: 8.5rem;
+  font-weight: 600;
+  color: var(--bs-body-color, #212529);
+}
+
+.bernard-cot-text {
+  flex: 1;
+  color: var(--bs-secondary-color, #6c757d);
+}
+
+/* --- Couleurs de fond par cotation ------------------------------- */
+.bernard-cot-servi  { background-color: rgba(22, 163, 74, .08); }
+.bernard-cot-expose { background-color: rgba(234, 179, 8, .1); }
+.bernard-cot-lese   { background-color: rgba(220, 38, 38, .06); }
+.bernard-cot-nc     { background-color: transparent; }
+.bernard-cot-inconnu { background-color: rgba(107, 114, 128, .06); }
+.bernard-cot-simu   { background-color: rgba(59, 130, 246, .06); }
+
+/* --- Spirale tags ------------------------------------------------ */
+.bernard-spirale-tag {
+  display: inline-block;
+  padding: .05rem .4rem;
+  border-radius: .25rem;
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.bernard-spirale-tag[data-spirale="violet"] { background: rgba(124,58,237,.12); color: #7c3aed; }
+.bernard-spirale-tag[data-spirale="bleu"]   { background: rgba(37,99,235,.1);   color: #2563eb; }
+.bernard-spirale-tag[data-spirale="orange"] { background: rgba(234,88,12,.1);   color: #ea580c; }
+.bernard-spirale-tag[data-spirale="vert"]   { background: rgba(22,163,74,.1);   color: #16a34a; }
+.bernard-spirale-tag[data-spirale="jaune"]  { background: rgba(202,138,4,.12);  color: #ca8a04; }
+
+/* --- Blocs texte signature --------------------------------------- */
+.bernard-block-text {
+  background: var(--bs-light-bg-subtle, #f8f9fa);
+  border-left: 3px solid var(--bs-border-color, #dee2e6);
+  padding: .5rem .75rem;
+  font-size: .8rem;
+  line-height: 1.5;
+  color: var(--bs-body-color, #212529);
+  border-radius: 0 .25rem .25rem 0;
+}
+
+/* --- Filtre selects compacts ------------------------------------- */
+.bernard-filter-select {
+  max-width: 10rem;
+}
+
+/* --- Responsive -------------------------------------------------- */
+@media (max-width: 575.98px) {
+  .bernard-cot-item { width: 5.5rem; font-size: .7rem; }
+  .bernard-cot-text { font-size: .7rem; }
+  .bernard-kpi-value { font-size: 1.2rem; }
+  .bernard-filter-select { max-width: 100%; }
+}

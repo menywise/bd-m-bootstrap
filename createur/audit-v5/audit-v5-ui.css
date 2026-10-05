@@ -1,0 +1,132 @@
+/* Audit V5 — Dashboard L3 styles */
+
+.audit-v5-body {
+  background: var(--bs-body-bg, #f8f9fa);
+  min-height: 100vh;
+  font-size: .9rem;
+}
+
+.audit-v5-header {
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+
+.audit-v5-footer {
+  margin-top: 2rem;
+  background: white;
+}
+
+.audit-toolbar {
+  background: white;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .5rem;
+  padding: .75rem 1rem;
+}
+
+/* Stats cards */
+.stat-ok { border-left: 3px solid #86efac; }
+.stat-ko { border-left: 3px solid #fca5a5; }
+.stat-na { border-left: 3px solid #cbd5e1; }
+
+/* Criticite badges (palette pastel) */
+.criticite-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .35rem .75rem;
+  border-radius: .375rem;
+  font-size: .85rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+.crit-P0 { background: #fca5a5; color: #7f1d1d; border-color: #f87171; }
+.crit-P1 { background: #fdba74; color: #7c2d12; border-color: #fb923c; }
+.crit-P2 { background: #fcd34d; color: #78350f; border-color: #fbbf24; }
+.crit-P3 { background: #cbd5e1; color: #1e293b; border-color: #94a3b8; }
+
+.crit-badge {
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: .25rem;
+  font-size: .7rem;
+  font-weight: 700;
+}
+
+/* Statut badges */
+.statut-badge {
+  display: inline-block;
+  padding: .15rem .5rem;
+  border-radius: .25rem;
+  font-size: .7rem;
+  font-weight: 700;
+}
+.statut-OK   { background: #86efac; color: #14532d; }
+.statut-KO   { background: #fca5a5; color: #7f1d1d; }
+.statut-NA   { background: #e2e8f0; color: #475569; }
+.statut-SKIP { background: #fef3c7; color: #78350f; }
+
+/* Lignes du tableau */
+.row-OK   { background: rgba(134, 239, 172, .08); }
+.row-KO   { background: rgba(252, 165, 165, .12); }
+.row-NA   { background: rgba(226, 232, 240, .15); }
+.row-SKIP { background: rgba(254, 243, 199, .15); }
+
+.audit-results-table {
+  font-size: .8rem;
+}
+.audit-results-table th {
+  font-size: .75rem;
+  text-transform: uppercase;
+  color: var(--bs-secondary);
+  font-weight: 600;
+}
+.audit-results-table td {
+  vertical-align: middle;
+}
+.audit-results-table code {
+  font-size: .75rem;
+  color: var(--bs-emphasis-color);
+}
+
+/* Famille bar chart */
+.famille-bar {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .8rem;
+}
+.famille-label {
+  min-width: 40px;
+  font-weight: 600;
+  font-family: monospace;
+}
+.famille-bar-track {
+  flex: 1;
+  height: 20px;
+  background: #f1f5f9;
+  border-radius: .25rem;
+  overflow: hidden;
+}
+.famille-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #fdba74 0%, #fb923c 100%);
+  border-radius: .25rem;
+  transition: width .3s ease;
+}
+.famille-count {
+  min-width: 30px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--bs-secondary);
+}
+
+/* App-empty state */
+.app-empty {
+  background: var(--bs-body-bg);
+  border: 1px dashed var(--bs-border-color);
+  border-radius: .5rem;
+  padding: 2rem;
+}

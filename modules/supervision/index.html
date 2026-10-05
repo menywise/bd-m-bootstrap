@@ -1,761 +1,107 @@
 <!DOCTYPE html>
-<html lang="fr" data-bs-theme="light">
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui | Theme: DBM -->
+<html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Supervision — BDB</title>
-<!-- 1. Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-<!-- 2. Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
-<!-- 3. CDS tokens — remplacer @latest par tag fixe avant déploiement OVH (BLOC D.2) -->
-<link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
-<!-- 4. CDS print -->
-<link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
-<!-- 5. CDS overrides globaux -->
-<link href="../../css/cds-overrides.css" rel="stylesheet"/>
-<!-- 6. CSS module -->
-<link href="supervision-ui.css" rel="stylesheet"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>Supervision — Des Blocs &amp; Moi</title>
+
+  <!-- BLOC E CSS : Bootstrap + DBM theme (pas theme-base, pas cds-overrides) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+
+  <!-- CONV-MODAL-08 : cascade variables couleur module sur :root -->
+  <style>
+    :root {
+      --module-color: #cbd5e1;
+      --module-color-strong: #94a3b8;
+      --module-color-text: #1e293b;
+      --module-color-soft: rgba(203, 213, 225, 0.20);
+    }
+  </style>
 </head>
 
-<body class="d-flex min-vh-100">
-<main class="d-flex flex-column flex-grow-1 main-content">
+<body class="sidebar-closed">
 
-  <!-- SHELL : PREMIER ENFANT de <main> — INTERDIT-E1 -->
-  <div id="bdb-shell"
-       data-module-title="Supervision"
-       data-module-icon="bi-shield-check">
-  </div>
+  <div id="wrapper">
 
-  <!-- CONTENU MODULE -->
-  <div id="supervisionApp" class="container-fluid p-4 bg-light flex-grow-1">
-
-    <!-- Bandeau mode -->
-    <div id="supvModeBanner" class="supv-mode-banner mode-ovh">
-      <i class="bi bi-cloud"></i>
-      <span id="supvModeLabel">Mode OVH — lecture Supabase uniquement</span>
+    <!-- INTERDIT-E1 : #bdb-shell premier enfant de #wrapper -->
+    <div id="bdb-shell"
+         data-module-title="Supervision"
+         data-module-icon="bi-binoculars"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-theme="dbm">
     </div>
 
-    <!-- Navigation onglets -->
-    <div class="bg-white border rounded-3 mb-4" style="overflow:hidden">
-      <div class="d-flex border-bottom px-2" id="supvNav">
-        <button class="supv-nav-link active" data-tab="sante">
-          <i class="bi bi-heart-pulse"></i> Santé
-        </button>
-        <button class="supv-nav-link" data-tab="conformite">
-          <i class="bi bi-clipboard2-check"></i> Conformité
-        </button>
-        <button class="supv-nav-link" data-tab="configuration">
-          <i class="bi bi-sliders"></i> Configuration
-        </button>
-        <button class="supv-nav-link" data-tab="sessions">
-          <i class="bi bi-list-check"></i> Sessions
-        </button>
-        <button class="supv-nav-link" data-tab="erreurs">
-          <i class="bi bi-bug"></i> Erreurs 404
-        </button>
-        <button class="supv-nav-link" data-tab="audit">
-          <i class="bi bi-database-check"></i> Audit
-        </button>
-      </div>
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="pilotage" style="--module-color:#cbd5e1;--module-color-strong:#94a3b8;--module-color-text:#1e293b;--module-color-soft:rgba(203,213,225,0.15)">
 
-      <!-- ═══════ ONGLET SANTÉ ═══════ -->
-      <div id="tab-sante" class="p-4">
+            <!-- Breadcrumb -->
 
-        <!-- KPIs -->
-        <div class="row g-2 mb-4" id="santeKpis">
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-success" id="kpiOk">—</div>
-              <div class="supv-kpi-l">Modules conformes</div>
+
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d'Ariane">
+              <a href="../../index.html">Accueil</a>
+              <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+              <span>Supervision</span>
+            </nav>
+
+
+            </section>
+
+                        <section class="app-zone" data-zone="Page Title">
+
+
+                          <!-- Bandeau colore module —  couleur = group_color -->
+            <div class="p-4 rounded shadow-sm mb-4"
+                 style="background:linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);color:#1e293b">
+              <h1 class="mb-2 fw-bold"><i class="bi bi-shield-check me-2"></i>Supervision</h1>
+              <p style="opacity:0.75" class="mb-0">Vue globale de l'activité et santé app</p>
             </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-danger" id="kpiErr">—</div>
-              <div class="supv-kpi-l">Avec violations</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-primary" id="kpiShell">—</div>
-              <div class="supv-kpi-l">Shell migré</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-warning" id="kpiCtx">—</div>
-              <div class="supv-kpi-l">CTX manquants</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-secondary" id="kpiTotal">—</div>
-              <div class="supv-kpi-l">Modules référencés</div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Toolbar -->
-        <div class="row g-2 mb-3 align-items-center">
-          <div class="col-12 col-md">
-            <div class="d-flex gap-2 flex-wrap" id="santeFilters">
-              <button class="btn btn-sm btn-outline-secondary supv-filter-btn active" data-filter="all">Tous</button>
-              <button class="btn btn-sm btn-outline-danger supv-filter-btn" data-filter="err">Violations</button>
-              <button class="btn btn-sm btn-outline-warning supv-filter-btn" data-filter="warn">Avertissements</button>
-              <button class="btn btn-sm btn-outline-success supv-filter-btn" data-filter="ok">Conformes</button>
-            </div>
-          </div>
-          <!-- Slot admin — C.6 -->
-          <div class="col-12 col-md-auto d-none" id="santeAdminSlot">
-            <button class="btn btn-outline-secondary btn-sm w-100" id="btnScanLocal">
-              <i class="bi bi-folder2-open me-1"></i>Scanner le dossier local
-            </button>
-          </div>
-        </div>
 
-        <!-- États C.9 -->
-        <div id="santeLoading" class="supv-state d-none">
-          <div class="placeholder-glow p-3">
-            <div class="placeholder col-8 rounded mb-3 fs-5"></div>
-            <div class="placeholder col-5 rounded mb-2"></div>
-            <div class="placeholder col-7 rounded mb-2"></div>
-            <div class="placeholder col-4 rounded"></div>
-          </div>
-        </div>
-        <div id="santeEmpty" class="supv-state d-none">
-          <i class="bi bi-grid supv-state-icon"></i>
-          <div class="supv-state-msg">Aucun module référencé dans app_modules</div>
-        </div>
-        <div id="santeError" class="supv-state-err d-none">
-          <i class="bi bi-exclamation-triangle supv-state-icon"></i>
-          <div class="supv-state-msg" id="santeErrorMsg">Erreur de chargement</div>
-          <button class="btn btn-sm btn-outline-danger mt-2" id="santeRetry">
-            <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-          </button>
-        </div>
-
-        <!-- Grille modules -->
-        <div class="row g-2" id="santeGrid"></div>
-      </div>
-
-      <!-- ═══════ ONGLET CONFORMITÉ ═══════ -->
-      <div id="tab-conformite" class="p-4 d-none">
-
-        <!-- Alerte si supervision_rules vide -->
-        <div id="conformiteNoRules" class="alert alert-danger d-none" role="alert">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          <strong>Aucune règle active.</strong>
-          supervision_rules ne contient aucune règle is_active=true.
-          L'audit est impossible — un résultat "conforme" serait un faux positif.
-          Importer les règles depuis un fichier .md de gouvernance (mode local uniquement).
-        </div>
-
-        <!-- Toolbar -->
-        <div class="row g-2 mb-3 align-items-center">
-          <div class="col-12 col-md">
-            <div class="supv-section-label mb-0">
-              <i class="bi bi-shield-check me-1"></i>
-              Audit fichier contre les règles CHANTIER actives
-            </div>
-          </div>
-          <div class="col-12 col-md-auto d-none" id="conformiteAdminSlot">
-            <button class="btn btn-outline-primary btn-sm w-100" id="btnImportRules">
-              <i class="bi bi-upload me-1"></i>Importer .md gouvernance
-            </button>
-          </div>
-        </div>
-
-        <!-- Versions de référence actives -->
-        <div id="conformiteVersions" class="mb-3"></div>
-
-        <!-- Delta en attente de validation -->
-        <div id="conformiteDelta" class="d-none mb-3">
-          <div class="alert alert-warning" role="alert">
-            <i class="bi bi-clock-history me-2"></i>
-            <strong>Delta en attente de validation Manu.</strong>
-            Les règles ci-dessous ont été détectées dans une nouvelle version.
-            Valider pour basculer — sans validation, les règles actives restent inchangées.
-          </div>
-          <div id="conformiteDeltaList" class="mb-2"></div>
-          <div class="d-flex gap-2">
-            <button class="btn btn-success btn-sm" id="btnValidateDelta">
-              <i class="bi bi-check-lg me-1"></i>Valider et basculer
-            </button>
-            <button class="btn btn-outline-danger btn-sm" id="btnRejectDelta">
-              <i class="bi bi-x-lg me-1"></i>Rejeter
-            </button>
-          </div>
-        </div>
-
-        <!-- Drop zone audit fichier -->
-        <div class="supv-dropzone mb-3" id="conformiteDropzone">
-          <i class="bi bi-file-earmark-code fs-3 text-muted d-block mb-2"></i>
-          <div class="fw-semibold mb-1" style="font-size:14px">Déposer un fichier HTML, CSS, JS ou Markdown</div>
-          <div class="text-muted mb-2" style="font-size:12px">Audité contre les règles actives — zéro réseau</div>
-          <label class="btn btn-sm btn-outline-secondary" style="cursor:pointer">
-            <i class="bi bi-folder2-open me-1"></i>Parcourir
-            <input type="file" id="conformiteFileInput" accept=".html,.css,.js,.md" style="display:none"/>
-          </label>
-        </div>
-
-        <!-- États C.9 -->
-        <div id="conformiteLoading" class="supv-state d-none">
-          <span class="supv-spin me-2"></span>
-          <span style="font-size:13px">Audit en cours…</span>
-        </div>
-        <div id="conformiteEmpty" class="supv-state d-none">
-          <i class="bi bi-clipboard2 supv-state-icon"></i>
-          <div class="supv-state-msg">Déposer un fichier pour lancer l'audit</div>
-        </div>
-
-        <!-- Résultats -->
-        <div id="conformiteResults"></div>
-      </div>
-
-      <!-- ═══════ ONGLET CONFIGURATION ═══════ -->
-      <div id="tab-configuration" class="p-4 d-none">
-
-        <!-- États C.9 -->
-        <div id="configLoading" class="supv-state d-none">
-          <div class="placeholder-glow p-3">
-            <div class="placeholder col-6 rounded mb-3 fs-5"></div>
-            <div class="placeholder col-8 rounded mb-2"></div>
-            <div class="placeholder col-5 rounded mb-2"></div>
-          </div>
-        </div>
-        <div id="configError" class="supv-state-err d-none">
-          <i class="bi bi-exclamation-triangle supv-state-icon"></i>
-          <div class="supv-state-msg" id="configErrorMsg">Erreur de chargement</div>
-          <button class="btn btn-sm btn-outline-danger mt-2" id="configRetry">
-            <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-          </button>
-        </div>
-
-        <div id="configContent" class="d-none">
-          <!-- Groupes -->
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="supv-section-label mb-0">Groupes de navigation</div>
-            <button class="btn btn-sm btn-outline-danger d-none" id="btnNewGroup">
-              <i class="bi bi-plus-lg me-1"></i>Nouveau groupe
-            </button>
-          </div>
-          <div id="configGroups" class="mb-4"></div>
-
-          <!-- Modules -->
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="supv-section-label mb-0">Modules</div>
-            <div class="d-flex gap-2">
-              <select class="form-select form-select-sm" id="configGroupFilter" style="width:auto;font-size:12px">
-                <option value="all">Tous les groupes</option>
-              </select>
-              <select class="form-select form-select-sm" id="configVisibilityFilter" style="width:auto;font-size:12px">
-                <option value="all">Toutes visibilités</option>
-                <option value="member">member</option>
-                <option value="admin">admin</option>
-                <option value="all_vis">all</option>
-              </select>
-              <button class="btn btn-sm btn-outline-danger d-none" id="btnNewModule">
-                <i class="bi bi-plus-lg me-1"></i>Nouveau module
-              </button>
-            </div>
-          </div>
-          <div class="supv-config-card mb-4">
-            <table class="table table-sm mb-0" id="configModulesTable">
-              <thead>
-                <tr>
-                  <th style="font-size:11px">Clé</th>
-                  <th style="font-size:11px">Libellé</th>
-                  <th style="font-size:11px">Groupe</th>
-                  <th style="font-size:11px">Statut</th>
-                  <th style="font-size:11px">Visibilité</th>
-                  <th style="font-size:11px"></th>
-                </tr>
-              </thead>
-              <tbody id="configModulesBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════ ONGLET SESSIONS ═══════ -->
-      <div id="tab-sessions" class="p-4 d-none">
-
-        <!-- Toolbar admin -->
-        <div class="row g-2 mb-3 align-items-center">
-          <div class="col-12 col-md">
-            <div class="supv-section-label mb-0">Sessions de travail</div>
-          </div>
-          <div class="col-12 col-md-auto d-none" id="sessionsAdminSlot">
-            <button class="btn btn-danger btn-sm w-100" id="btnNewSession">
-              <i class="bi bi-plus-lg me-1"></i>Nouvelle session
-            </button>
-          </div>
-        </div>
-
-        <!-- États C.9 -->
-        <div id="sessionsLoading" class="supv-state d-none">
-          <div class="placeholder-glow p-3">
-            <div class="placeholder col-7 rounded mb-3"></div>
-            <div class="placeholder col-5 rounded mb-2"></div>
-            <div class="placeholder col-8 rounded mb-2"></div>
-          </div>
-        </div>
-        <div id="sessionsEmpty" class="supv-state d-none">
-          <i class="bi bi-calendar-x supv-state-icon"></i>
-          <div class="supv-state-msg">Aucune session enregistrée</div>
-        </div>
-        <div id="sessionsError" class="supv-state-err d-none">
-          <i class="bi bi-exclamation-triangle supv-state-icon"></i>
-          <div class="supv-state-msg" id="sessionsErrorMsg">Erreur de chargement</div>
-          <button class="btn btn-sm btn-outline-danger mt-2" id="sessionsRetry">
-            <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-          </button>
-        </div>
-
-        <div class="supv-config-card d-none" id="sessionsList">
-          <div id="sessionsBody"></div>
-        </div>
-      </div>
-
-      <!-- ═══════ ONGLET ERREURS 404 ═══════ -->
-      <div id="tab-erreurs" class="p-4 d-none">
-
-        <!-- KPIs -->
-        <div class="row g-2 mb-3" id="erreursKpis">
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-danger" id="kpi404Total">—</div>
-              <div class="supv-kpi-l">Erreurs totales</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-warning" id="kpi404Urls">—</div>
-              <div class="supv-kpi-l">URLs distinctes</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-primary" id="kpi404Referrers">—</div>
-              <div class="supv-kpi-l">Referrers identifiés</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-secondary" id="kpi404Derniere">—</div>
-              <div class="supv-kpi-l">Dernière erreur</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-danger" id="kpi404Internal">—</div>
-              <div class="supv-kpi-l">Liens internes cassés</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Toolbar -->
-        <div class="row g-2 mb-3 align-items-center">
-          <div class="col-12 col-md">
-            <div class="d-flex gap-2 flex-wrap" id="erreursFilters">
-              <button class="btn btn-sm btn-outline-secondary supv-filter-btn active" data-errfilter="all">Toutes</button>
-              <button class="btn btn-sm btn-outline-danger supv-filter-btn" data-errfilter="no-referrer">Sans referrer</button>
-              <button class="btn btn-sm btn-outline-warning supv-filter-btn" data-errfilter="with-referrer">Avec referrer</button>
-            </div>
-          </div>
-          <div class="col-12 col-md-auto">
-            <button class="btn btn-sm btn-outline-secondary" id="btnRefreshErreurs">
-              <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
-            </button>
-          </div>
-          <div class="col-12 col-md-auto">
-            <button class="btn btn-sm btn-outline-primary" id="btnAnalyseIA" disabled>
-              <i class="bi bi-clipboard2-pulse me-1"></i>Générer prompt d'analyse
-            </button>
-          </div>
-          <div class="col-12 col-md-auto d-none" id="erreursAdminSlot">
-            <button class="btn btn-sm btn-outline-danger" id="btnPurgeErreurs">
-              <i class="bi bi-trash me-1"></i>Purger les logs
-            </button>
-          </div>
-        </div>
-
-        <!-- États C.9 -->
-        <div id="erreursLoading" class="supv-state d-none">
-          <div class="placeholder-glow p-3">
-            <div class="placeholder col-8 rounded mb-3 fs-5"></div>
-            <div class="placeholder col-5 rounded mb-2"></div>
-            <div class="placeholder col-7 rounded mb-2"></div>
-          </div>
-        </div>
-        <div id="erreursEmpty" class="supv-state d-none">
-          <i class="bi bi-check-circle supv-state-icon text-success"></i>
-          <div class="supv-state-msg">Aucune erreur 404 enregistrée</div>
-        </div>
-        <div id="erreursError" class="supv-state-err d-none">
-          <i class="bi bi-exclamation-triangle supv-state-icon"></i>
-          <div class="supv-state-msg" id="erreursErrorMsg">Erreur de chargement</div>
-          <button class="btn btn-sm btn-outline-danger mt-2" id="erreursRetry">
-            <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-          </button>
-        </div>
-
-        <!-- Tableau groupé par URL -->
-        <div id="erreursContent" class="d-none">
-
-          <!-- Analyse IA -->
-          <div id="erreursIaPanel" class="d-none mb-4">
-            <div class="supv-config-card">
-              <div class="supv-config-card-hdr">
-                <i class="bi bi-clipboard2-pulse text-primary"></i>
-                <span class="supv-config-card-title">Prompt d'analyse — à coller dans Claude, ChatGPT ou autre</span>
-                <span class="supv-badge supv-badge-info ms-auto" id="erreursIaStatus">—</span>
-                <button class="btn btn-sm btn-outline-secondary ms-2" id="btnCopyIaPrompt">
-                  <i class="bi bi-clipboard me-1"></i>Copier
-                </button>
+                        </section>
+            <section class="app-zone" data-zone="Content">
+              <!-- Content (placeholder : module en preparation) -->
+              <div class="app-card" data-accent="module">
+              <div class="app-empty" style="padding:4rem 1rem">
+                <i class="bi bi-binoculars" style="font-size:3rem;color:var(--app-text-muted)"></i>
+                <p style="font-size:1rem;font-weight:500;margin:1rem 0 .5rem">Module en préparation</p>
+                <p style="font-size:.85rem;color:var(--app-text-muted);max-width:480px;margin:0 auto">
+                  Cet espace donnera une vue d'ensemble de l'activité du bloc. Le contenu sera ajouté à l'étape suivante.
+                </p>
               </div>
-              <div id="erreursIaResult" class="p-3" style="font-size:11px;line-height:1.6;white-space:pre-wrap;font-family:monospace;max-height:300px;overflow-y:auto;background:#f9fafb"></div>
-            </div>
-          </div>
-          <div class="supv-section-label">URLs en erreur — groupées par fréquence</div>
-          <div id="erreursGroupes" class="mb-4"></div>
+              </div>
 
-          <div class="supv-section-label">Détail chronologique</div>
-          <div class="supv-config-card">
-            <table class="table table-sm mb-0" id="erreursTable">
-              <thead>
-                <tr>
-                  <th style="font-size:11px">Date</th>
-                  <th style="font-size:11px">URL demandée</th>
-                  <th style="font-size:11px">Referrer</th>
-                  <th style="font-size:11px">Diagnostic</th>
-                </tr>
-              </thead>
-              <tbody id="erreursBody"></tbody>
-            </table>
-          </div>
-        </div>
+            </section>
+          </div><!-- /app-content -->
 
-      </div>
+          <footer class="app-footer">
+            <small>&copy; 2026 <span class="app-nom"></span></small>
+          </footer>
 
-      <!-- ═══════ ONGLET AUDIT ═══════ -->
-      <div id="tab-audit" class="p-4 d-none">
+        </main>
+      </div><!-- /app-layout -->
+    </div><!-- /wrapper_content -->
 
-        <!-- Bandeau mode local requis -->
-        <div id="auditModeWarning" class="alert alert-warning d-none mb-3" role="alert">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          <strong>Mode OVH :</strong> les requêtes SQL ne sont pas disponibles ici.
-          L'audit Supabase nécessite de coller les résultats manuellement (voir instructions ci-dessous).
-        </div>
+  </div><!-- /wrapper -->
 
-        <!-- KPI score -->
-        <div class="row g-2 mb-4" id="auditKpis">
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n" id="auditKpiScore">—</div>
-              <div class="supv-kpi-l">Score /5</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-danger" id="auditKpiErrors">—</div>
-              <div class="supv-kpi-l">Erreurs</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-warning" id="auditKpiWarns">—</div>
-              <div class="supv-kpi-l">Avertissements</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-auto">
-            <div class="supv-kpi">
-              <div class="supv-kpi-n text-secondary" id="auditKpiDate">—</div>
-              <div class="supv-kpi-l">Dernier audit</div>
-            </div>
-          </div>
-        </div>
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script src="supervision-app.js"></script>
 
-        <!-- Sous-onglets audit -->
-        <div class="d-flex gap-3 border-bottom mb-3" id="auditSubNav">
-          <button class="supv-audit-sub active" data-subtab="tables">Tables Supabase</button>
-          <button class="supv-audit-sub" data-subtab="rls">Politiques RLS</button>
-          <button class="supv-audit-sub" data-subtab="cross">Cohérence doc/base</button>
-          <button class="supv-audit-sub" data-subtab="powershell">Script PowerShell</button>
-        </div>
-
-        <!-- ── SOUS-ONGLET : TABLES ── -->
-        <div id="auditTab-tables">
-          <div class="supv-audit-step mb-3">
-            <div class="supv-audit-step-hdr">
-              <span class="supv-audit-step-num">1</span>
-              <span class="supv-audit-step-lbl">Copier cette requête dans Supabase SQL Editor</span>
-              <button class="btn btn-sm btn-outline-secondary ms-auto supv-copy-sql" data-target="sqlTables">
-                <i class="bi bi-clipboard me-1"></i>Copier
-              </button>
-            </div>
-            <pre id="sqlTables" class="supv-sql-block">SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = 'public'
-  AND table_type = 'BASE TABLE'
-ORDER BY table_name;</pre>
-          </div>
-          <div class="supv-audit-step">
-            <div class="supv-audit-step-hdr">
-              <span class="supv-audit-step-num">2</span>
-              <span class="supv-audit-step-lbl">Coller le résultat JSON ici</span>
-            </div>
-            <textarea class="supv-audit-paste" id="pasteTables"
-              placeholder='[{"table_name":"anatomie"},{"table_name":"app_groups"},...]'></textarea>
-            <button class="btn btn-sm btn-danger mt-2" id="btnRunTables">
-              <i class="bi bi-play-fill me-1"></i>Analyser
-            </button>
-          </div>
-          <div id="resultTables" class="mt-3"></div>
-        </div>
-
-        <!-- ── SOUS-ONGLET : RLS ── -->
-        <div id="auditTab-rls" class="d-none">
-          <div class="supv-audit-step mb-3">
-            <div class="supv-audit-step-hdr">
-              <span class="supv-audit-step-num">1</span>
-              <span class="supv-audit-step-lbl">Copier cette requête dans Supabase SQL Editor</span>
-              <button class="btn btn-sm btn-outline-secondary ms-auto supv-copy-sql" data-target="sqlRls">
-                <i class="bi bi-clipboard me-1"></i>Copier
-              </button>
-            </div>
-            <pre id="sqlRls" class="supv-sql-block">SELECT t.table_name,
-       CASE WHEN c.relrowsecurity THEN 'ON' ELSE 'OFF' END as rls,
-       COUNT(p.policyname)::int as nb_policies
-FROM information_schema.tables t
-JOIN pg_class c ON c.relname = t.table_name
-LEFT JOIN pg_policies p
-  ON p.tablename = t.table_name AND p.schemaname = 'public'
-WHERE t.table_schema = 'public'
-  AND t.table_type = 'BASE TABLE'
-GROUP BY t.table_name, c.relrowsecurity
-ORDER BY t.table_name;</pre>
-          </div>
-          <div class="supv-audit-step">
-            <div class="supv-audit-step-hdr">
-              <span class="supv-audit-step-num">2</span>
-              <span class="supv-audit-step-lbl">Coller le résultat JSON ici</span>
-            </div>
-            <textarea class="supv-audit-paste" id="pasteRls"
-              placeholder='[{"table_name":"anatomie","rls":"ON","nb_policies":3},...]'></textarea>
-            <button class="btn btn-sm btn-danger mt-2" id="btnRunRls">
-              <i class="bi bi-play-fill me-1"></i>Analyser
-            </button>
-          </div>
-          <div id="resultRls" class="mt-3"></div>
-        </div>
-
-        <!-- ── SOUS-ONGLET : COHÉRENCE ── -->
-        <div id="auditTab-cross" class="d-none">
-          <div class="alert alert-info mb-3" role="alert" style="font-size:12px">
-            <i class="bi bi-info-circle me-1"></i>
-            Ce contrôle nécessite d'avoir d'abord exécuté <strong>Tables Supabase</strong>.
-            Il croise les tables réelles en base avec celles documentées dans SUPABASE_DATA_MODEL.
-          </div>
-          <button class="btn btn-sm btn-danger mb-3" id="btnRunCross">
-            <i class="bi bi-play-fill me-1"></i>Lancer le contrôle croisé
-          </button>
-          <div id="resultCross"></div>
-        </div>
-
-        <!-- ── SOUS-ONGLET : POWERSHELL ── -->
-        <div id="auditTab-powershell" class="d-none">
-          <div class="alert alert-secondary mb-3" role="alert" style="font-size:12px">
-            <i class="bi bi-terminal me-1"></i>
-            Exécuter depuis <code>C:\DEV\BIBLE_DE_BLOC\</code> pour extraire les tables réellement
-            appelées dans chaque module. Coller la sortie JSON dans le champ ci-dessous.
-          </div>
-          <div class="supv-audit-step mb-3">
-            <div class="supv-audit-step-hdr">
-              <span class="supv-audit-step-num">1</span>
-              <span class="supv-audit-step-lbl">Copier ce script PowerShell</span>
-              <button class="btn btn-sm btn-outline-secondary ms-auto supv-copy-sql" data-target="sqlPs">
-                <i class="bi bi-clipboard me-1"></i>Copier
-              </button>
-            </div>
-            <pre id="sqlPs" class="supv-sql-block">$root = "C:\DEV\BIBLE_DE_BLOC\modules"
-$results = @{}
-Get-ChildItem $root -Recurse -Include "*.html","*.js" | ForEach-Object {
-  $content = Get-Content $_.FullName -Raw -ErrorAction SilentlyContinue
-  if ($content) {
-    $tables = [regex]::Matches($content, "\.from\(['""](\w+)['""]\)") |
-      ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
-    if ($tables.Count -gt 0) {
-      $mod = $_.Directory.Name
-      if (-not $results[$mod]) { $results[$mod] = @() }
-      $results[$mod] = ($results[$mod] + $tables) | Sort-Object -Unique
-    }
-  }
-}
-$results | ConvertTo-Json -Compress</pre>
-          </div>
-          <div class="supv-audit-step">
-            <div class="supv-audit-step-hdr">
-              <span class="supv-audit-step-num">2</span>
-              <span class="supv-audit-step-lbl">Coller la sortie JSON ici</span>
-            </div>
-            <textarea class="supv-audit-paste" id="pastePs"
-              placeholder='{"fiches":["categories","fiches_intervention"],"arsenal":["materiel","tags"],...}'></textarea>
-            <button class="btn btn-sm btn-danger mt-2" id="btnRunPs">
-              <i class="bi bi-play-fill me-1"></i>Analyser vs DEPENDENCY_MAP
-            </button>
-          </div>
-          <div id="resultPs" class="mt-3"></div>
-        </div>
-
-      </div><!-- /tab-audit -->
-
-    </div><!-- /bg-white -->
-  </div><!-- /supervisionApp -->
-
-  <!-- MODALES -->
-
-  <!-- Modale édition module -->
-  <div class="modal fade" id="modalModule" tabindex="-1" aria-labelledby="modalModuleLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalModuleLabel">Module</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="modalModuleId"/>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" style="font-size:12px">Clé technique</label>
-              <input type="text" class="form-control form-control-sm" id="modalModuleKey" placeholder="ex: supervision"/>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" style="font-size:12px">Libellé affiché</label>
-              <input type="text" class="form-control form-control-sm" id="modalModuleLabel2" maxlength="30"/>
-            </div>
-            <div class="col-12">
-              <label class="form-label fw-semibold" style="font-size:12px">Description (≤ 12 mots)</label>
-              <input type="text" class="form-control form-control-sm" id="modalModuleDesc"/>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label fw-semibold" style="font-size:12px">Icône Bootstrap Icons</label>
-              <input type="text" class="form-control form-control-sm" id="modalModuleIcon" placeholder="bi-shield-check"/>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label fw-semibold" style="font-size:12px">Couleur</label>
-              <input type="color" class="form-control form-control-sm form-control-color" id="modalModuleColor"/>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label fw-semibold" style="font-size:12px">Groupe</label>
-              <select class="form-select form-select-sm" id="modalModuleGroup"></select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label fw-semibold" style="font-size:12px">Statut</label>
-              <select class="form-select form-select-sm" id="modalModuleStatus">
-                <option value="coming_soon">coming_soon</option>
-                <option value="active">active</option>
-                <option value="maintenance">maintenance</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label fw-semibold" style="font-size:12px">Visibilité</label>
-              <select class="form-select form-select-sm" id="modalModuleVisibility">
-                <option value="member">member</option>
-                <option value="admin">admin</option>
-                <option value="all">all</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label fw-semibold" style="font-size:12px">Position</label>
-              <input type="number" class="form-control form-control-sm" id="modalModulePosition" min="1"/>
-            </div>
-            <div class="col-12">
-              <label class="form-label fw-semibold" style="font-size:12px">Chemin</label>
-              <input type="text" class="form-control form-control-sm" id="modalModulePath" placeholder="modules/[nom]/index.html"/>
-            </div>
-          </div>
-          <div id="modalModuleError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
-          <button type="button" class="btn btn-danger btn-sm" id="btnSaveModule">
-            <i class="bi bi-check-lg me-1"></i>Enregistrer
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modale nouvelle session -->
-  <div class="modal fade" id="modalSession" tabindex="-1" aria-labelledby="modalSessionLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalSessionLabel">Nouvelle session</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" style="font-size:12px">Module cible</label>
-              <select class="form-select form-select-sm" id="modalSessionModule"></select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" style="font-size:12px">Statut</label>
-              <select class="form-select form-select-sm" id="modalSessionStatus">
-                <option value="planned">Planifiée</option>
-                <option value="done">Terminée</option>
-                <option value="cancelled">Annulée</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label fw-semibold" style="font-size:12px">Objectif — 1 phrase factuelle</label>
-              <input type="text" class="form-control form-control-sm" id="modalSessionObjective" placeholder="Migrer le module X vers bdb-shell.js"/>
-            </div>
-            <div class="col-12">
-              <label class="form-label fw-semibold" style="font-size:12px">Notes de clôture</label>
-              <textarea class="form-control form-control-sm" id="modalSessionNotes" rows="3"></textarea>
-            </div>
-          </div>
-          <div id="modalSessionError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-        </div>
-        <div class="modal-footer">
-          <div id="modalSessionPrompt" class="w-100 mb-2 d-none">
-            <div class="supv-section-label">Prompt généré</div>
-            <div class="bg-light border rounded p-2" id="modalSessionPromptBox" style="font-family:monospace;font-size:11px;white-space:pre-wrap;max-height:200px;overflow-y:auto"></div>
-            <button class="btn btn-sm btn-outline-secondary mt-1" id="btnCopyPrompt">
-              <i class="bi bi-clipboard me-1"></i>Copier
-            </button>
-          </div>
-          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
-          <button type="button" class="btn btn-outline-primary btn-sm" id="btnGenPrompt">
-            <i class="bi bi-lightning me-1"></i>Générer le prompt
-          </button>
-          <button type="button" class="btn btn-danger btn-sm" id="btnSaveSession">
-            <i class="bi bi-check-lg me-1"></i>Enregistrer
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
-    <small>&copy; 2026 Bible de Bloc — Consensus Design System —
-    <span class="badge bg-light text-dark border">CDS Compliant</span></small>
-  </footer>
-
-</main>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<!-- Socle BDB -->
-<script src="../../js/supabase-client.js"></script>
-<script src="../../js/bdb-shell.js"></script>
-
-<script src="supervision-app.js"></script>
 </body>
 </html>

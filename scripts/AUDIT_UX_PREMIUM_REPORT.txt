@@ -1,0 +1,28 @@
+﻿AUDIT UX PREMIUM BDB -- 2026-04-05 10:17
+============================================================
+
+TOTAL VIOLATIONS : 0
+
+
+REGLES NON AUDITEES (inspection manuelle requise) :
+  UX01  Autofocus -- verifier visuellement
+  UX02  Enter action -- verifier dans chaque module
+  UX04  Feedback action -- verifier les handlers async
+  UX05  Protection double-clic -- verifier btn.disabled
+  UX07  Skeleton loaders -- verifier spinner-border vs placeholder-glow
+  UX08  3 etats async -- verifier loadingState/emptyState/errorState
+  UX09  Empty state guidant -- verifier contenu texte
+  UX10  Filtre instantane -- verifier input vs change event
+  UX11  Compteur resultats -- verifier presence compteur
+  UX13  Required marques -- croiser avec DATA_MODEL
+  UX14  Conservation donnees erreur -- verifier reset/hide
+  UX15  Validation inline -- verifier is-invalid
+  UX16  Cibles 44px -- verifier taille boutons
+  UX17  Hover-only -- verifier :hover revelant du contenu
+  UX19  Scroll H mobile -- tester viewport 390px
+  UX24  Couleur seul vecteur -- audit visuel
+  UX26  Labels descriptifs -- verifier label for=
+  UX28  Contraste 4.5:1 -- audit variables CSS
+  UX29  role=status toasts -- verifier bdbToast
+  UX30  Reflow 320px -- tester viewport
+  UX31  Scroll to top -- verifier changement onglet

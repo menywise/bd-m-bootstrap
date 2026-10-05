@@ -1,0 +1,496 @@
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  DISC_ENGINE v3.0 — Bible de Bloc (BDB) — Admin wrapper (CC-M11)           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Stratégie A : disc-controller.js gère tout le CRUD admin                  ║
+║  Sections admin : Distribution · Personas CRUD · Scénarios · Export IA     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+<!DOCTYPE html>
+<!-- BDB | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC — Administration</title>
+
+    <!-- BLOC E — chaîne CSS stricte -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+    <link href="disc-ui.css" rel="stylesheet"/>
+</head>
+<body>
+
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+<!-- INTERDIT-E1 : #bdb-shell = premier enfant de <main> -->
+<div id="bdb-shell" data-module-title="DISC — Administration" data-module-icon="bi-diagram-3-fill"
+     data-root-path="../../"
+     data-shell-kind="backoffice"
+     data-login-mode="modal"></div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+
+<!-- 3 états globaux -->
+<div id="disc-loading-state" class="p-5">
+    <div class="placeholder-glow">
+        <span class="placeholder col-8 rounded mb-2 d-block"></span>
+        <span class="placeholder col-5 rounded mb-2 d-block"></span>
+        <span class="placeholder col-10 rounded d-block"></span>
+    </div>
+</div>
+<div id="disc-error-state" class="d-none p-4">
+    <div class="alert alert-danger d-flex align-items-center gap-3">
+        <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+        <div>
+            <strong>Erreur de chargement</strong>
+            <p class="mb-2 small" id="disc-error-msg">Impossible de charger les données.</p>
+            <button class="btn btn-sm btn-outline-danger" id="btn-disc-reload"><i class="bi bi-arrow-counterclockwise me-1"></i>Réessayer</button>
+        </div>
+    </div>
+</div>
+
+<div id="disc-ready-state" class="d-none disc-shell d-flex flex-grow-1">
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <nav class="disc-sidebar d-none d-lg-flex flex-column" id="sidebar">
+        <div class="disc-nav-section">Mon espace</div>
+        <a href="#" class="disc-nav-link active" data-nav="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+        <a href="#" class="disc-nav-link" data-nav="mon-profil"><i class="bi bi-person-circle"></i> Mon profil</a>
+        <div class="disc-nav-section mt-1">Tests</div>
+        <a href="#" class="disc-nav-link" data-nav="test-disc"><i class="bi bi-clipboard-check"></i> Test DISC</a>
+        <a href="#" class="disc-nav-link" data-nav="test-vakog"><i class="bi bi-eye"></i> Test VAKOG</a>
+        <div class="disc-nav-section mt-1">Explorer</div>
+        <a href="#" class="disc-nav-link" data-nav="decouverte"><i class="bi bi-people"></i> Découverte</a>
+        <a href="#" class="disc-nav-link" data-nav="ref-disc"><i class="bi bi-graph-up-arrow"></i> Styles DISC</a>
+        <a href="#" class="disc-nav-link" data-nav="ref-vakog"><i class="bi bi-eye-fill"></i> Canaux VAKOG</a>
+
+        <!-- ADMIN ONLY — toujours visible dans admin.html (guard garantit isAdmin) -->
+        <div class="bdb-admin-only d-none">
+            <div class="disc-nav-section mt-1">Administration</div>
+            <a href="#" class="disc-nav-link" data-nav="distribution"><i class="bi bi-bar-chart"></i> Distribution</a>
+            <a href="#" class="disc-nav-link" data-nav="personas"><i class="bi bi-person-badge"></i> Personas <span class="badge bg-secondary-subtle text-secondary ms-auto" id="snav-personas">0</span></a>
+            <a href="#" class="disc-nav-link" data-nav="scenarios"><i class="bi bi-layers"></i> Scénarios <span class="badge bg-secondary-subtle text-secondary ms-auto" id="snav-scenarios">0</span></a>
+            <a href="#" class="disc-nav-link" data-nav="export"><i class="bi bi-box-arrow-up-right"></i> Export IA</a>
+        </div>
+
+        <!-- Lien retour admin (bas de sidebar) -->
+        <div class="mt-auto p-3 border-top">
+            <a href="../admin/index.html" class="btn btn-sm btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left me-1"></i>Administration générale
+            </a>
+        </div>
+    </nav>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <div class="disc-main">
+
+        <!-- ════════════════ DASHBOARD ════════════════ -->
+        <div class="disc-view active" id="view-dashboard">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-diagram-3-fill me-2"></i>DISC Engine v3.0</h1>
+                <p class="mb-0 opacity-75">Profils DISC &amp; VAKOG · Bible de Bloc</p>
+            </div>
+            <!-- KPIs personnels -->
+            <div class="row g-3 mb-4" id="kpi-row"></div>
+            <!-- Distribution équipe anonyme -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-transparent"><strong><i class="bi bi-diagram-3 me-2 text-primary"></i>Tendance équipe (anonyme)</strong></div>
+                <div class="card-body"><div class="row g-3" id="disc-distribution"></div></div>
+            </div>
+            <!-- Appel à l'action tests -->
+            <div class="card shadow-sm" id="dashboard-cta">
+                <div class="card-body text-center py-4">
+                    <i class="bi bi-clipboard-check fs-1 text-primary mb-2 d-block"></i>
+                    <h5>Découvrez votre profil</h5>
+                    <p class="text-muted mb-3">Passez les tests DISC et VAKOG pour obtenir votre profil personnalisé.</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button class="btn btn-primary" data-nav="test-disc"><i class="bi bi-clipboard-check me-1"></i>Test DISC</button>
+                        <button class="btn btn-outline-success" data-nav="test-vakog"><i class="bi bi-eye me-1"></i>Test VAKOG</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Résumé profil si déjà fait -->
+            <div class="card shadow-sm d-none" id="dashboard-profil-summary"></div>
+        </div>
+
+        <!-- ════════════════ MON PROFIL ════════════════ -->
+        <div class="disc-view" id="view-mon-profil">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-person-circle me-2"></i>Mon profil</h1>
+                <p class="mb-0 opacity-75">Vos résultats DISC et VAKOG personnalisés</p>
+            </div>
+            <div id="mon-profil-content"></div>
+            <div id="mon-profil-empty" class="d-none">
+                <div class="alert alert-info d-flex align-items-center gap-3">
+                    <i class="bi bi-info-circle fs-3"></i>
+                    <div>
+                        <strong>Aucun profil enregistré</strong>
+                        <p class="mb-2 small">Passez les tests DISC et VAKOG pour générer votre profil.</p>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-primary" data-nav="test-disc">Test DISC</button>
+                            <button class="btn btn-sm btn-outline-success" data-nav="test-vakog">Test VAKOG</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════ TEST DISC ════════════════ -->
+        <div class="disc-view" id="view-test-disc">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-clipboard-check me-2"></i>Test de profil DISC</h1>
+                <p class="mb-0 opacity-75">12 questions · Identifiez votre style comportemental dominant</p>
+            </div>
+            <div id="disc-test-container"></div>
+            <div class="card shadow-sm d-none" id="disc-test-results">
+                <div class="card-header bg-transparent"><strong><i class="bi bi-bar-chart me-2 text-primary"></i>Résultats DISC</strong></div>
+                <div class="card-body" id="disc-results-body"></div>
+                <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
+                    <button class="btn btn-outline-secondary btn-sm" id="btn-disc-retake"><i class="bi bi-arrow-counterclockwise me-1"></i>Recommencer</button>
+                    <span class="badge bg-success-subtle text-success ms-auto align-self-center" id="disc-save-badge"><i class="bi bi-check-circle me-1"></i>Profil sauvegardé</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════ TEST VAKOG ════════════════ -->
+        <div class="disc-view" id="view-test-vakog">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-eye me-2"></i>Test de profil VAKOG</h1>
+                <p class="mb-0 opacity-75">10 questions · Découvrez vos canaux sensoriels dominants</p>
+            </div>
+            <div id="vakog-test-container"></div>
+            <div class="card shadow-sm d-none" id="vakog-test-results">
+                <div class="card-header bg-transparent"><strong><i class="bi bi-bar-chart me-2 text-success"></i>Résultats VAKOG</strong></div>
+                <div class="card-body" id="vakog-results-body"></div>
+                <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
+                    <button class="btn btn-outline-secondary btn-sm" id="btn-vakog-retake"><i class="bi bi-arrow-counterclockwise me-1"></i>Recommencer</button>
+                    <span class="badge bg-success-subtle text-success ms-auto align-self-center" id="vakog-save-badge"><i class="bi bi-check-circle me-1"></i>Profil sauvegardé</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════ DÉCOUVERTE ════════════════ -->
+        <div class="disc-view" id="view-decouverte">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-people me-2"></i>Découverte DISC</h1>
+                <p class="mb-0 opacity-75">Les 4 profils · Compatibilités · Tendance de votre équipe</p>
+            </div>
+            <!-- 4 profils -->
+            <div class="row g-3 mb-4" id="decouverte-profils"></div>
+            <!-- Compatibilités -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent"><strong><i class="bi bi-arrows-expand me-2 text-primary"></i>Compatibilités entre profils</strong></div>
+                <div class="card-body" id="decouverte-compat"></div>
+            </div>
+        </div>
+
+        <!-- ════════════════ RÉFÉRENTIEL DISC ════════════════ -->
+        <div class="disc-view" id="view-ref-disc">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-graph-up-arrow me-2"></i>Référentiel DISC</h1>
+                <p class="mb-0 opacity-75">Synthèse comparative des styles de communication</p>
+            </div>
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white py-3 text-center">
+                    <i class="bi bi-lightning-charge-fill fs-4"></i>
+                    <div class="small mt-1 fw-bold">Guide de Communication par Profil</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr class="table-light">
+                                <th class="text-uppercase small fw-bold text-muted border-end disc-col-critere">Critère</th>
+                                <th class="text-center border-end"><div class="badge bg-danger fs-6 px-3 py-2 mb-1">D</div><div class="small fw-bold text-danger">DOMINANT</div></th>
+                                <th class="text-center border-end"><div class="badge bg-warning text-dark fs-6 px-3 py-2 mb-1">I</div><div class="small fw-bold text-warning">INFLUENT</div></th>
+                                <th class="text-center border-end"><span class="badge disc-badge-S fs-6 px-3 py-2 mb-1 d-inline-block">S</span><div class="small fw-bold disc-letter-S">STABLE</div></th>
+                                <th class="text-center"><span class="badge disc-badge-C fs-6 px-3 py-2 mb-1 d-inline-block">C</span><div class="small fw-bold disc-letter-C">CONSCIENCIEUX</div></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-chat-text text-primary me-2"></i>Ton</td><td class="border-end">Direct, sec, autoritaire</td><td class="border-end">Chaleureux, énergique, collaboratif</td><td class="border-end">Posé, rassurant, pédagogique</td><td>Factuel, technique, exhaustif</td></tr>
+                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-check-circle text-success me-2"></i>Encouragé</td><td class="border-end">Concis, résultat, défi</td><td class="border-end">Enthousiasme, créativité, reconnaissance</td><td class="border-end">Écoute, stabilité, accompagnement</td><td>Précision, données, rigueur</td></tr>
+                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-x-circle text-danger me-2"></i>À éviter</td><td class="border-end">Longs discours, hésitations</td><td class="border-end">Isolation, froideur, rigidité</td><td class="border-end">Pression, changements brusques</td><td>Imprécision, raccourcis, flou</td></tr>
+                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Sous stress</td><td class="border-end">Autoritaire, impulsif</td><td class="border-end">Bavard, dispersé</td><td class="border-end">Passif, résistant</td><td>Paralysé, perfectionniste</td></tr>
+                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-emoji-smile text-success me-2"></i>Moteur</td><td class="border-end">Résultats, contrôle</td><td class="border-end">Reconnaissance, fun</td><td class="border-end">Harmonie, sécurité</td><td>Qualité, expertise</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════ RÉFÉRENTIEL VAKOG ════════════════ -->
+        <div class="disc-view" id="view-ref-vakog">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-eye-fill me-2"></i>Référentiel VAKOG</h1>
+                <p class="mb-0 opacity-75">Synthèse comparative des canaux sensoriels de communication</p>
+            </div>
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white py-3 text-center">
+                    <i class="bi bi-stars fs-4"></i>
+                    <div class="small mt-1 fw-bold">Guide des Canaux Sensoriels</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-uppercase small text-muted border-end disc-col-critere-sm">Critère</th>
+                                <th class="text-center border-end"><div class="badge bg-primary-subtle text-primary fs-6 px-3 py-2 mb-1">V</div><div class="small fw-bold text-primary">VISUEL</div></th>
+                                <th class="text-center border-end"><div class="badge bg-info-subtle text-info fs-6 px-3 py-2 mb-1">A</div><div class="small fw-bold text-info">AUDITIF</div></th>
+                                <th class="text-center border-end"><div class="badge bg-success-subtle text-success fs-6 px-3 py-2 mb-1">K</div><div class="small fw-bold text-success">KINESTHÉSIQUE</div></th>
+                                <th class="text-center border-end"><div class="badge bg-warning-subtle text-dark fs-6 px-3 py-2 mb-1">O</div><div class="small fw-bold text-warning">OLFACTIF</div></th>
+                                <th class="text-center"><div class="badge bg-danger-subtle text-danger fs-6 px-3 py-2 mb-1">G</div><div class="small fw-bold text-danger">GUSTATIF</div></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-chat-text text-primary me-2"></i>Vocabulaire</td><td class="border-end small">Voir, regarder, imaginer, clair, perspective</td><td class="border-end small">Entendre, écouter, sonner, harmonieux</td><td class="border-end small">Sentir, toucher, ressentir, concret, fluide</td><td class="border-end small">Flairer, odeur, parfum, fraîcheur</td><td class="small">Goûter, saveur, doux, amer, digérer</td></tr>
+                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-rulers text-info me-2"></i>Fréquence</td>
+                                <td class="border-end text-center"><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">55%</span></td>
+                                <td class="border-end text-center"><span class="badge bg-info-subtle text-info fs-6 px-3 py-2">30%</span></td>
+                                <td class="border-end text-center"><span class="badge bg-success-subtle text-success fs-6 px-3 py-2">15%</span></td>
+                                <td class="border-end text-center"><span class="badge bg-warning-subtle text-dark fs-6 px-3 py-2">Rare</span></td>
+                                <td class="text-center"><span class="badge bg-danger-subtle text-danger fs-6 px-3 py-2">Rare</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════ DISTRIBUTION (admin) ════════════════ -->
+        <div class="disc-view" id="view-distribution">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-bar-chart me-2"></i>Distribution équipe</h1>
+                <p class="mb-0 opacity-75">Tendances DISC &amp; VAKOG agrégées · Anonyme</p>
+            </div>
+            <div id="distribution-content"></div>
+            <div id="distribution-empty" class="d-none">
+                <div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>Aucun membre n'a encore passé de test.</div>
+            </div>
+        </div>
+
+        <!-- ════════════════ PERSONAS (admin) ════════════════ -->
+        <div class="disc-view" id="view-personas">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <h1 class="mb-2 h3"><i class="bi bi-person-badge me-2"></i>Personas pédagogiques</h1>
+                        <p class="mb-0 opacity-75">Profils fictifs sandbox · CRUD admin</p>
+                    </div>
+                    <button class="btn btn-light btn-sm mt-1" id="btn-new-persona"><i class="bi bi-plus-lg me-1"></i>Nouveau</button>
+                </div>
+            </div>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body py-2">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <input type="search" class="form-control form-control-sm disc-search" id="search-personas" placeholder="Rechercher…">
+                        <span class="text-muted small ms-1">Filtre :</span>
+                        <span class="badge disc-filter-pill disc-badge-D active-filter px-3 py-2" data-disc-filter="ALL">Tous</span>
+                        <span class="badge disc-filter-pill disc-badge-D px-3 py-2" data-disc-filter="D">D</span>
+                        <span class="badge disc-filter-pill disc-badge-I px-3 py-2" data-disc-filter="I">I</span>
+                        <span class="badge disc-filter-pill disc-badge-S px-3 py-2" data-disc-filter="S">S</span>
+                        <span class="badge disc-filter-pill disc-badge-C px-3 py-2" data-disc-filter="C">C</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3" id="persona-grid"></div>
+        </div>
+
+        <!-- ════════════════ SCÉNARIOS (admin) ════════════════ -->
+        <div class="disc-view" id="view-scenarios">
+            <div id="scenario-list-view">
+                <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                    <h1 class="mb-2 h3"><i class="bi bi-layers me-2"></i>Scénarios pédagogiques</h1>
+                    <p class="mb-0 opacity-75">Situations jouables · formation &amp; débriefing</p>
+                </div>
+                <div id="scenario-list" class="d-flex flex-column gap-3"></div>
+            </div>
+            <div id="scene-viewer-view" class="d-none">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <button class="btn btn-outline-secondary btn-sm" id="btn-back-scenarios"><i class="bi bi-arrow-left me-1"></i>Scénarios</button>
+                    <h2 class="h5 mb-0 fw-bold" id="scene-scenario-title"></h2>
+                    <span class="badge bg-secondary-subtle text-secondary" id="scene-scenario-version"></span>
+                </div>
+                <ul class="nav nav-tabs mb-4" id="scene-tabs"></ul>
+                <div class="row g-3" id="scene-body"></div>
+            </div>
+        </div>
+
+        <!-- ════════════════ EXPORT IA (admin) ════════════════ -->
+        <div class="disc-view" id="view-export">
+            <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+                <h1 class="mb-2 h3"><i class="bi bi-box-arrow-up-right me-2"></i>Export IA</h1>
+                <p class="mb-0 opacity-75">Prompts LLM auto-enrichis par tendances équipe</p>
+            </div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-transparent"><strong><i class="bi bi-person-badge me-2 text-primary"></i>Personas à inclure</strong></div>
+                        <div class="card-body" id="export-persona-list"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header bg-transparent"><strong><i class="bi bi-layers me-2 text-primary"></i>Scénario</strong></div>
+                        <div class="card-body" id="export-scenario-list"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mb-4">
+                <button class="btn btn-primary btn-lg" id="btn-generate-export"><i class="bi bi-lightning-charge-fill me-2"></i>Générer l'export</button>
+            </div>
+            <div class="card shadow-sm d-none" id="export-result-card">
+                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                    <strong><i class="bi bi-code-square me-2 text-primary"></i>Export généré</strong>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary active" data-export-mode="prompt">Prompt LLM</button>
+                            <button class="btn btn-outline-primary" data-export-mode="json">JSON</button>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary" id="btn-copy-export"><i class="bi bi-clipboard me-1"></i>Copier</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <textarea class="form-control disc-export-textarea" id="export-textarea" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.disc-main -->
+</div><!-- /#disc-ready-state -->
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+<!-- FOOTER -->
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom"></span> — DISC Engine v3.0</small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+<!-- ═══════════════════════════════════════════════════════
+     OFFCANVAS — Détail persona
+═══════════════════════════════════════════════════════ -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasPersona" aria-labelledby="offcanvasPersonaLabel">
+    <div class="offcanvas-header border-bottom">
+        <div class="d-flex align-items-center gap-3" id="persona-detail-header"></div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+    </div>
+    <div class="offcanvas-body" id="persona-detail-body"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL — CRUD Persona
+═══════════════════════════════════════════════════════ -->
+<div class="modal modal-lg fade" id="modalPersona" tabindex="-1" aria-labelledby="modalPersonaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPersonaLabel"><i class="bi bi-person-plus text-primary me-2"></i>Nouveau persona</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <h6 class="text-uppercase text-muted small mb-2">Identité</h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4"><label class="form-label small">Prénom</label><input type="text" class="form-control form-control-sm" id="f-prenom" placeholder="Prénom"></div>
+                    <div class="col-md-4"><label class="form-label small">Nom</label><input type="text" class="form-control form-control-sm" id="f-nom" placeholder="Nom"></div>
+                    <div class="col-md-4"><label class="form-label small">Code canonique</label><input type="text" class="form-control form-control-sm" id="f-code" placeholder="NOM_P"></div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6"><label class="form-label small">Fonction</label><select class="form-select form-select-sm" id="f-fn"><option value="infirmier">Infirmier(e)</option><option value="aide-soignant">Aide-soignant(e)</option><option value="cadre">Cadre</option><option value="etudiant">Étudiant(e)</option><option value="medecin">Médecin</option></select></div>
+                    <div class="col-md-6"><label class="form-label small">Rôle pédagogique</label><input type="text" class="form-control form-control-sm" id="f-role" placeholder="Ex: Infirmier tuteur"></div>
+                </div>
+                <h6 class="text-uppercase text-muted small mb-2">Profils psychométriques</h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4"><label class="form-label small">Style DISC</label><select class="form-select form-select-sm" id="f-disc"><option value="D">D — Dominant</option><option value="I">I — Influent</option><option value="S">S — Stable</option><option value="C">C — Consciencieux</option></select></div>
+                    <div class="col-md-4"><label class="form-label small">Ennéagramme</label><select class="form-select form-select-sm" id="f-ennea"><option value="1">1 — Perfectionniste</option><option value="2">2 — Altruiste</option><option value="3">3 — Battant</option><option value="4">4 — Romantique</option><option value="5">5 — Observateur</option><option value="6">6 — Loyaliste</option><option value="7">7 — Épicurien</option><option value="8">8 — Chef</option><option value="9">9 — Médiateur</option></select></div>
+                    <div class="col-md-4"><label class="form-label small">Position de vie (AT)</label><select class="form-select form-select-sm" id="f-position"><option value="+/+">+/+ (OK/OK)</option><option value="+/-">+/- (OK/pas OK)</option><option value="-/+">-/+ (pas OK/OK)</option><option value="-/-">-/- (pas OK/pas OK)</option></select></div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6"><label class="form-label small">VAKOG primaire</label><select class="form-select form-select-sm" id="f-vakog-p"><option value="visuel">Visuel</option><option value="auditif">Auditif</option><option value="kinesthésique">Kinesthésique</option><option value="olfactif">Olfactif</option><option value="gustatif">Gustatif</option></select></div>
+                    <div class="col-md-6"><label class="form-label small">VAKOG secondaire</label><select class="form-select form-select-sm" id="f-vakog-s"><option value="visuel">Visuel</option><option value="auditif" selected>Auditif</option><option value="kinesthésique">Kinesthésique</option><option value="olfactif">Olfactif</option><option value="gustatif">Gustatif</option></select></div>
+                </div>
+                <h6 class="text-uppercase text-muted small mb-2">Analyse Transactionnelle</h6>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6"><label class="form-label small">États du moi — Base</label><div class="disc-tag-input" id="tags-at-base"></div></div>
+                    <div class="col-md-6"><label class="form-label small">États du moi — Stress</label><div class="disc-tag-input" id="tags-at-stress"></div></div>
+                </div>
+                <h6 class="text-uppercase text-muted small mb-2">Compétences</h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6"><label class="form-label small">Savoir-être</label><div class="disc-tag-input" id="tags-se"></div></div>
+                    <div class="col-md-6"><label class="form-label small">Méta-programmes</label><div class="disc-tag-input" id="tags-meta"></div></div>
+                </div>
+                <div id="crud-test-results-section" class="d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline-danger btn-sm d-none" id="btn-delete-persona"><i class="bi bi-trash me-1"></i>Supprimer</button>
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                <button class="btn btn-primary btn-sm" id="btn-save-persona"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL — Confirmation suppression -->
+<div class="modal fade" id="modalConfirmDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Confirmer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body"><p class="mb-0">Supprimer ce persona ? Cette action est irréversible.</p></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+                <button class="btn btn-danger btn-sm" id="btn-confirm-delete"><i class="bi bi-trash me-1"></i>Supprimer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastSuccess" class="toast" role="alert">
+        <div class="toast-header text-success"><i class="bi bi-check-circle-fill me-2"></i><strong class="me-auto">Succès</strong><button type="button" class="btn-close" data-bs-dismiss="toast"></button></div>
+        <div class="toast-body" id="toast-success-body">OK.</div>
+    </div>
+    <div id="toastInfo" class="toast" role="alert">
+        <div class="toast-header text-primary"><i class="bi bi-info-circle-fill me-2"></i><strong class="me-auto">Info</strong><button type="button" class="btn-close" data-bs-dismiss="toast"></button></div>
+        <div class="toast-body" id="toast-info-body">Information.</div>
+    </div>
+</div>
+
+<!-- BLOC E — chaîne JS stricte -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+
+<!-- DISC_ENGINE v3.0 — ordre TDZ respecté -->
+<script src="disc-schema.js"></script>
+<script src="disc-tests.js"></script>
+<script src="disc-profil-service.js"></script>
+<script src="disc-persona-store.js"></script>
+<script src="disc-scenarios.js"></script>
+<script src="disc-engine.js"></script>
+<script src="disc-controller.js"></script>
+<script>
+// Guard admin (CC-M11) — disc-controller.js gère l'init, on vérifie seulement ici
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  if (!window.bdbUser?.isAdmin) { location.href = '../../index.html'; return; }
+  // disc-controller.js révèle les sections bdb-admin-only et gère tout le CRUD.
+  // La sidebar admin (Distribution, Personas, Scénarios, Export IA) est accessible
+  // dès que le module est chargé.
+});
+</script>
+</body>
+</html>

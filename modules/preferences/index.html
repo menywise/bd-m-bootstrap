@@ -1,252 +1,722 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
 <html lang="fr" data-bs-theme="light">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Préférences chirurgien | BDB</title>
-  <!-- 1. Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <!-- 2. Bootstrap Icons -->
+  <title>Preferences chirurgien - Des Blocs &amp; Moi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
-  <!-- 3. CDS tokens — remplacer @latest par tag fixe avant déploiement OVH -->
-  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
-  <!-- 4. CDS print -->
-  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
-  <!-- 5. Quill (éditeur rich text) -->
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet"/>
-  <!-- 6. CDS overrides globaux -->
-  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
-  <!-- 7. CSS module -->
   <link href="preferences-ui.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --module-color: #93c5fd;
+      --module-color-strong: #60a5fa;
+      --module-color-text: #1e3a8a;
+      --module-color-soft: rgba(147, 197, 253, 0.15);
+    }
+  </style>
 </head>
-
-<body class="d-flex min-vh-100">
-<main class="d-flex flex-column flex-grow-1 main-content">
-
-  <!-- SHELL : PREMIER ENFANT de <main> — INTERDIT-E1 -->
-  <div id="bdb-shell"
-       data-module-title="Préférences chirurgiens"
-       data-module-icon="bi-person-gear">
-  </div>
-
-  <!-- CONTENU MODULE -->
-  <div class="container-fluid p-4 bg-light flex-grow-1">
-
-    <!-- Filtres -->
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body p-3">
-        <div class="row g-2 align-items-center">
-          <div class="col-12 col-md-5">
-            <div class="input-group">
-              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-              <input type="text" class="form-control border-start-0" id="pSearch" placeholder="Titre, description..."/>
-            </div>
+<body class="sidebar-closed">
+  <div id="wrapper">
+    <div id="bdb-shell"
+         data-module-title="Preferences chirurgiens"
+         data-module-icon="bi-person-gear"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice"
+         data-shell-theme="dbm">
+    </div>
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="bloc" style="--module-color:#93c5fd;--module-color-strong:#60a5fa;--module-color-text:#1e3a8a;--module-color-soft:rgba(147,197,253,0.15)">
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d Ariane">
+                <a href="../../index.html">Accueil</a>
+                <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+                <span>Preferences chirurgien</span>
+              </nav>
+            </section>
+            <section class="app-zone" data-zone="Page Title">
+              <div class="p-4 rounded shadow-sm mb-3 pref-page-banner">
+                <h1 class="mb-2 fw-bold"><i class="bi bi-sliders me-2"></i>Preferences chirurgien</h1>
+                <p class="mb-0 pref-page-subtitle">Preferences operatoires - globales et par protocole</p>
+              </div>
+            </section>
+            <section class="app-zone" data-zone="Filters">
+              <div class="pref-toolbar-bar">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <div class="input-group input-group-sm pref-toolbar-search">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="search" id="pSearch" class="form-control border-start-0" placeholder="Chirurgien, protocole, mot-cle..." aria-label="Recherche"/>
+                  </div>
+                  <select id="pGlobal" class="form-select form-select-sm pref-select-180">
+                    <option value="">Toutes</option>
+                    <option value="true">Globales</option>
+                    <option value="false">Par protocole</option>
+                    <option value="draft" class="pref-filter-admin d-none">Brouillons a valider</option>
+                  </select>
+                  <select id="pChirurgien" class="form-select form-select-sm pref-select-180">
+                    <option value="">Tous chirurgiens</option>
+                  </select>
+                  <div class="d-none ms-auto" id="headerAdminSlot"></div>
+                  <a href="admin.html" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm bdb-admin-only d-none">
+                    <i class="bi bi-gear me-1"></i>Administration
+                    <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                  </a>
+                </div>
+              </div>
+            </section>
+            <section class="app-zone" data-zone="Content">
+              <div id="prefsLoading" class="app-card d-none">
+                <div class="app-card-body">
+                  <div class="placeholder-glow">
+                    <div class="card border-0 shadow-sm mb-3"><div class="card-body"><div class="d-flex align-items-start gap-3">
+                      <div class="placeholder rounded-circle pref-chir-avatar"></div>
+                      <div class="flex-grow-1"><div class="placeholder col-5 rounded mb-2"></div><div class="placeholder col-3 rounded mb-2"></div><div class="placeholder col-8 rounded"></div></div>
+                    </div></div></div>
+                    <div class="card border-0 shadow-sm"><div class="card-body"><div class="d-flex align-items-start gap-3">
+                      <div class="placeholder rounded-circle pref-chir-avatar"></div>
+                      <div class="flex-grow-1"><div class="placeholder col-6 rounded mb-2"></div><div class="placeholder col-4 rounded mb-2"></div><div class="placeholder col-7 rounded"></div></div>
+                    </div></div></div>
+                  </div>
+                </div>
+              </div>
+              <div id="prefsEmpty" class="app-card d-none">
+                <div class="app-card-body app-empty pref-empty-state">
+                  <i class="bi bi-person-gear pref-empty-icon"></i>
+                  <p class="pref-empty-title">Aucune preference trouvee</p>
+                  <small class="pref-empty-help">Les preferences des chirurgiens apparaitront ici.</small>
+                  <div class="mt-3">
+                    <button class="btn btn-module d-none" id="btnNewEmpty">
+                      <i class="bi bi-plus-lg me-1"></i>Créer une préférence
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="prefsError" class="app-card d-none">
+                <div class="app-card-body app-empty pref-empty-state">
+                  <i class="bi bi-wifi-off pref-empty-icon pref-empty-icon--danger"></i>
+                  <p class="pref-empty-title">Donnees non chargees</p>
+                  <small class="pref-empty-help" id="prefsErrorMsg">La connexion n a pu aboutir - reessayez dans un instant.</small>
+                  <div class="mt-3">
+                    <button class="btn btn-outline-secondary btn-sm" id="prefsRetryBtn">
+                      <i class="bi bi-arrow-clockwise me-1"></i>Reessayer
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div id="prefsList"></div>
+            </section>
           </div>
-          <div class="col-6 col-md-2">
-            <select class="form-select" id="pGlobal">
-              <option value="">Toutes</option>
-              <option value="true">Globale</option>
-              <option value="false">Spécifique</option>
-            </select>
-          </div>
-          <div class="col-6 col-md-3">
-            <select class="form-select" id="pChirurgien"><option value="">Tous chirurgiens</option></select>
-          </div>
-          <!-- Slot admin — C.6 -->
-          <div class="col-12 col-md-auto d-none" id="headerAdminSlot"></div>
-        </div>
+          <footer class="app-footer">
+            <small>&copy; 2026 <span class="app-nom"></span> - Preferences chirurgien</small>
+          </footer>
+        </main>
       </div>
     </div>
-
-    <!-- États C.9 — loading -->
-    <div id="prefsLoading" class="d-none">
-      <div class="placeholder-glow">
-        <div class="card border-0 shadow-sm mb-3">
-          <div class="card-body">
-            <div class="d-flex align-items-start gap-3">
-              <div class="placeholder rounded-circle pref-chir-avatar"></div>
-              <div class="flex-grow-1">
-                <div class="placeholder col-5 rounded mb-2"></div>
-                <div class="placeholder col-3 rounded mb-2"></div>
-                <div class="placeholder col-8 rounded"></div>
+  </div>
+  <div class="modal fade" id="modalPref" tabindex="-1" aria-labelledby="modalPrefLabel">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down">
+      <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalPrefLabel">Nouvelle preference chirurgien</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div id="pFormError" class="alert alert-danger d-none" role="alert"></div>
+          <div class="row g-3 mb-3">
+            <div class="col-12 d-none" id="pChirurgienRow">
+              <label class="form-label fw-semibold small" for="pFormChirurgien">Chirurgien <span class="text-danger">*</span></label>
+              <select class="form-select" id="pFormChirurgien"><option value="">- Selectionner un chirurgien -</option></select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small" for="pTitre">Titre <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="pTitre" placeholder="Ex. Preferences globales - Dr X"/>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold small">Portee</label>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <select class="form-select form-select-sm pref-select-240" id="pScopeLevel">
+                  <option value="global">Globale (toutes interventions)</option>
+                  <option value="secteur">Par secteur</option>
+                  <option value="type">Par type de chirurgie</option>
+                  <option value="protocole">Par protocole</option>
+                </select>
+                <select class="form-select form-select-sm d-none pref-select-180" id="selScopeSecteur"><option value="">- Secteur -</option></select>
+                <select class="form-select form-select-sm d-none pref-select-180" id="selScopeType"><option value="">- Type -</option></select>
+              </div>
+              <div class="d-none mt-2" id="pProtoRow">
+                <div class="pref-proto-search-wrap">
+                  <input type="search" class="form-control form-control-sm" id="pProtoSearch" placeholder="Rechercher protocole par code ou libelle..."/>
+                  <div class="pref-proto-dropdown" id="pProtoResults"></div>
+                </div>
+                <div class="mt-1" id="pProtoSelected"></div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion" id="prefAccordion">
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accOuvSalle">
+                  <span class="pref-acc-icon pref-acc-icon-ouv"><i class="bi bi-door-open"></i></span>
+                  <span class="small fw-semibold">Ouverture de salle</span>
+                </button>
+              </h2>
+              <div id="accOuvSalle" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="pref-sub-item">
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" id="togBE" role="switch"/>
+                      <label class="form-check-label pref-sub-label" for="togBE"><i class="bi bi-lightning-charge text-warning me-1"></i>Bistouri electrique</label>
+                    </div>
+                    <div class="sub" id="beSub">
+                      <div class="row g-2 mb-2">
+                        <div class="col-6"><span class="pref-fl">Modele</span><select class="form-select form-select-sm" id="selBEModele"><option value="">-</option></select></div>
+                        <div class="col-6"><span class="pref-fl">Position en salle</span><select class="form-select form-select-sm" id="selBEPos"><option value="">-</option></select></div>
+                      </div>
+                      <div class="be-tabs">
+                        <button type="button" class="be-tab active" data-be="coupe">Coupe</button>
+                        <button type="button" class="be-tab" data-be="coag">Coagulation</button>
+                        <button type="button" class="be-tab" data-be="bipo">Bipolaire</button>
+                      </div>
+                      <div id="beCoupe" class="be-pnl on">
+                        <div class="be-rng mb-1"><span class="pref-fl mb-0 me-2">Puissance</span><input type="range" min="40" max="150" step="5" value="80" id="rCoupe"/><div class="be-val" id="vCoupe">80 W</div></div>
+                        <span class="pref-fl">Mode</span><select class="form-select form-select-sm w-auto" id="selCoupeMode"><option value="">-</option></select>
+                      </div>
+                      <div id="beCoag" class="be-pnl">
+                        <div class="be-rng mb-1"><span class="pref-fl mb-0 me-2">Puissance</span><input type="range" min="40" max="150" step="5" value="80" id="rCoag"/><div class="be-val" id="vCoag">80 W</div></div>
+                        <span class="pref-fl">Mode</span><select class="form-select form-select-sm w-auto" id="selCoagMode"><option value="">-</option></select>
+                      </div>
+                      <div id="beBipo" class="be-pnl">
+                        <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togBipo" role="switch"/><label class="form-check-label small" for="togBipo">Bipolaire utilise</label></div>
+                        <div class="sub" id="bipoSub">
+                          <div class="be-rng mb-1"><span class="pref-fl mb-0 me-2">Puissance</span><input type="range" min="15" max="80" step="5" value="15" id="rBipo"/><div class="be-val" id="vBipo">15 W</div></div>
+                          <span class="pref-fl">Mode</span><select class="form-select form-select-sm w-auto" id="selBipoMode"><option value="">-</option></select>
+                          <textarea class="form-control form-control-sm mt-2" id="inpCmtBipo" rows="1" placeholder="Commentaire bipolaire..."></textarea>
+                        </div>
+                      </div>
+                      <textarea class="form-control form-control-sm mt-2" id="inpCmtBE" rows="2" placeholder="Commentaire bistouri..."></textarea>
+                    </div>
+                  </div>
+                  <div class="pref-sub-item">
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" id="togNeptune" role="switch"/>
+                      <label class="form-check-label pref-sub-label" for="togNeptune"><i class="bi bi-water text-info me-1"></i>Neptune</label>
+                    </div>
+                    <div class="sub" id="neptuneSub"><textarea class="form-control form-control-sm" id="inpCmtNeptune" rows="2" placeholder="Commentaire Neptune..."></textarea></div>
+                  </div>
+                  <div class="pref-sub-item">
+                    <div class="form-check form-switch mb-0">
+                      <input class="form-check-input" type="checkbox" id="togGarrot" role="switch"/>
+                      <label class="form-check-label pref-sub-label" for="togGarrot"><i class="bi bi-bandaid text-danger me-1"></i>Garrot pneumatique</label>
+                    </div>
+                    <div class="sub" id="garrotSub">
+                      <div class="row g-2 mb-2">
+                        <div class="col-md-4"><span class="pref-fl">Position</span><select class="form-select form-select-sm" id="selGarrotPos"><option value="">-</option></select></div>
+                        <div class="col-md-4"><span class="pref-fl">Pression (mmHg)</span><input type="number" class="form-control form-control-sm" id="inpGarrotPression" placeholder="ex. 300" min="100" max="500" step="10"/></div>
+                        <div class="col-md-4"><span class="pref-fl">Duree max (min)</span><input type="number" class="form-control form-control-sm" id="inpGarrotDuree" placeholder="ex. 90" min="10" max="240" step="5"/></div>
+                      </div>
+                      <textarea class="form-control form-control-sm" id="inpCmtGarrot" rows="2" placeholder="Commentaire garrot..."></textarea>
+                    </div>
+                  </div>
+                  <div class="pref-sub-item">
+                    <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togColonneArthro" role="switch"/><label class="form-check-label pref-sub-label" for="togColonneArthro">Colonne arthro</label></div>
+                    <div class="sub" id="colonneArthroSub"><textarea class="form-control form-control-sm" id="inpCmtColonneArthro" rows="2" placeholder="Commentaire colonne arthro..."></textarea></div>
+                  </div>
+                  <div class="pref-sub-item">
+                    <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togTablePont" role="switch"/><label class="form-check-label pref-sub-label" for="togTablePont">Table pont</label></div>
+                    <div class="sub" id="tablePontSub"><textarea class="form-control form-control-sm" id="inpCmtTablePont" rows="2" placeholder="Commentaire table pont..."></textarea></div>
+                  </div>
+                  <div class="pref-sub-item">
+                    <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togTableBras" role="switch"/><label class="form-check-label pref-sub-label" for="togTableBras">Table a bras</label></div>
+                    <div class="sub" id="tableBrasSub"><textarea class="form-control form-control-sm" id="inpCmtTableBras" rows="2" placeholder="Commentaire table a bras..."></textarea></div>
+                  </div>
+                  <div class="pref-sub-item">
+                    <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togTablette" role="switch"/><label class="form-check-label pref-sub-label" for="togTablette">Tablette</label></div>
+                    <div class="sub" id="tabletteSub"><textarea class="form-control form-control-sm" id="inpCmtTablette" rows="2" placeholder="Commentaire tablette..."></textarea></div>
+                  </div>
+                  <div class="pref-sub-item">
+                    <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togBureau" role="switch"/><label class="form-check-label pref-sub-label" for="togBureau">Bureau - tabouret - ordinateur</label></div>
+                    <div class="sub" id="bureauSub"><textarea class="form-control form-control-sm" id="inpCmtBureau" rows="2" placeholder="Commentaire bureau..."></textarea></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accAmpli">
+                  <span class="pref-acc-icon pref-acc-icon-ampli"><i class="bi bi-camera-reels"></i></span>
+                  <span class="small fw-semibold">Amplificateur de brillance</span>
+                </button>
+              </h2>
+              <div id="accAmpli" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togAmpli" role="switch"/><label class="form-check-label small" for="togAmpli">Present</label></div>
+                  <div class="sub" id="ampliSub">
+                    <div class="mb-2">
+                      <span class="pref-fl">Taille</span>
+                      <div class="pref-chip-wrap">
+                        <input class="pref-chip" type="radio" name="grpAmpliTaille" id="chipAmpliPetit" value="Petit"/><label class="pref-chip-label" for="chipAmpliPetit">Petit</label>
+                        <input class="pref-chip" type="radio" name="grpAmpliTaille" id="chipAmpliGrand" value="Grand"/><label class="pref-chip-label" for="chipAmpliGrand">Grand</label>
+                      </div>
+                    </div>
+                    <div class="mb-2">
+                      <span class="pref-fl">Position en salle</span>
+                      <select class="form-select form-select-sm w-auto" id="selAmpliPos"><option value="">-</option></select>
+                    </div>
+                    <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togPedaleAmpli" role="switch"/><label class="form-check-label small" for="togPedaleAmpli">Pedale</label></div>
+                    <div class="sub" id="pedaleAmpliSub"><textarea class="form-control form-control-sm" id="inpCmtPedaleAmpli" rows="2" placeholder="Commentaire pedale..."></textarea></div>
+                    <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togResumeDose" role="switch"/><label class="form-check-label small" for="togResumeDose">Resume de dose</label></div>
+                    <div class="sub" id="resumeDoseSub"><textarea class="form-control form-control-sm" id="inpCmtResumeDose" rows="2" placeholder="Commentaire resume de dose..."></textarea></div>
+                    <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togImages" role="switch"/><label class="form-check-label small" for="togImages">Images</label></div>
+                    <div class="sub" id="imagesSub">
+                      <span class="pref-fl">Incidences</span>
+                      <div class="pref-chip-wrap mb-2">
+                        <input class="pref-chip" type="checkbox" name="grpAmpliImgFace" id="chipImgFace" value="Face"/><label class="pref-chip-label" for="chipImgFace">Face</label>
+                        <input class="pref-chip" type="checkbox" name="grpAmpliImgFace" id="chipImgProfil" value="Profil"/><label class="pref-chip-label" for="chipImgProfil">Profil</label>
+                      </div>
+                      <textarea class="form-control form-control-sm" id="inpCmtImages" rows="2" placeholder="Commentaire images..."></textarea>
+                    </div>
+                    <textarea class="form-control form-control-sm mt-2" id="inpCmtAmpli" rows="2" placeholder="Commentaire amplificateur..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accHabillage">
+                  <span class="pref-acc-icon pref-acc-icon-hab"><i class="bi bi-person-badge"></i></span>
+                  <span class="small fw-semibold">Habillage</span>
+                </button>
+              </h2>
+              <div id="accHabillage" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="mb-3">
+                    <span class="pref-fl">1re paire de gants</span>
+                    <div class="row g-2">
+                      <div class="col-4"><select class="form-select form-select-sm" id="selG1Taille"><option value="">- Taille -</option><option>5.5</option><option>6</option><option>6.5</option><option>7</option><option>7.5</option><option>8</option><option>8.5</option><option>9</option></select></div>
+                      <div class="col-8"><select class="form-select form-select-sm" id="selG1Modele"><option value="">- Modele -</option></select></div>
+                    </div>
+                  </div>
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togGants2" role="switch"/><label class="form-check-label small" for="togGants2">2e paire differente</label></div>
+                  <div class="sub" id="gants2Sub">
+                    <div class="row g-2 mb-2">
+                      <div class="col-4"><select class="form-select form-select-sm" id="selG2Taille"><option value="">- Taille -</option><option>5.5</option><option>6</option><option>6.5</option><option>7</option><option>7.5</option><option>8</option><option>8.5</option></select></div>
+                      <div class="col-8"><select class="form-select form-select-sm" id="selG2Modele"><option value="">- Modele -</option></select></div>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtGants2" rows="2" placeholder="Commentaire 2e paire..."></textarea>
+                  </div>
+                  <div class="row g-2 mb-2 mt-2">
+                    <div class="col-6"><span class="pref-fl">Type casaque</span><select class="form-select form-select-sm" id="selCasaqueType"><option value="">-</option></select></div>
+                    <div class="col-6"><span class="pref-fl">Taille casaque</span><select class="form-select form-select-sm" id="selCasaqueTaille"><option value="">-</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select></div>
+                  </div>
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togCasque" role="switch"/><label class="form-check-label small" for="togCasque">Casque sterile</label></div>
+                  <div class="sub" id="casqueSub"><textarea class="form-control form-control-sm" id="inpCmtCasque" rows="2" placeholder="Commentaire casque..."></textarea></div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accInstall">
+                  <span class="pref-acc-icon pref-acc-icon-install"><i class="bi bi-person-standing"></i></span>
+                  <span class="small fw-semibold">Installation patient</span>
+                </button>
+              </h2>
+              <div id="accInstall" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="mb-3">
+                    <span class="pref-fl">Table operatoire</span>
+                    <div class="pref-chip-wrap mb-2">
+                      <input class="pref-chip" type="radio" name="grpTable" id="chipTblStryker" value="Stryker"/><label class="pref-chip-label" for="chipTblStryker">Stryker</label>
+                      <input class="pref-chip" type="radio" name="grpTable" id="chipTblPlateau" value="Plateau"/><label class="pref-chip-label" for="chipTblPlateau">Plateau</label>
+                      <input class="pref-chip" type="radio" name="grpTable" id="chipTblEpaule" value="Table d epaule"/><label class="pref-chip-label" for="chipTblEpaule">Table d epaule</label>
+                    </div>
+                    <div class="d-none" id="plateauVarianteRow">
+                      <span class="pref-fl">Variante plateau</span>
+                      <div class="pref-chip-wrap mb-2">
+                        <input class="pref-chip" type="radio" name="grpPlateauVar" id="chipPVInverse" value="Inverse"/><label class="pref-chip-label" for="chipPVInverse">Inverse</label>
+                        <input class="pref-chip" type="radio" name="grpPlateauVar" id="chipPVArticulee" value="Articulee"/><label class="pref-chip-label" for="chipPVArticulee">Articulee</label>
+                        <input class="pref-chip" type="radio" name="grpPlateauVar" id="chipPVGamma" value="Clou gamma"/><label class="pref-chip-label" for="chipPVGamma">Clou gamma</label>
+                        <input class="pref-chip" type="radio" name="grpPlateauVar" id="chipPVGenu" value="Genu pectoral"/><label class="pref-chip-label" for="chipPVGenu">Genu pectoral</label>
+                      </div>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtTable" rows="2" placeholder="Commentaire table..."></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <span class="pref-fl">Decubitus</span>
+                    <select class="form-select form-select-sm w-auto" id="selDecubitus"><option value="">-</option></select>
+                  </div>
+                  <div class="mb-3">
+                    <span class="pref-fl">Appuis</span>
+                    <div class="pref-chip-wrap">
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aFD" value="Appui fessier / appui dos"/><label class="pref-chip-label" for="aFD">Appui fessier / appui dos</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aIL" value="Appui iliaque"/><label class="pref-chip-label" for="aIL">Appui iliaque</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aPB" value="Appui pubien"/><label class="pref-chip-label" for="aPB">Appui pubien</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aDL" value="Demi-lune / appui cheville"/><label class="pref-chip-label" for="aDL">Demi-lune / appui cheville</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aBG" value="Barre a genoux"/><label class="pref-chip-label" for="aBG">Barre a genoux</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aBGP" value="Barre a genoux (petit modele)"/><label class="pref-chip-label" for="aBGP">Barre a genoux (petit)</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aEG" value="Appui electrique de genou"/><label class="pref-chip-label" for="aEG">Appui electrique de genou</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aAB" value="Appui bras"/><label class="pref-chip-label" for="aAB">Appui bras</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aCA" value="Contre-appui"/><label class="pref-chip-label" for="aCA">Contre-appui</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aGY" value="Appui gyneco"/><label class="pref-chip-label" for="aGY">Appui gyneco</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aCO" value="Appui X"/><label class="pref-chip-label" for="aCO">Appui X</label>
+                      <input class="pref-chip" type="checkbox" name="grpAppuis" id="aTB" value="Tablette appui"/><label class="pref-chip-label" for="aTB">Tablette</label>
+                    </div>
+                  </div>
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togTetiere" role="switch"/><label class="form-check-label small" for="togTetiere">Tetiere</label></div>
+                  <div class="sub" id="tetiereSub">
+                    <span class="pref-fl">Modele</span>
+                    <div class="pref-chip-wrap mb-2">
+                      <input class="pref-chip" type="radio" name="grpTetiere" id="chipTetEpaule" value="Epaule"/><label class="pref-chip-label" for="chipTetEpaule">Epaule</label>
+                      <input class="pref-chip" type="radio" name="grpTetiere" id="chipTetHernie" value="Hernie cervicale"/><label class="pref-chip-label" for="chipTetHernie">Hernie cervicale</label>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtTetiere" rows="2" placeholder="Commentaire tetiere..."></textarea>
+                  </div>
+                  <div class="mb-2 mt-2">
+                    <span class="pref-fl">Gelose - coussin - sangle</span>
+                    <div class="pref-chip-wrap mb-2">
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gRT" value="Rond de tete"/><label class="pref-chip-label" for="gRT">Rond de tete</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gDL" value="Demi-lune"/><label class="pref-chip-label" for="gDL">Demi-lune</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gGE" value="Gelose"/><label class="pref-chip-label" for="gGE">Gelose</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gBT" value="Blanc triangulaire"/><label class="pref-chip-label" for="gBT">Blanc triangulaire</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gNR" value="Noir rectangle"/><label class="pref-chip-label" for="gNR">Noir rectangle</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gVA" value="Coussin VA"/><label class="pref-chip-label" for="gVA">Coussin VA</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gPTH" value="Coussin PTH"/><label class="pref-chip-label" for="gPTH">Coussin PTH</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gPTHV" value="Coussin PTH VA"/><label class="pref-chip-label" for="gPTHV">Coussin PTH VA</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gSN" value="Sangle noire"/><label class="pref-chip-label" for="gSN">Sangle noire</label>
+                      <input class="pref-chip" type="checkbox" name="grpGelose" id="gSR" value="Sangle rouge velcro"/><label class="pref-chip-label" for="gSR">Sangle rouge velcro</label>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtGelose" rows="2" placeholder="Commentaire gelose / coussin..."></textarea>
+                  </div>
+                  <div class="mt-2">
+                    <span class="pref-fl">Equipements supplementaires</span>
+                    <div class="pref-sub-item">
+                      <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togPiquetToupet" role="switch"/><label class="form-check-label pref-sub-label" for="togPiquetToupet">Piquet de toupet</label></div>
+                      <div class="sub" id="piquetToupetSub"><textarea class="form-control form-control-sm" id="inpCmtPiquetToupet" rows="1" placeholder="Commentaire..."></textarea></div>
+                    </div>
+                    <div class="pref-sub-item">
+                      <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togStresseurGenou" role="switch"/><label class="form-check-label pref-sub-label" for="togStresseurGenou">Stresseur de genou</label></div>
+                      <div class="sub" id="stresseurGenouSub"><textarea class="form-control form-control-sm" id="inpCmtStresseurGenou" rows="1" placeholder="Commentaire..."></textarea></div>
+                    </div>
+                    <div class="pref-sub-item">
+                      <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togCavalier" role="switch"/><label class="form-check-label pref-sub-label" for="togCavalier">Cavalier</label></div>
+                      <div class="sub" id="cavalierSub"><textarea class="form-control form-control-sm" id="inpCmtCavalier" rows="1" placeholder="Commentaire..."></textarea></div>
+                    </div>
+                    <div class="pref-sub-item">
+                      <div class="form-check form-switch mb-0"><input class="form-check-input" type="checkbox" id="togArceauTete" role="switch"/><label class="form-check-label pref-sub-label" for="togArceauTete">Arceau de tete</label></div>
+                      <div class="sub" id="arceauTeteSub"><textarea class="form-control form-control-sm" id="inpCmtArceauTete" rows="1" placeholder="Commentaire..."></textarea></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accLavage">
+                  <span class="pref-acc-icon pref-acc-icon-lav"><i class="bi bi-droplet"></i></span>
+                  <span class="small fw-semibold">Lavage pulse</span>
+                </button>
+              </h2>
+              <div id="accLavage" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togPulsavac" role="switch"/><label class="form-check-label small" for="togPulsavac">Pulsavac</label></div>
+                  <div class="sub" id="pulsavacSub"><textarea class="form-control form-control-sm" id="inpCmtPulsavac" rows="2" placeholder="Commentaire pulsavac..."></textarea></div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accCiment">
+                  <span class="pref-acc-icon pref-acc-icon-ciment"><i class="bi bi-droplet-half"></i></span>
+                  <span class="small fw-semibold">Ciment</span>
+                </button>
+              </h2>
+              <div id="accCiment" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togCiment" role="switch"/><label class="form-check-label small" for="togCiment">Ciment utilise</label></div>
+                  <div class="sub" id="cimentSub">
+                    <div class="mb-2">
+                      <span class="pref-fl">Produit</span>
+                      <div class="pref-chip-wrap">
+                        <input class="pref-chip" type="radio" name="grpCimentNom" id="cRefob" value="Refobacine"/><label class="pref-chip-label" for="cRefob">Refobacine</label>
+                        <input class="pref-chip" type="radio" name="grpCimentNom" id="cCemLV" value="Cemex Genta LV"/><label class="pref-chip-label" for="cCemLV">Cemex Genta LV</label>
+                        <input class="pref-chip" type="radio" name="grpCimentNom" id="cCemHV" value="Cemex Genta HV"/><label class="pref-chip-label" for="cCemHV">Cemex Genta HV</label>
+                        <input class="pref-chip" type="radio" name="grpCimentNom" id="cCemFast" value="Cemex Genta Fast"/><label class="pref-chip-label" for="cCemFast">Cemex Genta Fast</label>
+                        <input class="pref-chip" type="radio" name="grpCimentNom" id="cVanco" value="Vancogenx HV"/><label class="pref-chip-label" for="cVanco">Vancogenx HV</label>
+                      </div>
+                    </div>
+                    <div class="mb-2">
+                      <span class="pref-fl">Melangeur</span>
+                      <div class="pref-chip-wrap">
+                        <input class="pref-chip" type="radio" name="grpCimentMel" id="mBol" value="Bol a ciment"/><label class="pref-chip-label" for="mBol">Bol a ciment</label>
+                        <input class="pref-chip" type="radio" name="grpCimentMel" id="mEasy" value="Easymix"/><label class="pref-chip-label" for="mEasy">Easymix</label>
+                        <input class="pref-chip" type="radio" name="grpCimentMel" id="mEasyB" value="Easymix Bowl"/><label class="pref-chip-label" for="mEasyB">Easymix Bowl</label>
+                      </div>
+                    </div>
+                    <div class="mb-2">
+                      <span class="pref-fl">Bouchon</span>
+                      <div class="pref-chip-wrap">
+                        <input class="pref-chip" type="radio" name="grpCimentBouchon" id="bCplug" value="Cplug"/><label class="pref-chip-label" for="bCplug">Cplug</label>
+                        <input class="pref-chip" type="radio" name="grpCimentBouchon" id="bCemStop" value="Cem Stop"/><label class="pref-chip-label" for="bCemStop">Cem Stop</label>
+                        <input class="pref-chip" type="radio" name="grpCimentBouchon" id="bTPA" value="TPA Stryker"/><label class="pref-chip-label" for="bTPA">TPA Stryker</label>
+                      </div>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtCiment" rows="2" placeholder="Commentaire ciment..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accSutures">
+                  <span class="pref-acc-icon pref-acc-icon-sutures"><i class="bi bi-scissors"></i></span>
+                  <span class="small fw-semibold">Sutures</span>
+                </button>
+              </h2>
+              <div id="accSutures" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <span class="pref-fl mb-2 d-block">Plans de suture</span>
+                  <div class="sut-header d-none d-md-grid">
+                    <span class="pref-fl mb-0">Plan</span><span class="pref-fl mb-0">Fil</span>
+                    <span class="pref-fl mb-0">Taille</span><span class="pref-fl mb-0">Mode</span>
+                    <span class="pref-fl mb-0">Reference</span><span></span>
+                  </div>
+                  <div id="suturesList"></div>
+                  <button type="button" class="btn-add-sut" id="btnAddSuture"><i class="bi bi-plus-lg me-1"></i>Ajouter un plan</button>
+                  <hr class="my-3"/>
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togAgrafe" role="switch"/><label class="form-check-label small" for="togAgrafe">Agrafes cutanees</label></div>
+                  <div class="sub" id="agrafeSub">
+                    <span class="pref-fl">Modele</span>
+                    <div class="pref-chip-wrap mb-2">
+                      <input class="pref-chip" type="radio" name="grpAgrafe" id="agr35W" value="35 W"/><label class="pref-chip-label" for="agr35W">35 W</label>
+                      <input class="pref-chip" type="radio" name="grpAgrafe" id="agr35R" value="35 R"/><label class="pref-chip-label" for="agr35R">35 R</label>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtAgrafe" rows="2" placeholder="Commentaire agrafes..."></textarea>
+                  </div>
+                  <div class="mt-2"><span class="pref-fl">Allergie (latex, nickel...)</span><input type="text" class="form-control form-control-sm" id="inpAllergie" placeholder="ex. Allergie latex - gants sans latex"/></div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accPansement">
+                  <span class="pref-acc-icon pref-acc-icon-pansement"><i class="bi bi-patch-plus"></i></span>
+                  <span class="small fw-semibold">Pansement</span>
+                </button>
+              </h2>
+              <div id="accPansement" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togPansement" role="switch"/><label class="form-check-label small" for="togPansement">Pansement prefere</label></div>
+                  <div class="sub" id="pansementSub">
+                    <span class="pref-fl">Type</span>
+                    <div class="pref-chip-wrap mb-2">
+                      <input class="pref-chip" type="radio" name="grpPansement" id="panOpti" value="Optiskin"/><label class="pref-chip-label" for="panOpti">Optiskin</label>
+                      <input class="pref-chip" type="radio" name="grpPansement" id="panCica" value="Cicaplaie"/><label class="pref-chip-label" for="panCica">Cicaplaie</label>
+                      <input class="pref-chip" type="radio" name="grpPansement" id="panLeuk" value="Leukomed"/><label class="pref-chip-label" for="panLeuk">Leukomed</label>
+                      <input class="pref-chip" type="radio" name="grpPansement" id="panMefix" value="Mefix + compresse"/><label class="pref-chip-label" for="panMefix">Mefix + compresse</label>
+                      <input class="pref-chip" type="radio" name="grpPansement" id="panComp" value="Compressif"/><label class="pref-chip-label" for="panComp">Compressif</label>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtPansement" rows="2" placeholder="Commentaire pansement..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accImmob">
+                  <span class="pref-acc-icon pref-acc-icon-immob"><i class="bi bi-shield-plus"></i></span>
+                  <span class="small fw-semibold">Immobilisation post-op</span>
+                </button>
+              </h2>
+              <div id="accImmob" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togImmob" role="switch"/><label class="form-check-label small" for="togImmob">Immobilisation necessaire</label></div>
+                  <div class="sub" id="immobSub">
+                    <span class="pref-fl">Type</span>
+                    <div class="pref-chip-wrap mb-2">
+                      <input class="pref-chip" type="radio" name="grpImmob" id="imFormfit" value="Formfit"/><label class="pref-chip-label" for="imFormfit">Formfit</label>
+                      <input class="pref-chip" type="radio" name="grpImmob" id="imGilet" value="Gilet"/><label class="pref-chip-label" for="imGilet">Gilet</label>
+                      <input class="pref-chip" type="radio" name="grpImmob" id="imDujar" value="Dujarrier"/><label class="pref-chip-label" for="imDujar">Dujarrier</label>
+                      <input class="pref-chip" type="radio" name="grpImmob" id="imCoussin" value="Coussin d abduction"/><label class="pref-chip-label" for="imCoussin">Coussin d abduction</label>
+                      <input class="pref-chip" type="radio" name="grpImmob" id="imResine" value="Resine"/><label class="pref-chip-label" for="imResine">Resine</label>
+                      <input class="pref-chip" type="radio" name="grpImmob" id="imPlatre" value="Platre"/><label class="pref-chip-label" for="imPlatre">Platre</label>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtImmob" rows="2" placeholder="Commentaire immobilisation..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accInfiltr">
+                  <span class="pref-acc-icon pref-acc-icon-infiltr"><i class="bi bi-capsule"></i></span>
+                  <span class="small fw-semibold">Infiltrations</span>
+                </button>
+              </h2>
+              <div id="accInfiltr" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <span class="pref-fl">Molecules</span>
+                  <div class="pref-chip-wrap mb-2">
+                    <input class="pref-chip" type="checkbox" name="grpInfiltr" id="ifKeto" value="Ketoprofene"/><label class="pref-chip-label" for="ifKeto">Ketoprofene</label>
+                    <input class="pref-chip" type="checkbox" name="grpInfiltr" id="ifRopi" value="Ropivacaine"/><label class="pref-chip-label" for="ifRopi">Ropivacaine</label>
+                    <input class="pref-chip" type="checkbox" name="grpInfiltr" id="ifATX" value="Acide tranexanique"/><label class="pref-chip-label" for="ifATX">Acide tranexanique</label>
+                    <input class="pref-chip" type="checkbox" name="grpInfiltr" id="ifCata" value="Catapressan"/><label class="pref-chip-label" for="ifCata">Catapressan</label>
+                    <input class="pref-chip" type="checkbox" name="grpInfiltr" id="ifGenta" value="Gentamicine"/><label class="pref-chip-label" for="ifGenta">Gentamicine</label>
+                    <input class="pref-chip" type="checkbox" name="grpInfiltr" id="ifDipro" value="Diprostene"/><label class="pref-chip-label" for="ifDipro">Diprostene</label>
+                  </div>
+                  <textarea class="form-control form-control-sm" id="inpCmtInfiltr" rows="2" placeholder="Commentaire infiltrations..."></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accRedon">
+                  <span class="pref-acc-icon pref-acc-icon-redon"><i class="bi bi-funnel"></i></span>
+                  <span class="small fw-semibold">Redon</span>
+                </button>
+              </h2>
+              <div id="accRedon" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togRedon" role="switch"/><label class="form-check-label small" for="togRedon">Redon pose</label></div>
+                  <div class="sub" id="redonSub">
+                    <span class="pref-fl">Modele</span>
+                    <div class="pref-chip-wrap mb-2">
+                      <input class="pref-chip" type="radio" name="grpRedon" id="rdCLE" value="CLE"/><label class="pref-chip-label" for="rdCLE">CLE</label>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtRedon" rows="2" placeholder="Commentaire redon..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accBiobank">
+                  <span class="pref-acc-icon pref-acc-icon-bio"><i class="bi bi-bank"></i></span>
+                  <span class="small fw-semibold">Biobank</span>
+                </button>
+              </h2>
+              <div id="accBiobank" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togBiobank" role="switch"/><label class="form-check-label small" for="togBiobank">Prelevement Biobank</label></div>
+                  <div class="sub" id="biobankSub"><textarea class="form-control form-control-sm" id="inpCmtBiobank" rows="2" placeholder="Commentaire biobank..."></textarea></div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accLames">
+                  <span class="pref-acc-icon pref-acc-icon-lames"><i class="bi bi-tools"></i></span>
+                  <span class="small fw-semibold">Lames de scie</span>
+                </button>
+              </h2>
+              <div id="accLames" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togLames" role="switch"/><label class="form-check-label small" for="togLames">Lames necessaires</label></div>
+                  <div class="sub" id="lamesSub">
+                    <span class="pref-fl">Modele</span>
+                    <div class="pref-chip-wrap mb-2">
+                      <input class="pref-chip" type="radio" name="grpLames" id="lmKMS" value="KMS"/><label class="pref-chip-label" for="lmKMS">KMS</label>
+                    </div>
+                    <textarea class="form-control form-control-sm" id="inpCmtLames" rows="2" placeholder="Commentaire lames..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accAnapath">
+                  <span class="pref-acc-icon pref-acc-icon-anapath"><i class="bi bi-eyedropper"></i></span>
+                  <span class="small fw-semibold">Anatomopathologie</span>
+                </button>
+              </h2>
+              <div id="accAnapath" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togAnapath" role="switch"/><label class="form-check-label small" for="togAnapath">Prelevement anapath systematique</label></div>
+                  <div class="sub" id="anapathSub">
+                    <div class="text-muted small mb-2"><i class="bi bi-info-circle me-1"></i>Flacon formol + bon d envoi a preparer en salle.</div>
+                    <textarea class="form-control form-control-sm" id="inpCmtAnapath" rows="2" placeholder="Commentaire anapath..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accNotes">
+                  <span class="pref-acc-icon pref-acc-icon-notes"><i class="bi bi-pencil-square"></i></span>
+                  <span class="small fw-semibold">Notes libres</span>
+                </button>
+              </h2>
+              <div id="accNotes" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div id="pQuill" class="pref-quill-editor"></div>
+                </div>
+              </div>
+            </div>
+            <div class="acc-item accordion-item border-0">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accTags">
+                  <span class="pref-acc-icon pref-acc-icon-tags"><i class="bi bi-tags"></i></span>
+                  <span class="small fw-semibold">Tags</span>
+                </button>
+              </h2>
+              <div id="accTags" class="accordion-collapse collapse">
+                <div class="accordion-body pt-2">
+                  <div class="d-flex gap-2 mb-2">
+                    <input type="search" class="form-control form-control-sm" id="pTagSearch" placeholder="Rechercher (marque, intervention, personne)..."/>
+                  </div>
+                  <div id="pTagResults" class="d-flex flex-wrap gap-1 mb-2"></div>
+                  <div id="pSelectedTags" class="d-flex flex-wrap gap-1">
+                    <span class="text-muted small">Aucun tag selectionne</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="card border-0 shadow-sm mb-3">
-          <div class="card-body">
-            <div class="d-flex align-items-start gap-3">
-              <div class="placeholder rounded-circle pref-chir-avatar"></div>
-              <div class="flex-grow-1">
-                <div class="placeholder col-6 rounded mb-2"></div>
-                <div class="placeholder col-4 rounded mb-2"></div>
-                <div class="placeholder col-7 rounded"></div>
-              </div>
-            </div>
-          </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module" id="pBtnSave"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
         </div>
-        <div class="card border-0 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex align-items-start gap-3">
-              <div class="placeholder rounded-circle pref-chir-avatar"></div>
-              <div class="flex-grow-1">
-                <div class="placeholder col-4 rounded mb-2"></div>
-                <div class="placeholder col-5 rounded mb-2"></div>
-                <div class="placeholder col-6 rounded"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- États C.9 — empty -->
-    <div id="prefsEmpty" class="d-none">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body text-center py-5 text-muted">
-          <i class="bi bi-person-gear fs-1 d-block mb-3"></i>
-          <p class="mb-0">Aucune préférence trouvée</p>
-          <button class="btn btn-outline-primary mt-3 d-none" id="btnNewEmpty">
-            <i class="bi bi-plus-lg me-1"></i>Créer une préférence
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- États C.9 — error -->
-    <div id="prefsError" class="d-none">
-      <div class="cds-error-state">
-        <i class="bi bi-wifi-off cds-error-icon"></i>
-        <div class="cds-error-title">Données non chargées</div>
-        <div class="cds-error-msg" id="prefsErrorMsg">Impossible de contacter le serveur.</div>
-        <button class="btn btn-sm btn-outline-danger cds-error-retry" id="prefsRetryBtn">
-          <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-        </button>
-      </div>
-    </div>
-
-    <!-- Liste -->
-    <div id="prefsList"></div>
-
-  </div>
-
-  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
-    <small>&copy; 2026 Bible de Bloc — CDS Compliant</small>
-  </footer>
-</main>
-
-<!-- =====================
-     MODAL CREATE/EDIT
-     ===================== -->
-<div class="modal fade" id="modalPref" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalPrefLabel">Nouvelle préférence</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div id="pFormError" class="alert alert-danger d-none"></div>
-        <div class="row g-3">
-
-          <!-- Chirurgien (création admin uniquement) -->
-          <div class="col-12" id="pChirurgienRow">
-            <label class="form-label fw-semibold">Chirurgien <span class="text-danger">*</span></label>
-            <select class="form-select" id="pFormChirurgien"><option value="">— Sélectionner —</option></select>
-          </div>
-
-          <!-- Titre -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Titre <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="pTitre" placeholder="Ex: Installation standard arthroscopie"/>
-          </div>
-
-          <!-- Globale -->
-          <div class="col-12">
-            <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="pIsGlobal" role="switch" checked/>
-              <label class="form-check-label fw-semibold" for="pIsGlobal">
-                <i class="bi bi-globe me-1 text-primary"></i>Préférence globale (toutes interventions)
-              </label>
-            </div>
-          </div>
-
-          <!-- Fiche liée (si non globale) -->
-          <div class="col-12 d-none" id="pFicheRow">
-            <label class="form-label fw-semibold">Fiche d'intervention liée</label>
-            <select class="form-select" id="pFormFiche"><option value="">— Sélectionner —</option></select>
-          </div>
-
-          <!-- Description (Quill) -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Description / Détails</label>
-            <div id="pQuill" class="pref-quill-editor"></div>
-          </div>
-
-          <!-- Tags -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Tags <span class="text-muted fw-normal">(max 5)</span></label>
-            <div class="d-flex gap-2 mb-2">
-              <input type="text" class="form-control" id="pTagSearch" placeholder="Rechercher (personne, marque, intervention)..."/>
-            </div>
-            <div id="pTagResults" class="d-flex flex-wrap gap-1 mb-2"></div>
-            <div id="pSelectedTags" class="d-flex flex-wrap gap-1">
-              <span class="text-muted small">Aucun tag sélectionné</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-primary" id="pBtnSave"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
       </div>
     </div>
   </div>
-</div>
-
-<!-- =====================
-     MODAL DÉTAIL (lecture)
-     ===================== -->
-<div class="modal fade" id="modalPrefView" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalViewLabel">Préférence</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="modalViewBody">
-        <div class="placeholder-glow p-3">
-          <div class="placeholder col-5 rounded mb-3"></div>
-          <div class="placeholder col-8 rounded mb-2"></div>
-          <div class="placeholder col-6 rounded"></div>
+  <div class="modal fade" id="modalPrefView" tabindex="-1" aria-labelledby="modalPrefViewLabel">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down">
+      <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalViewLabel">Preference</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
         </div>
+        <div class="modal-body" id="modalViewBody"></div>
+        <div class="modal-footer" id="modalViewFooter"></div>
       </div>
-      <div class="modal-footer" id="modalViewFooter"></div>
     </div>
   </div>
-</div>
-
-<!-- TOASTS -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header">
-      <i class="bi me-2" id="toastIcon"></i>
-      <strong class="me-auto" id="toastTitle">Info</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+  <!-- TOAST — pattern bdbToast (bdb-ui.js) -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastMsg" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastText">Message</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
     </div>
-    <div class="toast-body" id="toastMsg">—</div>
   </div>
-</div>
-
-<!-- JS — ordre immuable -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-<script src="../../js/supabase-client.js"></script>
-<script src="../../js/bdb-shell.js"></script>
-
-<script src="preferences-app.js"></script>
-</body>
-</html>
+  <!-- SCRIPTS — Chaîne JS V5 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script src="preferences-app.js"></script>
+  <!-- PWA

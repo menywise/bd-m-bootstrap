@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>Veille documentaire - Des Blocs &amp; Moi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="veille-documentaire-ui.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --module-color: #c4b5fd;
+      --module-color-strong: #a78bfa;
+      --module-color-text: #4c1d95;
+      --module-color-soft: rgba(196, 181, 253, 0.15);
+    }
+  </style>
+</head>
+<body class="sidebar-closed">
+  <div id="wrapper">
+    <div id="bdb-shell"
+         data-module-title="Veille documentaire"
+         data-module-icon="bi-newspaper"
+         data-root-path="../../"
+         data-shell-kind="backoffice"
+         data-login-mode="modal"
+         data-shell-theme="dbm">
+    </div>
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="savoir" style="--module-color:#c4b5fd;--module-color-strong:#a78bfa;--module-color-text:#4c1d95;--module-color-soft:rgba(196,181,253,0.15)">
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d Ariane">
+                <a href="../../index.html">Accueil</a>
+                <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+                <span>Veille documentaire</span>
+              </nav>
+            </section>
+            <section class="app-zone" data-zone="Page Title">
+              <div class="p-4 rounded shadow-sm mb-3" style="background:linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%);color:#4c1d95">
+                <h1 class="mb-2 fw-bold"><i class="bi bi-newspaper me-2"></i>Veille documentaire</h1>
+                <p style="opacity:0.75" class="mb-0">Constructeur de requetes ciblees - sources fiables, mots-cles, recettes rapides</p>
+              </div>
+            </section>
+            <section class="app-zone" data-zone="Filters">
+              <div style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1rem">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <div class="input-group input-group-sm" style="max-width:360px;flex:1 1 240px">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="search" class="form-control border-start-0" id="veilleSearch" placeholder="Rechercher un profil, une source..." aria-label="Recherche"/>
+                  </div>
+                  <select id="veilleFilterCategory" class="form-select form-select-sm" style="width:180px">
+                    <option value="">Toutes categories</option>
+                    <option value="institutional">Institutionnel</option>
+                    <option value="academic">Academique</option>
+                    <option value="professional">Professionnel</option>
+                    <option value="other">Autre</option>
+                  </select>
+                  <a href="admin.html" class="btn btn-outline-secondary btn-sm bdb-admin-only d-none ms-auto">
+                    <i class="bi bi-gear me-1"></i>Administration
+                  </a>
+                </div>
+              </div>
+            </section>
+            <section class="app-zone" data-zone="Content">
+              <div id="loadingState" class="app-card">
+                <div class="app-card-body">
+                  <div class="placeholder-glow p-2">
+                    <div class="placeholder col-8 rounded mb-3 fs-5"></div>
+                    <div class="placeholder col-5 rounded mb-2"></div>
+                    <div class="placeholder col-7 rounded mb-2"></div>
+                    <div class="placeholder col-4 rounded"></div>
+                  </div>
+                </div>
+              </div>
+              <div id="emptyState" class="app-card d-none">
+                <div class="app-card-body app-empty" style="padding:3rem 1rem">
+                  <i class="bi bi-search" style="font-size:3rem;color:var(--app-text-muted);opacity:.5"></i>
+                  <p style="font-size:1rem;font-weight:500;margin:1rem 0 .5rem">Impossible de charger le module</p>
+                </div>
+              </div>
+              <div id="errorState" class="d-none"></div>
+              <div id="dorkApp" class="app-card d-none" data-accent="module" style="padding:0;overflow:hidden">
+                <div class="row g-0 h-100">
+                  <div class="col-12 col-md-3 col-xl-2 dk-col-sidebar bg-white">
+                    <div class="dk-sidebar-inner">
+                      <div class="dk-section">
+                        <div class="dk-section-head">
+                          <span class="dk-section-label">Profil actif</span>
+                        </div>
+                        <div class="dk-profile-card" id="dkProfileCard"
+                             role="button" tabindex="0" aria-expanded="false" aria-haspopup="listbox">
+                          <span class="dk-profile-emoji" id="dkEmoji">[P]</span>
+                          <div class="dk-profile-text">
+                            <div class="dk-profile-name" id="dkName">Chargement...</div>
+                            <div class="dk-profile-hint" id="dkHint"></div>
+                          </div>
+                          <i class="bi bi-chevron-down dk-profile-chevron"></i>
+                        </div>
+                        <div class="dk-profile-dropdown" id="dkDropdown" role="listbox"></div>
+                      </div>
+                      <div class="dk-section">
+                        <div class="dk-section-head">
+                          <span class="dk-section-label">Sources fiables</span>
+                        </div>
+                        <div class="dk-sources-grid" id="dkSources"></div>
+                      </div>
+                      <div class="dk-section">
+                        <div class="dk-section-head">
+                          <span class="dk-section-label">Mots-cles</span>
+                          <span class="dk-kw-counter" id="dkKwCount">0/3</span>
+                        </div>
+                        <div class="dk-kw-wrap" id="dkKeywords"></div>
+                      </div>
+                      <div class="dk-section">
+                        <div class="dk-section-head">
+                          <span class="dk-section-label">Recettes rapides</span>
+                          <span class="dk-section-hint" title="Cliquez pour pre-remplir le formulaire">1 clic</span>
+                        </div>
+                        <div id="dkRecipes" class="dk-recipes-wrap"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-9 col-xl-10 dk-col-workspace">
+                    <div class="dk-mode-toggle">
+                      <button class="dk-mode-btn active" id="btnModeAssisted">
+                        <i class="bi bi-ui-radios me-1"></i>Formulaire
+                      </button>
+                      <button class="dk-mode-btn" id="btnModeExpert">
+                        <i class="bi bi-code-slash me-1"></i>Expert
+                      </button>
+                      <span class="dk-mode-hint" id="dkModeHint">Decrivez votre besoin - le dork se construit tout seul</span>
+                    </div>
+                    <div id="dkAssistedZone" class="dk-assisted-zone">
+                      <div class="dk-as-section">
+                        <div class="dk-as-section-title">
+                          <i class="bi bi-search me-1"></i>Trouvez des pages avec...
+                        </div>
+                        <div class="dk-as-grid">
+                          <div class="dk-as-row">
+                            <label class="dk-as-label" for="asAllWords">Tous ces mots</label>
+                            <input type="text" id="asAllWords" class="form-control form-control-sm font-monospace" placeholder="protocole asepsie" autocomplete="off">
+                            <span class="dk-as-hint">recherche normale</span>
+                          </div>
+                          <div class="dk-as-row">
+                            <label class="dk-as-label" for="asExact">Expression exacte</label>
+                            <input type="text" id="asExact" class="form-control form-control-sm font-monospace" placeholder="asepsie chirurgicale" autocomplete="off">
+                            <span class="dk-as-hint">"..."</span>
+                          </div>
+                          <div class="dk-as-row">
+                            <label class="dk-as-label" for="asAnyWords">L un de ces mots</label>
+                            <input type="text" id="asAnyWords" class="form-control form-control-sm font-monospace" placeholder="glossaire lexique" autocomplete="off">
+                            <span class="dk-as-hint">OR</span>
+                          </div>
+                          <div class="dk-as-row">
+                            <label class="dk-as-label" for="asNone">Aucun de ces mots</label>
+                            <input type="text" id="asNone" class="form-control form-control-sm font-monospace" placeholder="forum blog" autocomplete="off">
+                            <span class="dk-as-hint">-mot</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="dk-as-section">
+                        <div class="dk-as-section-title">
+                          <i class="bi bi-funnel me-1"></i>Affinez par...
+                        </div>
+                        <div class="dk-as-grid">
+                          <div class="dk-as-row">
+                            <label class="dk-as-label" for="asAppearsIn">Les termes apparaissent</label>
+                            <select id="asAppearsIn" class="form-select form-select-sm" style="width:180px;max-width:100%">
+                              <option value="all">Partout dans la page</option>
+                              <option value="title">Dans le titre</option>
+                              <option value="url">Dans l URL</option>
+                              <option value="body">Dans le corps du texte</option>
+                            </select>
+                          </div>
+                          <div class="dk-as-row">
+                            <label class="dk-as-label" for="asFiletype">Type de fichier</label>
+                            <select id="asFiletype" class="form-select form-select-sm" style="width:180px;max-width:100%">
+                              <option value="all">Tous les formats</option>
+                              <option value="pdf">PDF</option>
+                              <option value="doc">DOC</option>
+                              <option value="docx">DOCX</option>
+                              <option value="xls">XLS</option>
+                              <option value="xlsx">XLSX</option>
+                              <option value="ppt">PPT</option>
+                              <option value="pptx">PPTX</option>
+                            </select>
+                          </div>
+                          <div class="dk-as-row">
+                            <label class="dk-as-label" for="asSite">Site ou domaine</label>
+                            <input type="text" id="asSite" class="form-control form-control-sm font-monospace" placeholder="has-sante.fr" autocomplete="off">
+                            <span class="dk-as-hint">site:</span>
+                          </div>
+                          <div class="dk-as-row">
+                            <label class="dk-as-label">Publie entre</label>
+                            <input type="text" id="asAfter" class="form-control form-control-sm font-monospace dk-as-input-year" placeholder="2018" maxlength="4" autocomplete="off">
+                            <span class="dk-as-sep">-</span>
+                            <input type="text" id="asBefore" class="form-control form-control-sm font-monospace dk-as-input-year" placeholder="2025" maxlength="4" autocomplete="off">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="dk-as-section">
+                        <div class="dk-as-section-title">
+                          <i class="bi bi-heart-pulse me-1"></i>Themes DBM
+                          <span class="dk-as-badge">specifique bloc operatoire</span>
+                        </div>
+                        <div id="dkThemes" class="dk-themes-wrap"></div>
+                      </div>
+                      <div class="dk-as-actions">
+                        <button class="btn btn-module btn-sm" id="btnBuildAssisted">
+                          <i class="bi bi-play-fill me-1"></i>Construire le dork
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" id="btnVariantesAssisted" title="Genere 23 variantes de recherche automatiquement">
+                          <i class="bi bi-layers me-1"></i>Variantes <span class="badge bg-primary-subtle text-primary ms-1">x23</span>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" id="btnClearAssisted">
+                          <i class="bi bi-x-circle me-1"></i>Effacer
+                        </button>
+                      </div>
+                    </div>
+                    <div id="dkExpertZone" class="d-none">
+                      <div class="dk-input-zone">
+                        <div class="dk-input-row">
+                          <span class="dk-input-prompt">$&gt;</span>
+                          <input type="text" id="baseQuery" class="dk-base-input" placeholder='"protocole asepsie" ou instrumentation orthopedique' autocomplete="off" spellcheck="false">
+                          <button class="btn btn-module btn-sm" id="btnBuild">
+                            <i class="bi bi-play-fill me-1"></i>Generer
+                          </button>
+                          <button class="btn btn-outline-primary btn-sm" id="btnPatterns" title="Genere 23 variantes de recherche automatiquement">
+                            <i class="bi bi-layers me-1"></i>Variantes <span class="badge bg-primary-subtle text-primary ms-1">x23</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="dk-controls">
+                        <span class="dk-ctrl-label">Operateurs</span>
+                        <div id="dkOps" class="d-flex flex-wrap gap-1"></div>
+                        <div class="dk-ctrl-sep"></div>
+                        <span class="dk-ctrl-label">Fichiers</span>
+                        <div id="dkFts" class="d-flex flex-wrap gap-1"></div>
+                      </div>
+                    </div>
+                    <div class="dk-result-zone">
+                      <div class="dk-result-inner">
+                        <span class="dk-result-caret">&#9611;</span>
+                        <span class="dk-result-text empty" id="dkResultText">Saisissez une requete puis cliquez sur Generer</span>
+                      </div>
+                      <div class="dk-result-btns hidden" id="dkResultBtns">
+                        <button class="dk-rbn dk-rbn-copy" id="btnCopy">
+                          <i class="bi bi-clipboard me-1"></i>Copier
+                        </button>
+                        <a class="dk-rbn dk-rbn-open" id="btnOpenDork" href="#" target="_blank" rel="noopener noreferrer">
+                          <i class="bi bi-box-arrow-up-right me-1"></i>Google
+                        </a>
+                      </div>
+                    </div>
+                    <div class="dk-history">
+                      <div class="dk-history-bar">
+                        <div class="dk-history-title">
+                          <i class="bi bi-clock-history"></i>Historique <span class="dk-count-badge" id="dorksCount">0/25</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                          <button class="dk-clear-btn" id="btnExportHistory" title="Exporter l historique">
+                            <i class="bi bi-download me-1"></i><span class="d-none d-lg-inline">Export</span>
+                          </button>
+                          <button class="dk-clear-btn" id="btnExportValidated" title="Exporter les valides">
+                            <i class="bi bi-check-circle me-1"></i><span class="d-none d-lg-inline">Valides</span>
+                          </button>
+                          <label class="dk-clear-btn mb-0" title="Importer un profil JSON">
+                            <i class="bi bi-upload me-1"></i><span class="d-none d-lg-inline">Import</span>
+                            <input type="file" id="importProfileFile" accept=".json" class="d-none">
+                          </label>
+                          <button class="dk-clear-btn" id="btnClearHistory">
+                            <i class="bi bi-trash me-1"></i><span class="d-none d-lg-inline">Effacer</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div id="dorksHistory"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+          <footer class="app-footer">
+            <small>&copy; 2026 <span class="app-nom"></span> - Veille documentaire</small>
+          </footer>
+        </main>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modalProfile" tabindex="-1" aria-labelledby="modalProfileLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalProfileLabel"><i class="bi bi-person-badge me-2"></i>Profil metier</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="profileId">
+          <div class="row g-3">
+            <div class="col-8">
+              <label class="form-label small fw-semibold" for="profileLabel">Label *</label>
+              <input type="text" id="profileLabel" class="form-control" placeholder="Ex: IBODE / Bloc operatoire">
+            </div>
+            <div class="col-4">
+              <label class="form-label small fw-semibold" for="profileIcon">Icone</label>
+              <input type="text" id="profileIcon" class="form-control" placeholder="[P]" maxlength="2">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold" for="profileDescription">Description</label>
+              <input type="text" id="profileDescription" class="form-control" placeholder="Ex : Recherches protocoles bloc operatoire">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold" for="profileKeywordsInput">Mots-cles (un par ligne)</label>
+              <textarea id="profileKeywordsInput" class="form-control font-monospace" rows="4" placeholder="instrumentation chirurgicale&#10;asepsie&#10;protocole bloc operatoire"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold" for="profileExclusions">Exclusions (un par ligne)</label>
+              <textarea id="profileExclusions" class="form-control font-monospace" rows="2" placeholder="-forum&#10;-blog"></textarea>
+              <div class="form-text">Operateurs Google a exclure (-forum, -site:spam.com)</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module" id="btnSaveProfile">
+            <i class="bi bi-floppy me-1"></i>Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modalSource" tabindex="-1" aria-labelledby="modalSourceLabel">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalSourceLabel"><i class="bi bi-database me-2"></i>Source fiable</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="sourceId">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold" for="sourceLabel">Label *</label>
+            <input type="text" id="sourceLabel" class="form-control" placeholder="Ex: HAS">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold" for="sourceDomains">Domaines * (un par ligne)</label>
+            <textarea id="sourceDomains" class="form-control font-monospace" rows="3" placeholder="has-sante.fr&#10;www.has-sante.fr"></textarea>
+            <div class="form-text">Sans http:// - ex : has-sante.fr</div>
+          </div>
+          <div class="row g-3">
+            <div class="col-8">
+              <label class="form-label small fw-semibold" for="sourceCategory">Categorie</label>
+              <select id="sourceCategory" class="form-select" style="width:180px;max-width:100%">
+                <option value="institutional">Institutionnel</option>
+                <option value="academic">Academique</option>
+                <option value="professional">Professionnel</option>
+                <option value="other">Autre</option>
+              </select>
+            </div>
+            <div class="col-4">
+              <label class="form-label small fw-semibold" for="sourceWeight">Poids (1-5)</label>
+              <input type="number" id="sourceWeight" class="form-control" min="1" max="5" value="2">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module" id="btnSaveSource">
+            <i class="bi bi-floppy me-1"></i>Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dk-toasts" id="dkToasts"></div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script src="veille-documentaire-data.js"></script>
+  <script src="veille-documentaire-state.js"></script>
+  <script src="veille-documentaire-engine.js"></script>
+  <script src="veille-documentaire-render.js"></script>
+  <script src="veille-documentaire-app.js"></script>
+</body>
+</html>

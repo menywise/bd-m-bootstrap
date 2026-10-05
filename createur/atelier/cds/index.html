@@ -1,0 +1,400 @@
+﻿<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CDS — Portail des références | Atelier BDB</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../atelier-base.css" rel="stylesheet"/>
+  <style>
+    .cds-card { transition: box-shadow .15s; cursor: pointer; text-decoration: none; color: inherit; }
+    .cds-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); text-decoration: none; color: inherit; }
+    .badge-l3 { background: #2d1f5e; }
+    .badge-ref { background: #0d6efd; }
+    .badge-figee { background: #6c757d; }
+    .badge-backlog { background: #ffc107; color: #000; }
+    .section-title { border-left: 4px solid #2d1f5e; padding-left: .75rem; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark px-4 py-3" style="background:#2d1f5e;">
+  <span class="navbar-brand fw-bold">
+    <i class="bi bi-grid-3x3-gap me-2"></i>CDS — Portail des références
+  </span>
+  <span class="badge bg-light text-dark">Atelier L3 — Ne ship jamais</span>
+</nav>
+
+<div class="container-fluid p-4">
+
+  <!-- THEMES -->
+  <h5 class="section-title mb-3 mt-2">Thèmes & Templates</h5>
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="theme-crud.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-table text-primary fs-5"></i>
+          <strong>theme-crud.html</strong>
+          <span class="badge badge-ref ms-auto">référence</span>
+        </div>
+        <p class="text-muted small mb-0">Pattern CRUD complet — toolbar, pills, modal, btn-group, 3 états.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="theme-landing.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-house text-success fs-5"></i>
+          <strong>theme-landing.html</strong>
+          <span class="badge badge-ref ms-auto">référence</span>
+        </div>
+        <p class="text-muted small mb-0">Page d'accueil / portail — hero, cards groupes, navigation.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="theme-wizard.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-signpost-split text-warning fs-5"></i>
+          <strong>theme-wizard.html</strong>
+          <span class="badge badge-ref ms-auto">référence</span>
+        </div>
+        <p class="text-muted small mb-0">Formulaire multi-étapes — stepper, validation, navigation.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="theme-dashboard-print-paysage.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-printer text-secondary fs-5"></i>
+          <strong>theme-dashboard-print-paysage.html</strong>
+          <span class="badge badge-ref ms-auto">référence</span>
+        </div>
+        <p class="text-muted small mb-0">Dashboard imprimable — format paysage A4.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="theme-dashboard-print-portrait.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-printer text-secondary fs-5"></i>
+          <strong>theme-dashboard-print-portrait.html</strong>
+          <span class="badge badge-ref ms-auto">référence</span>
+        </div>
+        <p class="text-muted small mb-0">Dashboard imprimable — format portrait A4.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="theme-showcase.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-palette text-danger fs-5"></i>
+          <strong>theme-showcase.html</strong>
+          <span class="badge badge-ref ms-auto">référence</span>
+        </div>
+        <p class="text-muted small mb-0">Catalogue composants — tous les patterns CDS en un fichier.</p>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- TEMPLATE VIERGE -->
+  <h5 class="section-title mb-3">Template vierge module</h5>
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="template-vierge/index.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-file-earmark-code text-primary fs-5"></i>
+          <strong>template-vierge/index.html</strong>
+          <span class="badge badge-l3 ms-auto">L3</span>
+        </div>
+        <p class="text-muted small mb-0">HTML module vierge v3.0.0 — chaîne complète, bdb-ui.js, slot admin.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="template-vierge/[module]-app.js" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-file-earmark-code text-warning fs-5"></i>
+          <strong>template-vierge/[module]-app.js</strong>
+          <span class="badge badge-l3 ms-auto">L3</span>
+        </div>
+        <p class="text-muted small mb-0">JS module v3.1.0 — logique métier pure, zéro reimplementation socle.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="template-vierge/[module]-ui.css" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-file-earmark-code text-success fs-5"></i>
+          <strong>template-vierge/[module]-ui.css</strong>
+          <span class="badge badge-l3 ms-auto">L3</span>
+        </div>
+        <p class="text-muted small mb-0">CSS module v3.0.0 — scopé #[module]App, zéro global.</p>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- PAGES RACINE FIGÉES -->
+  <h5 class="section-title mb-3">Pages racine — copies figées</h5>
+  <div class="alert alert-warning d-flex gap-2 mb-3">
+    <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+    <div><strong>Copies de référence.</strong> Modifier l'original à la racine du projet, jamais ici.
+    Ces fichiers sont figés pour éviter les hallucinations en session.</div>
+  </div>
+  <div class="row g-3 mb-4">
+    <?php
+    $pages = [
+      ['login.html',          'bi-box-arrow-in-right', 'Auth principale — Supabase email + OAuth Google.'],
+      ['pending.html',        'bi-hourglass-split',    'Compte en attente de validation admin.'],
+      ['reset-password.html', 'bi-key',                'Réinitialisation mot de passe Supabase.'],
+      ['403.html',            'bi-shield-x',           'Accès refusé — rôle insuffisant.'],
+      ['404.html',            'bi-question-circle',    'Page introuvable.'],
+      ['unauthorized.html',   'bi-ban',                'Non autorisé — session invalide ou expirée.'],
+    ];
+    ?>
+    <!-- Login -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-racine/login.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-box-arrow-in-right text-primary fs-5"></i>
+          <strong>login.html</strong>
+          <span class="badge badge-figee ms-auto">figée</span>
+        </div>
+        <p class="text-muted small mb-0">Auth principale — Supabase email + OAuth Google.</p>
+      </a>
+    </div>
+    <!-- Pending -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-racine/pending.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-hourglass-split text-warning fs-5"></i>
+          <strong>pending.html</strong>
+          <span class="badge badge-figee ms-auto">figée</span>
+        </div>
+        <p class="text-muted small mb-0">Compte en attente de validation admin.</p>
+      </a>
+    </div>
+    <!-- Reset -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-racine/reset-password.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-key text-secondary fs-5"></i>
+          <strong>reset-password.html</strong>
+          <span class="badge badge-figee ms-auto">figée</span>
+        </div>
+        <p class="text-muted small mb-0">Réinitialisation mot de passe Supabase.</p>
+      </a>
+    </div>
+    <!-- 403 -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-racine/403.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-shield-x text-danger fs-5"></i>
+          <strong>403.html</strong>
+          <span class="badge badge-figee ms-auto">figée</span>
+        </div>
+        <p class="text-muted small mb-0">Accès refusé — rôle insuffisant.</p>
+      </a>
+    </div>
+    <!-- 404 -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-racine/404.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-question-circle text-secondary fs-5"></i>
+          <strong>404.html</strong>
+          <span class="badge badge-figee ms-auto">figée</span>
+        </div>
+        <p class="text-muted small mb-0">Page introuvable.</p>
+      </a>
+    </div>
+    <!-- Unauthorized -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-racine/unauthorized.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-ban text-danger fs-5"></i>
+          <strong>unauthorized.html</strong>
+          <span class="badge badge-figee ms-auto">figée</span>
+        </div>
+        <p class="text-muted small mb-0">Non autorisé — session invalide ou expirée.</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- PAGES MANQUANTES -->
+  <h5 class="section-title mb-3">Pages manquantes — backlog</h5>
+  <div class="alert alert-info d-flex gap-2 mb-3">
+    <i class="bi bi-info-circle-fill flex-shrink-0 mt-1"></i>
+    <div>Templates vides CDS-conformes. Chaque page = session dédiée avant déploiement.</div>
+  </div>
+  <div class="row g-3 mb-4">
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/maintenance.html" class="card cds-card h-100 p-3 d-block border-danger">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-cone-striped text-danger fs-5"></i>
+          <strong>maintenance.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🔴 Critique — afficher pendant FTP/migration.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/session-expiree.html" class="card cds-card h-100 p-3 d-block border-danger">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-clock-history text-danger fs-5"></i>
+          <strong>session-expiree.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🔴 Critique — token Supabase périmé ≠ login normal.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/offline.html" class="card cds-card h-100 p-3 d-block border-danger">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-wifi-off text-danger fs-5"></i>
+          <strong>offline.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🔴 Critique — perte réseau, distinct du banner inline.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/mentions-legales.html" class="card cds-card h-100 p-3 d-block border-danger">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-file-earmark-text text-danger fs-5"></i>
+          <strong>mentions-legales.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🔴 Critique — RGPD, données patients.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/aide.html" class="card cds-card h-100 p-3 d-block border-warning">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-question-circle text-warning fs-5"></i>
+          <strong>aide.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟠 Important — onboarding Julie novice.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/changelog.html" class="card cds-card h-100 p-3 d-block border-warning">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-journal-text text-warning fs-5"></i>
+          <strong>changelog.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟠 Important — notes de version, rassurant DSI/Brigitte.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/notifications.html" class="card cds-card h-100 p-3 d-block border-warning">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-bell text-warning fs-5"></i>
+          <strong>notifications.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟠 Important — centre signalements + validations en attente.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/recherche.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-search text-secondary fs-5"></i>
+          <strong>recherche.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟡 Utile — recherche globale cross-modules.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/impressions.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-printer text-secondary fs-5"></i>
+          <strong>impressions.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟡 Utile — file d'impression fiches papier.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/archivage.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-archive text-secondary fs-5"></i>
+          <strong>archivage.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟡 Utile — protocoles obsolètes, ne pas supprimer.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/export.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-download text-secondary fs-5"></i>
+          <strong>export.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟡 Utile — export CSV/PDF DSI.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/parametres.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-gear text-secondary fs-5"></i>
+          <strong>parametres.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟡 Utile — config instance L2 (nom établissement, logo…).</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/onboarding.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-stars text-secondary fs-5"></i>
+          <strong>onboarding.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">🟡 Utile — premier lancement guidé.</p>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-4">
+      <a href="pages-manquantes/contact.html" class="card cds-card h-100 p-3 d-block">
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi bi-envelope text-secondary fs-5"></i>
+          <strong>contact.html</strong>
+          <span class="badge badge-backlog ms-auto">backlog</span>
+        </div>
+        <p class="text-muted small mb-0">⚪ Optionnel — support / signalement Manu.</p>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<footer class="text-center text-muted small py-3 border-top">
+  Atelier BDB — L3 Créateur · Ne ship jamais · Session #60
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+﻿<!--
+  PROJECT  : Des Blocs & Moi (BDB)
+  FILE     : impressions.html
+  MODULE   : Racine
+  DATE     : 2026-04-13
+  AUTEUR   : Manu + Claude
+  RÔLE     : Préparation et impression de protocoles / fiches / listes.
+             Usage terrain : imprimer un protocole avant d'entrer en salle.
+             Branchement Supabase à compléter (session dédiée).
+  PERSONAS : Sabine (IBODE terrain), Olivia (cadre préparation).
+  CHAÎNE CSS : BLOC E standard. root-path="..".
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: APP-TRANSVERSE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Impressions | DBM</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/cds-overrides.css" rel="stylesheet"/>
+  <style>
+    @media print {
+      #bdb-shell, footer, .d-print-none { display: none !important; }
+      .print-section { border: none !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <div id="bdb-shell"
+       data-module-title="Impressions"
+       data-module-icon="bi-printer"
+       data-root-path="../"
+       data-shell-kind="backoffice"
+       data-login-mode="modal">
+  </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+      <div class="container-fluid p-4 bg-light flex-grow-1">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8">
+
+        <div class="d-flex align-items-center justify-content-between mb-4 d-print-none">
+          <div>
+            <h2 class="fw-bold mb-1">Impressions</h2>
+            <p class="text-muted mb-0">Prépare et imprime ce dont tu as besoin avant d'entrer en salle.</p>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm" id="btnPrintNow">
+            <i class="bi bi-printer me-1"></i>Imprimer
+          </button>
+        </div>
+
+        <!-- Sélection type -->
+        <div class="card shadow-sm border-0 mb-4 d-print-none">
+          <div class="card-body">
+            <p class="fw-semibold small mb-3">Que veux-tu imprimer ?</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-outline-primary btn-sm" data-print-type="protocole">
+                <i class="bi bi-file-earmark-medical me-1"></i>Un protocole
+              </button>
+              <button class="btn btn-outline-primary btn-sm" data-print-type="fiche">
+                <i class="bi bi-list-check me-1"></i>Une fiche d'intervention
+              </button>
+              <button class="btn btn-outline-primary btn-sm" data-print-type="picking">
+                <i class="bi bi-cart me-1"></i>Une liste de picking
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone impression (vide par défaut) -->
+        <div id="printZone">
+          <div class="cds-error-state d-print-none">
+            <i class="bi bi-printer fs-1 text-muted"></i>
+            <div class="cds-error-title">Sélectionne ce que tu veux imprimer</div>
+            <p class="cds-error-msg">
+              Choisis un type de document ci-dessus,
+              puis sélectionne l'élément à imprimer.
+            </p>
+            <p class="text-muted small">
+              Fonctionnalité complète disponible après session dédiée.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System —
+    <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="../js/bdb-ui.js"></script>
+<script src="../js/bdb-invite-guard.js"></script>
+<script src="../js/bdb-shell.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  document.getElementById('btnPrintNow')?.addEventListener('click', () => window.print());
+  document.querySelectorAll('[data-print-type]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      window.bdbToast?.('Sélection du contenu en cours de développement — session dédiée requise.', 'info');
+    });
+  });
+});
+</script>
+</body>
+</html>

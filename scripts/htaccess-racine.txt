@@ -1,0 +1,215 @@
+# ══════════════════════════════════════════════════════════
+# .htaccess — RACINE BDB
+# Emplacement : bdb/.htaccess
+# Version : 1.5.0 — 2026-04-07
+# Firewall : 6G adapté + user agents Perplexity fusionnés
+# ══════════════════════════════════════════════════════════
+
+RewriteEngine On
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 0 — FIREWALL ANTI-BOT / ANTI-SPAM              ║
+# ╚══════════════════════════════════════════════════════════╝
+
+# ── 0a. MÉTHODES HTTP DANGEREUSES ───────────────────────
+<IfModule mod_rewrite.c>
+  RewriteCond %{REQUEST_METHOD} ^(connect|debug|delete|move|put|trace|track) [NC]
+  RewriteRule .* - [F,L]
+</IfModule>
+
+# ── 0b. QUERY STRINGS MALICIEUSES ───────────────────────
+<IfModule mod_rewrite.c>
+  RewriteCond %{QUERY_STRING} (eval\() [NC,OR]
+  RewriteCond %{QUERY_STRING} (127\.0\.0\.1) [NC,OR]
+  RewriteCond %{QUERY_STRING} ([a-z0-9]{2000}) [NC,OR]
+  RewriteCond %{QUERY_STRING} (javascript:)(.*)(;) [NC,OR]
+  RewriteCond %{QUERY_STRING} (base64_encode)(.*)\( [NC,OR]
+  RewriteCond %{QUERY_STRING} (GLOBALS|REQUEST)(=|\[|%) [NC,OR]
+  RewriteCond %{QUERY_STRING} (<|%3C)(.*)script(.*)(>|%3) [NC,OR]
+  RewriteCond %{QUERY_STRING} (\\|\.\.\.|\.\.\/|~|`|<|>|\|) [NC,OR]
+  RewriteCond %{QUERY_STRING} (boot\.ini|etc/passwd|self/environ) [NC,OR]
+  RewriteCond %{QUERY_STRING} (thumbs?(_editor|open)?|tim(thumb)?)\.php [NC,OR]
+  RewriteCond %{QUERY_STRING} (\'|\")(.*)(drop|insert|md5|select|union) [NC]
+  RewriteRule .* - [F,L]
+</IfModule>
+
+# ── 0c. REQUEST URI MALICIEUSES ─────────────────────────
+<IfModule mod_alias.c>
+  RedirectMatch 403 (?i)([a-z0-9]{2000})
+  RedirectMatch 403 (?i)(https?|ftp|php):/
+  RedirectMatch 403 (?i)(base64_encode)(.*)\(
+  RedirectMatch 403 (?i)(=\\\'|=\\%27|/\\\'/?).
+  RedirectMatch 403 (?i)/(\$(\&)?|\*|\"|\.|\,|&|&amp;?)?$
+  RedirectMatch 403 (?i)(\{0\}|\(/\(|\.\.\.|\+\+\+|\\\"\\\")
+  RedirectMatch 403 (?i)(~|`|<|>|:|;|,|%|\\|\s|\{|\}|\[|\]|\|)
+  RedirectMatch 403 (?i)/(=|\$&|_mm|cgi-|etc/passwd|muieblack)
+  RedirectMatch 403 (?i)(&pws=0|_vti_|\(null\)|\{\$itemURL\}|echo(.*)kae|etc/passwd|eval\(|self/environ)
+  RedirectMatch 403 (?i)\.(aspx?|bash|bak?|cfg|cgi|dll|exe|git|hg|jsp|log|mdb|out|sql|svn|swp|tar|rar|rdf)$
+  RedirectMatch 403 (?i)/(config|phpinfo|shell|sqlpatch|thumb|thumb_editor|thumbopen|timthumb|webshell)\.php
+  RedirectMatch 403 (?i)/(wp-admin|wp-login|xmlrpc|phpmyadmin|adminer|cpanel|webmin)
+  RedirectMatch 403 (?i)/(\.git|\.svn|\.env|\.htpasswd|\.bash_history|\.ssh)
+</IfModule>
+
+# ── 0d. USER AGENTS MALVEILLANTS ────────────────────────
+<IfModule mod_setenvif.c>
+  # Taille anormale
+  SetEnvIfNoCase User-Agent ([a-z0-9]{2000}) bad_bot
+
+  # Scanners de sécurité / exploiters
+  SetEnvIfNoCase User-Agent (acunetix|nikto|sqlmap|nessus|w3af|zmeu|arachni|havij|morfeus|webinspect|nmap|masscan|zap|burpsuite|dirbuster|gobuster|ffuf|hydra|medusa|jbrofuzz|skipfish|openvas|pangolin|whatweb|theharvester) bad_bot
+
+  # Navigateurs headless / automatisation
+  SetEnvIfNoCase User-Agent (phantomjs|selenium|headlesschrome|puppeteer|playwright|phantom|headless) bad_bot
+
+  # Harvesters / scrapers / mirrors
+  SetEnvIfNoCase User-Agent (harvest|extract|httrack|teleport|webzip|offline.explorer|website.ripper|sucker|webcopier|webwhacker|winhttrack|gocolly|seospider) bad_bot
+
+  # Clients HTTP scripts
+  SetEnvIfNoCase User-Agent (python-requests|aiohttp|libwww-perl|go-http-client|node-fetch|httpclient|pycurl|scrapy|mechanize|httpx) bad_bot
+
+  # Bots AI scrapers
+  SetEnvIfNoCase User-Agent (gptbot|chatgpt|claude-web|anthropic-ai|ccbot|bytespider|omgili|diffbot|dataforseo|petalbot|applebot) bad_bot
+
+  # Bots spam / SEO black hat
+  SetEnvIfNoCase User-Agent (semalt|domaincrawler|mj12bot|dotbot|rogerbot|exabot|blexbot|sosospider|binlar|casper|checkpriv|diavol|feedfinder|flicky|g00g1e|kmccrew|loader|miner|nutch|planetwork|purebot|seekerspider|siclab|skygrid|turnit|vikspider|zmeu|zune) bad_bot
+
+  <RequireAll>
+    Require all granted
+    Require not env bad_bot
+  </RequireAll>
+</IfModule>
+
+# ── 0e. USER AGENT VIDE ─────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteCond %{HTTP_USER_AGENT} ^$
+  RewriteRule .* - [F,L]
+</IfModule>
+
+# ── 0f. ACCEPT HEADER VIDE ──────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteCond %{HTTP:Accept} ^$
+  RewriteRule .* - [F,L]
+</IfModule>
+
+# ── 0g. REFERRERS SPAM ──────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteCond %{HTTP_REFERER} ([a-z0-9]{2000}) [NC,OR]
+  RewriteCond %{HTTP_REFERER} (semalt|todaperfeita|buttons-for-website|seoanalyses|ilovevitaly|kambasoft|darella\.ru|simple-share-buttons|ranksonic|blackhatworth|best-seo-offer|darodar|anticrawler) [NC]
+  RewriteRule .* - [F,L]
+</IfModule>
+
+# ── 0h. PLAGES IP BLACKLISTÉES ──────────────────────────
+# Tor exit nodes + hébergeurs spam — à enrichir via logs OVH
+# Conseil Perplexity : préférer des IPs précises issues des logs
+<RequireAll>
+  Require all granted
+  Require not ip 45.146.0.0/16
+  Require not ip 185.220.100.0/22
+  Require not ip 185.220.101.0/24
+  Require not ip 162.247.72.0/22
+  Require not ip 192.42.116.0/22
+  Require not ip 198.98.50.0/24
+  Require not ip 23.129.64.0/18
+</RequireAll>
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 1 — HTTPS FORCÉ                                ║
+# ╚══════════════════════════════════════════════════════════╝
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 2 — DIRECTORY LISTING                          ║
+# ╚══════════════════════════════════════════════════════════╝
+Options -Indexes
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 3 — FICHIERS SENSIBLES                         ║
+# ╚══════════════════════════════════════════════════════════╝
+<FilesMatch "\.(md|sql|txt|log|bak|old|orig|save|swp|tmp)$">
+  Require all denied
+</FilesMatch>
+
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+<FilesMatch "^(SESSION_STATE|NOYAU|JOURNAL|CHANTIER|CTX_|PLAN_|GUIDE_|PERSONAS|BIBLE_|SUPABASE_|TEMPLATE_|MODULE_DEPENDENCY)">
+  Require all denied
+</FilesMatch>
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 4 — HEADERS DE SÉCURITÉ                        ║
+# ╚══════════════════════════════════════════════════════════╝
+<IfModule mod_headers.c>
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+  Header always set Content-Security-Policy "\
+    default-src 'self'; \
+    script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; \
+    style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; \
+    font-src 'self' https://cdn.jsdelivr.net https://fonts.gstatic.com; \
+    img-src 'self' data: https://*.supabase.co; \
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net; \
+    frame-ancestors 'self'; \
+    base-uri 'self'; \
+    form-action 'self'; \
+    object-src 'none';\
+  "
+
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+
+  <FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+</IfModule>
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 5 — PROTECTION HOTLINKING                      ║
+# ╚══════════════════════════════════════════════════════════╝
+<IfModule mod_rewrite.c>
+  RewriteCond %{HTTP_REFERER} !^$ [NC]
+  RewriteCond %{HTTP_REFERER} !^https?://(www\.)?manuelrohaut\.fr [NC]
+  RewriteCond %{HTTP_REFERER} !^https?://localhost [NC]
+  RewriteCond %{HTTP_REFERER} !^https?://hashtag\.manuelrohaut\.fr [NC]
+  RewriteRule \.(png|jpg|jpeg|gif|svg|webp)$ - [F,NC,L]
+</IfModule>
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 6 — DOSSIERS INTERNES                          ║
+# ╚══════════════════════════════════════════════════════════╝
+<IfModule mod_rewrite.c>
+  RewriteRule ^00_GOUVERNANCE(/|$) - [F,L]
+  RewriteRule ^01_TEMPLATES(/|$) - [F,L]
+  RewriteRule ^02_INFRASTRUCTURE(/|$) - [F,L]
+  RewriteRule ^OLD_GOUVERNANCE(/|$) - [F,L]
+  RewriteRule ^DATA_METIER(/|$) - [F,L]
+  RewriteRule ^_dev(/|$) - [F,L]
+  RewriteRule ^scripts(/|$) - [F,L]
+  RewriteRule ^migrations(/|$) - [F,L]
+</IfModule>
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 7 — PAGES D'ERREUR                             ║
+# ╚══════════════════════════════════════════════════════════╝
+ErrorDocument 403 /bdb/403.html
+ErrorDocument 404 /bdb/404.html
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  SECTION 8 — COMPRESSION GZIP                           ║
+# ╚══════════════════════════════════════════════════════════╝
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>

@@ -103,7 +103,8 @@
     .disc-tag-input-container:focus-within { border-color:var(--bs-primary); box-shadow:0 0 0 .25rem rgba(13,110,253,.25); }
     .disc-tag-item { display:inline-flex; align-items:center; gap:4px; background:var(--bs-primary-bg-subtle); color:var(--bs-primary); border:1px solid var(--bs-primary-border-subtle); border-radius:20px; padding:2px 10px; font-size:.8rem; }
     .disc-tag-item .disc-tag-remove { cursor:pointer; font-size:.9rem; line-height:1; }
-    .disc-tag-input-field { border:none; outline:none; flex:1; min-width:80px; font-size:.875rem; background:transparent; }
+    /* UX21 : outline:none OK — :focus-within sur .disc-tag-input-container fournit l'indicateur focus */
+    .disc-tag-input-field { border:none; outline:none; /* UX21 OK — :focus-within sur .disc-tag-input-container fournit l'indicateur */ flex:1; min-width:80px; font-size:.875rem; background:transparent; }
 
     /* ── Offcanvas detail ── */
     #offcanvasPersona { width:500px; }
@@ -152,3 +153,31 @@
 
 /* ── Shell SPA (sidebar + contenu) ─────────────────────────── */
 .disc-shell { flex: 1; overflow: hidden; }
+
+/* ── Progress bars DISC colorées ── */
+.disc-bar-D { background-color: var(--bs-danger) !important; width: 0; transition: width 0.6s ease; }
+.disc-bar-I { background-color: var(--bs-warning) !important; width: 0; transition: width 0.6s ease; }
+.disc-bar-S { background-color: var(--bs-success) !important; width: 0; transition: width 0.6s ease; } /* L2-DISC-03 : S=vert (corrigé, était bs-primary) */
+.disc-bar-C { background-color: var(--bs-primary) !important; width: 0; transition: width 0.6s ease; } /* L2-DISC-03 : C=bleu (corrigé, était bs-success) */
+ 
+/* ── Hauteurs progress bars ── */
+.disc-progress-sm { height: 4px; }
+.disc-progress-md { height: 8px; }
+.disc-progress-lg { height: 12px; border-radius: 6px; }
+.disc-progress-lg .progress-bar { border-radius: 6px; }
+ 
+/* ── Profil avatar large (Mon profil / Dashboard) ── */
+.disc-avatar.fs-1 { width: 64px; height: 64px; font-size: 1.75rem !important; }
+.disc-avatar.fs-2 { width: 52px; height: 52px; font-size: 1.5rem !important; }
+ 
+/* ── Découverte : highlight compat card ── */
+.disc-view .card.border-primary.border-2 { box-shadow: 0 0 0 1px var(--bs-primary); }
+ 
+
+
+/* ── Admin (disc-admin-* scopés — INTERDIT-17) ── */
+.disc-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}

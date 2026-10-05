@@ -1,0 +1,818 @@
+/* =========================================================
+   MODULE TRANSMISSIONS — BDB v2.0.0
+   Tables : transmissions · categories · content_types
+            content_images · tag_links · tags · profiles_directory
+   Bucket : content-images (storage)
+   Shell  : bdb-shell.js v1.3.1 — window.bdbUser source unique
+   Corrections v2.0.0 :
+     A1-A6 : migration bdb-shell (offcanvas/header/auth supprimés)
+     B1    : ordre chaîne JS corrigé
+     C1-C5 : style= inline → classes CSS
+     D1-D3 : sécurité signed URL + DOMPurify
+     E1    : skeleton loader
+     E2    : modale confirmation (remplace confirm() natif)
+     E3    : slot admin dans toolbar (pattern C.6)
+   ========================================================= */
+
+const DB = window.bdb;
+
+/* ─── STATE ──────────────────────────────────────────────── */
+const state = {
+  isAdmin: false,
+  isApproved: false,
+  userId: null,
+  transmissions: [],
+  categories: [],
+  allTags: [],
+  contentTypeId: null,
+  filters: { status: 'open', priority: false },
+  editingId: null,
+  viewingTransmission: null,
+  formImages: [],
+  formTagIds: [],
+};
+
+let quill = null;
+let modalTransmission, modalDetail, modalLightbox, modalConfirm;
+let searchDebounce;
+
+/* ─── TOAST ──────────────────────────────────────────────── */
+
+/* ─── MODALE CONFIRMATION (E2 — remplace confirm() natif) ── */
+function showConfirm({ title, msg, btnLabel, btnClass, onConfirm }) {
+  document.getElementById('transConfirmTitle').textContent = title;
+  document.getElementById('transConfirmMsg').textContent   = msg;
+  const btn = document.getElementById('btnTransConfirmAction');
+  btn.textContent  = btnLabel;
+  btn.className    = `btn btn-sm ${btnClass}`;
+  // Nettoyer les anciens listeners
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  newBtn.addEventListener('click', () => {
+    modalConfirm.hide();
+    onConfirm();
+  });
+  modalConfirm.show();
+}
+
+/* ─── INIT FROM SHELL (A5 CORRIGÉ — remplace initAuth() local) ── */
+function initFromShell() {
+  state.isAdmin    = window.bdbUser?.isAdmin ?? false;
+  state.userId     = window.bdbUser?.id ?? null;
+  state.isApproved = window.bdbUser?.isAdmin || window.bdbUser?.role === 'membre';
+
+  // E3 CORRIGÉ : slot admin dans toolbar — pas de createElement (INTERDIT-C4)
+  if (state.isApproved) {
+    document.getElementById('transToolbarAdminSlot').classList.remove('d-none');
+  }
+}
+
+/* ─── CONTENT TYPE ID ────────────────────────────────────── */
+async function loadContentTypeId() {
+  const { data, error } = await DB.from('content_types').select('id').eq('code', 'transmissions').maybeSingle();
+  if (error) throw error;
+  state.contentTypeId = data?.id || null;
+}
+
+/* ─── CATEGORIES ─────────────────────────────────────────── */
+async function loadCategories() {
+  let q = DB.from('categories').select('*').eq('active', true).order('label');
+  if (state.contentTypeId) q = q.eq('content_type_id', state.contentTypeId);
+  const { data, error } = await q;
+  if (error) throw error;
+  state.categories = data || [];
+  const filterSel = document.getElementById('filterCategory');
+  const formSel   = document.getElementById('formCategory');
+  state.categories.forEach(cat => {
+    filterSel.add(new Option(cat.label, cat.id));
+    formSel.add(new Option(cat.label, cat.id));
+  });
+}
+
+/* ─── TAGS ───────────────────────────────────────────────── */
+async function loadTags() {
+  const TYPES = ['libre','fonction','anatomie','intervention','materiel','personne','marque'];
+  const { data, error } = await DB.from('tags')
+    .select('id, label_display, label_normalized, type')
+    .in('type', TYPES).eq('is_locked', false).order('label_display');
+  /* Bug B2 : GET /tags → 400 possible (colonne type cloud). Warning, pas crash. */
+  if (error) return;
+  state.allTags = data || [];
+}
+
+async function syncTags(transmissionId, tagIds) {
+  const { error: delErr } = await DB.from('tag_links').delete().eq('content_type', 'transmission').eq('content_id', transmissionId).select(); // UX06 : caller confirms
+  if (tagIds.length > 0) {
+    const payload = tagIds.map(tid => ({ content_type: 'transmission', content_id: transmissionId, tag_id: tid }));
+    await DB.from('tag_links').insert(payload).select();
+  }
+}
+
+/* ─── STATS ──────────────────────────────────────────────── */
+async function loadStats() {
+  const [r1, r2, r3, r4] = await Promise.all([
+    DB.from('transmissions').select('id', { count: 'exact', head: true }).eq('status', 'open'),
+    DB.from('transmissions').select('id', { count: 'exact', head: true }).eq('status', 'archived'),
+    DB.from('transmissions').select('id', { count: 'exact', head: true }).eq('priority', true).eq('status', 'open'),
+    DB.from('transmissions').select('id', { count: 'exact', head: true }).eq('type', 'essentiel').eq('status', 'open'),
+  ]);
+  document.getElementById('statOpen').textContent     = r1.count ?? 0;
+  document.getElementById('statArchived').textContent = r2.count ?? 0;
+  document.getElementById('statPriority').textContent = r3.count ?? 0;
+  document.getElementById('statEssential').textContent = (r4.count ?? 0) + '/20';
+}
+
+/* ─── SIGNED URL — D1 CORRIGÉ : 3600 → 900 ──────────────── */
+async function getSignedUrl(storagePath) {
+  if (!storagePath) return null;
+  const { data } = await DB.storage.from('content-images').createSignedUrl(storagePath, 900);
+  return data?.signedUrl || null;
+}
+
+/* ─── LOAD TRANSMISSIONS ─────────────────────────────────── */
+async function loadDemoData() {
+  const { data } = await window.bdb.from('demo_transmissions').select('*');
+  state.transmissions = (data || []).map(t => ({
+    ...t, profile: null, images: [], centralTags: []
+  }));
+  renderList();
+}
+
+async function loadTransmissions() {
+  if (window.bdbIsDemo && window.bdbIsDemo()) { await loadDemoData(); return; }
+  const list = document.getElementById('transmissionsList');
+  /* E1 CORRIGÉ : skeleton loader (remplace spinner-border — D-2026-03-16-T06) */
+  list.innerHTML = `
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body placeholder-glow">
+        <div class="d-flex gap-3 align-items-start">
+          <div class="placeholder rounded-circle" style="width:40px;height:40px;flex-shrink:0"></div>
+          <div class="flex-grow-1">
+            <div class="placeholder col-5 rounded mb-2 d-block"></div>
+            <div class="placeholder col-3 rounded mb-2 d-block"></div>
+            <div class="placeholder col-8 rounded d-block"></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  let q = DB.from('transmissions')
+    .select('*, category:categories(*)')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  const f = state.filters;
+  if (f.status) q = q.eq('status', f.status);
+  else          q = q.neq('status', 'deleted');
+  if (f.priority) q = q.eq('priority', true);
+  if (f.type)     q = q.eq('type', f.type);
+  if (f.category) q = q.eq('category_id', f.category);
+  if (f.search)   q = q.or(`title.ilike.%${f.search}%,content.ilike.%${f.search}%`);
+
+  const { data, error } = await q;
+  if (error) {
+    cdsShowGridError(list, error.message, loadTransmissions);
+    return;
+  }
+
+  let transmissions = data || [];
+
+  if (transmissions.length > 0) {
+    const userIds = [...new Set(transmissions.map(t => t.user_id))];
+    const { data: profiles } = await DB.from('profiles_directory')
+      .select('user_id, name, initials, nom, prenom, fonction, avatar_url').in('user_id', userIds);
+    const profileMap = Object.fromEntries((profiles || []).map(p => [p.user_id, p]));
+
+    const ids = transmissions.map(t => t.id);
+    let imagesMap = {};
+    if (state.contentTypeId) {
+      const { data: imgs } = await DB.from('content_images')
+        .select('*').eq('content_type_id', state.contentTypeId).in('content_id', ids);
+      (imgs || []).forEach(img => {
+        if (!imagesMap[img.content_id]) imagesMap[img.content_id] = [];
+        imagesMap[img.content_id].push(img);
+      });
+    }
+
+    const { data: tagLinks } = await DB.from('tag_links')
+      .select('content_id, tag_id').eq('content_type', 'transmission').in('content_id', ids);
+    const tagIds = [...new Set((tagLinks || []).map(l => l.tag_id))];
+    let tagMap = {};
+    if (tagIds.length) {
+      const { data: tagsData } = await DB.from('tags').select('id, label_display, label_normalized').in('id', tagIds);
+      tagMap = Object.fromEntries((tagsData || []).map(t => [t.id, t]));
+    }
+    const tagsByContent = {};
+    (tagLinks || []).forEach(l => {
+      if (tagMap[l.tag_id]) {
+        if (!tagsByContent[l.content_id]) tagsByContent[l.content_id] = [];
+        tagsByContent[l.content_id].push(tagMap[l.tag_id]);
+      }
+    });
+
+    transmissions.forEach(t => {
+      t.profile     = profileMap[t.user_id] || null;
+      t.images      = imagesMap[t.id] || [];
+      t.centralTags = tagsByContent[t.id] || [];
+    });
+
+    if (f.tag) {
+      const norm = f.tag.toLowerCase();
+      transmissions = transmissions.filter(t => t.centralTags.some(tg => tg.label_normalized === norm));
+    }
+  }
+
+  state.transmissions = transmissions;
+  renderList();
+}
+
+/* ─── HELPERS ────────────────────────────────────────────── */
+function stripHtml(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || '';
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1)  return "à l'instant";
+  if (mins < 60) return `il y a ${mins} min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)  return `il y a ${hrs} h`;
+  return `il y a ${Math.floor(hrs / 24)} j`;
+}
+
+function authorName(profile) {
+  if (!profile) return 'Inconnu';
+  if (profile.nom && profile.prenom) return `${profile.prenom} ${profile.nom}`;
+  return profile.name || 'Inconnu';
+}
+
+function authorInitials(profile) {
+  if (!profile) return '?';
+  if (profile.initials) return profile.initials;
+  return authorName(profile).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+}
+
+
+/* ─── RENDER LIST ────────────────────────────────────────── */
+function renderList() {
+  const container = document.getElementById('transmissionsList');
+  if (!state.transmissions.length) {
+    container.innerHTML = `
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-clipboard2 fs-1 text-muted d-block mb-3"></i>
+          <h5 class="text-muted">Aucune transmission</h5>
+          <p class="text-muted small mb-0">
+            ${state.filters.search ? 'Aucun résultat pour cette recherche.' : 'Créez la première transmission.'}
+          </p>
+        </div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = state.transmissions.map(t => renderCard(t)).join('');
+
+  container.querySelectorAll('[data-view-id]').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.viewId));
+  });
+  container.querySelectorAll('[data-edit-id]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); openEditModal(el.dataset.editId); });
+  });
+  container.querySelectorAll('[data-archive-id]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); archiveTransmission(el.dataset.archiveId); });
+  });
+  container.querySelectorAll('[data-delete-id]').forEach(el => {
+    el.addEventListener('click', e => { e.stopPropagation(); deleteTransmission(el.dataset.deleteId); });
+  });
+}
+
+function renderCard(t) {
+  const profile  = t.profile;
+  const initials = authorInitials(profile);
+  /* C1 CORRIGÉ : style inline avatar → class trans-avatar-circle (dans transmissions-ui.css) */
+  const avatarHtml = profile?.avatar_url
+    ? `<img src="${escHtml(profile.avatar_url)}" alt="" class="rounded-circle trans-avatar-img">`
+    : `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold trans-avatar-circle">${escHtml(initials)}</div>`;
+
+  const excerpt  = escHtml(stripHtml(t.content).slice(0, 150) + (stripHtml(t.content).length > 150 ? '...' : ''));
+  /* style= OK : couleur dynamique Supabase D-2026-03-15-T04 */
+  const catBadge = t.category
+    ? `<span class="badge border" style="border-color:${escHtml(t.category.color)}!important;color:${escHtml(t.category.color)}">${escHtml(t.category.label)}</span>`
+    : '';
+  const priorityBadge = t.priority
+    ? `<span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i>Prioritaire</span>` : '';
+  const essBadge = t.type === 'essentiel'
+    ? `<span class="badge bg-warning text-dark"><i class="bi bi-star me-1"></i>Essentiel</span>` : '';
+  const imgBadge = t.images?.length > 0
+    ? `<span class="badge bg-light text-dark border"><i class="bi bi-image me-1"></i>${t.images.length}</span>` : '';
+
+  const isOwner = state.userId && t.user_id === state.userId;
+  const canEdit = isOwner || state.isAdmin;
+
+  const actionsHtml = canEdit ? `
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-label="Actions">
+        <i class="bi bi-three-dots-vertical"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><button class="dropdown-item" data-edit-id="${escHtml(t.id)}"><i class="bi bi-pencil me-2"></i>Modifier</button></li>
+        ${t.status === 'open' ? `<li><button class="dropdown-item" data-archive-id="${escHtml(t.id)}"><i class="bi bi-archive me-2"></i>Archiver</button></li>` : ''}
+        <li><hr class="dropdown-divider"></li>
+        <li><button class="dropdown-item text-danger" data-delete-id="${escHtml(t.id)}"><i class="bi bi-trash me-2"></i>Supprimer</button></li>
+      </ul>
+    </div>` : '';
+
+  const tagsHtml = t.centralTags?.length > 0
+    ? t.centralTags.slice(0, 3).map(tag =>
+        `<span class="badge bg-light text-secondary border small">#${escHtml(tag.label_display)}</span>`
+      ).join('') + (t.centralTags.length > 3
+        ? `<span class="badge bg-light text-secondary border small">+${t.centralTags.length - 3}</span>` : '')
+    : '';
+
+  const borderClass = t.priority ? 'border-start border-danger border-3' : 'border-0';
+
+  /* C2 CORRIGÉ : style="cursor:pointer" → class="cds-clickable" */
+  return `
+    <div class="card shadow-sm mb-3 ${borderClass} trans-card cds-clickable" data-view-id="${escHtml(t.id)}" role="button">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-start gap-3">
+          ${avatarHtml}
+          <div class="flex-grow-1 min-width-0">
+            <div class="d-flex align-items-start justify-content-between gap-2">
+              <div>
+                <h6 class="mb-1 fw-semibold">${escHtml(t.title)}</h6>
+                <div class="d-flex flex-wrap gap-1 mb-1">
+                  ${priorityBadge}${essBadge}${imgBadge}
+                </div>
+                <div class="text-muted small">
+                  ${escHtml(authorName(profile))} · <i class="bi bi-clock me-1"></i>${timeAgo(t.created_at)}
+                </div>
+              </div>
+              ${actionsHtml}
+            </div>
+            ${catBadge ? `<div class="mt-2">${catBadge}</div>` : ''}
+            <p class="text-muted small mt-2 mb-1">${excerpt}</p>
+            ${tagsHtml ? `<div class="d-flex flex-wrap gap-1 mt-1">${tagsHtml}</div>` : ''}
+            <div class="text-primary small mt-1 fw-medium">Voir le détail <i class="bi bi-chevron-right"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ─── OPEN DETAIL ────────────────────────────────────────── */
+async function openDetail(id) {
+  const t = state.transmissions.find(x => x.id === id);
+  if (!t) return;
+  state.viewingTransmission = t;
+
+  const profile  = t.profile;
+  const avatarEl = document.getElementById('detailAvatar');
+  if (profile?.avatar_url) {
+    avatarEl.src = profile.avatar_url;
+    avatarEl.classList.remove('d-none');
+  } else {
+    avatarEl.src = '';
+    avatarEl.classList.add('d-none');
+  }
+
+  document.getElementById('detailTitle').textContent = t.title;
+  document.getElementById('detailMeta').innerHTML =
+    `<i class="bi bi-person me-1"></i>${escHtml(authorName(profile))} &middot; <i class="bi bi-clock me-1"></i>${timeAgo(t.created_at)}`;
+
+  const badges = [];
+  if (t.priority) badges.push('<span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i>Prioritaire</span>');
+  if (t.type === 'essentiel') badges.push('<span class="badge bg-warning text-dark"><i class="bi bi-star me-1"></i>Essentiel</span>');
+  /* style= OK : couleur dynamique Supabase D-2026-03-15-T04 */
+  if (t.category) badges.push(`<span class="badge border" style="border-color:${escHtml(t.category.color)}!important;color:${escHtml(t.category.color)}">${escHtml(t.category.label)}</span>`);
+  document.getElementById('detailBadges').innerHTML = badges.join('');
+
+  // Images avec signed URLs
+  const imagesContainer = document.getElementById('detailImages');
+  if (t.images?.length > 0) {
+    imagesContainer.classList.remove('d-none');
+    /* C3 CORRIGÉ : style="cursor:zoom-in" → class="trans-detail-img cds-clickable" */
+    imagesContainer.innerHTML = t.images.map((img, i) =>
+      `<div class="col-6 col-md-4"><div class="ratio ratio-4x3">
+        <img src="" data-path="${escHtml(img.storage_path)}" class="rounded object-fit-cover trans-detail-img cds-clickable" alt="Image ${i + 1}">
+      </div></div>`
+    ).join('');
+    t.images.forEach(async img => {
+      const url = await getSignedUrl(img.storage_path);
+      if (url) {
+        imagesContainer.querySelectorAll(`img[data-path="${CSS.escape(img.storage_path)}"]`).forEach(el => {
+          el.src = url;
+          el.addEventListener('click', () => {
+            document.getElementById('lightboxImg').src = url;
+            modalLightbox.show();
+          });
+        });
+      }
+    });
+  } else {
+    imagesContainer.classList.add('d-none');
+    imagesContainer.innerHTML = '';
+  }
+
+  /* D3 CORRIGÉ : DOMPurify.sanitize() (remplace sanitizeHtml homemade) */
+  document.getElementById('detailContent').innerHTML = DOMPurify.sanitize(t.content);
+
+  document.getElementById('detailTags').innerHTML = (t.centralTags || []).map(tag =>
+    `<span class="badge bg-light text-secondary border">#${escHtml(tag.label_display)}</span>`
+  ).join('');
+
+  const isOwner = state.userId && t.user_id === state.userId;
+  const canEdit = isOwner || state.isAdmin;
+  const actionsDiv = document.getElementById('detailAdminActions');
+  if (canEdit) {
+    actionsDiv.innerHTML = `
+      <button class="btn btn-outline-primary btn-sm" id="btnDetailEdit"><i class="bi bi-pencil me-1"></i>Modifier</button>
+      ${t.status === 'open' ? `<button class="btn btn-outline-secondary btn-sm" id="btnDetailArchive"><i class="bi bi-archive me-1"></i>Archiver</button>` : ''}
+      <button class="btn btn-outline-danger btn-sm" id="btnDetailDelete"><i class="bi bi-trash me-1"></i>Supprimer</button>`;
+
+    actionsDiv.querySelector('#btnDetailEdit')?.addEventListener('click', (e) => {
+      e.currentTarget.blur();
+      modalDetail.hide(); openEditModal(t.id);
+    });
+    actionsDiv.querySelector('#btnDetailArchive')?.addEventListener('click', (e) => {
+      e.currentTarget.blur();
+      modalDetail.hide(); archiveTransmission(t.id);
+    });
+    actionsDiv.querySelector('#btnDetailDelete')?.addEventListener('click', (e) => {
+      e.currentTarget.blur();
+      modalDetail.hide(); deleteTransmission(t.id);
+    });
+  } else {
+    actionsDiv.innerHTML = '';
+  }
+
+  modalDetail.show();
+}
+
+/* ─── FORM MODAL ─────────────────────────────────────────── */
+function resetForm() {
+  document.getElementById('formTitle').value    = '';
+  document.getElementById('formCategory').value = '';
+  document.getElementById('formType').value     = 'libre';
+  document.getElementById('formPriority').checked = false;
+  document.getElementById('modalFormError').classList.add('d-none');
+  document.getElementById('imagePreviewList').innerHTML = '';
+  state.formImages  = [];
+  state.formTagIds  = [];
+  if (quill) quill.setContents([]);
+  renderTagSelector();
+}
+
+function openCreateModal() {
+  state.editingId = null;
+  resetForm();
+  document.getElementById('modalTransmissionLabel').textContent = 'Nouvelle transmission';
+  modalTransmission.show();
+}
+
+async function openEditModal(id) {
+  state.editingId = id;
+  resetForm();
+  document.getElementById('modalTransmissionLabel').textContent = 'Modifier la transmission';
+  document.getElementById('btnSaveTransmission').disabled = true;
+
+  const { data: t } = await DB.from('transmissions')
+    .select('*, category:categories(*)').eq('id', id).maybeSingle();
+  if (!t) { bdbToast('Transmission introuvable', 'error'); return; }
+
+  document.getElementById('formTitle').value    = t.title;
+  document.getElementById('formCategory').value = t.category_id || '';
+  document.getElementById('formType').value     = t.type || 'libre';
+  document.getElementById('formPriority').checked = t.priority || false;
+  if (quill) quill.clipboard.dangerouslyPasteHTML(t.content || '');
+
+  if (state.contentTypeId) {
+    const { data: imgs } = await DB.from('content_images').select('*')
+      .eq('content_type_id', state.contentTypeId).eq('content_id', id);
+    state.formImages = (imgs || []).map(img => ({ id: img.id, storage_path: img.storage_path, position: img.position }));
+    await renderImagePreviews();
+  }
+
+  const { data: tagLinks } = await DB.from('tag_links').select('tag_id')
+    .eq('content_type', 'transmission').eq('content_id', id);
+  state.formTagIds = (tagLinks || []).map(l => l.tag_id);
+  renderTagSelector();
+
+  document.getElementById('btnSaveTransmission').disabled = false;
+  modalTransmission.show();
+}
+
+/* ─── IMAGE UPLOAD ───────────────────────────────────────── */
+async function uploadImageFile(file) {
+  if (state.formImages.length >= 3) { bdbToast("3 images maximum — retirez-en une pour continuer", 'error'); return; }
+  if (!file.type.startsWith('image/')) { bdbToast("Ce fichier n'est pas une image — choisissez un fichier image", 'error'); return; }
+  if (file.size > 5 * 1024 * 1024) { bdbToast("Cette image dépasse 5 Mo — choisissez-en une plus légère", 'error'); return; }
+
+  const progressBar  = document.getElementById('uploadProgressBar');
+  const progressText = document.getElementById('uploadProgressText');
+  const progressDiv  = document.getElementById('imageUploadProgress');
+  progressDiv.classList.remove('d-none');
+  progressBar.style.width = '30%';
+  progressText.textContent = 'Upload en cours...';
+
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `transmissions/${state.userId}/${Date.now()}.${ext}`;
+
+  const { error } = await DB.storage.from('content-images').upload(path, file, { contentType: file.type, upsert: false });
+  if (error) {
+    progressDiv.classList.add('d-none');
+    bdbToast("L'image n'a pu être envoyée — réessayez dans un instant", 'error');
+    return;
+  }
+
+  progressBar.style.width = '100%';
+  progressText.textContent = 'Upload terminé';
+  setTimeout(() => progressDiv.classList.add('d-none'), 1500);
+
+  /* position 1-based — CHECK constraint content_images_position_check */
+  state.formImages.push({ storage_path: path, position: state.formImages.length + 1 });
+  await renderImagePreviews();
+}
+
+async function renderImagePreviews() {
+  const container = document.getElementById('imagePreviewList');
+  container.innerHTML = '';
+  for (const img of state.formImages) {
+    let url = img.url;
+    if (!url) { url = await getSignedUrl(img.storage_path); img.url = url; }
+    const div = document.createElement('div');
+    div.className = 'position-relative';
+    /* C4 CORRIGÉ : style inline → classes trans-img-preview + trans-img-remove (dans transmissions-ui.css) */
+    div.innerHTML = `
+      <img src="${escHtml(url || '')}" alt="" class="rounded trans-img-preview">
+      <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-circle trans-img-remove" data-path="${escHtml(img.storage_path)}">
+        <i class="bi bi-x cds-text-xs"></i>
+      </button>`;
+    container.appendChild(div);
+  }
+  container.querySelectorAll('.trans-img-remove').forEach(btn => {
+    btn.addEventListener('click', () => removeImage(btn.dataset.path));
+  });
+}
+
+async function removeImage(storagePath) {
+  const idx = state.formImages.findIndex(img => img.storage_path === storagePath);
+  if (idx === -1) return;
+  const img = state.formImages[idx];
+  if (!img.id) await DB.storage.from('content-images').remove([storagePath]);
+  state.formImages.splice(idx, 1);
+  await renderImagePreviews();
+}
+
+/* ─── TAGS SELECTOR ──────────────────────────────────────── */
+function renderTagSelector(searchVal = '') {
+  const selected    = document.getElementById('selectedTagsList');
+  const suggestions = document.getElementById('tagSuggestions');
+
+  const selectedTags = state.allTags.filter(t => state.formTagIds.includes(t.id));
+  if (selectedTags.length > 0) {
+    /* C5 CORRIGÉ : style="cursor:pointer" → class="cds-clickable" */
+    selected.innerHTML = selectedTags.map(t =>
+      `<span class="badge bg-primary me-1 mb-1 cds-clickable" data-remove-tag="${t.id}">
+        #${escHtml(t.label_display)} <i class="bi bi-x ms-1"></i>
+      </span>`
+    ).join('');
+    selected.querySelectorAll('[data-remove-tag]').forEach(el => {
+      el.addEventListener('click', () => {
+        state.formTagIds = state.formTagIds.filter(id => id !== el.dataset.removeTag);
+        renderTagSelector();
+      });
+    });
+  } else {
+    selected.innerHTML = '<small class="text-muted fst-italic" id="noTagsMsg">Aucun tag sélectionné</small>';
+  }
+
+  const search    = searchVal.toLowerCase();
+  const available = state.allTags.filter(t =>
+    !state.formTagIds.includes(t.id) &&
+    (search === '' || t.label_normalized.includes(search) || t.label_display.toLowerCase().includes(search))
+  ).slice(0, 10);
+
+  /* C5 CORRIGÉ : style="cursor:pointer" → class="cds-clickable" */
+  suggestions.innerHTML = available.map(t =>
+    `<span class="badge bg-light text-dark border cds-clickable" data-add-tag="${t.id}">#${escHtml(t.label_display)}</span>`
+  ).join('');
+
+  suggestions.querySelectorAll('[data-add-tag]').forEach(el => {
+    el.addEventListener('click', () => {
+      if (state.formTagIds.length >= 5) { bdbToast("5 tags maximum — retirez-en un pour continuer", 'error'); return; }
+      if (!state.formTagIds.includes(el.dataset.addTag)) {
+        state.formTagIds.push(el.dataset.addTag);
+        renderTagSelector();
+      }
+    });
+  });
+}
+
+/* ─── SAVE TRANSMISSION ──────────────────────────────────── */
+async function saveTransmission() {
+  const title      = document.getElementById('formTitle').value.trim();
+  const categoryId = document.getElementById('formCategory').value;
+  const content    = quill ? quill.root.innerHTML : '';
+  const type       = document.getElementById('formType').value;
+  const priority   = document.getElementById('formPriority').checked;
+  const errEl      = document.getElementById('modalFormError');
+  errEl.classList.add('d-none');
+
+  const textContent = stripHtml(content).trim();
+  if (title.length < 3)        { errEl.textContent = 'Le titre doit faire au moins 3 caractères.';  errEl.classList.remove('d-none'); return; }
+  if (textContent.length < 10) { errEl.textContent = 'Le contenu doit faire au moins 10 caractères.'; errEl.classList.remove('d-none'); return; }
+  if (!categoryId)             { errEl.textContent = 'Sélectionnez une catégorie.';                  errEl.classList.remove('d-none'); return; }
+
+  const btn = document.getElementById('btnSaveTransmission');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...';
+
+  try {
+    let transmissionId;
+
+    if (state.editingId) {
+      const { data, error } = await DB.from('transmissions').update({
+        title, content, category_id: categoryId || null,
+        priority, type, last_modified_by: state.userId
+      }).eq('id', state.editingId).select().single();
+      if (error) throw error;
+      transmissionId = data.id;
+
+      if (state.contentTypeId) {
+        /* Delete all + re-insert all — élimine 409 Conflict sur unicité position */
+        await DB.from('content_images').delete() // UX06 : caller confirms
+          .eq('content_type_id', state.contentTypeId).eq('content_id', transmissionId).select();
+        const toInsert = state.formImages.filter(i => i.storage_path);
+        /* position 1-based — CHECK constraint content_images_position_check */
+        if (toInsert.length) {
+          await DB.from('content_images').insert(toInsert.map((img, idx) => ({
+            content_type_id: state.contentTypeId, content_id: transmissionId,
+            storage_path: img.storage_path, position: idx + 1,
+          })));
+        }
+      }
+    } else {
+      const { data, error } = await DB.from('transmissions').insert([{
+        title, content, category_id: categoryId || null,
+        priority, type, user_id: state.userId
+      }]).select().single();
+      if (error) throw error;
+      transmissionId = data.id;
+
+      if (state.contentTypeId && state.formImages.length > 0) {
+        /* position 1-based — CHECK constraint content_images_position_check */
+        await DB.from('content_images').insert(state.formImages.map((img, idx) => ({
+          content_type_id: state.contentTypeId, content_id: transmissionId,
+          storage_path: img.storage_path, position: idx + 1,
+        })));
+      }
+    }
+
+    await syncTags(transmissionId, state.formTagIds);
+    modalTransmission.hide();
+    bdbToast(state.editingId ? 'Transmission modifiée.' : 'Transmission créée.', 'success');
+    await Promise.all([loadStats(), loadTransmissions()]);
+
+  } catch (err) {
+    errEl.textContent = err.message || 'Une erreur est survenue.';
+    errEl.classList.remove('d-none');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer';
+  }
+}
+
+/* ─── ARCHIVE / DELETE (E2 CORRIGÉ : modale Bootstrap) ───── */
+function archiveTransmission(id) {
+  showConfirm({
+    title    : 'Archiver ?',
+    msg      : 'Cette transmission sera archivée et ne sera plus visible dans la liste active.',
+    btnLabel : 'Archiver',
+    btnClass : 'btn-secondary',
+    onConfirm: async () => {
+      const { error } = await DB.from('transmissions').update({ status: 'archived' }).eq('id', id).select();
+      if (error) { bdbToast(error.message, 'error'); return; }
+      bdbToast('Transmission archivée.', 'success');
+      await Promise.all([loadStats(), loadTransmissions()]);
+    },
+  });
+}
+
+function deleteTransmission(id) {
+  showConfirm({
+    title    : 'Supprimer ?',
+    msg      : 'Suppression douce — restaurable par un admin.',
+    btnLabel : 'Supprimer',
+    btnClass : 'btn-danger',
+    onConfirm: async () => {
+      const { error } = await DB.from('transmissions').update({ status: 'deleted' }).eq('id', id).select();
+      if (error) { bdbToast(error.message, 'error'); return; }
+      bdbToast('Transmission supprimée.', 'success');
+      await Promise.all([loadStats(), loadTransmissions()]);
+    },
+  });
+}
+
+/* ─── FILTERS ────────────────────────────────────────────── */
+function applyFilters() {
+  state.filters = {
+    status  : document.getElementById('filterStatus').value || 'open',
+    category: document.getElementById('filterCategory').value || null,
+    type    : document.getElementById('filterType').value || null,
+    search  : document.getElementById('filterSearch').value.trim() || null,
+    priority: document.getElementById('btnFilterPriority').classList.contains('btn-danger'),
+  };
+  loadTransmissions();
+}
+
+/* ─── INIT ───────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+
+  /* A5/A6 CORRIGÉ : bdb-shell.js gère auth + header + offcanvas.
+     initAuth() local supprimé. Bloc "BDB Header universel" supprimé.
+     window.bdbUser = source unique (INTERDIT-B1/B2/B3). */
+  await window.bdbShellReady;
+  initFromShell();
+
+  modalTransmission = new bootstrap.Modal(document.getElementById('modalTransmission'));
+  modalDetail       = new bootstrap.Modal(document.getElementById('modalDetail'));
+  modalLightbox     = new bootstrap.Modal(document.getElementById('modalLightbox'));
+  modalConfirm      = new bootstrap.Modal(document.getElementById('modalTransConfirm'));
+
+  quill = new Quill('#quillEditor', {
+    theme      : 'snow',
+    placeholder: 'Décrivez la transmission...',
+    modules    : {
+      toolbar: [
+        ['bold', 'italic', 'underline'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['clean'],
+      ],
+    },
+  });
+  /* Fix Quill-in-modal : height:100% collapse quand modal=display:none */
+  document.querySelectorAll('.ql-container').forEach(c => c.style.height = 'auto');
+  document.querySelectorAll('.ql-editor').forEach(e => { e.style.height = 'auto'; e.style.minHeight = '120px'; });
+
+  document.querySelectorAll('.dropdown').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+
+  /* C.9 — référentiels : throw + catch centralisé. Si les fondations cassent, le module s'arrête. */
+  try {
+    await Promise.all([loadContentTypeId(), loadCategories(), loadTags()]);
+  } catch (err) {
+    cdsShowGridError(document.getElementById('transmissionsList'),
+      'Impossible de charger les référentiels. Rechargez la page.',
+      // UX32 : reload justifie — recuperation d'erreur fatale d'initialisation
+      () => location.reload());
+    return;
+  }
+  await Promise.all([loadStats(), loadTransmissions()]);
+
+  // Slot admin — bouton déjà dans le DOM (pattern C.6)
+  document.getElementById('btnNewTransmission')?.addEventListener('click', openCreateModal);
+  document.getElementById('btnSaveTransmission').addEventListener('click', saveTransmission);
+
+  // Filtres
+  document.getElementById('filterSearch').addEventListener('input', () => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(applyFilters, 400);
+  });
+  document.getElementById('filterCategory').addEventListener('change', applyFilters);
+  document.getElementById('filterStatus').addEventListener('change', applyFilters);
+  document.getElementById('filterType').addEventListener('change', applyFilters);
+  document.getElementById('btnFilterPriority').addEventListener('click', () => {
+    const btn = document.getElementById('btnFilterPriority');
+    btn.classList.toggle('btn-danger');
+    btn.classList.toggle('btn-outline-danger');
+    applyFilters();
+  });
+
+  // Tags search
+  document.getElementById('tagSearchInput').addEventListener('input', e => renderTagSelector(e.target.value));
+
+  // Image upload
+  document.getElementById('btnSelectImages').addEventListener('click', () => {
+    document.getElementById('imageFileInput').click();
+  });
+  document.getElementById('imageFileInput').addEventListener('change', async e => {
+    for (const file of Array.from(e.target.files || [])) await uploadImageFile(file);
+    e.target.value = '';
+  });
+
+  // Drag & drop
+  const uploadArea = document.getElementById('imageUploadArea');
+  uploadArea.addEventListener('dragover',  e => { e.preventDefault(); uploadArea.classList.add('trans-upload-active'); });
+  uploadArea.addEventListener('dragleave', ()  => uploadArea.classList.remove('trans-upload-active'));
+  uploadArea.addEventListener('drop',      async e => {
+    e.preventDefault();
+    uploadArea.classList.remove('trans-upload-active');
+    for (const file of Array.from(e.dataTransfer.files)) await uploadImageFile(file);
+  });
+
+  // Reset form quand modal fermée
+  document.getElementById('modalTransmission').addEventListener('hidden.bs.modal', resetForm);
+});

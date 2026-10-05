@@ -1,0 +1,414 @@
+/* ================================================================
+   DBM — dbm-premium-components.css
+   VERSION  : 1.0.0
+   DATE     : 2026-05-07
+   STATUT   : COUCHE PREMIUM — composants additionnels charte v3
+   PORTEE   : addition only ; ne modifie aucun composant existant
+   POSITION : charge APRES cds-overrides.css, AVANT [module]-ui.css
+
+   INSPIRATION : Charte Claude Design v3 (charte-app-v3.html), session #114.
+   Adoption ciblee de patterns premium sans rupture avec la doctrine V5.
+
+   EXPOSE :
+     .btn-universe                          CTA principal teinte module
+     .btn-universe-outline                  variante outline
+     .modal-header-module                   header modal teinte module
+     .offcanvas-header-module               header offcanvas teinte module
+     .app-zone[data-zone="Page Title"]      bandeau gradient 135 deg
+     .app-zone[data-state]                  hooks etats async (a11y)
+     .app-page-title-banner                 fallback si data-zone absent
+     .module-subnav                         sous-navigation module
+
+   PRINCIPES :
+     - Couleur source = --module-color, --module-color-strong,
+       --module-color-text, --module-color-soft (cf dbm-module-color.css).
+     - Si variables absentes : fallback --bs-primary / --app-primary.
+     - Hover/focus = bascule explicite vers strong + texte blanc.
+       JAMAIS filter: brightness() (anti-pattern A15 charte v3).
+     - WCAG AA garantie : contraste blanc sur strong >= 4.5:1.
+
+   COHERENCE V5 :
+     - Coexiste avec .btn-module (dbm-module-color.css) — alias.
+     - Surfacage compatible app_groups.color (D-2026-05-05-S117).
+     - Aucune dependance hors stack figee (Bootstrap 5.3.3 + BS Icons 1.11.1).
+   ================================================================ */
+
+
+/* ============================================================
+   1. BTN UNIVERSE — CTA principal teinte module
+   Bascule pastel -> strong + texte blanc au hover/focus.
+   Anti-pattern A15 : interdiction filter: brightness().
+   ============================================================ */
+
+.btn-universe {
+  background: var(--module-color, var(--app-primary, #0d6efd));
+  border: 1px solid var(--module-color, var(--app-primary, #0d6efd));
+  color: var(--module-color-text, #ffffff);
+  font-weight: 500;
+  transition: background-color .15s ease,
+              border-color .15s ease,
+              color .15s ease,
+              box-shadow .15s ease,
+              transform .1s ease;
+}
+
+.btn-universe:hover,
+.btn-universe:focus,
+.btn-universe:active,
+.btn-universe.active {
+  background: var(--module-color-strong, var(--app-primary-hover, #0a58ca));
+  border-color: var(--module-color-strong, var(--app-primary-hover, #0a58ca));
+  color: #ffffff;
+  filter: none;                              /* A15 : aucun filter brightness */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
+}
+
+.btn-universe:focus-visible {
+  outline: 2px solid var(--module-color-strong, var(--app-primary, #0d6efd));
+  outline-offset: 2px;
+}
+
+.btn-universe:active { transform: translateY(1px); }
+
+.btn-universe:disabled,
+.btn-universe.disabled {
+  opacity: .55;
+  filter: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   2. BTN UNIVERSE OUTLINE — CTA secondaire teinte module
+   ============================================================ */
+
+.btn-universe-outline {
+  background: transparent;
+  border: 1px solid var(--module-color-strong, var(--app-primary, #0d6efd));
+  color: var(--module-color-strong, var(--app-primary, #0d6efd));
+  font-weight: 500;
+  transition: background-color .15s ease, color .15s ease;
+}
+
+.btn-universe-outline:hover,
+.btn-universe-outline:focus {
+  background: var(--module-color-strong, var(--app-primary, #0d6efd));
+  color: #ffffff;
+}
+
+.btn-universe-outline:focus-visible {
+  outline: 2px solid var(--module-color-strong, var(--app-primary, #0d6efd));
+  outline-offset: 2px;
+}
+
+
+/* ============================================================
+   3. MODAL HEADER MODULE — modale d'action metier teintee
+   Usage : <div class="modal-header modal-header-module">
+   ============================================================ */
+
+.modal-header-module {
+  background: linear-gradient(135deg,
+              var(--module-color, var(--app-primary, #0d6efd)),
+              var(--module-color-strong, var(--app-primary, #0d6efd)));
+  color: var(--module-color-text, #ffffff);
+  border-bottom: 1px solid var(--module-color-strong, var(--app-primary, #0d6efd));
+}
+
+.modal-header-module .modal-title,
+.modal-header-module h1,
+.modal-header-module h2,
+.modal-header-module h3,
+.modal-header-module h4,
+.modal-header-module h5 {
+  color: inherit;
+}
+
+.modal-header-module .btn-close {
+  filter: invert(1) brightness(2);            /* exception ciblee : croix lisible */
+  opacity: .9;
+}
+
+.modal-header-module .btn-close:hover { opacity: 1; }
+
+
+/* ============================================================
+   4. OFFCANVAS HEADER MODULE — symetrique a modal-header-module
+   ============================================================ */
+
+.offcanvas-header-module {
+  background: linear-gradient(135deg,
+              var(--module-color, var(--app-primary, #0d6efd)),
+              var(--module-color-strong, var(--app-primary, #0d6efd)));
+  color: var(--module-color-text, #ffffff);
+  border-bottom: 1px solid var(--module-color-strong, var(--app-primary, #0d6efd));
+}
+
+.offcanvas-header-module .offcanvas-title,
+.offcanvas-header-module h1,
+.offcanvas-header-module h2,
+.offcanvas-header-module h3,
+.offcanvas-header-module h4,
+.offcanvas-header-module h5 {
+  color: inherit;
+}
+
+.offcanvas-header-module .btn-close {
+  filter: invert(1) brightness(2);
+  opacity: .9;
+}
+
+
+/* ============================================================
+   5. PAGE TITLE BANNER — bandeau gradient 135 degres
+   Pattern obligatoire R-6.3 charte v3.
+   Deux modes : (a) attribut data-zone, (b) classe utilitaire.
+   ============================================================ */
+
+.app-zone[data-zone="Page Title"],
+.app-page-title-banner {
+  background: linear-gradient(135deg,
+              var(--module-color, var(--app-primary, #0d6efd)),
+              var(--module-color-strong, var(--app-primary, #0d6efd)));
+  color: var(--module-color-text, #ffffff);
+  padding: 1.5rem 1.75rem;
+  border-radius: .5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06),
+              0 4px 12px rgba(0, 0, 0, .04);
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-zone[data-zone="Page Title"] h1,
+.app-page-title-banner h1 {
+  color: inherit;
+  margin: 0 0 .25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.app-zone[data-zone="Page Title"] p,
+.app-page-title-banner p {
+  color: inherit;
+  opacity: .8;
+  margin: 0;
+  font-size: .9rem;
+}
+
+.app-zone[data-zone="Page Title"] .btn-universe,
+.app-page-title-banner .btn-universe {
+  /* CTA dans le bandeau : inverser pour rester lisible */
+  background: rgba(255, 255, 255, .92);
+  border-color: rgba(255, 255, 255, .92);
+  color: var(--module-color-strong, var(--app-primary, #0d6efd));
+}
+
+.app-zone[data-zone="Page Title"] .btn-universe:hover,
+.app-page-title-banner .btn-universe:hover {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: var(--module-color-strong, var(--app-primary, #0d6efd));
+}
+
+
+/* ============================================================
+   6. ZONE STATES — hooks data-state pour bdbZoneState()
+   Convention V5 conservee : [prefix]Loading/Empty/Error/Content.
+   En addition : [data-state] sur la zone + enfants [data-zone-state].
+   ============================================================ */
+
+.app-zone[data-state="loading"] [data-zone-state="content"],
+.app-zone[data-state="loading"] [data-zone-state="empty"],
+.app-zone[data-state="loading"] [data-zone-state="error"],
+.app-zone[data-state="empty"] [data-zone-state="content"],
+.app-zone[data-state="empty"] [data-zone-state="loading"],
+.app-zone[data-state="empty"] [data-zone-state="error"],
+.app-zone[data-state="error"] [data-zone-state="content"],
+.app-zone[data-state="error"] [data-zone-state="loading"],
+.app-zone[data-state="error"] [data-zone-state="empty"],
+.app-zone[data-state="content"] [data-zone-state="loading"],
+.app-zone[data-state="content"] [data-zone-state="empty"],
+.app-zone[data-state="content"] [data-zone-state="error"] {
+  display: none !important;
+}
+
+.app-zone[aria-busy="true"] {
+  cursor: progress;
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   7. MODULE SUBNAV — sous-navigation propre au module
+   Pattern R-6.8 charte v3 : nav.module-subnav sous le shell,
+   avant #wrapper_content. Ne remplace jamais le shell global.
+   ============================================================ */
+
+.module-subnav {
+  background: var(--app-bg-elevated, #f4efe6);
+  border-bottom: 1px solid var(--app-border, #ebe3d5);
+  padding: 0;
+}
+
+.module-subnav .nav {
+  border-bottom: none;
+  padding: 0 1rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.module-subnav .nav-link {
+  padding: .65rem 1rem;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--app-text-muted, #7a6e5b);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  white-space: nowrap;
+  transition: color .15s ease, border-color .15s ease;
+}
+
+.module-subnav .nav-link:hover {
+  color: var(--module-color-strong, var(--app-text, #2b2418));
+  background: transparent;
+}
+
+.module-subnav .nav-link.active {
+  color: var(--module-color-strong, var(--app-text, #2b2418));
+  border-bottom-color: var(--module-color-strong, var(--app-primary, #0d6efd));
+  background: transparent;
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   8. ROLE ZONE BADGES — membre / admin / createur
+   Pattern zones.html charte v3 : marquage visuel des zones a droits.
+   ============================================================ */
+
+.app-zone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .2rem .55rem;
+  border-radius: 1rem;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.app-zone-badge--member  { background: var(--app-bg-elevated, #f4efe6); color: var(--app-text-muted, #7a6e5b); }
+.app-zone-badge--admin   { background: #e3dbf2; color: #5a3a8a; }
+.app-zone-badge--creator { background: #fce4cf; color: #a8480c; }
+
+
+/* ============================================================
+   9. PRINT — neutralisation des bandeaux teintes
+   ============================================================ */
+
+@media print {
+  .app-zone[data-zone="Page Title"],
+  .app-page-title-banner,
+  .modal-header-module,
+  .offcanvas-header-module {
+    background: #ffffff !important;
+    color: #1a1a1a !important;
+    box-shadow: none !important;
+    border: 1px solid #cccccc !important;
+  }
+  .module-subnav { display: none !important; }
+}
+
+
+
+/* ============================================================
+   10. RESPONSIVE - classes utilitaires (zero style inline)
+   Conformite INTERDIT-C2 : aucune valeur inline, tout en classes.
+   Contrat doctrine : 14_AUDIT_RESPONSIVE_DBM V1.0 R-RES-1 a R-RES-6.
+   ============================================================ */
+
+/* 10.1 - Filter row : row de filtres recherche + selects + reset
+   Pattern remplace : row g-2 col-auto select style width 180px
+   Pattern adopte   : row g-2 dbm-filter-row col-12 col-md-auto dbm-filter-cell
+                      select form-select dbm-filter-select */
+.dbm-filter-row {
+  align-items: flex-end;
+}
+.dbm-filter-cell {
+  display: flex;
+  flex-direction: column;
+}
+.dbm-filter-select {
+  width: auto;
+  min-width: 160px;
+  max-width: 240px;
+}
+.dbm-filter-search {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+@media (max-width: 575px) {
+  .dbm-filter-select,
+  .dbm-filter-search {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+  .dbm-filter-cell { width: 100%; }
+}
+
+/* 10.2 - Icon button target size mobile WCAG AAA proche
+   .app-icon-btn par defaut 32x32 (dbm-theme.css).
+   Sur mobile : 40x40 tactile fiable, en table dense : 36x36. */
+@media (max-width: 768px) {
+  .app-icon-btn {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  .app-table .app-icon-btn,
+  .dbm-table .app-icon-btn {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+}
+
+/* 10.3 - Page Title bandeau flex-wrap pour CTA mobile
+   Empeche compression du CTA principal sur viewport sous 380px. */
+.app-zone[data-zone="Page Title"],
+.app-page-title-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+.app-zone[data-zone="Page Title"] > *:first-child,
+.app-page-title-banner > *:first-child {
+  flex: 1 1 60%;
+  min-width: 200px;
+}
+.app-zone[data-zone="Page Title"] .btn-universe,
+.app-page-title-banner .btn-universe {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 10.4 - Item field list passer en colonne sous 575px
+   Pattern Item page R-2 charte premium surface ITEM. */
+@media (max-width: 575px) {
+  .item-field {
+    flex-direction: column;
+    gap: .15rem;
+  }
+  .item-field-label { width: auto !important; }
+}
+
+/* 10.5 - Modale fullscreen mobile rappel doctrinal
+   La classe .modal-fullscreen-md-down est BS native.
+   Doctrine 14_AUDIT_RESPONSIVE R-RES-2 : appliquer sur chaque .modal-dialog. */
+
+
+/* ----- FIN dbm-premium-components.css v1.1.0 ----- */

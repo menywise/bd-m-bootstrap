@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>Modules nav — Atelier</title>
+
+  <!-- CHAÎNE CSS CDS — ORDRE STRICT (CONV-CHAIN-E) · zéro CSS module (§9.2 T-02 Option B) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+</head>
+
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <!-- SHELL BDB BACK OFFICE — PREMIER ENFANT DE #wrapper (INTERDIT-E1) -->
+    <div id="bdb-shell"
+         data-module-title="Modules navigation"
+         data-module-icon="bi-grid-3x3-gap-fill"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+        <div class="container-fluid p-3 p-md-4 p-lg-5">
+
+          <!-- HEADER DE PAGE -->
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+              <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-grid-3x3-gap-fill text-primary"></i>Modules navigation
+              </h1>
+              <p class="text-muted mb-0">CRUD app_modules + app_groups (PhpMyAdmin).</p>
+            </div>
+          </div>
+
+          <!-- MARQUEUR NAV -->
+          <div id="atelier-top" data-page="atelier-tables" class="d-none"></div>
+
+          <!-- GUARD : ACCESS DENIED -->
+          <div id="guardDenied" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-danger-subtle text-danger">
+                  <i class="bi bi-lock-fill"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Accès réservé au Créateur</h2>
+                <p class="text-muted mb-0">Surface L3 — ne voyage pas avec le produit.</p>
+              </div>
+            </div>
+          </div>
+
+    <!-- CONTENU CRÉATEUR -->
+    <div id="creatorContent" class="d-none">
+
+      <!-- Fil d'Ariane -->
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="index.html">Tables</a></li>
+          <li class="breadcrumb-item active">Modules navigation</li>
+        </ol>
+      </nav>
+
+      <!-- Onglets app_modules / app_groups -->
+      <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tabModules-tab" data-bs-toggle="tab"
+                  data-bs-target="#tabModules" type="button" role="tab"
+                  aria-controls="tabModules" aria-selected="true">
+            <i class="bi bi-grid-3x3-gap me-1"></i>app_modules
+            <span class="badge bg-secondary ms-1" id="badgeModules">—</span>
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tabGroups-tab" data-bs-toggle="tab"
+                  data-bs-target="#tabGroups" type="button" role="tab"
+                  aria-controls="tabGroups" aria-selected="false">
+            <i class="bi bi-collection me-1"></i>app_groups
+            <span class="badge bg-secondary ms-1" id="badgeGroups">—</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+
+        <!-- ══════════════════════════════════════════════════════
+             ONGLET app_modules
+             ══════════════════════════════════════════════════ -->
+        <div class="tab-pane fade show active" id="tabModules" role="tabpanel">
+
+          <!-- DASHBOARD -->
+          <div class="small fw-bold text-uppercase text-muted border-bottom pb-1 mb-3">Dashboard</div>
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="card bo-card text-center p-3 h-100">
+                <div class="h3 fw-bold lh-1 text-success" id="kpiModActive">—</div>
+                <div class="small fw-medium text-uppercase text-muted">Actifs</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card bo-card text-center p-3 h-100">
+                <div class="h3 fw-bold lh-1 text-warning" id="kpiModComingSoon">—</div>
+                <div class="small fw-medium text-uppercase text-muted">À venir</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card bo-card text-center p-3 h-100">
+                <div class="h3 fw-bold lh-1 text-danger" id="kpiModMaint">—</div>
+                <div class="small fw-medium text-uppercase text-muted">Maintenance</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card bo-card text-center p-3 h-100">
+                <div class="h3 fw-bold lh-1 text-primary" id="kpiModAdmin">—</div>
+                <div class="small fw-medium text-uppercase text-muted">Admin only</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONFIGURATION -->
+          <div class="small fw-bold text-uppercase text-muted border-bottom pb-1 mb-3">Configuration</div>
+
+          <!-- Toolbar -->
+          <div class="card bo-card mb-3">
+            <div class="card-body py-2 px-3">
+              <div class="row g-2 align-items-center">
+                <div class="col-12 col-md">
+                  <select class="form-select form-select-sm" id="filtModStatus" aria-label="Filtrer par statut">
+                    <option value="">Tous les statuts</option>
+                    <option value="active">Actif</option>
+                    <option value="coming_soon">À venir</option>
+                    <option value="maintenance">Maintenance</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <select class="form-select form-select-sm" id="filtModGroup" aria-label="Filtrer par groupe">
+                    <option value="">Tous les groupes</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <button class="btn btn-danger btn-sm w-100" id="btnNewModule" type="button">
+                    <i class="bi bi-plus-lg me-1"></i>Nouveau module
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skeleton -->
+          <div id="modSkeleton">
+            <div class="card bo-card"><div class="card-body p-3 d-flex flex-column gap-2">
+              <div class="placeholder-glow"><span class="placeholder col-12 bo-skel-row"></span></div>
+              <div class="placeholder-glow"><span class="placeholder col-10 bo-skel-row"></span></div>
+              <div class="placeholder-glow"><span class="placeholder col-11 bo-skel-row"></span></div>
+            </div></div>
+          </div>
+
+          <!-- Grid -->
+          <div id="modGrid" class="d-none">
+            <div class="card bo-card">
+              <div class="table-responsive">
+                <table class="table table-hover bo-table small mb-0" id="modTable">
+                  <thead>
+                    <tr>
+                      <th class="text-center bo-th-xs">Pos.</th>
+                      <th>Clé</th>
+                      <th>Label</th>
+                      <th>Icône</th>
+                      <th>Groupe</th>
+                      <th class="bo-th-md">Statut</th>
+                      <th class="bo-th-sm">Visibilité</th>
+                      <th class="text-end bo-th-actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="modTbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty -->
+          <div id="modEmpty" class="d-none">
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-grid-3x3-gap fs-1 mb-2 d-block"></i>
+              Aucun module trouvé pour ce filtre.
+            </div>
+          </div>
+
+          <!-- Erreur -->
+          <div id="modError" class="d-none">
+            <div class="alert alert-danger d-flex gap-2 align-items-center">
+              <i class="bi bi-exclamation-triangle-fill fs-5 flex-shrink-0"></i>
+              <div>
+                <span id="modErrorMsg">Impossible de charger les modules.</span>
+                <button class="btn btn-sm btn-outline-danger ms-2" id="btnModRetry" type="button">Réessayer</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /tabModules -->
+
+        <!-- ══════════════════════════════════════════════════════
+             ONGLET app_groups
+             ══════════════════════════════════════════════════ -->
+        <div class="tab-pane fade" id="tabGroups" role="tabpanel">
+
+          <!-- DASHBOARD -->
+          <div class="small fw-bold text-uppercase text-muted border-bottom pb-1 mb-3">Dashboard</div>
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="card bo-card text-center p-3 h-100">
+                <div class="h3 fw-bold lh-1 text-primary" id="kpiGrpTotal">—</div>
+                <div class="small fw-medium text-uppercase text-muted">Total groupes</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card bo-card text-center p-3 h-100">
+                <div class="h3 fw-bold lh-1 text-success" id="kpiGrpVisible">—</div>
+                <div class="small fw-medium text-uppercase text-muted">Visibles</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONFIGURATION -->
+          <div class="small fw-bold text-uppercase text-muted border-bottom pb-1 mb-3">Configuration</div>
+
+          <!-- Toolbar -->
+          <div class="card bo-card mb-3">
+            <div class="card-body py-2 px-3">
+              <div class="row g-2 align-items-center">
+                <div class="col-12 col-md">
+                  <div class="text-muted small">Groupes de navigation</div>
+                </div>
+                <div class="col-12 col-md-auto">
+                  <button class="btn btn-danger btn-sm w-100" id="btnNewGroup" type="button">
+                    <i class="bi bi-plus-lg me-1"></i>Nouveau groupe
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Skeleton -->
+          <div id="grpSkeleton">
+            <div class="card bo-card"><div class="card-body p-3 d-flex flex-column gap-2">
+              <div class="placeholder-glow"><span class="placeholder col-12 bo-skel-row"></span></div>
+              <div class="placeholder-glow"><span class="placeholder col-9 bo-skel-row"></span></div>
+            </div></div>
+          </div>
+
+          <!-- Grid -->
+          <div id="grpGrid" class="d-none">
+            <div class="card bo-card">
+              <div class="table-responsive">
+                <table class="table table-hover bo-table small mb-0" id="grpTable">
+                  <thead>
+                    <tr>
+                      <th class="text-center bo-th-xs">Pos.</th>
+                      <th>Clé</th>
+                      <th>Label</th>
+                      <th>Icône</th>
+                      <th>Couleur</th>
+                      <th>Visible</th>
+                      <th class="text-end bo-th-actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="grpTbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty -->
+          <div id="grpEmpty" class="d-none">
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-collection fs-1 mb-2 d-block"></i>
+              Aucun groupe trouvé.
+            </div>
+          </div>
+
+          <!-- Erreur -->
+          <div id="grpError" class="d-none">
+            <div class="alert alert-danger d-flex gap-2 align-items-center">
+              <i class="bi bi-exclamation-triangle-fill fs-5 flex-shrink-0"></i>
+              <span id="grpErrorMsg">Impossible de charger les groupes.</span>
+            </div>
+          </div>
+
+        </div><!-- /tabGroups -->
+
+      </div><!-- /tab-content -->
+
+    </div><!-- /creatorContent -->
+
+  </div><!-- /container-fluid -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MODAL — Édition module
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="modalModule" tabindex="-1" aria-labelledby="modalModuleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalModuleLabel">Module</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="modId"/>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="modKey">Clé <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="modKey" placeholder="ex: thesaurus" required/>
+              <div class="form-text">Identifiant unique (snake_case)</div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="modLabel">Label <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="modLabel" placeholder="ex: Thésaurus" required/>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold" for="modDesc">Description</label>
+              <input type="text" class="form-control form-control-sm" id="modDesc"/>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="modIcon">Icône Bootstrap Icons <span class="text-danger">*</span></label>
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control" id="modIcon" placeholder="bi-grid"/>
+                <span class="input-group-text"><i id="modIconPreview" class="bi bi-grid"></i></span>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="modColor">Couleur</label>
+              <div class="input-group input-group-sm">
+                <input type="color" class="form-control form-control-color" id="modColor" value="#6c757d" class="bo-color-input"/>
+                <input type="text" class="form-control" id="modColorHex" placeholder="#6c757d"/>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="modGroup">Groupe <span class="text-danger">*</span></label>
+              <select class="form-select form-select-sm" id="modGroup"></select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="modPath">Chemin <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="modPath" placeholder="modules/thesaurus/index.html"/>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label fw-semibold" for="modPosition">Position</label>
+              <input type="number" class="form-control form-control-sm" id="modPosition" value="0" min="0"/>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label fw-semibold" for="modStatus">Statut <span class="text-danger">*</span></label>
+              <select class="form-select form-select-sm" id="modStatus">
+                <option value="active">Actif</option>
+                <option value="coming_soon">À venir</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label fw-semibold" for="modVisibility">Visibilité <span class="text-danger">*</span></label>
+              <select class="form-select form-select-sm" id="modVisibility">
+                <option value="member">Membre</option>
+                <option value="admin">Admin</option>
+                <option value="all">Tous</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="modIsNew" role="switch"/>
+                <label class="form-check-label" for="modIsNew">Nouveau (badge "Nouveau")</label>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="modNewUntil">Afficher "Nouveau" jusqu'au</label>
+              <input type="date" class="form-control form-control-sm" id="modNewUntil"/>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger" id="btnSaveModule">
+            <i class="bi bi-check-lg me-1"></i>Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MODAL — Édition groupe
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="modalGroup" tabindex="-1" aria-labelledby="modalGroupLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalGroupLabel">Groupe</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="grpId"/>
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="grpKey">Clé <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="grpKey" placeholder="ex: bloc"/>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="grpLabel">Label <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="grpLabel"/>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold" for="grpDesc">Description</label>
+              <input type="text" class="form-control form-control-sm" id="grpDesc"/>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="grpIcon">Icône Bootstrap Icons</label>
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control" id="grpIcon" placeholder="bi-grid"/>
+                <span class="input-group-text"><i id="grpIconPreview" class="bi bi-grid"></i></span>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="grpColor">Couleur</label>
+              <div class="input-group input-group-sm">
+                <input type="color" class="form-control form-control-color" id="grpColor" value="#0d6efd" class="bo-color-input"/>
+                <input type="text" class="form-control" id="grpColorHex" placeholder="#0d6efd"/>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label fw-semibold" for="grpPosition">Position</label>
+              <input type="number" class="form-control form-control-sm" id="grpPosition" value="0" min="0"/>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" id="grpVisible" role="switch" checked/>
+                <label class="form-check-label" for="grpVisible">Visible</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger" id="btnSaveGroup">
+            <i class="bi bi-check-lg me-1"></i>Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Atelier L3 Créateur —
+    <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<!-- Socle BDB -->
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+<!-- Helpers CRUD -->
+<script src="../../js/bdb-crud-helpers.js"></script>
+
+<script>
+/* ──────────────────────────────────────────────────────────────
+   app-modules.js — CRUD app_modules + app_groups
+   VERSION : 1.0.0 — 2026-04-14
+   ────────────────────────────────────────────────────────────── */
+
+var S = { modules: [], groups: [] };
+
+/* ── escHtml alias ─────────────────────────────────────────── */
+var esc = BdbCrud.esc;
+
+/* ── Helpers badge ─────────────────────────────────────────── */
+function badgeStatus(v) {
+  var map = {
+    active      : ['text-bg-success', 'Actif'],
+    coming_soon : ['text-bg-warning', 'À venir'],
+    maintenance : ['text-bg-danger',  'Maintenance']
+  };
+  var b = map[v] || ['text-bg-secondary', v];
+  return '<span class="badge ' + b[0] + '">' + esc(b[1]) + '</span>';
+}
+function badgeVis(v) {
+  var map = {
+    member : ['text-bg-info',    'Membre'],
+    admin  : ['text-bg-danger',  'Admin'],
+    all    : ['text-bg-success', 'Tous']
+  };
+  var b = map[v] || ['text-bg-secondary', v];
+  return '<span class="badge ' + b[0] + '">' + esc(b[1]) + '</span>';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   app_modules
+   ═══════════════════════════════════════════════════════════ */
+async function loadModules() {
+  document.getElementById('modSkeleton').classList.remove('d-none');
+  document.getElementById('modGrid').classList.add('d-none');
+  document.getElementById('modEmpty').classList.add('d-none');
+  document.getElementById('modError').classList.add('d-none');
+
+  var r = await window.bdb.from('app_modules')
+    .select('*')
+    .order('position')
+    .order('label');
+
+  document.getElementById('modSkeleton').classList.add('d-none');
+
+  if (r.error) {
+    document.getElementById('modError').classList.remove('d-none');
+    document.getElementById('modErrorMsg').textContent = r.error.message;
+    return;
+  }
+
+  S.modules = r.data || [];
+  document.getElementById('badgeModules').textContent = S.modules.length;
+  renderModules();
+  updateModKpis();
+}
+
+function renderModules() {
+  var filtStatus = document.getElementById('filtModStatus').value;
+  var filtGroup  = document.getElementById('filtModGroup').value;
+  var rows = S.modules.filter(function(m) {
+    if (filtStatus && m.status !== filtStatus) return false;
+    if (filtGroup  && m.group_key !== filtGroup)  return false;
+    return true;
+  });
+
+  if (rows.length === 0) {
+    document.getElementById('modGrid').classList.add('d-none');
+    document.getElementById('modEmpty').classList.remove('d-none');
+    return;
+  }
+
+  var grpMap = {};
+  S.groups.forEach(function(g) { grpMap[g.key] = g.label; });
+
+  var html = rows.map(function(m) {
+    return [
+      '<tr>',
+      '  <td class="text-center fw-semibold">' + esc(String(m.position)) + '</td>',
+      '  <td><code class="small">' + esc(m.key) + '</code></td>',
+      '  <td>',
+      '    <div class="fw-semibold">' + esc(m.label) + '</div>',
+      '    ' + (m.description ? '<div class="text-muted small">' + esc(m.description) + '</div>' : ''),
+      '  </td>',
+      '  <td>',
+      '    <span class="fs-5"><i class="bi ' + esc(m.icon || '') + '"></i></span>',
+      '    <code class="small ms-1">' + esc(m.icon || '') + '</code>',
+      '  </td>',
+      '  <td><span class="badge text-bg-light border">' + esc(grpMap[m.group_key] || m.group_key || '—') + '</span></td>',
+      '  <td>' + badgeStatus(m.status) + (m.is_new ? ' <span class="badge text-bg-info text-dark">New</span>' : '') + '</td>',
+      '  <td>' + badgeVis(m.visibility) + '</td>',
+      '  <td class="text-end">',
+      '    <button class="btn btn-sm btn-outline-secondary py-0 px-1 me-1" data-action="edit-module" data-id="' + esc(m.id) + '" type="button" title="Modifier"><i class="bi bi-pencil"></i></button>',
+      '    <button class="btn btn-sm btn-outline-danger py-0 px-1" data-action="del-module" data-id="' + esc(m.id) + '" data-label="' + esc(m.label) + '" type="button" title="Supprimer"><i class="bi bi-trash"></i></button>',
+      '  </td>',
+      '</tr>'
+    ].join('\n');
+  }).join('\n');
+
+  document.getElementById('modTbody').innerHTML = html;
+  document.getElementById('modGrid').classList.remove('d-none');
+  document.getElementById('modEmpty').classList.add('d-none');
+}
+
+function updateModKpis() {
+  document.getElementById('kpiModActive').textContent =
+    S.modules.filter(function(m) { return m.status === 'active'; }).length;
+  document.getElementById('kpiModComingSoon').textContent =
+    S.modules.filter(function(m) { return m.status === 'coming_soon'; }).length;
+  document.getElementById('kpiModMaint').textContent =
+    S.modules.filter(function(m) { return m.status === 'maintenance'; }).length;
+  document.getElementById('kpiModAdmin').textContent =
+    S.modules.filter(function(m) { return m.visibility === 'admin'; }).length;
+}
+
+function fillModGroupFilter() {
+  var sel = document.getElementById('filtModGroup');
+  var modSel = document.getElementById('modGroup');
+  [sel, modSel].forEach(function(s) {
+    var current = s.value;
+    while (s.options.length > (s === sel ? 1 : 0)) s.remove(s.options.length - 1);
+    S.groups.forEach(function(g) {
+      var opt = document.createElement('option');
+      opt.value = g.key;
+      opt.textContent = g.label + ' (' + g.key + ')';
+      s.appendChild(opt);
+    });
+    if (current) s.value = current;
+  });
+}
+
+function openModuleModal(id) {
+  var m = id ? S.modules.find(function(x) { return x.id === id; }) : null;
+  document.getElementById('modId').value      = m ? m.id : '';
+  document.getElementById('modKey').value     = m ? (m.key || '') : '';
+  document.getElementById('modLabel').value   = m ? (m.label || '') : '';
+  document.getElementById('modDesc').value    = m ? (m.description || '') : '';
+  document.getElementById('modIcon').value    = m ? (m.icon || '') : '';
+  document.getElementById('modColor').value   = m ? (m.color || '#6c757d') : '#6c757d';
+  document.getElementById('modColorHex').value= m ? (m.color || '#6c757d') : '#6c757d';
+  document.getElementById('modGroup').value   = m ? (m.group_key || '') : '';
+  document.getElementById('modPath').value    = m ? (m.path || '') : '';
+  document.getElementById('modPosition').value= m ? String(m.position || 0) : '0';
+  document.getElementById('modStatus').value  = m ? (m.status || 'active') : 'active';
+  document.getElementById('modVisibility').value = m ? (m.visibility || 'member') : 'member';
+  document.getElementById('modIsNew').checked = m ? !!m.is_new : false;
+  document.getElementById('modNewUntil').value= m ? (m.new_until || '') : '';
+  updateIconPreview('modIcon', 'modIconPreview');
+  document.getElementById('modalModuleLabel').textContent = m ? 'Modifier : ' + m.label : 'Nouveau module';
+  BdbCrud.getModal('modalModule').show();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   app_groups
+   ═══════════════════════════════════════════════════════════ */
+async function loadGroups() {
+  document.getElementById('grpSkeleton').classList.remove('d-none');
+  document.getElementById('grpGrid').classList.add('d-none');
+  document.getElementById('grpEmpty').classList.add('d-none');
+  document.getElementById('grpError').classList.add('d-none');
+
+  var r = await window.bdb.from('app_groups').select('*').order('position');
+
+  document.getElementById('grpSkeleton').classList.add('d-none');
+
+  if (r.error) {
+    document.getElementById('grpError').classList.remove('d-none');
+    document.getElementById('grpErrorMsg').textContent = r.error.message;
+    return;
+  }
+
+  S.groups = r.data || [];
+  document.getElementById('badgeGroups').textContent = S.groups.length;
+  document.getElementById('kpiGrpTotal').textContent = S.groups.length;
+  document.getElementById('kpiGrpVisible').textContent =
+    S.groups.filter(function(g) { return g.is_visible; }).length;
+
+  fillModGroupFilter();
+  renderGroups();
+}
+
+function renderGroups() {
+  if (S.groups.length === 0) {
+    document.getElementById('grpGrid').classList.add('d-none');
+    document.getElementById('grpEmpty').classList.remove('d-none');
+    return;
+  }
+  var html = S.groups.map(function(g) {
+    return [
+      '<tr>',
+      '  <td class="text-center fw-semibold">' + esc(String(g.position)) + '</td>',
+      '  <td><code class="small">' + esc(g.key) + '</code></td>',
+      '  <td class="fw-semibold">' + esc(g.label) + '</td>',
+      '  <td>',
+      '    <span class="fs-5"><i class="bi ' + esc(g.icon || '') + '"></i></span>',
+      '    <code class="small ms-1">' + esc(g.icon || '') + '</code>',
+      '  </td>',
+      '  <td>',
+      '    <span class="d-inline-block rounded border align-middle bo-swatch" style="background:' + esc(g.color || '#6c757d') + '"></span>',
+      '    <code class="small ms-1">' + esc(g.color || '—') + '</code>',
+      '  </td>',
+      '  <td>',
+      g.is_visible
+        ? '<span class="badge text-bg-success">Oui</span>'
+        : '<span class="badge text-bg-secondary">Non</span>',
+      '  </td>',
+      '  <td class="text-end">',
+      '    <button class="btn btn-sm btn-outline-secondary py-0 px-1 me-1" data-action="edit-group" data-id="' + esc(g.id) + '" type="button" title="Modifier"><i class="bi bi-pencil"></i></button>',
+      '    <button class="btn btn-sm btn-outline-danger py-0 px-1" data-action="del-group" data-id="' + esc(g.id) + '" data-label="' + esc(g.label) + '" type="button" title="Supprimer"><i class="bi bi-trash"></i></button>',
+      '  </td>',
+      '</tr>'
+    ].join('\n');
+  }).join('\n');
+
+  document.getElementById('grpTbody').innerHTML = html;
+  document.getElementById('grpGrid').classList.remove('d-none');
+  document.getElementById('grpEmpty').classList.add('d-none');
+}
+
+function openGroupModal(id) {
+  var g = id ? S.groups.find(function(x) { return x.id === id; }) : null;
+  document.getElementById('grpId').value       = g ? g.id : '';
+  document.getElementById('grpKey').value      = g ? (g.key || '') : '';
+  document.getElementById('grpLabel').value    = g ? (g.label || '') : '';
+  document.getElementById('grpDesc').value     = g ? (g.description || '') : '';
+  document.getElementById('grpIcon').value     = g ? (g.icon || '') : '';
+  document.getElementById('grpColor').value    = g ? (g.color || '#0d6efd') : '#0d6efd';
+  document.getElementById('grpColorHex').value = g ? (g.color || '#0d6efd') : '#0d6efd';
+  document.getElementById('grpPosition').value = g ? String(g.position || 0) : '0';
+  document.getElementById('grpVisible').checked= g ? !!g.is_visible : true;
+  updateIconPreview('grpIcon', 'grpIconPreview');
+  document.getElementById('modalGroupLabel').textContent = g ? 'Modifier : ' + g.label : 'Nouveau groupe';
+  BdbCrud.getModal('modalGroup').show();
+}
+
+/* ── Sync color picker ↔ hex input ────────────────────────── */
+function syncColor(pickerId, hexId) {
+  var picker = document.getElementById(pickerId);
+  var hex    = document.getElementById(hexId);
+  if (!picker || !hex) return;
+  picker.addEventListener('input', function() { hex.value = picker.value; });
+  hex.addEventListener('change', function() {
+    if (/^#[0-9a-f]{6}$/i.test(hex.value)) picker.value = hex.value;
+  });
+}
+
+/* ── Icon preview ─────────────────────────────────────────── */
+function updateIconPreview(inputId, previewId) {
+  var v = document.getElementById(inputId).value.trim();
+  var el = document.getElementById(previewId);
+  if (el) {
+    el.className = 'bi ' + (v || 'bi-question');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LISTENERS globaux (event delegation — zero inline handler)
+   ═══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async function() {
+  await window.bdbShellReady;
+
+  /* Guard créateur */
+  if (!window.bdbUser || !window.bdbUser.isCreator) {
+    document.getElementById('guardDenied').classList.remove('d-none');
+    return;
+  }
+  document.getElementById('creatorContent').classList.remove('d-none');
+
+  /* Injecter toast + modal confirmation */
+  document.body.insertAdjacentHTML('beforeend', BdbCrud.toastHtml());
+  document.body.insertAdjacentHTML('beforeend', BdbCrud.confirmModalHtml());
+
+  /* Chargement initial */
+  await Promise.all([loadGroups(), loadModules()]);
+
+  /* Sync color pickers */
+  syncColor('modColor', 'modColorHex');
+  syncColor('grpColor', 'grpColorHex');
+
+  /* Icon preview live */
+  document.getElementById('modIcon').addEventListener('input', function() {
+    updateIconPreview('modIcon', 'modIconPreview');
+  });
+  document.getElementById('grpIcon').addEventListener('input', function() {
+    updateIconPreview('grpIcon', 'grpIconPreview');
+  });
+
+  /* Filtres modules */
+  document.getElementById('filtModStatus').addEventListener('change', renderModules);
+  document.getElementById('filtModGroup').addEventListener('change', renderModules);
+
+  /* Boutons Nouveau */
+  document.getElementById('btnNewModule').addEventListener('click', function() { openModuleModal(null); });
+  document.getElementById('btnNewGroup').addEventListener('click', function() { openGroupModal(null); });
+
+  /* Retry */
+  document.getElementById('btnModRetry').addEventListener('click', loadModules);
+
+  /* Délégation — actions lignes */
+  document.addEventListener('click', async function(e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var action = btn.dataset.action;
+    var id     = btn.dataset.id;
+    var label  = btn.dataset.label;
+
+    if (action === 'edit-module') { openModuleModal(id); }
+    if (action === 'del-module')  {
+      BdbCrud.del('app_modules', id, label, function() { loadModules(); });
+    }
+    if (action === 'edit-group')  { openGroupModal(id); }
+    if (action === 'del-group')   {
+      BdbCrud.del('app_groups', id, label, function() { loadGroups(); });
+    }
+  });
+
+  /* Save module */
+  document.getElementById('btnSaveModule').addEventListener('click', async function() {
+    var id = document.getElementById('modId').value || null;
+    var color = document.getElementById('modColorHex').value || document.getElementById('modColor').value;
+    var payload = {
+      key        : document.getElementById('modKey').value.trim(),
+      label      : document.getElementById('modLabel').value.trim(),
+      description: document.getElementById('modDesc').value.trim() || null,
+      icon       : document.getElementById('modIcon').value.trim(),
+      color      : color,
+      group_key  : document.getElementById('modGroup').value,
+      path       : document.getElementById('modPath').value.trim(),
+      position   : parseInt(document.getElementById('modPosition').value) || 0,
+      status     : document.getElementById('modStatus').value,
+      visibility : document.getElementById('modVisibility').value,
+      is_new     : document.getElementById('modIsNew').checked,
+      new_until  : document.getElementById('modNewUntil').value || null,
+      updated_at : new Date().toISOString()
+    };
+    var ok = await BdbCrud.save('app_modules', payload, id, function() {
+      BdbCrud.getModal('modalModule').hide();
+      loadModules();
+    }, document.getElementById('btnSaveModule'));
+  });
+
+  /* Save groupe */
+  document.getElementById('btnSaveGroup').addEventListener('click', async function() {
+    var id = document.getElementById('grpId').value || null;
+    var color = document.getElementById('grpColorHex').value || document.getElementById('grpColor').value;
+    var payload = {
+      key        : document.getElementById('grpKey').value.trim(),
+      label      : document.getElementById('grpLabel').value.trim(),
+      description: document.getElementById('grpDesc').value.trim() || null,
+      icon       : document.getElementById('grpIcon').value.trim(),
+      color      : color,
+      position   : parseInt(document.getElementById('grpPosition').value) || 0,
+      is_visible : document.getElementById('grpVisible').checked,
+      updated_at : new Date().toISOString()
+    };
+    var ok = await BdbCrud.save('app_groups', payload, id, function() {
+      BdbCrud.getModal('modalGroup').hide();
+      loadGroups();
+    }, document.getElementById('btnSaveGroup'));
+  });
+
+  /* Ancre #groups → activer l'onglet groupes */
+  if (window.location.hash === '#groups') {
+    bootstrap.Tab.getOrCreateInstance(
+      document.getElementById('tabGroups-tab')
+    ).show();
+  }
+
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: ATELIER | Auth: bdb-shell.js | Shell: oui -->
+<!-- DEMO PAGE — bdb-ui-kit.css v1.0.0 — Session #112 -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kit UI Demo — BDB</title>
+  <!-- BLOC E CSS (ordre immuable) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+</head>
+<body data-root-path="../../">
+
+  <div id="wrapper">
+    <div id="bdb-shell" data-module-title="Kit UI Demo" data-module-icon="bi-palette" data-root-path="../../" data-shell-kind="backoffice"></div>
+    <div id="wrapper_content">
+      <main id="middle">
+        <div class="container-fluid py-4">
+
+          <!-- TITRE PAGE -->
+          <div class="d-flex align-items-center mb-4">
+            <div class="bdb-icon-badge bdb-bg-purple me-3">
+              <i class="bi bi-palette"></i>
+            </div>
+            <div>
+              <h1 class="h4 mb-0">Kit UI BDB v1.0.0</h1>
+              <p class="text-muted mb-0" style="font-size:.85rem">23 composants partages — reference visuelle</p>
+            </div>
+          </div>
+
+
+          <!-- ═══ C1 — CARDS ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-credit-card"></i> C1 — Cards</h2>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="bdb-card bdb-card--hover p-3">
+                <h6 class="mb-1">Card basique</h6>
+                <p class="text-muted mb-0" style="font-size:.85rem">Hover pour voir l'elevation.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bdb-card bdb-card--accent-primary p-3">
+                <h6 class="mb-1">Accent Primary</h6>
+                <p class="text-muted mb-0" style="font-size:.85rem">Bordure gauche bleue.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bdb-card bdb-card--accent-warning p-3">
+                <h6 class="mb-1">Accent Warning</h6>
+                <p class="text-muted mb-0" style="font-size:.85rem">Bordure gauche jaune.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bdb-card bdb-card--accent-danger p-3">
+                <h6 class="mb-1">Accent Danger</h6>
+                <p class="text-muted mb-0" style="font-size:.85rem">Bordure gauche rouge.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bdb-card bdb-card--accent-success p-3">
+                <h6 class="mb-1">Accent Success</h6>
+                <p class="text-muted mb-0" style="font-size:.85rem">Bordure gauche verte.</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bdb-card bdb-card--accent-purple p-3">
+                <h6 class="mb-1">Accent Purple</h6>
+                <p class="text-muted mb-0" style="font-size:.85rem">Bordure gauche violette.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bdb-card mb-4">
+            <div class="card-header bdb-card-header--tint">
+              <i class="bi bi-bar-chart me-2"></i>Card avec header tint
+            </div>
+            <div class="card-body p-3">
+              <p class="mb-0">Contenu de la card avec header gradient bleu subtil.</p>
+            </div>
+          </div>
+
+
+          <!-- ═══ C2 — KPI ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-speedometer2"></i> C2 — KPI</h2>
+
+          <div class="bdb-kpi-grid mb-4">
+            <div class="bdb-card bdb-card--hover p-3">
+              <div class="d-flex align-items-start gap-3">
+                <div class="bdb-icon-badge bdb-bg-blue">
+                  <i class="bi bi-journal-text"></i>
+                </div>
+                <div>
+                  <div class="bdb-kpi-label">Protocoles</div>
+                  <div class="bdb-kpi-value">395</div>
+                  <div class="bdb-kpi-sub">+12 ce mois</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bdb-card bdb-card--hover p-3">
+              <div class="d-flex align-items-start gap-3">
+                <div class="bdb-icon-badge bdb-bg-green">
+                  <i class="bi bi-check-circle"></i>
+                </div>
+                <div>
+                  <div class="bdb-kpi-label">Complets</div>
+                  <div class="bdb-kpi-value">48</div>
+                  <div class="bdb-kpi-sub">12.2% du total</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bdb-card bdb-card--hover p-3">
+              <div class="d-flex align-items-start gap-3">
+                <div class="bdb-icon-badge bdb-bg-amber">
+                  <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <div>
+                  <div class="bdb-kpi-label">Sans CCAM</div>
+                  <div class="bdb-kpi-value">86</div>
+                  <div class="bdb-kpi-sub text-warning">21.8%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bdb-card bdb-card--hover p-3">
+              <div class="d-flex align-items-start gap-3">
+                <div class="bdb-icon-badge bdb-bg-purple">
+                  <i class="bi bi-book"></i>
+                </div>
+                <div>
+                  <div class="bdb-kpi-label">Glossaire</div>
+                  <div class="bdb-kpi-value">567</div>
+                  <div class="bdb-kpi-sub">termes actifs</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ═══ C3 — ICON BADGES ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-circle-fill"></i> C3 — Icon Badges</h2>
+
+          <div class="d-flex flex-wrap gap-3 mb-4">
+            <div class="bdb-icon-badge bdb-bg-blue"><i class="bi bi-journal"></i></div>
+            <div class="bdb-icon-badge bdb-bg-green"><i class="bi bi-check-lg"></i></div>
+            <div class="bdb-icon-badge bdb-bg-amber"><i class="bi bi-exclamation"></i></div>
+            <div class="bdb-icon-badge bdb-bg-red"><i class="bi bi-x-lg"></i></div>
+            <div class="bdb-icon-badge bdb-bg-cyan"><i class="bi bi-info-lg"></i></div>
+            <div class="bdb-icon-badge bdb-bg-purple"><i class="bi bi-stars"></i></div>
+            <div class="bdb-icon-badge bdb-bg-gray"><i class="bi bi-gear"></i></div>
+            <span class="text-muted align-self-center ms-2">|</span>
+            <div class="bdb-icon-badge bdb-icon-badge--sm bdb-bg-blue"><i class="bi bi-journal"></i></div>
+            <div class="bdb-icon-badge bdb-icon-badge--lg bdb-bg-purple"><i class="bi bi-stars"></i></div>
+          </div>
+
+
+          <!-- ═══ C4 — TABS ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-segmented-nav"></i> C4 — Tabs</h2>
+
+          <div class="bdb-card mb-4">
+            <ul class="nav bdb-tabs px-3 pt-2" role="tablist">
+              <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab1">Protocoles</a></li>
+              <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab2">Chirurgiens</a></li>
+              <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab3">CCAM</a></li>
+              <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab4">Administration</a></li>
+            </ul>
+            <div class="tab-content p-3">
+              <div class="tab-pane fade show active" id="tab1">
+                <p class="mb-0">Contenu onglet Protocoles. Underline bleue 2px sur l'actif.</p>
+              </div>
+              <div class="tab-pane fade" id="tab2"><p class="mb-0">Chirurgiens.</p></div>
+              <div class="tab-pane fade" id="tab3"><p class="mb-0">CCAM.</p></div>
+              <div class="tab-pane fade" id="tab4"><p class="mb-0">Admin.</p></div>
+            </div>
+          </div>
+
+
+          <!-- ═══ C5 — TABLE ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-table"></i> C5 — Data Table</h2>
+
+          <div class="bdb-card mb-4">
+            <div class="table-responsive">
+              <table class="table bdb-table bdb-table--hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Protocole</th>
+                    <th>Type</th>
+                    <th>Zone</th>
+                    <th>Freq.</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Prothese totale de hanche</strong></td>
+                    <td><span class="badge" style="background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;font-size:.72rem">Ortho</span></td>
+                    <td>Hanche</td>
+                    <td style="font-variant-numeric:tabular-nums">1 247</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <a class="bdb-btn-icon bdb-btn-icon--primary" title="Voir" role="button"><i class="bi bi-eye"></i></a>
+                        <a class="bdb-btn-icon bdb-btn-icon--muted" title="Modifier" role="button"><i class="bi bi-pencil"></i></a>
+                        <a class="bdb-btn-icon bdb-btn-icon--danger" title="Supprimer" role="button"><i class="bi bi-trash"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Arthroscopie du genou</strong></td>
+                    <td><span class="badge" style="background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;font-size:.72rem">Ortho</span></td>
+                    <td>Genou</td>
+                    <td style="font-variant-numeric:tabular-nums">892</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <a class="bdb-btn-icon bdb-btn-icon--primary" title="Voir" role="button"><i class="bi bi-eye"></i></a>
+                        <a class="bdb-btn-icon bdb-btn-icon--muted" title="Modifier" role="button"><i class="bi bi-pencil"></i></a>
+                        <a class="bdb-btn-icon bdb-btn-icon--danger" title="Supprimer" role="button"><i class="bi bi-trash"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Fracture poignet — osteo synth</strong></td>
+                    <td><span class="badge" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-size:.72rem">Traumato</span></td>
+                    <td>Poignet</td>
+                    <td style="font-variant-numeric:tabular-nums">456</td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <a class="bdb-btn-icon bdb-btn-icon--primary" title="Voir" role="button"><i class="bi bi-eye"></i></a>
+                        <a class="bdb-btn-icon bdb-btn-icon--muted" title="Modifier" role="button"><i class="bi bi-pencil"></i></a>
+                        <a class="bdb-btn-icon bdb-btn-icon--danger" title="Supprimer" role="button"><i class="bi bi-trash"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+
+          <!-- ═══ C7 — DETAIL SECTION ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-card-text"></i> C7 — Detail Section</h2>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="bdb-detail">
+                <div class="bdb-detail-title"><i class="bi bi-info-circle me-1"></i> Informations generales</div>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <div class="bdb-detail-label">Zone anatomique</div>
+                    <div class="bdb-detail-value">Epaule</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="bdb-detail-label">Specialite</div>
+                    <div class="bdb-detail-value">Orthopedie</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="bdb-detail-label">Frequence</div>
+                    <div class="bdb-detail-value">342 / an</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="bdb-detail-label">Pareto</div>
+                    <div class="bdb-detail-value"><span class="badge bg-warning text-dark">Standard</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bdb-detail">
+                <div class="bdb-detail-title"><i class="bi bi-tag me-1"></i> Tags et variantes</div>
+                <div class="mb-2">
+                  <span class="bdb-tag">Coiffe des rotateurs</span>
+                  <span class="bdb-tag">Suture tendineuse</span>
+                  <span class="bdb-tag">Reinsertion</span>
+                </div>
+                <div>
+                  <span class="bdb-tag bdb-tag--mono">CdR</span>
+                  <span class="bdb-tag bdb-tag--mono">suture CdR</span>
+                  <span class="bdb-tag bdb-tag--mono">reparation coiffe</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ═══ C8 — SKELETON ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-hourglass-split"></i> C8 — Skeleton Loader</h2>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="bdb-card p-3">
+                <div class="bdb-skeleton">
+                  <div class="bdb-skeleton-row"></div>
+                  <div class="bdb-skeleton-row"></div>
+                  <div class="bdb-skeleton-row"></div>
+                  <div class="bdb-skeleton-row"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bdb-card p-3 d-flex gap-3">
+                <div class="bdb-skeleton-kpi"></div>
+                <div class="bdb-skeleton-kpi"></div>
+                <div class="bdb-skeleton-kpi"></div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bdb-card p-3">
+                <div class="bdb-skeleton-table-row"></div>
+                <div class="bdb-skeleton-table-row"></div>
+                <div class="bdb-skeleton-table-row"></div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ═══ C9 — STATE ICON + C19 — EMPTY ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-emoji-neutral"></i> C9/C19 — Etats (empty / error)</h2>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="bdb-card">
+                <div class="bdb-empty">
+                  <i class="bi bi-inbox"></i>
+                  <p>Aucun protocole dans cette specialite.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bdb-card">
+                <div class="bdb-empty">
+                  <div class="bdb-state-icon bg-danger-subtle text-danger mx-auto">
+                    <i class="bi bi-exclamation-triangle"></i>
+                  </div>
+                  <p class="text-danger">Erreur de chargement des donnees.</p>
+                  <button class="btn btn-sm btn-outline-danger mt-2"><i class="bi bi-arrow-clockwise me-1"></i>Reessayer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ═══ C10 — AVATARS ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-person-circle"></i> C10 — Avatars</h2>
+
+          <div class="d-flex flex-wrap gap-3 align-items-center mb-4">
+            <div class="bdb-avatar bdb-avatar--sm">MR</div>
+            <div class="bdb-avatar">MR</div>
+            <div class="bdb-avatar bdb-avatar--lg">MR</div>
+            <div class="bdb-avatar bdb-avatar--xl">MR</div>
+            <span class="text-muted">|</span>
+            <div class="bdb-avatar bdb-avatar--grad-teal">OH</div>
+            <div class="bdb-avatar bdb-avatar--grad-red">SP</div>
+            <div class="bdb-avatar bdb-avatar--grad-purple">CC</div>
+          </div>
+
+
+          <!-- ═══ C11 — SEARCH ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-search"></i> C11 — Search Bar</h2>
+
+          <div class="bdb-card p-3 mb-4">
+            <div class="bdb-search" style="max-width:500px">
+              <i class="bi bi-search bdb-search-icon"></i>
+              <input type="text" class="form-control" placeholder="Rechercher un protocole, un code CCAM..."/>
+            </div>
+          </div>
+
+
+          <!-- ═══ C12 — PROGRESS ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-bar-chart-steps"></i> C12 — Progress Bars</h2>
+
+          <div class="bdb-card p-3 mb-4">
+            <div class="mb-3">
+              <small class="text-muted">Standard (8px)</small>
+              <div class="bdb-progress-track mt-1">
+                <div class="bdb-progress-fill bg-primary" style="width:65%"></div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <small class="text-muted">Thin (5px)</small>
+              <div class="bdb-progress-track bdb-progress-track--thin mt-1">
+                <div class="bdb-progress-fill bg-success" style="width:42%"></div>
+              </div>
+            </div>
+            <div>
+              <small class="text-muted">Thick (14px)</small>
+              <div class="bdb-progress-track bdb-progress-track--thick mt-1">
+                <div class="bdb-progress-fill bg-warning" style="width:78%"></div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ═══ C18 — ALERTS ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-bell"></i> C18 — Alert Accents</h2>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="bdb-alert-accent">
+                <strong>Attention</strong> — 86 protocoles sans code CCAM verifie.
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bdb-alert-accent bdb-alert-accent--danger">
+                <strong>Erreur</strong> — Echec de synchronisation avec le referentiel CCAM.
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bdb-alert-accent bdb-alert-accent--info">
+                <strong>Info</strong> — Le glossaire a ete mis a jour il y a 2 heures.
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bdb-alert-accent bdb-alert-accent--success">
+                <strong>OK</strong> — Import termine : 42 termes ajoutes.
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ═══ C21 — METRIC ROWS ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-bar-chart"></i> C21 — Metric Rows</h2>
+
+          <div class="bdb-card p-3 mb-4" style="max-width:600px">
+            <div class="bdb-metric-row">
+              <div class="bdb-metric-label">Epaule</div>
+              <div class="bdb-progress-track">
+                <div class="bdb-progress-fill bg-primary" style="width:85%"></div>
+              </div>
+              <div class="bdb-metric-value">342</div>
+            </div>
+            <div class="bdb-metric-row">
+              <div class="bdb-metric-label">Genou</div>
+              <div class="bdb-progress-track">
+                <div class="bdb-progress-fill bg-info" style="width:68%"></div>
+              </div>
+              <div class="bdb-metric-value">271</div>
+            </div>
+            <div class="bdb-metric-row">
+              <div class="bdb-metric-label">Hanche</div>
+              <div class="bdb-progress-track">
+                <div class="bdb-progress-fill bg-success" style="width:55%"></div>
+              </div>
+              <div class="bdb-metric-value">220</div>
+            </div>
+            <div class="bdb-metric-row">
+              <div class="bdb-metric-label">Rachis</div>
+              <div class="bdb-progress-track">
+                <div class="bdb-progress-fill bg-warning" style="width:30%"></div>
+              </div>
+              <div class="bdb-metric-value">118</div>
+            </div>
+          </div>
+
+
+          <!-- ═══ C22 — RANK BADGES ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-trophy"></i> C22 — Rank Badges</h2>
+
+          <div class="d-flex gap-3 align-items-center mb-4">
+            <div class="bdb-rank bdb-rank--gold">1</div>
+            <div class="bdb-rank bdb-rank--silver">2</div>
+            <div class="bdb-rank bdb-rank--bronze">3</div>
+            <div class="bdb-rank bdb-rank--normal">4</div>
+            <div class="bdb-rank bdb-rank--normal">5</div>
+          </div>
+
+
+          <!-- ═══ C23 — AI BUTTON ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-stars"></i> C23 — AI Button</h2>
+
+          <div class="d-flex gap-3 mb-4">
+            <button class="btn bdb-ai-btn"><i class="bi bi-stars me-1"></i>Generer avec IA</button>
+            <button class="btn bdb-ai-btn bdb-btn-xs"><i class="bi bi-stars me-1"></i>IA</button>
+            <span class="bdb-ai-icon fs-4"><i class="bi bi-stars"></i></span>
+          </div>
+
+
+          <!-- ═══ C14 — DROP ZONE ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-cloud-upload"></i> C14 — Drop Zone</h2>
+
+          <div class="bdb-drop-zone mb-4" style="max-width:500px">
+            <i class="bi bi-cloud-arrow-up fs-2 text-primary d-block mb-2"></i>
+            <p class="mb-1"><strong>Glissez un fichier ici</strong></p>
+            <p class="text-muted mb-0" style="font-size:.82rem">CSV ou Excel — max 10 Mo</p>
+          </div>
+
+
+          <!-- ═══ C15 — LOG ═══ -->
+          <h2 class="bdb-section-title"><i class="bi bi-terminal"></i> C15 — Log Terminal</h2>
+
+          <div class="bdb-card mb-4" style="max-width:600px">
+            <div class="card-header"><i class="bi bi-terminal me-2"></i>Import log</div>
+            <pre class="bdb-log mb-0"><span class="log-ok">[OK]</span> 42 termes importes
+<span class="log-warn">[WARN]</span> 3 doublons ignores (variantes existantes)
+<span class="log-err">[ERR]</span> Ligne 56 : code CCAM invalide "FAKE01"
+<span class="log-ok">[OK]</span> Import termine en 1.2s</pre>
+          </div>
+
+
+          <!-- FIN -->
+          <div class="text-center text-muted py-4" style="font-size:.78rem">
+            bdb-ui-kit.css v1.0.0 — Session #112 — 2026-05-02
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Chaine JS (ordre immuable) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+</body>
+</html>

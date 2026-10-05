@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: ADMIN | Auth: admin uniquement | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Préférences — Administration</title>
+
+  <!-- BLOC E CSS — Chaîne V5.1 (CONV-CHAIN-E) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet"/>
+  <link href="preferences-ui.css" rel="stylesheet"/>
+
+  <!-- Variables couleur module (CONV-MODULE-COLOR-02) -->
+  <style>
+    :root {
+      --module-color: #93c5fd;
+      --module-color-strong: #60a5fa;
+      --module-color-text: #1e3a8a;
+      --module-color-soft: rgba(147, 197, 253, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <div id="bdb-shell" data-module-title="Préférences — Administration" data-module-icon="bi-person-gear"
+       data-root-path="../../"
+       data-shell-kind="backoffice"
+       data-login-mode="modal"
+       data-shell-theme="dbm"></div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+      <div class="container-fluid flex-grow-1 p-0">
+
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+      <a href="../admin/index.html" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Administration
+      </a>
+      <span class="text-muted">›</span>
+      <span class="small fw-medium">
+        <i class="bi bi-person-gear me-1"></i>Préférences
+      </span>
+    </div>
+
+    <!-- Onglets admin -->
+    <ul class="nav bdb-tabs px-3 pt-2" id="prefAdminTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-prefs-btn" data-bs-toggle="tab" data-bs-target="#tab-prefs"
+          type="button" role="tab" aria-controls="tab-prefs" aria-selected="true">
+          <i class="bi bi-list-ul me-1"></i>Préférences
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-couverture-btn" data-bs-toggle="tab" data-bs-target="#tab-couverture"
+          type="button" role="tab" aria-controls="tab-couverture" aria-selected="false">
+          <i class="bi bi-bar-chart-line me-1"></i>Couverture
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content px-3 pt-3">
+
+      <!-- ═══════════════════════════════════════════════════════
+           ONGLET PRÉFÉRENCES
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade show active" id="tab-prefs" role="tabpanel">
+
+        <!-- Filtres toolbar -->
+        <div class="card border-0 shadow-sm mb-4 mt-2">
+          <div class="card-body p-3">
+            <div class="row g-2 align-items-center">
+              <div class="col-12 col-md-5">
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                  <input type="search" class="form-control border-start-0" id="pSearch" placeholder="Chirurgien, protocole, mot-clé..."/>
+                </div>
+              </div>
+              <div class="col-6 col-md-2">
+                <select class="form-select" id="pGlobal">
+                  <option value="">Toutes</option>
+                  <option value="true">Globales</option>
+                  <option value="false">Par protocole</option>
+                  <option value="draft" class="pref-filter-admin d-none">Brouillons à valider</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <select class="form-select" id="pChirurgien"><option value="">Tous chirurgiens</option></select>
+              </div>
+              <div class="col-12 col-md-auto d-none" id="headerAdminSlot"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C.9 loading -->
+        <div id="prefsLoading" class="d-none">
+          <div class="placeholder-glow">
+            <div class="card border-0 shadow-sm mb-3"><div class="card-body"><div class="d-flex align-items-start gap-3">
+              <div class="placeholder rounded-circle pref-chir-avatar"></div>
+              <div class="flex-grow-1"><div class="placeholder col-5 rounded mb-2"></div><div class="placeholder col-3 rounded mb-2"></div><div class="placeholder col-8 rounded"></div></div>
+            </div></div></div>
+            <div class="card border-0 shadow-sm"><div class="card-body"><div class="d-flex align-items-start gap-3">
+              <div class="placeholder rounded-circle pref-chir-avatar"></div>
+              <div class="flex-grow-1"><div class="placeholder col-6 rounded mb-2"></div><div class="placeholder col-4 rounded mb-2"></div><div class="placeholder col-7 rounded"></div></div>
+            </div></div></div>
+          </div>
+        </div>
+
+        <!-- C.9 empty -->
+        <div id="prefsEmpty" class="d-none">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5 text-muted">
+              <i class="bi bi-person-gear fs-1 d-block mb-3"></i>
+              <p class="mb-1 fw-semibold">Aucune préférence trouvée</p>
+              <p class="small mb-3">Les préférences des chirurgiens apparaîtront ici.</p>
+              <button class="btn btn-module d-none" id="btnNewEmpty">
+                <i class="bi bi-plus-lg me-1"></i>Créer une préférence
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- C.9 error -->
+        <div id="prefsError" class="d-none">
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-wifi-off fs-1 mb-2 opacity-50"></i>
+            <div class="fw-semibold mb-1">Données non chargées</div>
+            <div class="small mb-2" id="prefsErrorMsg">La connexion n'a pu aboutir — réessayez dans un instant.</div>
+            <button class="btn btn-sm btn-outline-danger" id="prefsRetryBtn">
+              <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
+            </button>
+          </div>
+        </div>
+
+        <div id="prefsList"></div>
+
+      </div><!-- /tab-prefs -->
+
+      <!-- ═══════════════════════════════════════════════════════
+           ONGLET COUVERTURE
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-couverture" role="tabpanel">
+
+        <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
+          <h6 class="mb-0 fw-semibold">Couverture chirurgiens</h6>
+          <span class="text-muted small" id="couvLastRefresh"></span>
+        </div>
+
+        <!-- KPIs -->
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3">
+              <div class="pref-admin-kpi" id="couvKpiTotal">—</div>
+              <div class="text-muted small">Chirurgiens total</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3">
+              <div class="pref-admin-kpi text-success" id="couvKpiCovered">—</div>
+              <div class="text-muted small">Avec préférences</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3">
+              <div class="pref-admin-kpi text-danger" id="couvKpiMissing">—</div>
+              <div class="text-muted small">Sans préférences</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center p-3">
+              <div class="pref-admin-kpi text-primary" id="couvKpiPrefs">—</div>
+              <div class="text-muted small">Préférences totales</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C.9 loading couverture (visible par défaut — chargé au premier affichage) -->
+        <div id="couvLoading">
+          <div class="placeholder-glow">
+            <div class="placeholder col-12 rounded mb-2"</div>
+            <div class="placeholder col-12 rounded mb-2"</div>
+            <div class="placeholder col-12 rounded mb-2"</div>
+          </div>
+        </div>
+
+        <!-- C.9 empty couverture -->
+        <div id="couvEmpty" class="d-none text-center py-4 text-muted">
+          <i class="bi bi-people fs-2 d-block mb-2"></i>
+          <p class="small">Aucun chirurgien trouvé dans l'annuaire.</p>
+        </div>
+
+        <!-- C.9 error couverture -->
+        <div id="couvError" class="d-none">
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-wifi-off fs-1 mb-2 opacity-50"></i>
+            <div class="fw-semibold mb-1">Données non chargées</div>
+            <div class="small mb-2" id="couvErrorMsg">Erreur de chargement — réessayez.</div>
+            <button class="btn btn-sm btn-outline-danger" id="couvRetryBtn">
+              <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
+            </button>
+          </div>
+        </div>
+
+        <!-- Table couverture -->
+        <div id="couvTable" class="d-none">
+          <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Chirurgien</th>
+                  <th class="text-center bo-th-md">Préférences</th>
+                  <th class="text-center bo-th-sm">Globales</th>
+                  <th class="text-center bo-th-md">Protocoles</th>
+                  <th class="bo-th-xs"></th>
+                </tr>
+              </thead>
+              <tbody id="couvTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /tab-couverture -->
+
+    </div><!-- /tab-content -->
+
+  </div>
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — CDS Compliant</small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL CREATE / EDIT
+     ═══════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalPref" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPrefLabel">Nouvelle préférence chirurgien</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="pFormError" class="alert alert-danger d-none" role="alert"></div>
+
+        <!-- Contexte : chirurgien + titre + scope -->
+        <div class="row g-3 mb-3">
+          <!-- pChirurgienRow toujours visible en admin (admin.html — INTERDIT-17 OK) -->
+          <div class="col-12" id="pChirurgienRow">
+            <label class="form-label fw-semibold small">Chirurgien <span class="text-danger">*</span></label>
+            <select class="form-select" id="pFormChirurgien"><option value="">— Sélectionner un chirurgien —</option></select>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Titre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="pTitre" placeholder="Ex. Préférences globales — Dr X"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Portée</label>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+              <select class="form-select form-select-sm w-auto" id="pScopeLevel">
+                <option value="global">Globale (toutes interventions)</option>
+                <option value="secteur">Par secteur</option>
+                <option value="type">Par type de chirurgie</option>
+                <option value="protocole">Par protocole</option>
+              </select>
+              <select class="form-select form-select-sm w-auto d-none" id="selScopeSecteur">
+                <option value="">— Secteur —</option>
+              </select>
+              <select class="form-select form-select-sm w-auto d-none" id="selScopeType">
+                <option value="">— Type —</option>
+              </select>
+              <div class="d-none" id="pScopeTypeRow"><!-- placeholder --></div>
+            </div>
+            <!-- Protocole search -->
+            <div class="d-none mt-2" id="pProtoRow">
+              <div class="pref-proto-search-wrap">
+                <input type="search" class="form-control form-control-sm" id="pProtoSearch" placeholder="Rechercher protocole par code ou libellé..."/>
+                <div class="pref-proto-dropdown" id="pProtoResults"></div>
+              </div>
+              <div class="mt-1" id="pProtoSelected"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accordion 14 sections -->
+        <div class="accordion" id="prefAccordion">
+
+          <!-- 1. Installation -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accInstall">
+                <span class="pref-acc-icon pref-acc-icon-install"><i class="bi bi-person-standing"></i></span>
+                <span class="small fw-semibold">Installation patient</span>
+              </button>
+            </h2>
+            <div id="accInstall" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="row g-2 mb-3">
+                  <div class="col-md-6">
+                    <span class="pref-fl">Table opératoire</span>
+                    <select class="form-select form-select-sm" id="selTable"><option value="">—</option></select>
+                  </div>
+                  <div class="col-md-6">
+                    <span class="pref-fl">Décubitus</span>
+                    <select class="form-select form-select-sm" id="selDecubitus"><option value="">—</option></select>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <span class="pref-fl">Position</span>
+                  <div class="ipills" id="pillsInstall"></div>
+                </div>
+                <div class="mb-3">
+                  <span class="pref-fl">Appuis</span>
+                  <div class="appuis" id="appuisGroup"></div>
+                </div>
+                <div class="form-check form-switch mb-1">
+                  <input class="form-check-input" type="checkbox" id="togGelose" role="switch"/>
+                  <label class="form-check-label small" for="togGelose">Gélose</label>
+                </div>
+                <div class="sub" id="geloseSub">
+                  <div class="row g-2">
+                    <div class="col-6"><span class="pref-fl">Position gélose</span><select class="form-select form-select-sm" id="selGelosePos"><option value="">—</option></select></div>
+                    <div class="col-6"><span class="pref-fl">Taille</span><select class="form-select form-select-sm" id="selGeloseTaille"><option value="">—</option></select></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Garrot -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accGarrot">
+                <span class="pref-acc-icon pref-acc-icon-garrot"><i class="bi bi-bandaid"></i></span>
+                <span class="small fw-semibold">Garrot pneumatique</span>
+              </button>
+            </h2>
+            <div id="accGarrot" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togGarrot" role="switch"/><label class="form-check-label small" for="togGarrot">Présent</label></div>
+                <div class="sub" id="garrotSub">
+                  <div class="row g-2">
+                    <div class="col-md-4"><span class="pref-fl">Position sur le membre</span><select class="form-select form-select-sm" id="selGarrotPos"><option value="">—</option></select></div>
+                    <div class="col-md-4"><span class="pref-fl">Pression (mmHg)</span><input type="number" class="form-control form-control-sm" id="inpGarrotPression" placeholder="ex. 300" min="100" max="500" step="10"/></div>
+                    <div class="col-md-4"><span class="pref-fl">Durée max (min)</span><input type="number" class="form-control form-control-sm" id="inpGarrotDuree" placeholder="ex. 90" min="10" max="240" step="5"/></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Pulsavac -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accPulsavac">
+                <span class="pref-acc-icon pref-acc-icon-pulsavac"><i class="bi bi-droplet"></i></span>
+                <span class="small fw-semibold">Pulsavac</span>
+              </button>
+            </h2>
+            <div id="accPulsavac" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="togPulsavac" role="switch"/><label class="form-check-label small" for="togPulsavac">Lavage pulsé utilisé</label></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Ampli brillance -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accAmpli">
+                <span class="pref-acc-icon pref-acc-icon-ampli"><i class="bi bi-camera-reels"></i></span>
+                <span class="small fw-semibold">Amplificateur de brillance</span>
+              </button>
+            </h2>
+            <div id="accAmpli" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togAmpli" role="switch"/><label class="form-check-label small" for="togAmpli">Présent</label></div>
+                <div class="sub" id="ampliSub">
+                  <div class="row g-2">
+                    <div class="col-md-6"><span class="pref-fl">Position dans la salle</span><select class="form-select form-select-sm" id="selAmpliPos"><option value="">—</option></select></div>
+                    <div class="col-md-6 d-flex align-items-end"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="togPedaleAmpli" role="switch"/><label class="form-check-label small" for="togPedaleAmpli">Pédale</label></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Bistouri électrique -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accBE">
+                <span class="pref-acc-icon pref-acc-icon-be"><i class="bi bi-lightning-charge"></i></span>
+                <span class="small fw-semibold">Bistouri électrique</span>
+              </button>
+            </h2>
+            <div id="accBE" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togBE" role="switch"/><label class="form-check-label small" for="togBE">Présent</label></div>
+                <div class="sub" id="beSub">
+                  <div class="row g-2 mb-3">
+                    <div class="col-md-6"><span class="pref-fl">Modèle</span><select class="form-select form-select-sm" id="selBEModele"><option value="">—</option></select></div>
+                    <div class="col-md-6"><span class="pref-fl">Position dans la salle</span><select class="form-select form-select-sm" id="selBEPos"><option value="">—</option></select></div>
+                  </div>
+                  <div class="be-tabs">
+                    <div class="be-tab active" data-be="coupe"><i class="bi bi-scissors me-1"></i>Coupe</div>
+                    <div class="be-tab" data-be="coag"><i class="bi bi-fire me-1"></i>Coagulation</div>
+                    <div class="be-tab" data-be="bipo"><i class="bi bi-lightning me-1"></i>Bipolaire</div>
+                  </div>
+                  <div class="be-pnl on" id="beCoupe">
+                    <div class="row g-2 align-items-end">
+                      <div class="col-8"><span class="pref-fl">Puissance coupe — défaut 80 W</span><div class="be-rng"><input type="range" min="40" max="150" step="5" value="80" id="rCoupe"/><div class="be-val" id="vCoupe">80 W</div></div></div>
+                      <div class="col-4"><span class="pref-fl">Mode coupe</span><select class="form-select form-select-sm" id="selCoupeMode"><option value="">—</option></select></div>
+                    </div>
+                  </div>
+                  <div class="be-pnl" id="beCoag">
+                    <div class="row g-2 align-items-end">
+                      <div class="col-8"><span class="pref-fl">Puissance coag — défaut 80 W</span><div class="be-rng"><input type="range" min="40" max="150" step="5" value="80" id="rCoag"/><div class="be-val" id="vCoag">80 W</div></div></div>
+                      <div class="col-4"><span class="pref-fl">Mode coag</span><select class="form-select form-select-sm" id="selCoagMode"><option value="">—</option></select></div>
+                    </div>
+                  </div>
+                  <div class="be-pnl" id="beBipo">
+                    <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togBipo" role="switch"/><label class="form-check-label small" for="togBipo">Bipolaire présent</label></div>
+                    <div class="sub" id="bipoSub">
+                      <div class="row g-2 align-items-end">
+                        <div class="col-8"><span class="pref-fl">Puissance bipolaire — min 15 W</span><div class="be-rng"><input type="range" min="15" max="80" step="5" value="15" id="rBipo"/><div class="be-val" id="vBipo">15 W</div></div></div>
+                        <div class="col-4"><span class="pref-fl">Mode bipolaire</span><select class="form-select form-select-sm" id="selBipoMode"><option value="">—</option></select></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Ciment -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accCiment">
+                <span class="pref-acc-icon pref-acc-icon-ciment"><i class="bi bi-droplet-half"></i></span>
+                <span class="small fw-semibold">Ciment</span>
+              </button>
+            </h2>
+            <div id="accCiment" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togCiment" role="switch"/><label class="form-check-label small" for="togCiment">Ciment utilisé</label></div>
+                <div class="sub" id="cimentSub">
+                  <div class="row g-2">
+                    <div class="col-md-6"><span class="pref-fl">Nom</span><select class="form-select form-select-sm" id="selCimentNom"><option value="">—</option></select></div>
+                    <div class="col-md-6"><span class="pref-fl">Mélangeur</span><select class="form-select form-select-sm" id="selCimentMel"><option value="">—</option></select></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Équipement chirurgien -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accEquip">
+                <span class="pref-acc-icon pref-acc-icon-equip"><i class="bi bi-bag"></i></span>
+                <span class="small fw-semibold">Équipement chirurgien</span>
+              </button>
+            </h2>
+            <div id="accEquip" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="mb-3">
+                  <span class="pref-fl">1ère paire de gants</span>
+                  <div class="row g-2">
+                    <div class="col-4"><select class="form-select form-select-sm" id="selG1Taille"><option value="">— Taille —</option>
+                      <option>5.5</option><option>6</option><option>6.5</option><option>7</option><option>7.5</option><option>8</option><option>8.5</option><option>9</option>
+                    </select></div>
+                    <div class="col-8"><select class="form-select form-select-sm" id="selG1Modele"><option value="">— Modèle —</option></select></div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togGants2" role="switch"/><label class="form-check-label small" for="togGants2">2ème paire différente</label></div>
+                  <div class="sub" id="gants2Sub">
+                    <div class="row g-2">
+                      <div class="col-4"><select class="form-select form-select-sm" id="selG2Taille"><option value="">— Taille —</option>
+                        <option>5.5</option><option>6</option><option>6.5</option><option>7</option><option>7.5</option><option>8</option><option>8.5</option>
+                      </select></div>
+                      <div class="col-8"><select class="form-select form-select-sm" id="selG2Modele"><option value="">— Modèle —</option></select></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6"><span class="pref-fl">Type casaque</span><select class="form-select form-select-sm" id="selCasaqueType"><option value="">—</option></select></div>
+                  <div class="col-6"><span class="pref-fl">Taille casaque</span><select class="form-select form-select-sm" id="selCasaqueTaille"><option value="">—</option>
+                    <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option>
+                  </select></div>
+                </div>
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="togCasque" role="switch"/><label class="form-check-label small" for="togCasque">Casque stérile</label></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Sutures & Fermeture -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accSutures">
+                <span class="pref-acc-icon pref-acc-icon-sutures"><i class="bi bi-scissors"></i></span>
+                <span class="small fw-semibold">Sutures &amp; Fermeture</span>
+              </button>
+            </h2>
+            <div id="accSutures" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <span class="pref-fl mb-2 d-block">Plans de suture</span>
+                <div class="sut-header d-none d-md-grid">
+                  <span class="pref-fl mb-0">Plan</span><span class="pref-fl mb-0">Fil</span>
+                  <span class="pref-fl mb-0">Taille</span><span class="pref-fl mb-0">Mode</span>
+                  <span class="pref-fl mb-0">Référence</span><span></span>
+                </div>
+                <div id="suturesList"></div>
+                <button type="button" class="btn-add-sut" id="btnAddSuture">
+                  <i class="bi bi-plus-lg me-1"></i>Ajouter un plan
+                </button>
+                <hr class="my-3"/>
+                <div class="row g-2">
+                  <div class="col-md-5">
+                    <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togAgrafe" role="switch"/><label class="form-check-label small" for="togAgrafe">Agrafes cutanées</label></div>
+                    <div class="sub" id="agrafeSub"><span class="pref-fl">Modèle</span><select class="form-select form-select-sm w-auto" id="selAgrafeModele"><option value="">—</option></select></div>
+                  </div>
+                  <div class="col-md-7"><span class="pref-fl">Allergie (latex, nickel…)</span><input type="text" class="form-control form-control-sm" id="inpAllergie" placeholder="ex. Allergie latex — gants sans latex"/></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 9. Pansement -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accPansement">
+                <span class="pref-acc-icon pref-acc-icon-pansement"><i class="bi bi-patch-plus"></i></span>
+                <span class="small fw-semibold">Pansement</span>
+              </button>
+            </h2>
+            <div id="accPansement" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togPansement" role="switch"/><label class="form-check-label small" for="togPansement">Pansement préféré</label></div>
+                <div class="sub" id="pansementSub"><span class="pref-fl">Type</span><select class="form-select form-select-sm w-auto" id="selPansement"><option value="">—</option></select></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10. Attelle -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accAttelle">
+                <span class="pref-acc-icon pref-acc-icon-attelle"><i class="bi bi-shield-plus"></i></span>
+                <span class="small fw-semibold">Attelle post-opératoire</span>
+              </button>
+            </h2>
+            <div id="accAttelle" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="form-check form-switch mb-1"><input class="form-check-input" type="checkbox" id="togAttelle" role="switch"/><label class="form-check-label small" for="togAttelle">Attelle nécessaire</label></div>
+                <div class="sub" id="attelleSub"><span class="pref-fl">Modèle</span><select class="form-select form-select-sm w-auto" id="selAttelle"><option value="">—</option></select></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 11. Anapath -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accAnapath">
+                <span class="pref-acc-icon pref-acc-icon-anapath"><i class="bi bi-eyedropper"></i></span>
+                <span class="small fw-semibold">Anatomopathologie</span>
+              </button>
+            </h2>
+            <div id="accAnapath" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="togAnapath" role="switch"/><label class="form-check-label small" for="togAnapath">Prélèvement anapath systématique</label></div>
+                <div class="text-muted small mt-2"><i class="bi bi-info-circle me-1"></i>Flacon formol + bon d'envoi à préparer en salle.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 12. Infiltration -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accInfiltr">
+                <span class="pref-acc-icon pref-acc-icon-infiltr"><i class="bi bi-capsule"></i></span>
+                <span class="small fw-semibold">Infiltration</span>
+              </button>
+            </h2>
+            <div id="accInfiltr" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="row g-2">
+                  <div class="col-md-5"><span class="pref-fl">Molécule</span><input type="text" class="form-control form-control-sm" id="inpInfiltrMolecule" placeholder="ex. Ropivacaïne…"/></div>
+                  <div class="col-md-3"><span class="pref-fl">Dose</span><input type="text" class="form-control form-control-sm" id="inpInfiltrDose" placeholder="ex. 150 mg"/></div>
+                  <div class="col-md-4"><span class="pref-fl">Timing</span><select class="form-select form-select-sm" id="selInfiltrTiming"><option value="">—</option>
+                    <option>En début d'intervention</option><option>En fin d'intervention</option>
+                    <option>Avant fermeture</option><option>En salle de réveil</option>
+                  </select></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 13. Notes libres -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accNotes">
+                <span class="pref-acc-icon pref-acc-icon-notes"><i class="bi bi-pencil-square"></i></span>
+                <span class="small fw-semibold">Notes libres</span>
+              </button>
+            </h2>
+            <div id="accNotes" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div id="pQuill" class="pref-quill-editor"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 14. Tags -->
+          <div class="acc-item accordion-item border-0">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#accTags">
+                <span class="pref-acc-icon pref-acc-icon-tags"><i class="bi bi-tags"></i></span>
+                <span class="small fw-semibold">Tags</span>
+              </button>
+            </h2>
+            <div id="accTags" class="accordion-collapse collapse">
+              <div class="accordion-body pt-2">
+                <div class="d-flex gap-2 mb-2">
+                  <input type="search" class="form-control form-control-sm" id="pTagSearch" placeholder="Rechercher (marque, intervention, personne)..."/>
+                </div>
+                <div id="pTagResults" class="d-flex flex-wrap gap-1 mb-2"></div>
+                <div id="pSelectedTags" class="d-flex flex-wrap gap-1">
+                  <span class="text-muted small">Aucun tag sélectionné</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /prefAccordion -->
+      </div><!-- /modal-body -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-module" id="pBtnSave"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MODAL DÉTAIL (lecture)
+     ═══════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalPrefView" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalViewLabel">Préférence</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="modalViewBody"></div>
+      <div class="modal-footer" id="modalViewFooter"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi me-2" id="toastIcon"></i>
+      <strong class="me-auto" id="toastTitle">Info</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+    </div>
+    <div class="toast-body" id="toastMsg">—</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+<script src="preferences-app.js"></script>
+
+<!-- TOAST — pattern bdbToast (bdb-ui.js) -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastMsg" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastText">Message</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+</div>
+
+<script src="preferences-admin.js"></script>
+</body>
+</html>

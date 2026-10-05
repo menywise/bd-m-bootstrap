@@ -5,6 +5,11 @@
    SCOPE   : Toutes les règles scopées à #objectifsContainer
    ============================================================= */
 
+/* ── Tag couleur secteur — dynamique DB via custom property ── */
+#objectifsContainer .obj-color-tag { background-color: var(--obj-c); }
+/* ── Progress bar dynamique — largeur via custom property ── */
+#objectifsContainer .progress-bar[style*="--obj-w"] { width: var(--obj-w); }
+
 /* ── Nav pills ────────────────────────────────────────────── */
 #objectifsContainer .obj-nav .nav-link {
   font-size: .82rem; padding: .38rem .75rem;
@@ -139,3 +144,10 @@
 #objectifsContainer .obj-skel-w2 { width: 80px; }
 #objectifsContainer .obj-skel-w3 { width: 70px; }
 #objectifsContainer .obj-skel-w4 { width: 85px; }
+
+/* ── Admin (obj-admin-* scopés — INTERDIT-17) ── */
+#objectifsContainer .obj-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}

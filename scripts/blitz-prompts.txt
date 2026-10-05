@@ -1,0 +1,15 @@
+# ============================================================
+# BLITZ-PROMPTS.TXT
+# Configuration pour claude-code-blitz.ps1
+# FORMAT : NOM_MODULE | PROMPT (une ligne par fenetre)
+# Lignes vides et commentaires (#) ignores
+# ============================================================
+
+# --- Exemple BLITZ CDS compliance (decommenter selon besoin) ---
+# glossaire | Auditer modules/glossaire/ : zero onclick inline, zero console.log, escHtml sur tout innerHTML DB, 3 etats async. Corriger et livrer fichiers complets.
+# disc | Auditer modules/disc/ : zero onclick inline, zero console.log, escHtml sur tout innerHTML DB, 3 etats async. Corriger et livrer fichiers complets.
+# collab | Auditer modules/collab/ : zero onclick inline, zero console.log, escHtml sur tout innerHTML DB, 3 etats async. Corriger et livrer fichiers complets.
+# organisateur | Auditer modules/organisateur/ : zero onclick inline, zero console.log, escHtml sur tout innerHTML DB, 3 etats async. Corriger et livrer fichiers complets.
+
+# --- Exemple BLITZ deploiement ---
+# glossaire | Deployer module glossaire V2. Verifier INSERT app_modules, tooltips cross-module, admin slot. Tester les 3 etats.

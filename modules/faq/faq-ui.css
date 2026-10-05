@@ -1,0 +1,103 @@
+/**
+ * PROJECT  : Bible de Bloc (BDB)
+ * FILE     : faq-ui.css v1.0.0
+ * MODULE   : modules/faq/
+ * DATE     : 2026-04-06
+ * AUTEUR   : Manu + Claude
+ * ROLE     : Styles scopés module FAQ — onglets, accordions
+ */
+
+/* ── Largeurs colonnes admin tableau ──────────────────────────────────────── */
+.faq-input-max  { max-width: 320px; }
+.faq-th-3rem    { width: 3rem; }
+.faq-th-7rem    { width: 7rem; }
+.faq-th-12rem   { width: 12rem; }
+.faq-icon-shift { left: 0.25rem; }
+
+/* ── Onglets rubriques ──────────────────────────────────────────────────────── */
+
+/* scrollbar masquée via class faq-hide-scrollbar sur l'élément HTML */
+.faq-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid var(--ds-border, #e2e8f0);
+}
+.faq-hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.faq-hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Champ recherche avec icône positionnée ── */
+.faq-search-input { padding-left: 2.25rem; }
+
+.faq-tabs .nav-link {
+  white-space: nowrap;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.875rem;
+}
+
+/* ── Accordions ─────────────────────────────────────────────────────────────── */
+
+#faqContent .accordion-button {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+#faqContent .accordion-button:not(.collapsed) {
+  color: var(--ds-primary, #0d6efd);
+  background-color: #f0f7ff;
+  box-shadow: none;
+}
+
+#faqContent .accordion-body {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--ds-text-secondary, #4b5563);
+}
+
+#faqContent .accordion-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Admin (faq-admin-* scopés — INTERDIT-17) ── */
+.faq-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+#faqAdminTabs ~ .tab-content .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   AJOUTS S128 — extraction inline styles (V6 INTERDIT-C2)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.faq-page-banner {
+  background: linear-gradient(135deg, var(--module-color) 0%, var(--module-color-strong) 100%);
+  color: var(--module-color-text);
+}
+.faq-page-subtitle { opacity: 0.75; }
+
+.faq-toolbar-bar {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.faq-tabs-header { padding-bottom: 0; }
+.faq-tabs-body { padding: 1rem 1.25rem; }
+
+.faq-empty-title {
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0.25rem;
+}
+.faq-empty-help { color: var(--bs-secondary-color); }

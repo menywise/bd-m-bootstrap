@@ -1,0 +1,446 @@
+/* ============================================================
+   PROJECT  : Bible de Bloc (BDB)
+   FILE     : site-ui.css v3.0.0
+   MODULE   : site/
+   DATE     : 2026-03-14
+   DELTA    : v2→v3 — Refonte visuelle premium complète.
+              Suppression border-4 agressifs. Système de surface
+              cohérent. Typographie lisible. Espacements généreux.
+              0 style= inline requis.
+   RÈGLES   : Toutes règles scopées à #wrapper (V5 — body sans classes)
+   ============================================================ */
+
+/* ── Variables locales ───────────────────────────────────────── */
+#wrapper {
+  --site-radius      : 0.75rem;
+  --site-radius-sm   : 0.5rem;
+  --site-shadow      : 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.05);
+  --site-shadow-hover: 0 4px 16px rgba(0,0,0,.10), 0 1px 3px rgba(0,0,0,.06);
+  --site-border      : #e2e8f0;
+  --site-accent-l    : #eef3fb;
+  --site-text-muted  : #64748b;
+  --site-prose-max   : 68ch;
+}
+
+/* ── Reset baseline ──────────────────────────────────────────── */
+#wrapper {
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+/* ── Layout principal ────────────────────────────────────────── */
+#wrapper .main-content {
+  min-height: 100vh;
+}
+
+/* ── Header sticky ───────────────────────────────────────────── */
+#wrapper .header-sticky {
+  border-bottom: 1px solid var(--site-border);
+  background: rgba(255,255,255,.95) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 var(--site-border) !important;
+}
+
+/* ── Doc header hero ─────────────────────────────────────────── */
+#wrapper .doc-header-primary {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #3b82f6 100%);
+  border-radius: var(--site-radius);
+  padding: 2.5rem !important;
+  box-shadow: 0 4px 20px rgba(37,99,235,.25);
+}
+#wrapper .doc-header-primary h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+/* ── Panel — surface de contenu principale ───────────────────── */
+#wrapper .panel {
+  background: #fff;
+  border-radius: var(--site-radius);
+  padding: 1.5rem;
+  box-shadow: var(--site-shadow);
+  border: 1px solid var(--site-border);
+}
+#wrapper .panel + .panel {
+  margin-top: 1rem;
+}
+
+/* ── Panneaux avec accent coloré — trait subtil à gauche ─────── */
+#wrapper .panel-accent-primary {
+  border-left: 3px solid #3b82f6;
+}
+#wrapper .panel-accent-success {
+  border-left: 3px solid #10b981;
+}
+#wrapper .panel-accent-danger {
+  border-left: 3px solid #ef4444;
+}
+#wrapper .panel-accent-warning {
+  border-left: 3px solid #f59e0b;
+}
+#wrapper .panel-accent-info {
+  border-left: 3px solid #06b6d4;
+}
+#wrapper .panel-accent-secondary {
+  border-left: 3px solid #94a3b8;
+}
+
+/* ── Panneau "not" — fond teinté danger doux ─────────────────── */
+#wrapper .panel-limit {
+  background: #fff8f8;
+  border: 1px solid #fecaca;
+  border-radius: var(--site-radius);
+  padding: 1.5rem;
+}
+#wrapper .panel-limit h4 {
+  color: #dc2626;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* ── Panneau "approach" — fond teinté primary doux ───────────── */
+#wrapper .panel-approach {
+  background: #f0f7ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--site-radius);
+  padding: 1.5rem;
+}
+
+/* ── Alert overrides — moins agressifs ───────────────────────── */
+#wrapper .alert {
+  border-radius: var(--site-radius-sm);
+  border-left-width: 3px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+  border-bottom-width: 1px;
+  font-size: .9rem;
+}
+#wrapper .alert-danger {
+  background: #fff5f5;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+#wrapper .alert-warning {
+  background: #fffbeb;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+#wrapper .alert-success {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+#wrapper .alert-secondary {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+#wrapper .alert-info {
+  background: #f0fdff;
+  border-color: #a5f3fc;
+  color: #164e63;
+}
+
+/* ── Cards hover ─────────────────────────────────────────────── */
+#wrapper .hover-lift {
+  transition: box-shadow .18s ease, transform .18s ease;
+  border: 1px solid var(--site-border) !important;
+  border-radius: var(--site-radius) !important;
+}
+#wrapper .hover-lift:hover {
+  box-shadow: var(--site-shadow-hover) !important;
+  transform: translateY(-2px);
+  border-color: #bfdbfe !important;
+}
+
+/* ── Progress bars ───────────────────────────────────────────── */
+#wrapper .progress {
+  height: 1.25rem;
+  border-radius: 0.375rem;
+  background: #e2e8f0;
+}
+#wrapper .progress-bar {
+  border-radius: 0.375rem;
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+/* Largeurs statiques pour la courbe Rogers */
+#adoptionBars .site-bar-w3  { width: 3%; }
+#adoptionBars .site-bar-w14 { width: 14%; }
+#adoptionBars .site-bar-w34 { width: 34%; }
+#adoptionBars .site-bar-w16 { width: 16%; }
+
+/* ── Stepper adoption ────────────────────────────────────────── */
+#wrapper .site-stepper {
+  position: relative;
+  padding-left: 2rem;
+}
+#wrapper .site-stepper::before {
+  content: '';
+  position: absolute;
+  left: .75rem;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 2px;
+  background: linear-gradient(to bottom, #3b82f6, #e2e8f0);
+}
+#wrapper .site-stepper-item {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--site-shadow);
+  padding-left: 1.5rem;
+}
+#wrapper .site-stepper-item::before {
+  content: '';
+  position: absolute;
+  left: -1.6rem;
+  top: 1.4rem;
+  width: .75rem;
+  height: .75rem;
+  border-radius: 50%;
+  background: #3b82f6;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+/* ── Cercles icône ───────────────────────────────────────────── */
+#wrapper .site-circle-lg {
+  width: 5rem;
+  height: 5rem;
+  flex-shrink: 0;
+}
+#wrapper .site-circle-sm {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Conseil des 5 — cards épurées ──────────────────────────── */
+#wrapper .conseil-card {
+  background: #fff;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  box-shadow: var(--site-shadow);
+  transition: box-shadow .18s, transform .18s;
+}
+#wrapper .conseil-card:hover {
+  box-shadow: var(--site-shadow-hover);
+  transform: translateY(-2px);
+}
+#wrapper .conseil-card .conseil-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto .875rem;
+  font-size: 1.25rem;
+}
+#wrapper .conseil-card.skeptic {
+  border-top: 3px solid #ef4444;
+}
+#wrapper .conseil-card:not(.skeptic) {
+  border-top: 3px solid #3b82f6;
+}
+
+/* ── Tabs overrides ──────────────────────────────────────────── */
+#wrapper .nav-tabs {
+  border-bottom: 2px solid var(--site-border);
+  gap: .25rem;
+}
+#wrapper .nav-tabs .nav-link {
+  border: 1px solid transparent;
+  border-radius: var(--site-radius-sm) var(--site-radius-sm) 0 0;
+  color: var(--site-text-muted);
+  padding: .5rem 1rem;
+  font-size: .9rem;
+  font-weight: 500;
+  transition: color .15s, background .15s;
+}
+#wrapper .nav-tabs .nav-link:hover {
+  color: #1e293b;
+  background: #f1f5f9;
+  border-color: var(--site-border);
+}
+#wrapper .nav-tabs .nav-link.active {
+  color: #1d4ed8;
+  background: #fff;
+  border-color: var(--site-border) var(--site-border) #fff;
+  font-weight: 600;
+}
+
+/* ── Accordion overrides ─────────────────────────────────────── */
+#wrapper .accordion-item {
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius) !important;
+  overflow: hidden;
+  margin-bottom: .5rem;
+}
+#wrapper .accordion-item + .accordion-item {
+  border-top: 1px solid var(--site-border);
+}
+#wrapper .accordion-button {
+  font-weight: 500;
+  color: #1e293b;
+  background: #fff;
+  border-radius: var(--site-radius) !important;
+}
+#wrapper .accordion-button:not(.collapsed) {
+  color: #1d4ed8;
+  background: #f0f7ff;
+  box-shadow: none;
+}
+#wrapper .accordion-button::after {
+  filter: none;
+}
+#wrapper .accordion-body {
+  background: #fff;
+  padding: 1.25rem 1.5rem;
+  line-height: 1.75;
+}
+#wrapper .accordion-body p:last-child { margin-bottom: 0; }
+
+/* ── Table overrides ─────────────────────────────────────────── */
+#wrapper .table {
+  font-size: .92rem;
+}
+#wrapper .table thead th {
+  background: #f1f5f9;
+  color: var(--site-text-muted);
+  font-weight: 600;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 1px solid var(--site-border);
+}
+#wrapper .table td {
+  vertical-align: middle;
+  border-color: #f1f5f9;
+}
+#wrapper .table-hover tbody tr:hover td {
+  background: #f8fafc;
+}
+
+/* ── List-group overrides ────────────────────────────────────── */
+#wrapper .list-group-item {
+  border-color: var(--site-border);
+  padding: 1rem 1.25rem;
+}
+
+/* ── Nav footer entre pages ──────────────────────────────────── */
+#wrapper .site-nav-footer {
+  border-top: 1px solid var(--site-border);
+  background: #fff;
+}
+
+/* ── Badge overrides ─────────────────────────────────────────── */
+#wrapper .badge {
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+
+/* ── Hero index ──────────────────────────────────────────────── */
+#wrapper .site-hero {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #0ea5e9 100%);
+  padding: 4rem 0;
+}
+#wrapper .site-hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.2;
+}
+#wrapper .site-hero .lead {
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+/* ── Comparaison avant/après (index) ────────────────────────── */
+#wrapper .compare-card {
+  border-radius: var(--site-radius);
+  overflow: hidden;
+  box-shadow: var(--site-shadow);
+}
+#wrapper .compare-card .compare-header {
+  padding: .75rem 1.25rem;
+  font-weight: 600;
+  font-size: .9rem;
+}
+#wrapper .compare-card .compare-body {
+  background: #fff;
+  padding: 1.25rem;
+}
+#wrapper .compare-result {
+  border-radius: var(--site-radius-sm);
+  padding: .5rem 1rem;
+  font-size: .85rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: .75rem;
+}
+
+/* ── Section alternance fond ─────────────────────────────────── */
+#wrapper .section-white { background: #fff; }
+#wrapper .section-soft  { background: #f8fafc; }
+#wrapper .section-dark  { background: #0f172a; }
+
+/* ── "Hors scope" section (pas-app.html) ────────────────────── */
+#wrapper .hors-scope-card {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--site-radius);
+  padding: 1.5rem;
+}
+#wrapper .hors-scope-card h5 {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+/* ── Profil card (audiences) ─────────────────────────────────── */
+#wrapper .profil-badge {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Cycle toxique list-group ────────────────────────────────── */
+#wrapper .cycle-item {
+  background: #fff;
+  border: 1px solid var(--site-border);
+  border-left: 3px solid #ef4444;
+  border-radius: var(--site-radius-sm);
+  padding: 1rem 1.25rem;
+  margin-bottom: .5rem;
+  box-shadow: var(--site-shadow);
+}
+#wrapper .cycle-item:last-child { margin-bottom: 0; }
+
+/* ── Footer ──────────────────────────────────────────────────── */
+#wrapper footer {
+  font-size: .82rem;
+  border-top: 1px solid var(--site-border);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  #wrapper .doc-header-primary { padding: 1.5rem !important; }
+  #wrapper .site-hero { padding: 2.5rem 0; }
+  #wrapper .panel { padding: 1.25rem; }
+  #wrapper .site-stepper { padding-left: 1.5rem; }
+  #wrapper .site-stepper-item { padding: 1rem 1.25rem; }
+}

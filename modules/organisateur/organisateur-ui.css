@@ -1,44 +1,128 @@
 /*
- * organisateur-ui.css — Module ORGANISATEUR
- * CSS spécifique au module uniquement.
- * Ne pas importer depuis un autre module.
- * CDS compliant.
+ * organisateur-ui.css — Module ORGANISATEUR v3.2.0
+ * CDS compliant — session #43 2026-04-06
  */
 
-/* Icône de drag (remplace style="cursor:grab;font-size:1.2rem;") */
+/* ── Grip drag (zone élargie) ───────────────────────────────── */
 .org-grip {
   cursor: grab;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  padding: 0 .5rem;
+  color: var(--bs-secondary);
+  transition: color .15s;
 }
+.org-grip:hover  { color: var(--bs-primary); }
+.org-grip:active { cursor: grabbing; }
 
-.org-grip:active {
-  cursor: grabbing;
-}
-
-/* ── Phase items drag & drop ───────────────────────────────── */
+/* ── Phase items — base ─────────────────────────────────────── */
 .phase-item {
-  cursor: grab;
-  transition: box-shadow .15s, transform .1s;
+  transition: box-shadow .15s, transform .1s, border-left-color .4s, background-color .4s;
   border-left: 4px solid var(--bs-primary);
+  user-select: none;
 }
-.phase-item:active  { cursor: grabbing; }
+.phase-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,.08) !important;
+}
+
+/* ── Drag en cours ──────────────────────────────────────────── */
 .phase-item.dragging {
-  opacity: .5;
-  border-left-color: var(--bs-success);
-  box-shadow: 0 4px 16px rgba(0,0,0,.15) !important;
+  opacity: .45;
+  border-left-color: var(--bs-warning);
+  box-shadow: 0 6px 20px rgba(0,0,0,.18) !important;
+  transform: scale(1.01);
 }
-.phase-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08) !important; }
+
+/* ── Mode directif : flash post-déplacement (éphémère 1.2s) ── */
+@keyframes org-moved-flash {
+  0%   { background-color: var(--bs-success-bg-subtle); border-left-color: var(--bs-success); }
+  70%  { background-color: var(--bs-success-bg-subtle); border-left-color: var(--bs-success); }
+  100% { background-color: transparent;                 border-left-color: var(--bs-primary); }
+}
+.phase-item.org-just-moved {
+  animation: org-moved-flash 1.2s ease-out forwards;
+}
+
+/* ── Mode mémorisation — étape intacte (non bougée) ─────────── */
+.phase-item.org-shuffle-item {
+  cursor: grab;
+  border-left-color: var(--bs-secondary);
+}
+.phase-item.org-shuffle-item .phase-num {
+  visibility: hidden; /* numéro masqué pendant l'exercice */
+}
+
+/* ── Mode mémorisation — étape bougée par l'utilisateur
+      PERSISTANT pendant toute la durée de l'exercice ───────── */
+.phase-item.org-user-moved {
+  border-left-color: var(--bs-warning);
+  background-color: var(--bs-warning-bg-subtle);
+}
+.phase-item.org-user-moved .phase-num {
+  visibility: hidden; /* toujours masqué */
+}
+
+/* ── Correction séquentielle — bonne position ───────────────── */
+.phase-item.org-correct {
+  border-left-color: var(--bs-success);
+  background-color: var(--bs-success-bg-subtle);
+}
+.phase-item.org-correct .phase-num {
+  visibility: visible;
+  color: var(--bs-success);
+}
+
+/* ── Correction séquentielle — mauvaise position ────────────── */
+.phase-item.org-wrong {
+  border-left-color: var(--bs-danger);
+  background-color: var(--bs-danger-bg-subtle);
+}
+.phase-item.org-wrong .phase-num {
+  visibility: visible;
+  color: var(--bs-danger);
+}
+
+/* Hint "position correcte : XX" affiché sous le titre */
+.org-hint-position {
+  font-size: .75rem;
+  color: var(--bs-danger);
+  margin-top: .2rem;
+}
+
+/* ── Score banner post-correction ───────────────────────────── */
+.org-score-banner {
+  display: none;
+  border-radius: .5rem;
+  padding: 1rem 1.25rem;
+}
+.org-score-banner.active { display: block; }
+
+/* ── Banner mode mémoriser ──────────────────────────────────── */
+.org-memorise-banner {
+  background: var(--bs-info-bg-subtle);
+  border: 1px solid var(--bs-info-border-subtle);
+  border-radius: .5rem;
+  padding: .75rem 1rem;
+  display: none;
+  align-items: center;
+  gap: .75rem;
+}
+.org-memorise-banner.active { display: flex; }
 
 /* ── Phase numérotation ─────────────────────────────────────── */
 .phase-num {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--bs-primary);
-  min-width: 2rem;
+  min-width: 2.2rem;
+  text-align: center;
+  transition: color .3s;
 }
 
 /* ── Zones conditionnelles ──────────────────────────────────── */
-.export-box          { display: none; }
-.export-box.active   { display: block; }
-.add-phase-form      { display: none; }
+.export-box            { display: none; }
+.export-box.active     { display: block; }
+.add-phase-form        { display: none; }
 .add-phase-form.active { display: block; }
+
+/* ── Badge taille réduite ───────────────────────────────────── */
+.fs-xsmall { font-size: .7rem; }

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+  STENCIL_BACKOFFICE_V5_MINIMAL.html
+  ══════════════════════════════════
+  Dérivé de  : _TEMPLATE_BACKOFFICE_V5_0_1.html (squelette canonique Manu S#95)
+  Usage      : point de départ pour migration d'une page atelier/conseil/admin
+  Placeholders à remplacer :
+    [TITRE]          → titre visible
+    [ICON]           → bootstrap icon (ex: bi-tools)
+    [ROOT_PATH]      → ../ pour atelier/, ../../ pour atelier/lunettes/…
+    [PAGE_KEY]       → clé unique lue par [module]-nav.js (ex: "doctrine", "ccam")
+    [PREFIX]         → préfixe IDs métier (ex: at, cs, cv, memo)
+    [MODULE_NAV_JS]  → atelier-nav.js | conseil-nav.js | (vide si pas de nav)
+    [MODULE_APP_JS]  → atelier-app.js | conseil-app.js | ccam-validator-app.js | …
+  Règles opposables :
+    - Ne PAS ajouter d'élément entre </head> et <div id="wrapper">
+    - Ne PAS mettre de marqueur hors #wrapper (INTERDIT-E2 — à formaliser)
+    - #bdb-shell doit être le PREMIER enfant direct de #wrapper (INTERDIT-E1)
+    - Le marqueur #[PREFIX]-top va DANS <main>, en première position
+    - La chaîne CSS est strictement 4 liens, la chaîne JS strictement 6 scripts
+      + 0 à 2 scripts de module (nav + app)
+-->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>[TITRE] | Des Blocs &amp; Moi</title>
+
+  <!-- CHAÎNE CSS CDS (4 liens, ordre strict) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="[ROOT_PATH]css/cds-overrides.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <!-- SHELL BDB — PREMIER ENFANT DIRECT DE #wrapper -->
+    <div id="bdb-shell"
+         data-module-title="[TITRE]"
+         data-module-icon="[ICON]"
+         data-root-path="[ROOT_PATH]"
+         data-login-mode="modal"
+         data-shell-kind="backoffice">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+        <div class="container-fluid p-3 p-md-4 p-lg-5">
+
+          <!-- HEADER DE PAGE -->
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+              <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi [ICON] text-primary"></i>[TITRE]
+              </h1>
+              <p class="text-muted mb-0">[SOUS-TITRE]</p>
+            </div>
+          </div>
+
+          <!-- MARQUEUR NAV (lu par [module]-nav.js) -->
+          <div id="[PREFIX]-top" data-page="[PAGE_KEY]" class="d-none"></div>
+
+          <!-- ============================================================
+               5 STATES — présents ou non selon besoin de la page
+               ============================================================ -->
+
+          <!-- STATE : AUTH REQUIRED (si [module]-app.js gère bdb:auth-required) -->
+          <div id="[PREFIX]-auth-overlay" class="d-none bo-auth-overlay" role="dialog" aria-modal="true">
+            <div class="card bo-card bo-accent-primary">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-primary-subtle text-primary">
+                  <i class="bi bi-lock-fill"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Connexion requise</h2>
+                <p class="text-muted mb-4">Connecte-toi puis reviens actualiser.</p>
+                <div class="d-flex justify-content-center gap-2">
+                  <button class="btn btn-primary" id="[PREFIX]-auth-btn-login" type="button">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Ouvrir la connexion
+                  </button>
+                  <button class="btn btn-outline-secondary" id="[PREFIX]-auth-btn-refresh" type="button">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : LOADING (skeleton) -->
+          <div id="[PREFIX]-loading">
+            <div class="card bo-card">
+              <div class="card-body p-4">
+                <div class="placeholder-glow">
+                  <div class="placeholder col-4 mb-3 rounded"></div>
+                  <span class="placeholder col-8 mb-2"></span>
+                  <span class="placeholder col-5"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : ACCESS DENIED -->
+          <div id="[PREFIX]-denied" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-danger-subtle text-danger">
+                  <i class="bi bi-shield-lock"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Accès réservé</h2>
+                <p class="text-muted mb-0">Cet espace est réservé au créateur de l'instance.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : CONTENT (masqué jusqu'à isCreator confirmé) -->
+          <div id="[PREFIX]-content" class="d-none">
+
+            <!-- [CONTENU MÉTIER ICI — cards, tables, forms, listes…]
+                 Utiliser UNIQUEMENT Kit BO + Bootstrap natif.
+                 Aucun *-ui.css module. Aucun style= statique.
+                 Aucun handler inline (pas de onclick attribut).
+                 Tout innerHTML avec donnée DB → escHtml() dans le JS. -->
+
+          </div><!-- /[PREFIX]-content -->
+
+        </div><!-- /container-fluid -->
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>
+        &copy; 2026 <span class="app-nom fw-semibold"></span>
+        <span class="badge bg-light text-dark border ms-2">CDS Compliant</span>
+      </small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+  <!-- CHAÎNE JS BDB (6 scripts + 0-2 module) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="[ROOT_PATH]js/supabase-client.js"></script>
+  <script src="[ROOT_PATH]js/bdb-ui.js"></script>
+  <script src="[ROOT_PATH]js/bdb-invite-guard.js"></script>
+  <script src="[ROOT_PATH]js/bdb-shell.js"></script>
+  <!-- [MODULE_NAV_JS] si navigation partagée multi-pages -->
+  <!-- [MODULE_APP_JS] logique spécifique de la page -->
+</body>
+</html>

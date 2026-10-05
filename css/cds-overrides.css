@@ -1,596 +1,742 @@
-/* ============================================================
-   CDS OVERRIDES — Règles globales Consensus Design System
-   VERSION    : 1.6.0
-   DATE       : 2026-03-22
-   SCOPE      : Toutes les pages HTML du projet BDB
-   USAGE      : <link href="cds-overrides.css" rel="stylesheet"/>
-                Charger APRÈS theme-base.css, AVANT [module]-ui.css
-   RÈGLE      : Ce fichier ne contient que des règles partagées
-                entre 2+ modules. Rien de spécifique à un module.
-   MIGRATION  : Candidat à intégration dans theme-base.css (menywise/BDB)
-                quand les règles sont stables et validées par Manu.
+/* ================================================================
+   BDB — cds-overrides.css
+   VERSION  : 2.0.6
+   DATE     : 2026-04-25
+   STATUT   : COUCHE PREMIUM OFFICIELLE — source de vérité visuelle
+   
+   DELTA v2.0.5 → v2.0.6 :
+   - R8.10 AJOUTÉ : 15 classes utilitaires .bo-* remplaçant 84 style=
+     inline récurrents (labels, colonnes th, skeletons, scrollables,
+     swatches, badges, progress bar). Scopé body.bdb-shell-backoffice.
 
-   DELTA v1.5.0 → v1.6.0 (2026-03-22 — AUDIT_CSS_CDS_V1_0_0) :
-     RISQUE-01 FIX  : .card { animation } scopé → .cds-card-animated
-     DUP-01 FIX     : .header-sticky fusionné (v1.0.0 + v1.2.0 → 1 définition)
-     DUP-02 FIX     : .cds-sync-dot supprimé → remplacer par .bdb-sync-dot
-     DUP-03 FIX     : flex-shrink:0 ajouté à .cds-avatar-lg
-     RISQUE-03 FIX  : object-fit:contain ajouté à .cds-lightbox-img-80
-     INC-03 FIX     : .cds-toast créé, #toastInfo conservé en compat
-     RISQUE-02 NOTE : .doc-header-primary marqué pour vérification (site/)
-     BS-OPT-01      : opacity:.6 → .opacity-50 BS sur .cds-error-icon
-     BS-OPT-02      : text-overflow manuel remplacé par .text-truncate BS
-                      dans .bdb-user-menu-email
-   ============================================================ */
+   DELTA v2.0.4 → v2.0.5 :
+   - R8.9 FIX : le masquage ciblait uniquement les enfants directs
+     de main#middle. Or dans V3 le contenu est wrappé dans un
+     <div class="container-fluid"> → l'overlay se retrouvait
+     descendant d'un parent masqué → display:none propagé.
+     Nouvelle règle : :has([id$="-auth-overlay"]) préserve la chaîne
+     d'ancêtres de l'overlay. Fonctionne sur les 2 patterns :
+     overlay direct dans main, ou overlay dans container-fluid.
+   
+   DELTA v2.0.3 → v2.0.4 :
+   - R8.8 REFACTOR : règle auto-activante sur [id$="-auth-overlay"]
+     quand body.bdb-auth-required + absence de .d-none.
+     Plus besoin d'ajouter la classe .bo-auth-overlay sur les HTML.
+     La classe reste supportée comme alias explicite.
+     Non-breaking : les 2 selectors coexistent.
+   
+   DELTA v2.0.2 → v2.0.3 :
+   - R8.9 AJOUTÉ : body.bdb-auth-required — masquage physique (display:none)
+     de tous les éléments sauf .bo-auth-overlay.
+     Empêche l'affichage résiduel du shell/sidebar/nav/main/footer
+     quand la session n'est pas active sur un module L3/admin.
+     Activation : le JS module (conseil-app.js, atelier-app.js...)
+     ajoute cette classe sur body quand il capte bdb:auth-required.
+   
+   DELTA v2.0.1 → v2.0.2 :
+   - R8.8 AJOUTÉ : .bo-auth-overlay — overlay fullscreen pour masquer
+     tout le contenu de la page quand session absente (L3 creator / admin).
+     Scope : body.bdb-shell-backoffice.
+     Non-breaking — aucune classe existante modifiée.
+     Déclenché par retour Conseil : contenu résiduel visible quand déconnecté.
+   
+   DELTA v2.0.0 → v2.0.1 :
+   - R8.1 : ajout .bo-accent-info + .bo-accent-secondary
+     (couverture complète 6 variantes sémantiques Bootstrap 5.3.3)
+     Non-breaking — aucune classe existante modifiée.
+     Déclenché par migration Conseil Phase 2 (lunette Philosophie
+     nécessitait une 5ème couleur distincte).
+   
+   CHAÎNE CSS CDS (ordre strict) :
+     1. Bootstrap 5.3.3
+     2. theme-base.css Smarty V5 (@63905396...)
+     3. Bootstrap Icons 1.11.1
+     4. cds-overrides.css              ← VOUS ÊTES ICI
+     5. [module-specific.css]          ← à éviter en back office
+   
+   RÈGLES ABSOLUES :
+   - ZÉRO CSS injecté dans les JS (bdb-shell.js, modules, bdb-ui.js).
+     Toute règle visuelle globale vit ici et nulle part ailleurs.
+   - Classes .bo-* scopées body.bdb-shell-backoffice (ne polluent pas le front).
+   - Classes .bdb-* scopées globalement (header/sidebar/signaux rôles/signalement).
+   
+   DELTA v1.x → v2.0.0 :
+   - Récupère 4 blocs CSS précédemment injectés par bdb-shell.js v2.2.0.
+   - R8 NOUVEAU : kit harmonisé back office (.bo-card, .bo-icon-badge, .bo-kpi-*,
+     .bo-tabs, .bo-table, .bo-state-icon, .bo-avatar).
+   - Préparation bdb-shell.js v2.3.0 (zéro CSS dans le JS).
+   ================================================================ */
 
-/* ── [0] FALLBACK OFFLINE — Variables --pe-* → Bootstrap 5.3 natif ──
-   Actif si theme-base.css (CDN menywise) est inaccessible.
-   Si le CDN charge, ses définitions prennent le dessus.
-   Ne pas modifier sans entrée JOURNAL_DECISIONS.
-   DETTE CSS-DETTE-01 : renommer --pe-* → --cds-* en Phase 3. */
-:root {
-  --pe-surface:        var(--bs-body-bg);
-  --pe-surface-2:      var(--bs-tertiary-bg);
-  --pe-surface-3:      var(--bs-secondary-bg);
-  --pe-border:         var(--bs-border-color);
-  --pe-border-strong:  #adb5bd;
-  --pe-text:           var(--bs-body-color);
-  --pe-text-muted:     var(--bs-secondary-color);
-  --pe-primary:        var(--bs-primary);
-  --pe-primary-light:  rgba(var(--bs-primary-rgb), .12);
-  --pe-radius-lg:      var(--bs-border-radius-lg);
-  --pe-shadow-lg:      var(--bs-box-shadow-lg);
-}
 
-/* ── Modales — override global (D-2026-03-15-T03 — scope global délibéré) ── */
-.modal-content {
-  border: none;
-  border-radius: var(--pe-radius-lg);
-  box-shadow: var(--pe-shadow-lg);
-  overflow: hidden;
-}
-.modal-header {
-  background: var(--pe-surface-2);
-  border-bottom: 1px solid var(--pe-border);
-  padding: 1.15rem 1.5rem;
-}
-.modal-title { font-weight: 700; font-size: 1rem; letter-spacing: -.01em; }
-.modal-body  { padding: 1.5rem; }
-.modal-footer {
-  background: var(--pe-surface-2);
-  border-top: 1px solid var(--pe-border);
-  padding: .85rem 1.5rem;
-  gap: .5rem;
-}
+/* ════════════════════════════════════════════════════════════════
+   R1 — SIGNAUX VISUELS RÔLES & MODE DÉCOUVERTE
+   Portait auparavant : bdb-shell.js v2.2.0 bloc 1 (ligne 302)
+   ════════════════════════════════════════════════════════════════ */
 
-/* Cards dans les modales */
-.modal-body .card        { border-radius: 10px; border: 1.5px solid var(--pe-border); }
-.modal-body .card-header { border-radius: 8px 8px 0 0 !important; padding: .6rem 1rem; font-size: .82rem; }
-.modal-body .card-body   { padding: .85rem 1rem; }
-
-/* ── Badge count — monospace numérique ── */
-.badge-count {
-  font-family: monospace;
-  font-size: .72rem;
-  background: var(--pe-surface-3);
-  color: var(--pe-text-muted);
-  border: 1px solid var(--pe-border);
-  border-radius: 20px;
-  padding: .15rem .55rem;
+.bdb-badge-creator {
+  background: #6f42c1;
+  color: #fff;
 }
-
-/* ── Boutons — tweaks typographiques uniquement (D-2026-03-15-T03) ── */
-.btn    { border-radius: 8px; font-weight: 500; font-size: .855rem; }
-.btn-sm { border-radius: 7px; font-size: .8rem; }
-.btn-outline-secondary       { border-color: var(--pe-border-strong); color: var(--pe-text-muted); }
-.btn-outline-secondary:hover { background: var(--pe-surface-3); color: var(--pe-text); }
-
-/* ── Toast — composant CDS ──
-   INC-03 FIX : .cds-toast = classe pérenne. #toastInfo conservé en compat.
-   Tout nouveau toast utilise class="toast cds-toast".
-   Usage : <div id="toastXxx" class="toast cds-toast"> */
-.cds-toast,
-#toastInfo {
-  border-radius: 12px;
-  border: none;
-  box-shadow: var(--pe-shadow-lg);
-  min-width: 260px;
+.bdb-badge-demo {
+  background: #7c3aed;
+  color: #fff;
 }
-.cds-toast .toast-header,
-#toastInfo .toast-header {
-  background: var(--pe-surface);
-  border-bottom: 1px solid var(--pe-border);
-  border-radius: 12px 12px 0 0;
-  font-weight: 600;
-  font-size: .855rem;
-}
-.cds-toast .toast-body,
-#toastInfo .toast-body { font-size: .855rem; }
-
-/* ── Animations d'entrée ──
-   RISQUE-01 FIX : .card { animation } retiré — trop global (perf + cards statiques).
-   Utiliser .cds-card-animated sur le CONTAINER de liste dynamique uniquement.
-   Ex : <div class="row cds-card-animated"> dans les grilles Supabase.
-   CSS-DOC-04 : jamais d'animation sur sélecteur Bootstrap générique. */
-.cds-card-animated .card,
-.cds-list-animated > * {
-  animation: fadeInUp .2s ease both;
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.modal.show .modal-dialog { animation: modalIn .2s ease both; }
-@keyframes modalIn {
-  from { opacity: 0; transform: translateY(-12px) scale(.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* ── Header sticky — définition unifiée ──
-   DUP-01 FIX : fusion v1.0.0 (dans @media) + v1.2.0 (global) → 1 définition.
-   RISQUE-02 NOTE : .doc-header-primary (padding mobile) était dans l'ancien @media v1.0.0.
-     Vérifier présence dans site/ avant de créer une règle dédiée. */
-.header-sticky {
-  flex-wrap: wrap;
-  gap: .5rem;
-  padding: .65rem 1rem;
-}
-@media (min-width: 768px) {
-  .header-sticky { flex-wrap: nowrap; }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   CDS OVERRIDES — ADDENDUM v1.1.0
-   Classes partagées cross-modules extraites du style= inline
-   Règle : tout style= statique répété dans 2+ modules vit ici.
-   ══════════════════════════════════════════════════════════════ */
-
-/* ── Avatars (tailles normalisées) ──
-   TABLE DES TAILLES — voir AUDIT_CSS_CDS_V1_0_0 §TABLE DES AVATARS
-   .cds-avatar-* = avatars génériques cross-modules
-   .bdb-avatar-* = avatars spécifiques shell BDB (header + offcanvas) */
-.cds-avatar-xs {
-  width: 28px;
-  height: 28px;
-  font-size: 0.7rem;
-}
-.cds-avatar-sm {
-  width: 36px;
-  height: 36px;
-  font-size: .8rem;
-  cursor: pointer;
-}
-.cds-avatar-md {
-  width: 40px;
-  height: 40px;
-}
-.cds-avatar-lg {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;   /* DUP-03 FIX : ajouté pour cohérence avec cds-stat-icon */
-}
-/* Stat icon wrap — même dimension que cds-avatar-lg */
-.cds-stat-icon {
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-}
-
-/* ── Thumbnails image ── */
-.cds-thumbnail {
-  width: 80px;
-  height: 60px;
-  object-fit: cover;
-}
-.cds-thumbnail-lg {
-  width: 90px;
-  height: 70px;
-  object-fit: cover;
-}
-
-/* ── Bouton suppression image overlay ── */
-.cds-img-remove-btn {
-  width: 20px;
-  height: 20px;
-  font-size: 0.65rem;
-}
-
-/* ── Lightbox ── */
-.cds-lightbox-img {
-  max-height: 90vh;
-  object-fit: contain;
-}
-/* RISQUE-03 FIX : object-fit ajouté */
-.cds-lightbox-img-80 {
-  max-height: 80vh;
-  object-fit: contain;
-}
-
-/* ── Z-index stacking modales imbriquées ──
-   BS-OPT NOTE : .cds-toast-top supprimé (BS .toast natif = z-index 1100).
-   Utiliser position-fixed + z-index BS si besoin spécifique. */
-.cds-z-10      { z-index: 10; }
-.cds-modal-l2  { z-index: 1060; }
-.cds-modal-l3  { z-index: 1070; }
-
-/* ── Typography micro ── */
-.cds-text-xs    { font-size: 0.7rem; }
-.cds-text-xxs   { font-size: 0.65rem; }
-.cds-text-micro { font-size: 0.6rem; }
-.cds-text-sm    { font-size: .8rem; }   /* ≠ BS .small (0.875em) — intentionnel */
-.cds-label-section {
-  font-size: .68rem;
-  letter-spacing: .08em;
-}
-
-/* ── Cursor pointer (BS 5.3 n'expose pas de classe cursor-* utilitaire) ── */
-.cds-clickable { cursor: pointer; }
-
-/* ── Inline search input avec icône positionnée ── */
-.cds-search-input { padding-left: 2.25rem; }
-
-/* ── Max-width contrainte prose/bio ── */
-.cds-max-280 { max-width: 280px; }
-
-/* ══════════════════════════════════════════════════════════════
-   CDS OVERRIDES — ADDENDUM v1.2.0
-   Responsive global — corrections cross-modules
-   (fusionné dans la règle .header-sticky ci-dessus)
-   ══════════════════════════════════════════════════════════════ */
-
-/* ── Input group : empiler sous 576px ── */
-@media (max-width: 575px) {
-  .input-group {
-    flex-wrap: wrap;
-  }
-  .input-group .form-control,
-  .input-group .form-select {
-    width: 100%;
-    border-radius: var(--bs-border-radius) !important;
-    margin-bottom: .25rem;
-  }
-  .input-group .btn {
-    width: 100%;
-    border-radius: var(--bs-border-radius) !important;
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   CDS OVERRIDES — ADDENDUM v1.3.0
-   État erreur Supabase — UI de fallback
-   ══════════════════════════════════════════════════════════════ */
-
-/* ── Bloc erreur Supabase inline (dans grille ou liste) ── */
-.cds-error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2.5rem 1.5rem;
+.bdb-demo-banner {
+  padding: .375rem 1rem;
+  background: #fff3cd;
+  color: #856404;
   text-align: center;
-  color: var(--bs-secondary-color, #6c757d);
-  gap: .75rem;
-}
-/* BS-OPT-01 : opacity:.6 → propriété opacity directe (équivaut .opacity-50 BS).
-   Déclaration CSS conservée pour éviter ajout de classe dans 10+ modules. */
-.cds-error-state .cds-error-icon {
-  font-size: 2rem;
-  color: var(--bs-danger, #dc3545);
-  opacity: .5;
-}
-.cds-error-state .cds-error-title {
+  font-size: .8125rem;
   font-weight: 600;
-  font-size: .9rem;
-  color: var(--bs-body-color, #212529);
-}
-.cds-error-state .cds-error-msg {
-  font-size: .8rem;
-  max-width: 320px;
-}
-.cds-error-state .cds-error-retry {
-  margin-top: .25rem;
+  border-bottom: 1px solid #ffecb5;
 }
 
-/* ── Bannière erreur globale (init échoué) ── */
-.cds-offline-banner {
+#bdbBadgeAdmin,
+#bdbBadgeCreator,
+#bdbBadgeDemo {
+  font-size: .7rem;
+  padding: .3em .6em;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   R2 — IDLE WARN (session inactive)
+   Portait auparavant : bdb-shell.js v2.2.0 bloc 2 (ligne 384)
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-idle-warn {
   position: fixed;
-  top: 56px; left: 0; right: 0;
-  z-index: 1050;
-  background: var(--bs-danger, #dc3545);
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: .625rem 1rem;
+  background: #dc3545;
   color: #fff;
   text-align: center;
-  padding: .5rem 1rem;
-  font-size: .85rem;
-  font-weight: 500;
-  display: none;
-}
-.cds-offline-banner.show { display: block; }
-
-/* ══════════════════════════════════════════════════════════════
-   BDB HEADER UNIVERSEL — v1.4.0
-   Toutes les classes du header/offcanvas standard BDB
-   (injectées par bdb-shell.js — ne pas modifier sans D-* JOURNAL)
-   ══════════════════════════════════════════════════════════════ */
-
-/* ── Offcanvas BDB ── */
-.bdb-offcanvas {
-  background: #1e2330;
-  color: #fff;
-  width: 260px;
-}
-.bdb-offcanvas-sub {
-  font-size: .68rem;
-  color: rgba(255,255,255,.45);
-  line-height: 1.2;
-}
-.bdb-offcanvas-footer {
-  padding: .75rem 1rem;
-}
-
-/* ── Nav links offcanvas ── */
-.bdb-nav-link {
-  color: rgba(255,255,255,.75);
-  border-radius: 6px;
-  padding: .45rem .75rem;
-  font-size: .85rem;
-  transition: background .15s, color .15s;
-}
-.bdb-nav-link:hover,
-.bdb-nav-link:focus {
-  background: rgba(255,255,255,.1);
-  color: #fff;
-}
-.bdb-nav-link.active {
-  background: var(--bs-primary);
-  color: #fff;
-}
-
-/* ── Header module ── */
-.bdb-module-header {
-  height: 56px;
-  background: #fff;
-  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
-  z-index: 1020;
-  position: -webkit-sticky; /* Safari iOS — sticky ignoré sans préfixe dans flex context */
-  position: sticky;
-  top: 0;
-}
-.bdb-module-header-icon {
-  font-size: 1rem;
-  color: var(--bs-primary);
-}
-.bdb-module-header-title {
-  font-size: 1rem;
+  font-size: .875rem;
   font-weight: 600;
-  line-height: 1;
-  color: var(--bs-body-color, #212529);
+  transform: translateY(-100%);
+  transition: transform .3s ease;
+}
+.bdb-idle-warn.show {
+  transform: translateY(0);
 }
 
-/* ── Bouton menu hamburger ── */
-.bdb-menu-btn {
-  border: 1px solid var(--bs-border-color, #dee2e6);
-  color: var(--bs-body-color);
-  background: transparent;
-  padding: .3rem .5rem;
-  border-radius: 6px;
-  transition: background .15s;
-}
-.bdb-menu-btn:hover { background: var(--bs-light); }
 
-/* ── Avatar bouton (header 34×34) ── */
-.bdb-avatar-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: var(--bs-primary);
-  color: #fff;
-  font-size: .78rem;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity .15s;
-  flex-shrink: 0;
-}
-.bdb-avatar-btn:hover { opacity: .85; }
+/* ════════════════════════════════════════════════════════════════
+   R3 — MENU UTILISATEUR CUSTOM (dropdown avatar)
+   Portait auparavant : bdb-shell.js v2.2.0 bloc 3 (partie 1)
+   Pattern custom — remplace Bootstrap dropdown (conflit sous-menu preview)
+   ════════════════════════════════════════════════════════════════ */
 
-/* ── Avatar XS (offcanvas bas 26×26) ── */
-.bdb-avatar-xs {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: var(--bs-primary);
-  color: #fff;
-  font-size: .68rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.bdb-offcanvas-avatar {
-  background: var(--bs-secondary);
-}
-
-/* ── Sync dot ──
-   DUP-02 FIX : .cds-sync-dot supprimé — utiliser .bdb-sync-dot partout.
-   Pour état danger : <span class="bdb-sync-dot bg-danger">
-   Pour état warning : <span class="bdb-sync-dot bg-warning"> */
-.bdb-sync-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--bs-success, #198754);
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-/* ── Dropdown user menu ── */
 .bdb-user-menu {
-  display: none;
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + .5rem);
   right: 0;
-  min-width: 200px;
+  min-width: 260px;
+  max-width: 92vw;
   background: #fff;
-  border: 1px solid var(--bs-border-color, #dee2e6);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.12);
-  z-index: 1050;
+  border-radius: .5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+  padding: .25rem 0 .5rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+  z-index: 1060;
   overflow: hidden;
 }
-.bdb-user-menu.open { display: block; }
-
-.bdb-user-menu-header {
-  padding: .75rem 1rem .5rem;
-  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+.bdb-user-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity .2s ease, transform .2s ease, visibility 0s linear 0s;
 }
-/* BS-OPT-02 FIX : text-overflow manuel remplacé — ajouter class="text-truncate"
-   dans le HTML sur l'élément .bdb-user-menu-email.
-   La règle CSS est conservée en compat pour les modules non encore mis à jour. */
-.bdb-user-menu-email {
-  font-size: .73rem;
-  color: var(--bs-secondary-color, #6c757d);
-  white-space: nowrap;
+.bdb-user-menu-header {
+  padding: 1rem;
+  background: linear-gradient(135deg, #0d6efd, #0a58ca);
+  color: #fff;
+  margin-bottom: .5rem;
+}
+.bdb-user-menu-name {
+  font-weight: 600;
+  font-size: .95rem;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 180px;
+  white-space: nowrap;
+}
+.bdb-user-menu-email {
+  font-size: .8rem;
+  opacity: .85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .bdb-user-menu-item {
   display: flex;
   align-items: center;
-  gap: .6rem;
-  padding: .55rem 1rem;
-  font-size: .85rem;
-  color: var(--bs-body-color);
-  text-decoration: none;
-  background: none;
-  border: none;
+  gap: .5rem;
   width: 100%;
+  padding: .5rem 1rem;
+  border: 0;
+  background: transparent;
+  color: #212529;
+  font-size: .9rem;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
-  transition: background .12s;
+  transition: background .15s, color .15s;
 }
-.bdb-user-menu-item:hover { background: var(--bs-light, #f8f9fa); }
-.bdb-user-menu-item.danger { color: var(--bs-danger, #dc3545); }
-.bdb-user-menu-item.danger:hover { background: #fff5f5; }
-
+.bdb-user-menu-item:hover,
+.bdb-user-menu-item:focus-visible {
+  background: rgba(13, 110, 253, .08);
+  color: #0d6efd;
+  outline: none;
+}
+.bdb-user-menu-item.danger {
+  color: #dc3545;
+}
+.bdb-user-menu-item.danger:hover {
+  background: rgba(220, 53, 69, .08);
+  color: #dc3545;
+}
+.bdb-user-menu-item > i.bi {
+  flex-shrink: 0;
+  width: 1.1rem;
+  text-align: center;
+}
 .bdb-menu-sep {
   height: 1px;
-  background: var(--bs-border-color, #dee2e6);
+  background: #e9ecef;
   margin: .25rem 0;
 }
-
-/* ══════════════════════════════════════════════════════════════
-   CDS OVERRIDES — ADDENDUM v1.5.0
-   Classes montées depuis modules (premium propagation)
-   ══════════════════════════════════════════════════════════════ */
-
-/* ── btn-ghost — bouton transparent discret · usage : actions tableau, icônes édition ── */
-.btn-ghost {
-  background: transparent;
-  border: none;
-  color: var(--bs-secondary-color, #6c757d);
-  padding: .25rem .4rem;
+.bdb-preview-submenu {
+  background: rgba(0, 0, 0, .02);
+  border-left: 3px solid #dee2e6;
+  margin: .125rem 1rem;
 }
-.btn-ghost:hover {
-  background: var(--bs-light, #f8f9fa);
-  color: var(--bs-body-color, #212529);
+.bdb-preview-submenu .bdb-user-menu-item {
+  padding-left: 1.5rem;
+  font-size: .85rem;
 }
-
-/* ── btn-xs — taille bouton manquante Bootstrap (BS n'a que sm/lg) ── */
-.btn-xs {
-  font-size: .75rem;
-  padding: .2rem .45rem;
-  line-height: 1.3;
+.bdb-submenu-chevron {
+  transition: transform .2s ease;
+  opacity: .6;
+}
+.bdb-user-menu-item[aria-expanded="true"] .bdb-submenu-chevron {
+  transform: rotate(90deg);
 }
 
-/* ── Badges fonction métier — transverses à toute l'app ── */
-.badge-fn-medecin   { background-color: #dbeafe; color: #1d4ed8; }
-.badge-fn-cadre     { background-color: #ede9fe; color: #7c3aed; }
-.badge-fn-infirmier { background-color: #dcfce7; color: #15803d; }
-.badge-fn-aide      { background-color: #ffedd5; color: #c2410c; }
 
-/* ── Avatar photo — images dans les boutons avatar bdb-shell ── */
+/* ════════════════════════════════════════════════════════════════
+   R4 — SIDEBAR ASIDE (nav-title, nav-item.active, badge "Nouveau")
+   Portait auparavant : bdb-shell.js v2.2.0 bloc 3 (partie 2)
+   Note : dette theme-base recompilé — .nav-title ne porte que du padding
+   ════════════════════════════════════════════════════════════════ */
 
-/* Img dans le bouton header (34×34) */
-.bdb-avatar-btn .bdb-avatar-img {
-  width: 34px;
-  height: 34px;
-  object-fit: cover;
+aside .nav-deep > ul > li.nav-title {
+  color: #94a3b8;
+  font-size: .68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding-bottom: .3rem;
+}
+aside .nav-deep > ul > li.nav-title i {
+  opacity: .7;
+}
+
+#aside-main .nav-item.active > .nav-link {
+  background: rgba(13, 110, 253, .08);
+  border-left: 3px solid #0d6efd;
+  font-weight: 600;
+  padding-left: calc(1rem - 3px);
+}
+#aside-main .nav-item.active > .nav-link i {
+  color: #0d6efd;
+}
+
+#aside-main .bdb-nav-badge-new {
+  font-size: .65rem;
+  padding: .25em .55em;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   R5 — TOGGLE SIDEBAR MOBILE (< 992px)
+   Portait auparavant : bdb-shell.js v2.2.0 bloc 3 (media query)
+   Convention Smarty V5 .js-aside-show (override margin-left: -265px natif)
+   ════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 991.98px) {
+  #aside-main.aside-start.js-aside-show {
+    margin-left: 0 !important;
+    z-index: 1050;
+  }
+  body.bdb-aside-open #bdb-aside-overlay {
+    display: block;
+  }
+  #bdb-aside-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1049;
+    background: rgba(0, 0, 0, .4);
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   R6 — SIGNALEMENT UNIVERSEL (FAB flottant + modale)
+   Portait auparavant : bdb-shell.js v2.2.0 bloc 4 (ligne 722)
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-sig-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1040;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
-  display: block;
-  flex-shrink: 0;
-}
-
-/* Img dans l'offcanvas footer (26×26) */
-.bdb-avatar-xs .bdb-avatar-img {
-  width: 26px;
-  height: 26px;
-  object-fit: cover;
-  border-radius: 50%;
-  display: block;
-}
-
-/* Span wrapper initiales — neutre dans le layout */
-.bdb-avatar-btn #bdbAvatarInitials {
+  background: #fff;
+  border: 1px solid #dee2e6;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 0;
-}
-
-/* Bouton avatar en mode photo — retire le fond bleu */
-.bdb-avatar-btn--photo {
-  background: transparent !important;
-  padding: 0 !important;
-}
-
-/* ── Sous-menu prévisualisation (admin uniquement — bdb-preview.js) ── */
-.bdb-preview-submenu {
-  background: var(--bs-light, #f8f9fa);
-  border-top: 1px solid var(--bs-border-color, #dee2e6);
-  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
-  padding: .2rem 0;
-}
-.bdb-preview-item {
-  padding-left: 2rem;
-  font-size: .82rem;
-}
-.bdb-submenu-chevron {
-  font-size: .7rem;
-  transition: transform .15s;
-}
-#bdbBtnPreviewMenu[aria-expanded="true"] .bdb-submenu-chevron {
-  transform: rotate(90deg);
-}
-/* ── Eye toggle (password fields) ── D-2026-03-22-CSS-P3
-   Extrait de login-ui.css + admin-bootstrap-ui.css
-   Usage : <div class="cds-eye-wrap"><input class="form-control"/><button class="cds-btn-eye">...</button></div>
-*/
-.cds-eye-wrap {
-  position: relative;
-}
-.cds-eye-wrap .form-control {
-  padding-right: 2.75rem;
-}
-.cds-btn-eye {
-  position: absolute;
-  right: .65rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  padding: .25rem;
-  color: var(--bs-secondary-color);
+  color: #6c757d;
   cursor: pointer;
-  line-height: 1;
-  transition: color .15s;
-  z-index: 5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+  transition: background .15s, color .15s, transform .15s, box-shadow .15s;
 }
-.cds-btn-eye:hover { color: var(--bs-body-color); }
- 
+.bdb-sig-fab:hover {
+  background: #fff3cd;
+  color: #856404;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+}
+.bdb-sig-fab i {
+  font-size: .95rem;
+  pointer-events: none;
+}
+.bdb-sig-type-btn {
+  flex: 1;
+  font-size: .78rem;
+}
+.bdb-sig-type-btn.active {
+  background: var(--bs-primary);
+  color: #fff;
+  border-color: var(--bs-primary);
+}
+.bdb-sig-context {
+  font-size: .72rem;
+  color: #6c757d;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: .375rem;
+  padding: .4rem .75rem;
+}
+#bdbSigDesc {
+  font-size: .85rem;
+  resize: vertical;
+}
+#bdbSigDescCount {
+  font-size: .72rem;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   R7 — BACK OFFICE — DIFFÉRENCIATION SHELL (header + sidebar)
+   Scope : body.bdb-shell-backoffice
+   Portait auparavant : bdb-shell.js v2.2.0 bloc 3 (Bug F)
+   ════════════════════════════════════════════════════════════════ */
+
+body.bdb-shell-backoffice #header {
+  background: #faf5ff;
+  border-bottom: 2px solid #6f42c1;
+}
+body.bdb-shell-backoffice #header .fw-semibold {
+  color: #4c1d95;
+}
+body.bdb-shell-backoffice #aside-main {
+  background: #1e1b2e !important;
+}
+body.bdb-shell-backoffice #aside-main,
+body.bdb-shell-backoffice #aside-main .nav-link,
+body.bdb-shell-backoffice #aside-main .fw-bold,
+body.bdb-shell-backoffice #aside-main .text-muted,
+body.bdb-shell-backoffice #aside-main .text-dark {
+  color: #e2e8f0 !important;
+}
+body.bdb-shell-backoffice #aside-main .nav-link:hover {
+  background: rgba(139, 92, 246, .15);
+}
+body.bdb-shell-backoffice #aside-main .nav-item.active > .nav-link {
+  background: rgba(139, 92, 246, .25) !important;
+  border-left: 3px solid #a78bfa !important;
+  font-weight: 600;
+  padding-left: calc(1rem - 3px);
+}
+body.bdb-shell-backoffice #aside-main .nav-item.active > .nav-link i {
+  color: #c4b5fd !important;
+}
+body.bdb-shell-backoffice #aside-main .nav-title {
+  color: #a78bfa !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   R8 — KIT HARMONISÉ BACK OFFICE — Patterns .bo-*
+   Scope : body.bdb-shell-backoffice
+   Doctrine : 02_BACK_OFFICE_REF_V1_1_0.md §8
+   Doctrine visuelle unique pour atelier, conseil, admin, supervision
+   et tout module back office à venir.
+   ════════════════════════════════════════════════════════════════ */
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.0 — Fond page back office
+   ─────────────────────────────────────────────────────────────── */
+
+body.bdb-shell-backoffice {
+  background: #f3f4f8;
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.1 — CARD premium (.bo-card)
+   Brique pilier — LE seul cadre back office. 4 modifiers.
+   ─────────────────────────────────────────────────────────────── */
+
+body.bdb-shell-backoffice .bo-card {
+  border: 1px solid rgba(0, 0, 0, .06);
+  border-radius: .75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04), 0 1px 2px rgba(0, 0, 0, .02);
+  transition: box-shadow .2s ease, transform .2s ease;
+  background: #fff;
+}
+body.bdb-shell-backoffice .bo-card.bo-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .08), 0 2px 4px rgba(0, 0, 0, .04);
+  transform: translateY(-1px);
+}
+body.bdb-shell-backoffice .bo-card > .card-header {
+  background: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, .06);
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+}
+body.bdb-shell-backoffice .bo-card > .card-header.bo-header-tint {
+  background: linear-gradient(90deg, rgba(13, 110, 253, .04) 0%, transparent 100%);
+}
+
+/* Modifiers accent — bordure gauche colorée */
+body.bdb-shell-backoffice .bo-card.bo-accent-primary   { border-left: 4px solid #0d6efd; }
+body.bdb-shell-backoffice .bo-card.bo-accent-success   { border-left: 4px solid #198754; }
+body.bdb-shell-backoffice .bo-card.bo-accent-warning   { border-left: 4px solid #ffc107; }
+body.bdb-shell-backoffice .bo-card.bo-accent-danger    { border-left: 4px solid #dc3545; }
+body.bdb-shell-backoffice .bo-card.bo-accent-info      { border-left: 4px solid #0dcaf0; }
+body.bdb-shell-backoffice .bo-card.bo-accent-secondary { border-left: 4px solid #6c757d; }
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.2 — ICON BADGE (.bo-icon-badge)
+   Pastille arrondie colorée pour KPI, activité, état.
+   Variante taille : .bo-icon-sm (32px au lieu de 48px).
+   ─────────────────────────────────────────────────────────────── */
+
+body.bdb-shell-backoffice .bo-icon-badge {
+  width: 3rem;
+  height: 3rem;
+  border-radius: .75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.35rem;
+}
+body.bdb-shell-backoffice .bo-icon-badge.bo-icon-sm {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: .95rem;
+}
+body.bdb-shell-backoffice .bo-icon-badge.bo-icon-lg {
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.75rem;
+}
+
+/* Variantes couleur — couplées aux bg-*-subtle de Bootstrap 5.3 */
+body.bdb-shell-backoffice .bo-icon-badge.bg-primary-subtle   { color: #0d6efd; }
+body.bdb-shell-backoffice .bo-icon-badge.bg-success-subtle   { color: #198754; }
+body.bdb-shell-backoffice .bo-icon-badge.bg-warning-subtle   { color: #b45309; }
+body.bdb-shell-backoffice .bo-icon-badge.bg-danger-subtle    { color: #dc3545; }
+body.bdb-shell-backoffice .bo-icon-badge.bg-info-subtle      { color: #0891b2; }
+body.bdb-shell-backoffice .bo-icon-badge.bg-secondary-subtle { color: #64748b; }
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.3 — KPI (.bo-kpi-value, .bo-kpi-label, .bo-kpi-trend)
+   Typographie cohérente pour tous les compteurs back office.
+   ─────────────────────────────────────────────────────────────── */
+
+body.bdb-shell-backoffice .bo-kpi-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #0f172a;
+  margin: 0;
+}
+body.bdb-shell-backoffice .bo-kpi-label {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: .25rem;
+}
+body.bdb-shell-backoffice .bo-kpi-trend {
+  font-size: .78rem;
+  font-weight: 500;
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.4 — NAV TABS premium (.bo-tabs)
+   Underline 2px primaire sur active, hover bleu subtil.
+   ─────────────────────────────────────────────────────────────── */
+
+body.bdb-shell-backoffice .bo-tabs {
+  border-bottom: 1px solid rgba(0, 0, 0, .08);
+}
+body.bdb-shell-backoffice .bo-tabs .nav-link {
+  color: #64748b;
+  font-weight: 500;
+  padding: .75rem 1.25rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+body.bdb-shell-backoffice .bo-tabs .nav-link:hover {
+  color: #0d6efd;
+  border-color: transparent;
+  background: rgba(13, 110, 253, .04);
+}
+body.bdb-shell-backoffice .bo-tabs .nav-link.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+  background: transparent;
+  font-weight: 600;
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.5 — DATA TABLE premium (.bo-table)
+   Header uppercase gris, spacing généreux, ligne de séparation fine.
+   ─────────────────────────────────────────────────────────────── */
+
+body.bdb-shell-backoffice .bo-table thead th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-weight: 600;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, .06);
+}
+body.bdb-shell-backoffice .bo-table tbody td {
+  padding: .85rem 1rem;
+  border-top: 1px solid rgba(0, 0, 0, .04);
+  vertical-align: middle;
+}
+body.bdb-shell-backoffice .bo-table tbody tr:first-child td {
+  border-top: 0;
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.6 — STATE ICON (.bo-state-icon)
+   Pastille ronde 64px pour empty / error / denied / auth states.
+   ─────────────────────────────────────────────────────────────── */
+
+body.bdb-shell-backoffice .bo-state-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.7 — AVATAR (.bo-avatar)
+   Badge rond avec initials. Gradient par défaut bleu → violet.
+   Variantes taille : .bo-avatar-sm / .bo-avatar-lg.
+   Variantes gradient : .bo-avatar-grad-{2|3|4} (palette alternative).
+   ─────────────────────────────────────────────────────────────── */
+
+body.bdb-shell-backoffice .bo-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: .85rem;
+  box-shadow: 0 2px 6px rgba(13, 110, 253, .25);
+  flex-shrink: 0;
+}
+body.bdb-shell-backoffice .bo-avatar.bo-avatar-sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: .75rem;
+}
+body.bdb-shell-backoffice .bo-avatar.bo-avatar-lg {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1rem;
+}
+
+/* Variantes gradients — pour différencier visuellement les utilisateurs */
+body.bdb-shell-backoffice .bo-avatar.bo-avatar-grad-2 {
+  background: linear-gradient(135deg, #20c997 0%, #0dcaf0 100%);
+  box-shadow: 0 2px 6px rgba(13, 202, 240, .25);
+}
+body.bdb-shell-backoffice .bo-avatar.bo-avatar-grad-3 {
+  background: linear-gradient(135deg, #fd7e14 0%, #dc3545 100%);
+  box-shadow: 0 2px 6px rgba(220, 53, 69, .25);
+}
+body.bdb-shell-backoffice .bo-avatar.bo-avatar-grad-4 {
+  background: linear-gradient(135deg, #6f42c1 0%, #d63384 100%);
+  box-shadow: 0 2px 6px rgba(111, 66, 193, .25);
+}
+
+
+/* ===========================================================
+   R8.8 — AUTH OVERLAY (auto sur [id$="-auth-overlay"])
+   Règle AUTO-ACTIVANTE : dès que body.bdb-auth-required ET que
+   l'overlay perd sa classe .d-none, il s'affiche en fullscreen.
+   Aucune classe CSS à ajouter sur l'overlay côté HTML.
+   Compatible : #cs-auth-overlay, #at-auth-overlay, #admin-auth-overlay,
+   #supervision-auth-overlay, ou tout overlay respectant le naming.
+   La classe .bo-auth-overlay reste utilisable comme alias explicite.
+   =========================================================== */
+
+body.bdb-auth-required [id$="-auth-overlay"]:not(.d-none),
+body.bdb-shell-backoffice .bo-auth-overlay:not(.d-none) {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  background: #f3f4f8;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+body.bdb-auth-required [id$="-auth-overlay"]:not(.d-none) > .card,
+body.bdb-shell-backoffice .bo-auth-overlay:not(.d-none) > .card {
+  max-width: 32rem;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .12);
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   R8.9 — MASQUAGE AUTH REQUIRED (body.bdb-auth-required)
+   Quand la session n'est pas active, le JS module ajoute cette
+   classe sur <body>. Elle masque PHYSIQUEMENT (display:none) tout
+   le contenu de la page : header shell, sidebar, nav, main,
+   footer, signalement FAB, badges. Seul .bo-auth-overlay reste
+   visible. Empêche toute lecture visuelle du contenu résiduel.
+   
+   NOTE SÉCURITÉ : cette règle ne protège QUE l'affichage visuel.
+   Le HTML brut reste lisible via Ctrl+U / DevTools / curl.
+   La vraie couche de sécurité est RLS Supabase sur les tables.
+   ─────────────────────────────────────────────────────────────── */
+
+/* R8.9 — MASQUAGE COMPLET derrière l'overlay auth.
+   L'overlay #bdb-auth-overlay est injecté par bdb-shell.js en
+   premier enfant de <body>, HORS de #wrapper. On masque donc
+   #wrapper entièrement + les éléments injectés hors wrapper
+   (sidebar DBM, overlay sidebar, idle-warn, demo-banner, FAB).
+   Compatible Smarty V5 ET DBM. (fix v2.6.1) */
+body.bdb-auth-required #wrapper,
+body.bdb-auth-required #sidebar,
+body.bdb-auth-required #sidebarOverlay,
+body.bdb-auth-required .app-sidebar-overlay,
+body.bdb-auth-required .bdb-sig-fab,
+body.bdb-auth-required .bdb-demo-banner,
+body.bdb-auth-required .bdb-idle-warn {
+  display: none !important;
+}
+
+/* Scroll bloqué pendant que l'overlay est actif */
+body.bdb-auth-required {
+  overflow: hidden;
+}
+
+
+
+/* ===========================================================
+   R8.10 — UTILITAIRES BO (remplacement style= inline)
+   Ajouté v2.0.6 — 2026-04-25
+   Chaque classe remplace un pattern style= récurrent dans les
+   modules back-office. Scopé body.bdb-shell-backoffice.
+   =========================================================== */
+
+/* --- Labels flex (min-width:120px sur les lignes label/valeur) --- */
+body.bdb-shell-backoffice .bo-label-col  { min-width: 120px; flex-shrink: 0; }
+
+/* --- Cards flex-fill avec largeur minimum (grilles de cards) --- */
+body.bdb-shell-backoffice .bo-card-min   { min-width: 280px; }
+
+/* --- Colonnes <th> calibrées --- */
+body.bdb-shell-backoffice .bo-th-xs      { width: 56px; }
+body.bdb-shell-backoffice .bo-th-sm      { width: 80px; }
+body.bdb-shell-backoffice .bo-th-md      { width: 110px; }
+body.bdb-shell-backoffice .bo-th-lg      { width: 200px; }
+body.bdb-shell-backoffice .bo-th-xl      { width: 220px; }
+body.bdb-shell-backoffice .bo-th-xxl     { width: 260px; }
+body.bdb-shell-backoffice .bo-th-actions { width: 88px; }
+
+/* --- Skeletons calibrés --- */
+body.bdb-shell-backoffice .bo-skel-row   { height: 2.4rem; }
+body.bdb-shell-backoffice .bo-skel-kpi   { width: 90px; height: 56px; }
+
+/* --- Conteneurs scrollables --- */
+body.bdb-shell-backoffice .bo-scroll-sm  { max-height: 240px; overflow-y: auto; }
+body.bdb-shell-backoffice .bo-scroll-md  { max-height: 420px; overflow-y: auto; }
+body.bdb-shell-backoffice .bo-scroll-lg  { max-height: 480px; overflow-y: auto; }
+
+/* --- Progress bar mince (5px) --- */
+body.bdb-shell-backoffice .bo-progress-thin { height: 5px; }
+
+/* --- Badges numérotés (cercle 1.5rem) --- */
+body.bdb-shell-backoffice .bo-step-badge {
+  width: 1.5rem; height: 1.5rem;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* --- Color swatches --- */
+body.bdb-shell-backoffice .bo-swatch     { width: 18px; height: 18px; display: inline-block; border-radius: 4px; }
+body.bdb-shell-backoffice .bo-swatch-sm  { width: 10px; height: 10px; display: inline-block; border-radius: 50%; }
+body.bdb-shell-backoffice .bo-color-input { width: 48px; }
+
+/* --- Pre/code scrollable (hérite bo-scroll-*) + wrap --- */
+body.bdb-shell-backoffice .bo-pre-scroll {
+  max-height: 240px; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-all;
+}
+
+/* ────────────────── FIN cds-overrides.css v2.0.6 ────────────────── */

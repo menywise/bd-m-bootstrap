@@ -1,0 +1,17 @@
+/* ================================================================
+   compat-ui.css — Atelier BDB L3 Créateur
+   Audit compatibilité Safari / iOS — styles module
+   Extrait depuis compat.html le 2026-04-11
+   ================================================================ */
+
+.audit-section { border-left: 3px solid var(--bs-border-color); padding-left: 1rem; margin-bottom: 2rem; }
+.audit-section.pass  { border-color: var(--bs-success); }
+.audit-section.warn  { border-color: var(--bs-warning); }
+.audit-section.fail  { border-color: var(--bs-danger); }
+.result-row { display: flex; align-items: flex-start; gap: .5rem; padding: .3rem 0; border-bottom: 1px solid var(--bs-border-color-translucent); font-size: .85rem; }
+.result-row:last-child { border-bottom: none; }
+.badge-status { min-width: 52px; text-align: center; flex-shrink: 0; font-size: .75rem; }
+.result-label { flex: 1; }
+.result-detail { color: var(--bs-secondary-color); font-size: .78rem; font-style: italic; }
+#summaryBar { position: sticky; top: 0; z-index: 100; }
+.counter-box { display: inline-flex; align-items: center; gap: .35rem; font-weight: 600; font-size: .9rem; }

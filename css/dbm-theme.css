@@ -1,0 +1,1089 @@
+/**
+ * DBM Theme — Des Blocs & Moi
+ * Systeme de design swappable. Ce fichier = une seule source de verite visuelle.
+ * Pour changer de theme : remplacer CE fichier. Rien d'autre.
+ *
+ * Depend de : Bootstrap 5.3.3 (grid, utilities, form-control, btn)
+ * Depend de : Bootstrap Icons 1.11.1
+ * Ne depend PAS de : Smarty V5, theme-base.css, cds-overrides.css
+ *
+ * Prefixe : .app-*
+ * Version : 1.0.0
+ * Date    : 2026-05-02
+ */
+
+
+/* ══════════════════════════════════════════════════════════
+   1. DESIGN TOKENS (custom properties)
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Couleurs principales */
+  --app-primary: #0d6efd;
+  --app-primary-soft: rgba(13,110,253,.08);
+
+  /* Dimensions structurelles */
+  --app-sidebar-w: 260px;
+  --app-header-h: 56px;
+
+  /* Surfaces */
+  --app-bg: #f4f6f9;
+  --app-card-bg: #fff;
+  --app-card-radius: .5rem;
+  --app-card-shadow: 0 1px 3px rgba(0,0,0,.06);
+
+  /* Texte */
+  --app-text: #212529;
+  --app-text-muted: #6c757d;
+
+  /* Bordures & transitions */
+  --app-border: #e2e6ea;
+  --app-transition: .2s ease;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   2. BASE
+   ══════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--app-bg);
+  color: var(--app-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   3. SIDEBAR
+   ══════════════════════════════════════════════════════════ */
+
+.app-sidebar {
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  width: var(--app-sidebar-w);
+  background: var(--app-card-bg);
+  border-right: 1px solid var(--app-border);
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--app-transition);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.app-sidebar.collapsed { transform: translateX(-100%); }
+
+.app-sidebar-brand {
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--app-primary);
+  border-bottom: 1px solid var(--app-border);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-shrink: 0;
+}
+
+.app-sidebar-nav { padding: .75rem 0; flex: 1; }
+
+.app-sidebar-section {
+  padding: .5rem 1.25rem .25rem;
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--app-text-muted);
+}
+
+.app-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .5rem 1.25rem;
+  color: var(--app-text);
+  text-decoration: none;
+  font-size: .875rem;
+  border-radius: 0;
+  transition: background var(--app-transition), color var(--app-transition);
+}
+.app-sidebar-link:hover {
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+}
+.app-sidebar-link.active {
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  font-weight: 500;
+}
+.app-sidebar-link i {
+  font-size: 1rem;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.app-sidebar-footer {
+  padding: .75rem 1.25rem;
+  border-top: 1px solid var(--app-border);
+  font-size: .75rem;
+  color: var(--app-text-muted);
+  flex-shrink: 0;
+}
+
+/* Overlay mobile */
+.app-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 1035;
+}
+.app-sidebar-overlay.show { display: block; }
+
+
+/* ══════════════════════════════════════════════════════════
+   4. HEADER
+   ══════════════════════════════════════════════════════════ */
+
+.app-header {
+  height: var(--app-header-h);
+  background: var(--app-card-bg);
+  border-bottom: 1px solid var(--app-border);
+  display: flex;
+  align-items: center;
+  padding: 0 1.25rem;
+  gap: .75rem;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.app-header-toggle {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  padding: .25rem;
+  border-radius: .25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-header-toggle:hover {
+  color: var(--app-text);
+  background: var(--app-primary-soft);
+}
+
+.app-header-search {
+  flex: 1;
+  max-width: 360px;
+  position: relative;
+}
+.app-header-search input {
+  width: 100%;
+  padding: .4rem .75rem .4rem 2.1rem;
+  border: 1px solid var(--app-border);
+  border-radius: 2rem;
+  font-size: .85rem;
+  background: var(--app-bg);
+  color: var(--app-text);
+  transition: border-color var(--app-transition);
+}
+.app-header-search input:focus {
+  outline: none;
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 3px rgba(13,110,253,.15);
+}
+.app-header-search i {
+  position: absolute;
+  left: .75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--app-text-muted);
+  font-size: .85rem;
+}
+
+.app-header-spacer { flex: 1; }
+
+.app-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--app-primary);
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   5. LAYOUT (main structure)
+   ══════════════════════════════════════════════════════════ */
+
+.app-layout {
+  display: flex;
+  flex: 1;
+}
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.app-content {
+  flex: 1;
+  padding: 1.5rem;
+}
+/* Legacy modules: container-fluid fournit son propre padding */
+.app-content > .container-fluid { padding-top: 0; }
+.app-content:has(> .container-fluid) { padding: 0; }
+
+
+/* ══════════════════════════════════════════════════════════
+   6. CARDS
+   ══════════════════════════════════════════════════════════ */
+
+.app-card {
+  --bs-card-spacer-y: 1rem;
+  --bs-card-spacer-x: 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background: var(--app-card-bg);
+  background-clip: border-box;
+  border-radius: var(--app-card-radius);
+  box-shadow: var(--app-card-shadow);
+  border: 1px solid var(--app-border);
+  overflow: hidden;
+}
+
+/* Bridge : bdb-card (bdb-ui-kit) herite les tokens app-card en mode DBM */
+.bdb-card {
+  --bs-card-spacer-y: 1rem;
+  --bs-card-spacer-x: 1rem;
+  background: var(--app-card-bg);
+  border-radius: var(--app-card-radius);
+  box-shadow: var(--app-card-shadow);
+  border: 1px solid var(--app-border);
+  overflow: hidden;
+}
+.app-card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--app-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+.app-card-body { padding: 1.25rem; }
+.app-card-footer {
+  padding: .75rem 1.25rem;
+  border-top: 1px solid var(--app-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   7. KPI
+   ══════════════════════════════════════════════════════════ */
+
+.app-kpi {
+  background: var(--app-card-bg);
+  border-radius: var(--app-card-radius);
+  box-shadow: var(--app-card-shadow);
+  border: 1px solid var(--app-border);
+  padding: 1.25rem;
+  text-align: center;
+}
+.app-kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.app-kpi-label {
+  font-size: .8rem;
+  color: var(--app-text-muted);
+  margin-top: .25rem;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   8. TABLE
+   ══════════════════════════════════════════════════════════ */
+
+.app-table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.app-table th {
+  text-align: left;
+  font-weight: 500;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  color: var(--app-text-muted);
+  padding: .6rem .75rem;
+  border-bottom: 2px solid var(--app-border);
+}
+.app-table td {
+  padding: .7rem .75rem;
+  border-bottom: 1px solid var(--app-border);
+  vertical-align: middle;
+}
+.app-table tbody tr { transition: background var(--app-transition); }
+.app-table tbody tr:hover { background: var(--app-primary-soft); }
+
+
+/* ══════════════════════════════════════════════════════════
+   9. BADGES
+   ══════════════════════════════════════════════════════════ */
+
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: .72rem;
+  font-weight: 500;
+  padding: .2rem .55rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.app-badge-blue   { background: #e8f0fe; color: #1a56db; }
+.app-badge-green  { background: #ecfdf5; color: #166534; }
+.app-badge-amber  { background: #fffbeb; color: #92400e; }
+.app-badge-gray   { background: #f3f4f6; color: #4b5563; }
+.app-badge-purple { background: #f3e8ff; color: #7e22ce; }
+.app-badge-red    { background: #fef2f2; color: #991b1b; }
+
+/* S118 — Badge Rédacteur (couleur administrable via variables :root) */
+.app-badge-redacteur {
+  background: var(--app-badge-redacteur-bg);
+  color: var(--app-badge-redacteur-color);
+  font-size: .72rem;
+  font-weight: 500;
+  padding: .2rem .55rem;
+  border-radius: 1rem;
+  text-transform: none;
+  letter-spacing: .3px;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   10. ICON BUTTONS
+   ══════════════════════════════════════════════════════════ */
+
+.app-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem; height: 2rem;
+  border-radius: .375rem;
+  border: 1px solid var(--app-border);
+  background: transparent;
+  color: var(--app-text-muted);
+  cursor: pointer;
+  transition: all var(--app-transition);
+  font-size: .85rem;
+  text-decoration: none;
+}
+.app-icon-btn:hover {
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  border-color: var(--app-primary);
+}
+.app-icon-btn--danger:hover {
+  background: #fef2f2;
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   11. TABS
+   ══════════════════════════════════════════════════════════ */
+
+.app-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--app-border);
+  overflow-x: auto;
+}
+.app-tab {
+  padding: .6rem 1rem;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--app-text-muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--app-transition), border-color var(--app-transition);
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.app-tab:hover { color: var(--app-text); }
+.app-tab.active {
+  color: var(--app-primary);
+  border-bottom-color: var(--app-primary);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   12. PAGINATION
+   ══════════════════════════════════════════════════════════ */
+
+.app-pagination {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: .8rem;
+}
+.app-page-btn {
+  min-width: 2rem; height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: .375rem;
+  border: 1px solid var(--app-border);
+  background: var(--app-card-bg);
+  color: var(--app-text-muted);
+  cursor: pointer;
+  font-size: .8rem;
+  transition: all var(--app-transition);
+  text-decoration: none;
+}
+.app-page-btn:hover {
+  border-color: var(--app-primary);
+  color: var(--app-primary);
+}
+.app-page-btn.active {
+  background: var(--app-primary);
+  color: #fff;
+  border-color: var(--app-primary);
+}
+.app-page-btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   13. BREADCRUMB
+   ══════════════════════════════════════════════════════════ */
+
+.app-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .8rem;
+  color: var(--app-text-muted);
+  margin-bottom: .25rem;
+}
+.app-breadcrumb a {
+  color: var(--app-text-muted);
+  text-decoration: none;
+}
+.app-breadcrumb a:hover { color: var(--app-primary); }
+.app-breadcrumb-sep { font-size: .65rem; }
+
+
+/* ══════════════════════════════════════════════════════════
+   14. EMPTY STATE
+   ══════════════════════════════════════════════════════════ */
+
+.app-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--app-text-muted);
+}
+.app-empty i {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: .75rem;
+  opacity: .5;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   15. FOOTER
+   ══════════════════════════════════════════════════════════ */
+
+.app-footer {
+  padding: 1rem 1.5rem;
+  font-size: .75rem;
+  color: var(--app-text-muted);
+  border-top: 1px solid var(--app-border);
+  background: var(--app-card-bg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.app-footer a {
+  color: var(--app-text-muted);
+  text-decoration: none;
+}
+.app-footer a:hover { color: var(--app-primary); }
+
+
+/* ══════════════════════════════════════════════════════════
+   16. ROLE ZONES (Membre / Admin / Createur)
+   ──────────────────────────────────────────────────────────
+   Principe : plus le pouvoir de destruction est eleve,
+   plus le signal visuel est fort.
+   - Membre  = neutre (pas de marquage)
+   - Admin   = violet doux (peut modifier des donnees)
+   - Creator = orange/ambre (peut casser l'app)
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Admin tokens */
+  --app-zone-admin-border: #7e22ce;
+  --app-zone-admin-bg: rgba(126,34,206,.04);
+  --app-zone-admin-badge-bg: #f3e8ff;
+  --app-zone-admin-badge-text: #7e22ce;
+
+  /* Creator tokens */
+  --app-zone-creator-border: #ea580c;
+  --app-zone-creator-bg: rgba(234,88,12,.04);
+  --app-zone-creator-badge-bg: #fff7ed;
+  --app-zone-creator-badge-text: #c2410c;
+
+  /* Redacteur tokens (S118 — couleur administrable centralement) */
+  --app-badge-redacteur-bg: #d1fae5;
+  --app-badge-redacteur-color: #065f46;
+}
+
+/* ── Zone containers ─────────────────────────────────────── */
+.app-zone-admin {
+  border-left: 3px solid var(--app-zone-admin-border);
+  background: var(--app-zone-admin-bg);
+  border-radius: var(--app-card-radius);
+  padding: 1.25rem;
+  position: relative;
+}
+.app-zone-creator {
+  border-left: 3px solid var(--app-zone-creator-border);
+  background: var(--app-zone-creator-bg);
+  border-radius: var(--app-card-radius);
+  padding: 1.25rem;
+  position: relative;
+}
+
+/* ── Zone badges (inline label) ──────────────────────────── */
+.app-zone-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .68rem;
+  font-weight: 600;
+  padding: .2rem .55rem;
+  border-radius: 1rem;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  vertical-align: middle;
+}
+.app-zone-badge--admin {
+  background: var(--app-zone-admin-badge-bg);
+  color: var(--app-zone-admin-badge-text);
+}
+.app-zone-badge--creator {
+  background: var(--app-zone-creator-badge-bg);
+  color: var(--app-zone-creator-badge-text);
+}
+
+/* ── Zone header (title bar within a zone) ────────────────── */
+.app-zone-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .75rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--app-border);
+}
+.app-zone-header-title {
+  font-size: .85rem;
+  font-weight: 600;
+}
+.app-zone-header-hint {
+  font-size: .72rem;
+  color: var(--app-text-muted);
+  margin-left: auto;
+}
+
+/* ── Zone inside cards (app-card variant) ─────────────────── */
+.app-card.app-card--admin {
+  border-left: 3px solid var(--app-zone-admin-border);
+}
+.app-card.app-card--admin > .app-card-header {
+  background: var(--app-zone-admin-bg);
+}
+
+.app-card.app-card--creator {
+  border-left: 3px solid var(--app-zone-creator-border);
+}
+.app-card.app-card--creator > .app-card-header {
+  background: var(--app-zone-creator-bg);
+}
+
+/* ── Zone separator (horizontal rule between zones) ───────── */
+.app-zone-separator {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin: 1.5rem 0;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--app-text-muted);
+}
+.app-zone-separator::before,
+.app-zone-separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--app-border);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   17. RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+
+/* Desktop : sidebar visible, content decale */
+@media (min-width: 992px) {
+  .app-sidebar { transform: translateX(0); }
+  .app-sidebar.collapsed { transform: translateX(-100%); }
+
+  body:not(.sidebar-closed) .app-header,
+  body:not(.sidebar-closed) .app-main { margin-left: var(--app-sidebar-w); }
+
+  body.sidebar-closed .app-header,
+  body.sidebar-closed .app-main { margin-left: 0; }
+}
+
+/* Tablet : sidebar masquee, overlay */
+@media (max-width: 991px) {
+  .app-sidebar { transform: translateX(-100%); }
+  .app-sidebar.open { transform: translateX(0); }
+  .app-header, .app-main { margin-left: 0; }
+}
+
+/* Smartphone : padding reduit, colonnes masquees */
+@media (max-width: 575px) {
+  .app-content { padding: 1rem; }
+  .app-card-header { padding: .75rem 1rem; }
+  .app-card-body { padding: 1rem; }
+  .app-kpi { padding: 1rem; }
+  .app-kpi-value { font-size: 1.4rem; }
+  .app-table { font-size: .8rem; }
+  .app-table th, .app-table td { padding: .5rem; }
+  .col-hide-mobile { display: none; }
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   17. ACCESSIBILITE (WCAG AA)
+   ══════════════════════════════════════════════════════════ */
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  padding: .5rem 1rem;
+  background: var(--app-primary);
+  color: #fff;
+  border-radius: .25rem;
+  z-index: 9999;
+  font-size: .85rem;
+  text-decoration: none;
+}
+.skip-link:focus { top: .5rem; }
+
+
+/* ══════════════════════════════════════════════════════════
+   19. SHELL INTEGRATION (bdb-shell.js mode DBM)
+   Classes generees par le shell en runtime.
+   Dupliquees depuis cds-overrides.css R1+R2+R3+R6+R8
+   pour que dbm-theme.css soit auto-suffisant sans cds-overrides.
+   ══════════════════════════════════════════════════════════ */
+
+/* ── Role badges ──────────────────────────────────────────── */
+.bdb-badge-creator { background: #6f42c1; color: #fff; }
+.bdb-badge-demo    { background: #7c3aed; color: #fff; }
+
+#bdbBadgeAdmin,
+#bdbBadgeCreator,
+#bdbBadgeDemo {
+  font-size: .7rem;
+  padding: .3em .6em;
+}
+
+/* ── Demo banner ──────────────────────────────────────────── */
+.bdb-demo-banner {
+  padding: .375rem 1rem;
+  background: #fff3cd;
+  color: #856404;
+  text-align: center;
+  font-size: .8125rem;
+  font-weight: 600;
+  border-bottom: 1px solid #ffecb5;
+}
+
+/* ── Idle warn ────────────────────────────────────────────── */
+.bdb-idle-warn {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  padding: .625rem 1rem;
+  background: #dc3545;
+  color: #fff;
+  text-align: center;
+  font-size: .875rem;
+  font-weight: 600;
+  transform: translateY(-100%);
+  transition: transform .3s ease;
+}
+.bdb-idle-warn.show { transform: translateY(0); }
+
+/* ── User menu (dropdown custom) ──────────────────────────── */
+.bdb-user-menu {
+  position: absolute;
+  top: calc(100% + .5rem);
+  right: 0;
+  min-width: 260px;
+  max-width: 92vw;
+  background: #fff;
+  border-radius: .5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  padding: .25rem 0 .5rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+  z-index: 1060;
+  overflow: hidden;
+}
+.bdb-user-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity .2s ease, transform .2s ease, visibility 0s linear 0s;
+}
+.bdb-user-menu-header {
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--app-primary), #0a58ca);
+  color: #fff;
+  margin-bottom: .5rem;
+}
+.bdb-user-menu-name {
+  font-weight: 600;
+  font-size: .95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bdb-user-menu-email {
+  font-size: .8rem;
+  opacity: .85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bdb-user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  padding: .5rem 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--app-text);
+  font-size: .9rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.bdb-user-menu-item:hover,
+.bdb-user-menu-item:focus-visible {
+  background: var(--app-primary-soft);
+  color: var(--app-primary);
+  outline: none;
+}
+.bdb-user-menu-item.danger { color: #dc3545; }
+.bdb-user-menu-item.danger:hover {
+  background: rgba(220,53,69,.08);
+  color: #dc3545;
+}
+.bdb-user-menu-item > i.bi {
+  flex-shrink: 0;
+  width: 1.1rem;
+  text-align: center;
+}
+.bdb-menu-sep {
+  height: 1px;
+  background: var(--app-border);
+  margin: .25rem 0;
+}
+.bdb-preview-submenu {
+  background: rgba(0,0,0,.02);
+  border-left: 3px solid var(--app-border);
+  margin: .125rem 1rem;
+}
+.bdb-preview-submenu .bdb-user-menu-item {
+  padding-left: 1.5rem;
+  font-size: .85rem;
+}
+.bdb-submenu-chevron {
+  transition: transform .2s ease;
+  opacity: .6;
+}
+.bdb-user-menu-item[aria-expanded="true"] .bdb-submenu-chevron {
+  transform: rotate(90deg);
+}
+
+/* ── Signalement FAB ──────────────────────────────────────── */
+.bdb-sig-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--app-primary);
+  color: #fff;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  cursor: pointer;
+  z-index: 1050;
+  transition: background .2s, transform .2s;
+}
+.bdb-sig-fab:hover { background: #0a58ca; transform: scale(1.05); }
+
+.bdb-sig-context {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: .75rem;
+  color: var(--app-text-muted);
+  padding: .35rem .75rem;
+  background: var(--app-bg);
+  border-radius: .25rem;
+}
+
+/* ── Auth overlay ─────────────────────────────────────────── */
+#bdb-auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(4px);
+}
+body.bdb-auth-required > *:not(#bdb-auth-overlay) {
+  visibility: hidden;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   20. UTILITIES (portes depuis theme-base.css / cds-overrides)
+   ══════════════════════════════════════════════════════════ */
+
+/* btn-xs — BS 5.3 n'a que btn-sm et btn-lg.
+   Utilise massivement dans thesaurus, glossaire, admin. */
+.btn-xs {
+  padding: .2rem .45rem;
+  font-size: .75rem;
+  line-height: 1.3;
+  border-radius: .25rem;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   21. SORTABLE COLUMNS
+   Bouton tri dans <th>. Etats : neutre, asc, desc.
+   Usage : <button class="app-sort-btn" data-sort="col">
+             Nom <i class="bi bi-chevron-expand"></i>
+           </button>
+   ══════════════════════════════════════════════════════════ */
+.app-sort-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+}
+.app-sort-btn:hover {
+  color: var(--bs-primary, #0d6efd);
+}
+.app-sort-btn:focus-visible {
+  outline: 2px solid var(--bs-primary, #0d6efd);
+  outline-offset: 2px;
+  border-radius: .15rem;
+}
+.app-sort-btn .bi {
+  font-size: .7rem;
+  opacity: .5;
+  transition: opacity .15s;
+}
+.app-sort-btn:hover .bi,
+.app-sort-btn[aria-sort] .bi {
+  opacity: 1;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   23. DETAIL SECTION
+   Bloc detail dans offcanvas / slide-over / page detail.
+   Usage : <div class="app-detail-section">
+             <div class="app-detail-section-title">Section</div>
+             <div class="app-detail-label">Champ</div>
+             <div class="app-detail-value">Valeur</div>
+           </div>
+   ══════════════════════════════════════════════════════════ */
+.app-detail-section {
+  background: var(--app-bg, #f8f9fa);
+  border: 1px solid var(--app-border, #dee2e6);
+  border-radius: var(--app-card-radius, .75rem);
+  padding: 1rem 1.1rem;
+  margin-bottom: .75rem;
+}
+.app-detail-section-title {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--app-text-muted, #6c757d);
+  margin-bottom: .5rem;
+}
+.app-detail-label {
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--app-text-muted, #6c757d);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-bottom: .15rem;
+}
+.app-detail-value {
+  font-size: .88rem;
+  color: var(--app-text, #1e293b);
+  margin-bottom: .5rem;
+}
+.app-detail-value:last-child {
+  margin-bottom: 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   24. SCROLL CONTAINER
+   Hauteur bornee + overflow auto. Pour listes longues.
+   Usage : <div class="app-scroll-300">...</div>
+   ══════════════════════════════════════════════════════════ */
+.app-scroll-300 { max-height: 300px; overflow-y: auto; }
+.app-scroll-400 { max-height: 400px; overflow-y: auto; }
+
+/* Scrollbar discrete */
+.app-scroll-300::-webkit-scrollbar,
+.app-scroll-400::-webkit-scrollbar {
+  width: 6px;
+}
+.app-scroll-300::-webkit-scrollbar-thumb,
+.app-scroll-400::-webkit-scrollbar-thumb {
+  background: var(--app-border, #dee2e6);
+  border-radius: 3px;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   25. DROP ZONE
+   Zone drag & drop / upload fichier.
+   Usage : <div class="app-drop-zone">
+             <i class="bi bi-cloud-upload"></i>
+             <p>Deposer un fichier ici</p>
+           </div>
+   ══════════════════════════════════════════════════════════ */
+.app-drop-zone {
+  border: 2px dashed var(--app-border, #dee2e6);
+  border-radius: .75rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  color: var(--app-text-muted, #6c757d);
+}
+.app-drop-zone:hover,
+.app-drop-zone.drag-over {
+  background: rgba(var(--bs-primary-rgb, 13,110,253), .06);
+  border-color: var(--bs-primary, #0d6efd);
+  color: var(--bs-primary, #0d6efd);
+}
+.app-drop-zone:focus-visible {
+  outline: 2px solid var(--bs-primary, #0d6efd);
+  outline-offset: 2px;
+}
+.app-drop-zone .bi {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: .4rem;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   26. OFFCANVAS OVERRIDES
+   Panel lateral BS natif — largeur etendue pour detail.
+   Usage : <div class="offcanvas offcanvas-end" ...>
+   ══════════════════════════════════════════════════════════ */
+.offcanvas {
+  --bs-offcanvas-width: 60vw;
+}
+@media (max-width: 767.98px) {
+  .offcanvas {
+    --bs-offcanvas-width: 95vw;
+  }
+}
+.offcanvas-header {
+  border-bottom: 1px solid var(--app-border, #dee2e6);
+  background: var(--app-bg, #f8f9fa);
+}
+.offcanvas-body {
+  padding: 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   27. TOAST OVERRIDES
+   BS Toast — placement en haut a droite.
+   Usage : <div class="toast-container position-fixed top-0 end-0 p-3">
+   ══════════════════════════════════════════════════════════ */
+.toast {
+  --bs-toast-border-color: var(--app-border, #dee2e6);
+  border-radius: var(--app-card-radius, .75rem);
+  box-shadow: 0 .25rem 1rem rgba(0,0,0,.1);
+}

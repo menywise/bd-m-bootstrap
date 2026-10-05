@@ -1,9 +1,9 @@
 /* annuaire-ui.css — Uniquement ce que Bootstrap 5.3 ne couvre pas */
 
-/* ── Skeleton shimmer ─── */
+/* ── Skeleton shimmer ── */
 @keyframes ann-shimmer {
-  0%   { background-position: -468px 0; }
-  100% { background-position: 468px 0; }
+  0%   { background-position: -936px 0; }
+  100% { background-position: 936px 0; }
 }
 .skeleton-box {
   background: linear-gradient(90deg, #e8eaf0 25%, #f4f5f7 50%, #e8eaf0 75%);
@@ -29,14 +29,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,.13);
 }
 .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-circle-lg  { width: 96px !important; height: 96px !important; font-size: 2rem !important; }
-.avatar-circle-upload {
-  border: 2px dashed var(--bs-border-color) !important;
-  background: var(--bs-light) !important;
-  color: var(--bs-secondary) !important;
-  cursor: pointer;
-}
-
+.avatar-circle.avatar-circle-lg  { width: 96px; height: 96px; font-size: 2rem; }
 /* ── Member card ─── position:relative requis pour ::before, hover BS insuffisant */
 .member-card {
   position: relative; overflow: hidden;
@@ -78,9 +71,26 @@
   color: var(--bs-secondary);
 }
 .search-wrapper input { padding-left: 2.25rem; }
+/* Classe CDS pour input recherche avec icône positionnée */
+.ann-search-input { padding-left: 2.25rem; }
+
+/* ── Typographie micro ─────────────────────────────────────── */
+.ann-text-xs { font-size: 0.7rem; }
+.ann-text-sm { font-size: .8rem; }
+
+/* ── Modales empilées (z-index) ────────────────────────────── */
+.ann-modal-l2 { z-index: 1060; }
+.ann-modal-l3 { z-index: 1070; }
+
+/* ── Toast (z-index élevé pour modale stacking) ───────────── */
+.ann-toast-top { z-index: 1080; }
 
 /* ── Badges couleurs fonction ─── hors palette Bootstrap */
-/* .badge-fn-* — définis dans cds-overrides.css v1.5.0 — pas à redéfinir ici */
+.badge-fn-medecin   { background-color: #dbeafe; color: #1d4ed8; }
+.badge-fn-cadre     { background-color: #ede9fe; color: #7c3aed; }
+.badge-fn-infirmier { background-color: #dcfce7; color: #15803d; }
+.badge-fn-aide      { background-color: #ffedd5; color: #c2410c; }
+
 .annuaire-card .badge-approved,
 .annuaire-modal .badge-approved     { border: 1px solid #22c55e; color: #15803d; background: transparent; }
 .annuaire-card .badge-pending,
@@ -143,9 +153,140 @@
   display: flex; align-items: center; justify-content: center;
 }
 
+/* ── Admin (ann-admin-* scopés — INTERDIT-17) ── */
+.ann-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+#annAdminTabs ~ .tab-content .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
 /* cursor:pointer sur les cards cliquables */
 .member-card[role="button"] { cursor: pointer; }
 
 /* Conteneur scope pour badge et modales */
 .annuaire-card  { }  /* scope container — cartes grille */
 .annuaire-modal { }  /* scope container — modales */
+
+/* ── Admin — layout config ─────────────────────────────────── */
+.ann-admin-config-row   { min-height: 480px; }
+.ann-admin-fn-sidebar   { background: var(--bs-body-bg); }
+.ann-admin-sections-panel { background: #f8f9fa; min-height: 480px; }
+
+/* ── Admin — sidebar boutons fonction ── */
+.ann-admin-fn-btn {
+  display: flex; align-items: center; gap: .65rem;
+  width: 100%; padding: .85rem 1rem;
+  border: none; border-left: 3px solid transparent;
+  background: transparent; text-align: left;
+  font-size: .875rem; font-weight: 500;
+  color: var(--bs-body-color);
+  transition: background .15s, border-color .15s, color .15s;
+  cursor: pointer;
+}
+.ann-admin-fn-btn:hover  { background: rgba(0,0,0,.04); }
+.ann-admin-fn-btn.active {
+  background: #fff;
+  border-left-color: var(--fn-color, #0d6efd);
+  color: var(--fn-color, #0d6efd);
+  font-weight: 600;
+}
+.ann-admin-fn-icon  { font-size: 1rem; flex-shrink: 0; }
+.ann-admin-fn-count { font-size: .7rem; font-weight: 700; opacity: .55; margin-left: auto; }
+
+/* ── Admin — section cards ── */
+.ann-admin-section-card {
+  background: #fff;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .5rem;
+  overflow: hidden;
+  transition: box-shadow .15s, opacity .15s;
+  cursor: default;
+  user-select: none;
+}
+.ann-admin-section-card:hover          { box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+.ann-admin-section-card.is-hidden      { opacity: .5; }
+.ann-admin-section-card.ann-admin-dragging  { opacity: .35; box-shadow: none; }
+.ann-admin-section-card.ann-admin-drag-over { border-color: #0d6efd; background: #eff6ff; }
+
+.ann-admin-section-header {
+  display: flex; align-items: center; gap: .65rem;
+  padding: .75rem 1rem;
+}
+.ann-admin-section-desc { font-size: .75rem; }
+.ann-admin-expand-btn        { color: var(--bs-secondary) !important; }
+.ann-admin-expand-placeholder { width: 28px; flex-shrink: 0; }
+
+/* ── Admin — field list dans collapse ── */
+.ann-admin-field-list {
+  background: #f8f9fa;
+  border-top: 1px solid var(--bs-border-color);
+  padding: .5rem 1rem .75rem 3rem;
+}
+.ann-admin-field-item { padding: .2rem 0; }
+
+/* ── Admin — skeleton + progress (commun) ── */
+.ann-admin-skeleton-row { height: 40px; }
+.ann-admin-progress     { height: 8px; }
+.ann-admin-section-label {
+  font-size: .7rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--bs-secondary); margin-bottom: .75rem;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   AJOUTS S128 — extraction inline styles index.html (V6 INTERDIT-C2)
+   Conformité V5.1 — couleurs via variables module
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Page banner — gradient via variables module (remplace inline L65) */
+.ann-page-banner {
+  background: linear-gradient(135deg, var(--module-color) 0%, var(--module-color-strong) 100%);
+  color: var(--module-color-text);
+}
+
+.ann-page-subtitle {
+  opacity: 0.75;
+}
+
+/* Toolbar bar — extrait inline L74 */
+.ann-toolbar-bar {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Toolbar select/cta largeurs (CONV-TOOLBAR-01..05) */
+.ann-toolbar-select { width: 180px; flex-shrink: 0; }
+.ann-toolbar-cta    { width: 180px; flex-shrink: 0; }
+
+/* Empty state — extrait inline L114-L117 */
+.ann-empty-text  { font-size: 0.95rem; }
+.ann-empty-state { padding: 3rem 1rem; }
+.ann-empty-icon  {
+  font-size: 3rem;
+  color: var(--bs-secondary-color);
+  opacity: 0.4;
+}
+.ann-empty-title {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 1rem 0 0.25rem;
+}
+.ann-empty-help { color: var(--bs-secondary-color); }
+
+
+/* Badge soft module (remplace bg-primary-subtle text-primary-emphasis) */
+.ann-badge-module-soft {
+  background-color: var(--module-color-soft);
+  color: var(--module-color-text);
+  border: 1px solid var(--module-color);
+}

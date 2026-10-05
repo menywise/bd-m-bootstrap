@@ -1,0 +1,417 @@
+/* ============================================================
+   annuaire-admin.js — Module Annuaire BDB — Administration
+   Dashboard : état des données du module
+   Configuration : sections par type de fonction (parametrage_modules)
+   ============================================================ */
+
+'use strict';
+
+const _escEl2 = document.createElement('span');
+function escHtml(s) { _escEl2.textContent = s ?? ''; return _escEl2.innerHTML; }
+
+const DB = window.bdb;
+
+/* ── Référentiel fonctions ── */
+const FN_LIST = [
+  { key: 'medecin',       section: 'modale_medecin',       label: 'Médecin',       icon: 'bi-stethoscope',  color: '#3b82f6' },
+  { key: 'cadre',         section: 'modale_cadre',         label: 'Cadre',         icon: 'bi-clipboard2',   color: '#8b5cf6' },
+  { key: 'infirmier',     section: 'modale_infirmier',     label: 'Infirmier',     icon: 'bi-heart-pulse',  color: '#22c55e' },
+  { key: 'aide-soignant', section: 'modale_aide_soignant', label: 'Aide-soignant', icon: 'bi-person-heart', color: '#f97316' },
+];
+
+/* ── Labels des champs (correspondent aux clés du code) ── */
+const FIELD_LABELS = {
+  telephone_principal:  'Téléphone principal',
+  telephone_secondaire: 'Téléphone secondaire',
+  secretaires:          'Secrétaires',
+  gants_paire_1:        'Gants — 1re paire',
+  gants_paire_2:        'Gants — 2e paire',
+  casaque:              'Casaque',
+  porte_casque:         'Porte un casque',
+};
+
+/* ── État ── */
+const _s = {
+  configLoaded:  false,
+  selectedFn:    'medecin',
+  cache:         {},       // fn.key → [{id, cle, libelle, description, valeur}]
+  dragSrcIdx:    null,
+};
+
+/* ── Toast ── */
+function showToast(msg, type = 'success') {
+  const el    = document.getElementById('adminToast');
+  const msgEl = document.getElementById('adminToastMsg');
+  const icoEl = document.getElementById('adminToastIcon');
+  if (!el || !msgEl) return;
+  msgEl.textContent = msg;
+  el.className = 'toast align-items-center border-0 text-bg-' + (type === 'success' ? 'success' : 'danger');
+  icoEl.className  = 'bi ' + (type === 'success' ? 'bi-check-circle' : 'bi-exclamation-circle');
+  bootstrap.Toast.getOrCreateInstance(el, { delay: 3000 }).show();
+}
+
+/* ── 3-state dashboard ── */
+function showDashState(id) {
+  ['dashLoading', 'dashError', 'dashContent'].forEach(s =>
+    document.getElementById(s)?.classList.toggle('d-none', s !== id)
+  );
+}
+
+/* ── 3-state sections panel ── */
+function showSectionsState(id) {
+  ['sectionsLoading', 'sectionsEmpty', 'sectionsError', 'sectionsList'].forEach(s =>
+    document.getElementById(s)?.classList.toggle('d-none', s !== id)
+  );
+}
+
+/* ══════════════════════════════════════════════
+   ONGLET DASHBOARD
+   ══════════════════════════════════════════════ */
+
+async function loadDashboard() {
+  showDashState('dashLoading');
+  try {
+    const [dirRes, equipRes] = await Promise.all([
+      DB.from('profiles_directory').select('id, fonction, approved'),
+      DB.from('profiles').select('id, casaque_id, gant_paire_1_id')
+    ]);
+    if (dirRes.error)   throw dirRes.error;
+    if (equipRes.error) throw equipRes.error;
+
+    const members = dirRes.data   || [];
+    const equip   = equipRes.data || [];
+    const total   = members.length;
+
+    document.getElementById('dashKpiTotal').textContent      = total;
+    document.getElementById('dashKpiApproved').textContent   = members.filter(m => m.approved).length;
+    document.getElementById('dashKpiPending').textContent    = members.filter(m => !m.approved).length;
+    document.getElementById('dashKpiIncomplete').textContent = equip.filter(m => !m.casaque_id || !m.gant_paire_1_id).length;
+
+    /* Répartition par fonction */
+    const fnColors = { medecin: '#3b82f6', cadre: '#8b5cf6', infirmier: '#22c55e', 'aide-soignant': '#f97316' };
+    const fnCount  = {};
+    members.forEach(m => { const fn = m.fonction || 'autre'; fnCount[fn] = (fnCount[fn] || 0) + 1; });
+    document.getElementById('dashRepartition').innerHTML = Object.entries(fnCount).length === 0
+      ? '<p class="text-muted small">Aucune donnée.</p>'
+      : Object.entries(fnCount).sort((a, b) => b[1] - a[1]).map(([fn, count]) => {
+          const pct   = total ? Math.round(count / total * 100) : 0;
+          const color = escHtml(fnColors[fn] || '#6c757d');
+          return `<div class="mb-2">
+            <div class="d-flex justify-content-between small mb-1">
+              <span class="fw-semibold">${escHtml(fn)}</span>
+              <span class="text-muted">${count} (${pct}\u00a0%)</span>
+            </div>
+            <div class="progress ann-admin-progress">
+              <div class="progress-bar" role="progressbar"
+                   style="width:${pct}%;background:${color}"
+                   aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><!-- style= OK : largeur + couleur dynamiques -->
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+
+    /* Complétude équipement */
+    const equipTotal = equip.length;
+    const setPct = (barId, lblId, count) => {
+      const pct = equipTotal ? Math.round(count / equipTotal * 100) : 0;
+      document.getElementById(barId)?.setAttribute('aria-valuenow', pct);
+      const bar = document.getElementById(barId);
+      if (bar) bar.style.width = pct + '%';
+      const lbl = document.getElementById(lblId);
+      if (lbl) lbl.textContent = `${count}\u00a0/ ${equipTotal} (${pct}\u00a0%)`;
+    };
+    setPct('dashCasaqueBar', 'dashCasaqueLabel', equip.filter(m => m.casaque_id).length);
+    setPct('dashGantsBar',   'dashGantsLabel',   equip.filter(m => m.gant_paire_1_id).length);
+
+    showDashState('dashContent');
+  } catch (err) {
+    document.getElementById('dashErrorMsg').textContent = err.message || 'Erreur inconnue';
+    showDashState('dashError');
+  }
+}
+
+/* ══════════════════════════════════════════════
+   ONGLET CONFIGURATION
+   ══════════════════════════════════════════════ */
+
+/* ── Sidebar fonctions ── */
+function renderSidebar() {
+  const nav = document.getElementById('fnSidebar');
+  nav.innerHTML = FN_LIST.map(fn => `
+    <button class="ann-admin-fn-btn ${fn.key === _s.selectedFn ? 'active' : ''}"
+            data-fn-key="${escHtml(fn.key)}"
+            style="--fn-color:${escHtml(fn.color)}"
+            aria-pressed="${fn.key === _s.selectedFn}">
+      <i class="bi ${escHtml(fn.icon)} ann-admin-fn-icon"></i>
+      <span class="flex-grow-1 text-start">${escHtml(fn.label)}</span>
+      ${_s.cache[fn.key]
+        ? `<span class="ann-admin-fn-count">${_s.cache[fn.key].length} section${_s.cache[fn.key].length > 1 ? 's' : ''}</span>`
+        : ''}
+    </button>`).join('');
+}
+
+/* ── Charger les sections d'une fonction ── */
+async function loadSections(fnKey) {
+  if (_s.cache[fnKey]) { renderSections(fnKey); return; }
+
+  showSectionsState('sectionsLoading');
+  const fn = FN_LIST.find(f => f.key === fnKey);
+  if (!fn) return;
+
+  try {
+    const { data, error } = await DB.from('parametrage_modules')
+      .select('id, cle, libelle, description, valeur')
+      .eq('module', 'annuaire')
+      .eq('section', fn.section)
+      .order('id'); /* on trie par ordre DB, l'ordre d'affichage vient de valeur.ordre */
+    if (error) throw error;
+
+    /* Trier par valeur.ordre */
+    const sorted = (data || []).slice().sort((a, b) =>
+      ((a.valeur?.ordre ?? 0) - (b.valeur?.ordre ?? 0))
+    );
+
+    _s.cache[fnKey] = sorted;
+    renderSections(fnKey);
+    renderSidebar(); /* mettre à jour le compteur */
+  } catch (err) {
+    document.getElementById('sectionsErrorMsg').textContent = err.message || 'Erreur inconnue';
+    showSectionsState('sectionsError');
+  }
+}
+
+/* ── Rendu des sections ── */
+function renderSections(fnKey) {
+  const fn       = FN_LIST.find(f => f.key === fnKey);
+  const sections = _s.cache[fnKey] || [];
+
+  document.getElementById('sectionsTitle').textContent = `Fiche ${fn?.label || fnKey}`;
+
+  if (!sections.length) { showSectionsState('sectionsEmpty'); return; }
+
+  const container = document.getElementById('sectionsContainer');
+  container.innerHTML = sections.map((sec, idx) => {
+    const visible  = sec.valeur?.visible !== false;
+    const champs   = sec.valeur?.champs || null;
+    const hasFields = champs && Object.keys(champs).length > 0;
+    const collapseId = `fields-${escHtml(fnKey)}-${escHtml(sec.cle)}`;
+
+    const fieldsHtml = hasFields
+      ? `<div class="collapse" id="${collapseId}">
+           <div class="ann-admin-field-list">
+             ${Object.entries(champs).map(([fKey, fVal]) => `
+               <div class="ann-admin-field-item d-flex align-items-center gap-2">
+                 <div class="form-check form-switch mb-0">
+                   <input class="form-check-input ann-admin-field-toggle" type="checkbox"
+                          role="switch"
+                          id="field-${escHtml(fnKey)}-${escHtml(sec.cle)}-${escHtml(fKey)}"
+                          data-fn-key="${escHtml(fnKey)}"
+                          data-section-id="${escHtml(sec.id)}"
+                          data-section-cle="${escHtml(sec.cle)}"
+                          data-field-key="${escHtml(fKey)}"
+                          aria-label="${escHtml(FIELD_LABELS[fKey] || fKey)}"
+                          ${fVal !== false ? 'checked' : ''}>
+                   <label class="form-check-label small"
+                          for="field-${escHtml(fnKey)}-${escHtml(sec.cle)}-${escHtml(fKey)}">
+                     ${escHtml(FIELD_LABELS[fKey] || fKey)}
+                   </label>
+                 </div>
+               </div>`).join('')}
+           </div>
+         </div>`
+      : '';
+
+    return `<div class="ann-admin-section-card ${visible ? '' : 'is-hidden'} mb-2"
+                 draggable="true"
+                 data-idx="${idx}"
+                 data-fn-key="${escHtml(fnKey)}"
+                 data-section-id="${escHtml(sec.id)}"
+                 data-section-cle="${escHtml(sec.cle)}">
+      <div class="ann-admin-section-header d-flex align-items-center gap-2">
+        <i class="bi bi-grip-vertical text-muted ann-admin-drag-handle" aria-hidden="true"></i>
+        <div class="flex-grow-1">
+          <span class="fw-semibold">${escHtml(sec.libelle)}</span>
+          ${sec.description ? `<span class="d-block text-muted ann-admin-section-desc">${escHtml(sec.description)}</span>` : ''}
+        </div>
+        <div class="form-check form-switch mb-0" title="${visible ? 'Masquer cette section' : 'Afficher cette section'}">
+          <input class="form-check-input ann-admin-section-toggle" type="checkbox"
+                 role="switch"
+                 data-fn-key="${escHtml(fnKey)}"
+                 data-section-id="${escHtml(sec.id)}"
+                 data-section-cle="${escHtml(sec.cle)}"
+                 aria-label="${escHtml(sec.libelle)} — visible dans la fiche"
+                 ${visible ? 'checked' : ''}>
+        </div>
+        ${hasFields
+          ? `<button class="btn btn-sm btn-link p-0 text-muted ann-admin-expand-btn"
+                     data-bs-toggle="collapse"
+                     data-bs-target="#${collapseId}"
+                     aria-expanded="false"
+                     aria-controls="${collapseId}"
+                     title="Voir les champs">
+               <i class="bi bi-chevron-down"></i>
+             </button>`
+          : '<span class="ann-admin-expand-placeholder"></span>'}
+      </div>
+      ${fieldsHtml}
+    </div>`;
+  }).join('');
+
+  bindSectionDragDrop(fnKey);
+  showSectionsState('sectionsList');
+}
+
+/* ── Update section visible ── */
+async function updateSectionVisible(secId, fnKey, secCle, visible) {
+  const sec = _s.cache[fnKey]?.find(s => s.id === secId);
+  if (!sec) return;
+  const newValeur = { ...sec.valeur, visible };
+  const { error } = await DB.from('parametrage_modules')
+    .update({ valeur: newValeur })
+    .eq('id', secId)
+    .select();
+  if (error) throw error;
+  sec.valeur = newValeur;
+}
+
+/* ── Update champ visible ── */
+async function updateFieldVisible(secId, fnKey, fieldKey, visible) {
+  const sec = _s.cache[fnKey]?.find(s => s.id === secId);
+  if (!sec) return;
+  const newChamps  = { ...(sec.valeur?.champs || {}), [fieldKey]: visible };
+  const newValeur  = { ...sec.valeur, champs: newChamps };
+  const { error }  = await DB.from('parametrage_modules')
+    .update({ valeur: newValeur })
+    .eq('id', secId)
+    .select();
+  if (error) throw error;
+  sec.valeur = newValeur;
+}
+
+/* ── Enregistrer ordre ── */
+async function saveSectionOrder(fnKey) {
+  const btn = document.getElementById('btnSaveOrder');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Enregistrement\u2026';
+  try {
+    const sections = _s.cache[fnKey] || [];
+    const updates  = sections.map((sec, idx) => {
+      const newValeur = { ...sec.valeur, ordre: idx * 10 };
+      sec.valeur = newValeur;
+      return DB.from('parametrage_modules').update({ valeur: newValeur }).eq('id', sec.id).select();
+    });
+    const results = await Promise.all(updates);
+    const failed  = results.find(r => r.error);
+    if (failed) throw failed.error;
+    showToast('Ordre enregistr\u00e9.');
+  } catch (err) {
+    showToast('Erreur\u00a0: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer l\'ordre';
+  }
+}
+
+/* ── Drag & drop sections ── */
+function bindSectionDragDrop(fnKey) {
+  const container = document.getElementById('sectionsContainer');
+  container.querySelectorAll('.ann-admin-section-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      _s.dragSrcIdx = parseInt(card.dataset.idx, 10);
+      e.dataTransfer.effectAllowed = 'move';
+      card.classList.add('ann-admin-dragging');
+    });
+    card.addEventListener('dragend', () => {
+      card.classList.remove('ann-admin-dragging');
+      container.querySelectorAll('.ann-admin-drag-over').forEach(el => el.classList.remove('ann-admin-drag-over'));
+    });
+    card.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      container.querySelectorAll('.ann-admin-drag-over').forEach(el => el.classList.remove('ann-admin-drag-over'));
+      card.classList.add('ann-admin-drag-over');
+    });
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      const destIdx = parseInt(card.dataset.idx, 10);
+      if (_s.dragSrcIdx === null || _s.dragSrcIdx === destIdx) return;
+      const moved = _s.cache[fnKey].splice(_s.dragSrcIdx, 1)[0];
+      _s.cache[fnKey].splice(destIdx, 0, moved);
+      _s.dragSrcIdx = null;
+      renderSections(fnKey);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════ */
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  if (!window.bdbUser?.isAdmin) { location.href = '../../index.html'; return; }
+
+  /* Dashboard — immédiat */
+  await loadDashboard();
+  document.getElementById('dashRetryBtn')?.addEventListener('click', loadDashboard);
+
+  /* Configuration — lazy au 1er affichage */
+  document.getElementById('tab-config-btn')?.addEventListener('shown.bs.tab', async () => {
+    if (_s.configLoaded) return;
+    _s.configLoaded = true;
+    renderSidebar();
+    await loadSections(_s.selectedFn);
+  });
+
+  /* Sidebar — clic sur une fonction */
+  document.getElementById('fnSidebar')?.addEventListener('click', async e => {
+    const btn = e.target.closest('.ann-admin-fn-btn');
+    if (!btn) return;
+    const fnKey = btn.dataset.fnKey;
+    if (fnKey === _s.selectedFn) return;
+    _s.selectedFn = fnKey;
+    renderSidebar();
+    await loadSections(fnKey);
+  });
+
+  /* Délégation — toggle section visible */
+  document.getElementById('sectionsContainer')?.addEventListener('change', async e => {
+    const toggle = e.target.closest('.ann-admin-section-toggle');
+    if (!toggle) return;
+    const { fnKey, sectionId, sectionCle } = toggle.dataset;
+    const visible = toggle.checked;
+    try {
+      await updateSectionVisible(sectionId, fnKey, sectionCle, visible);
+      const card = toggle.closest('.ann-admin-section-card');
+      card?.classList.toggle('is-hidden', !visible);
+      showToast(visible ? 'Section affich\u00e9e.' : 'Section masqu\u00e9e.');
+    } catch (err) {
+      toggle.checked = !visible;
+      showToast('Erreur\u00a0: ' + err.message, 'error');
+    }
+  });
+
+  /* Délégation — toggle champ visible */
+  document.getElementById('sectionsContainer')?.addEventListener('change', async e => {
+    const toggle = e.target.closest('.ann-admin-field-toggle');
+    if (!toggle) return;
+    const { fnKey, sectionId, fieldKey } = toggle.dataset;
+    const visible = toggle.checked;
+    try {
+      await updateFieldVisible(sectionId, fnKey, fieldKey, visible);
+      showToast(visible ? 'Champ affich\u00e9.' : 'Champ masqu\u00e9.');
+    } catch (err) {
+      toggle.checked = !visible;
+      showToast('Erreur\u00a0: ' + err.message, 'error');
+    }
+  });
+
+  /* Retry sections */
+  document.getElementById('sectionsRetryBtn')?.addEventListener('click', () => {
+    delete _s.cache[_s.selectedFn];
+    loadSections(_s.selectedFn);
+  });
+
+  /* Enregistrer ordre */
+  document.getElementById('btnSaveOrder')?.addEventListener('click', () => saveSectionOrder(_s.selectedFn));
+});

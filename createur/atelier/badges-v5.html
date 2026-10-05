@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: ATELIER | Auth: createur uniquement | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Badges conformité V5 — DBM Atelier</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    body { background: #f5f5f5; padding: 1.5rem; }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.3px;
+    }
+    .badge-vert    { background: #d1fae5; color: #065f46; }
+    .badge-orange  { background: #fef3c7; color: #92400e; }
+    .badge-rouge   { background: #fce7f3; color: #9d174d; }
+    .badge-gris    { background: #e5e7eb; color: #4b5563; }
+    .module-row    { transition: background 0.15s; }
+    .module-row:hover { background: rgba(13, 110, 253, 0.04); }
+    .group-card    {
+      background: #fff;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+    .group-header  {
+      padding: 0.75rem 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .group-bloc       { background: #dbeafe; color: #1e3a8a; }
+    .group-equipe     { background: #d1fae5; color: #065f46; }
+    .group-savoir     { background: #ede9fe; color: #5b21b6; }
+    .group-pilotage   { background: #fce7f3; color: #9d174d; }
+    .group-espace_perso { background: #fef3c7; color: #92400e; }
+    .scoring-table th,
+    .scoring-table td { padding: 0.4rem 0.75rem; font-size: 0.85rem; }
+    .legend-card {
+      background: #fff; border-radius: 0.5rem; padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .table-modules td { vertical-align: middle; padding: 0.5rem 1rem; }
+    .module-key {
+      font-family: ui-monospace, monospace;
+      font-size: 0.78rem;
+      color: #6b7280;
+    }
+    .note-cell {
+      font-weight: 700;
+      font-size: 0.95rem;
+      width: 60px;
+      text-align: right;
+    }
+    .last-audit { color: #9ca3af; font-size: 0.78rem; }
+    h1 { font-weight: 800; letter-spacing: -0.5px; }
+  </style>
+</head>
+<body>
+
+<div class="container-fluid" style="max-width: 1280px;">
+
+  <header class="mb-4">
+    <h1 class="mb-1">Badges conformité V5 — DBM</h1>
+    <p class="text-muted mb-0">
+      Repère visuel instantané de l'état d'audit V5.1 par module.
+      <small class="ms-2">Mis à jour : 2026-05-08 · Session #128</small>
+    </p>
+  </header>
+
+  <!-- Grille de scoring + Légende -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-7">
+      <div class="legend-card">
+        <h5 class="mb-3"><i class="bi bi-bullseye me-2"></i>Grille de scoring</h5>
+        <table class="table table-sm scoring-table mb-2">
+          <thead>
+            <tr>
+              <th>Sévérité</th>
+              <th>Pénalité par violation</th>
+              <th>Exemples</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><strong class="text-danger">P0</strong></td><td>−20 pts</td><td>Doctrine bloquante, page blanche, rendu cassé</td></tr>
+            <tr><td><strong class="text-warning">P1</strong></td><td>−10 pts</td><td>INTERDIT majeur, bug fonctionnel, INTERDIT-COULEUR-01</td></tr>
+            <tr><td><strong>P2</strong></td><td>−5 pts</td><td>Inline style non exempté, pattern CDS non respecté</td></tr>
+            <tr><td><strong>P3</strong></td><td>−2 pts</td><td>Qualité, doctrine secondaire, surface marker</td></tr>
+          </tbody>
+        </table>
+        <small class="text-muted">Base 100 pts. Une violation invalidée n'entre pas dans le calcul.</small>
+      </div>
+    </div>
+
+    <div class="col-md-5">
+      <div class="legend-card">
+        <h5 class="mb-3"><i class="bi bi-palette me-2"></i>Seuils badges</h5>
+        <div class="d-flex flex-column gap-2">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="badge-pill badge-vert"><i class="bi bi-check-circle-fill"></i> VERT</span>
+            <span class="text-muted small">≥ 90 / 100 — V5.1 conforme étalon</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="badge-pill badge-orange"><i class="bi bi-exclamation-triangle-fill"></i> ORANGE</span>
+            <span class="text-muted small">70-89 — V5 acceptable, dette mineure</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="badge-pill badge-rouge"><i class="bi bi-x-circle-fill"></i> ROUGE</span>
+            <span class="text-muted small">&lt; 70 — Non conforme V5, à refondre</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="badge-pill badge-gris"><i class="bi bi-question-circle-fill"></i> GRIS</span>
+            <span class="text-muted small">Non audité</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI compteurs -->
+  <div class="row g-3 mb-4" id="kpiRow"></div>
+
+  <!-- Filtres + tri -->
+  <div class="legend-card mb-3 d-flex flex-wrap gap-2 align-items-center">
+    <strong class="me-2">Filtre :</strong>
+    <button class="btn btn-sm btn-outline-secondary active" data-filter="all">Tous</button>
+    <button class="btn btn-sm btn-outline-success" data-filter="vert">Vert</button>
+    <button class="btn btn-sm btn-outline-warning" data-filter="orange">Orange</button>
+    <button class="btn btn-sm btn-outline-danger" data-filter="rouge">Rouge</button>
+    <button class="btn btn-sm btn-outline-secondary" data-filter="gris">Gris</button>
+    <span class="ms-auto text-muted small">Tri : note décroissante, gris en bas</span>
+  </div>
+
+  <!-- Tableau plat tous modules -->
+  <div id="modulesContainer"></div>
+
+  <footer class="text-center text-muted small mt-4 mb-2">
+    Groupes masqués pendant la transition V&gt;5 (lourdeur visuelle non utile au suivi).
+    Données inline statiques — à mettre à jour à chaque audit.
+    Source future : table cloud <code>module_audit_v5</code> (à créer).
+  </footer>
+
+</div>
+
+<script>
+'use strict';
+
+// Données d'audit — à mettre à jour à chaque session
+// Structure : note (0-100 ou null si non audité), violations_resolues, violations_restantes, date_audit, badge_lien
+var MODULES = {
+  // BLOC
+  'anatomie':         { label: 'Anatomie',              group: 'bloc',          status: 'active', note: null, audit: null,         badge: null },
+  'arsenal':          { label: 'Arsenal',               group: 'bloc',          status: 'active', note: null, audit: null,         badge: null },
+  'fiches':           { label: 'Fiches Intervention',   group: 'bloc',          status: 'active', note: null, audit: null,         badge: null },
+  'installation':     { label: 'Installation Patient',  group: 'bloc',          status: 'active', note: null, audit: null,         badge: null },
+  'medacta':          { label: 'Implants Medacta',      group: 'bloc',          status: 'active', note: null, audit: null,         badge: null },
+  'planning':         { label: 'Planning',              group: 'bloc',          status: 'active', note: null, audit: null,         badge: null },
+  // EQUIPE
+  'annuaire':         { label: 'Annuaire',              group: 'equipe',        status: 'active', note: 97,   audit: '2026-05-08', badge: null,
+                        note_origine: 'index + admin migrés V5.1. 11 violations résolues + INTERDIT-B2 amendé (exception modules de gestion de profils, RLS active). −2 couleurs sémantiques fonction non variabilisées (médecin/cadre/etc.). −1 audit innerHTML/escHtml en cours.' },
+  'carnet_bord':      { label: 'Carnet de Bord',        group: 'equipe',        status: 'active', note: 98,   audit: '2026-05-08', badge: null,
+                        note_origine: 'index + admin migrés V5.1. INTERDIT-JS-01 majeur résolu : ~1350 lignes JS inline extraites en carnet-bord-app.js (647) + carnet-bord-admin.js (698). 4 btn-danger → btn-module. 2 #dc3545 → var(--bs-danger). 16 esc/showToast locaux supprimés (32 appels migrés). −1 V16 audit innerHTML escHtml en cours. −1 couleurs niveau (pastels OK mais pas variabilisées).' },
+  'preferences':      { label: 'Préférences Chirurgien',group: 'equipe',        status: 'active', note: 98,   audit: '2026-05-08', badge: null,
+                        note_origine: 'index + admin migrés V5.1. Admin chaîne V5 ancienne (theme-base@63905396 + cds-overrides) → V5.1 complète. JS inline admin extrait → preferences-admin.js. 4 fonctions locales supprimées (escHtml + showToast × 2). 17 inline styles → 11 classes CSS. 4 btn-primary/outline-primary → btn-module. 4 modal-content rounded-4 border-0 shadow-lg. INTERDIT-B2 amendé pour exception modules profil-related. −1 audit innerHTML. −1 couleurs hardcodées sémantiques sections (.pref-acc-icon-*).' },
+  'recueil-situation':{ label: 'Recueil de Situation',  group: 'equipe',        status: 'active', note: null, audit: null,         badge: null },
+  'rempla-midi':      { label: 'Rempla Midi',           group: 'equipe',        status: 'draft',  note: 92,   audit: '2026-05-08', badge: null,
+                        note_origine: 'Migration V5.1 effectuée. Brouillon Claude Design (rempla-midi.html + rempla-midi.css + files.zip + DOC MD/) archivé dans _brouillon-design/. index.html canonique : marker DBM 4 champs, chaîne CSS V5.1 complète, data-shell-theme=dbm, app-content[data-module-color="equipe"], chaîne JS V5 complète (bdb-modal-a11y + bdb-demo + bdb-pwa ajoutés), toast pattern bdbToast, redéfinition locale .btn-module supprimée (utilise dbm-module-color.css), variables :root alignées sur app_modules.color #7ec8c8. Statut draft maintenu — module en POC. −5 V6 partiel : bloc <style> inline 78 lignes encore présent (à migrer dans rempla-midi-ui.css). −1 V16 audit innerHTML. −2 couleurs hardcodées sémantiques diagnostic (6 états).' },
+  'transmissions':    { label: 'Transmissions',         group: 'equipe',        status: 'active', note: 99,   audit: '2026-05-08', badge: null,
+                        note_origine: 'index + admin migrés V5.1. Marker 5→4 champs. bdb-pwa head→fin body. Toast pattern bdbToast (16 appels migrés). escHtml + showToast locaux supprimés. 6 console.error retirés (admin). Admin chaîne V5 ancienne (theme-base@63905396 + cds-overrides) → V5.1. nav-tabs → bdb-tabs. text-primary breadcrumb retiré. 3 bg-primary/text-primary JS → trans-avatar-bg/trans-text-module/trans-badge-module (variables module). 4 modales pattern rounded-4 + header-module + dialog-centered + fullscreen-md-down. INTERDIT-B2 amendé pour transmissions. −1 V16 audit innerHTML.' },
+  // ESPACE_PERSO
+  'boite-a-idees':    { label: 'Boîte à idées',         group: 'espace_perso',  status: 'active', note: null, audit: null,         badge: null },
+  'disc':             { label: 'DISC',                  group: 'espace_perso',  status: 'active', note: null, audit: null,         badge: null },
+  'interview':        { label: 'Interview',             group: 'espace_perso',  status: 'active', note: null, audit: null,         badge: null },
+  'objectifs':        { label: 'Intégration IDE',       group: 'espace_perso',  status: 'active', note: null, audit: null,         badge: null },
+  'organisateur':     { label: 'Organisateur',          group: 'espace_perso',  status: 'active', note: null, audit: null,         badge: null },
+  'site':             { label: 'À propos',              group: 'espace_perso',  status: 'active', note: null, audit: null,         badge: null },
+  'veille-documentaire':{ label: 'Veille documentaire', group: 'espace_perso',  status: 'active', note: null, audit: null,         badge: null },
+  // PILOTAGE
+  'admin':            { label: 'Administration',        group: 'pilotage',      status: 'active', note: null, audit: null,         badge: null },
+  'profile':          { label: 'Mon Profil',            group: 'pilotage',      status: 'active', note: null, audit: null,         badge: null },
+  'supervision':      { label: 'Supervision',           group: 'pilotage',      status: 'active', note: null, audit: null,         badge: null },
+  // SAVOIR
+  'cours':            { label: 'Cours',                 group: 'savoir',        status: 'active', note: null, audit: null,         badge: null },
+  'faq':              { label: 'FAQ & Aide',            group: 'savoir',        status: 'active', note: 99,   audit: '2026-05-08', badge: null,
+                        note_origine: 'index + admin migrés V5.1. Marker 5→4 champs. Hash CDN obsolète éliminé. bdb-pwa head→fin body. nav-tabs→bdb-tabs. text-primary breadcrumb+KPI retirés. 2 btn-primary→btn-module. modal-content rounded-4 + modal-header-module. JS inline (Retry buttons) extrait → faq-admin.js. escHtml local supprimé. Toast pattern bdbToast ajouté. data-shell-theme=dbm. NULL bytes 148. −1 V16 audit innerHTML.' },
+  'ged':              { label: 'Documents',             group: 'savoir',        status: 'active', note: null, audit: null,         badge: null },
+  'glossaire':        { label: 'Glossaire',             group: 'savoir',        status: 'active', note: 98,   audit: '2026-05-08',
+                        badge: '../../BADGE_CONFORMITE_V5_GLOSSAIRE_V3_2026-05-08.md',
+                        note_origine: '14 violations resolues + 2 invalidees. Reste V6 partiel (-1) + V16 audit en cours (-1). REF-MODULE-DBM-01 etalon V5.1 operationnel.' },
+  'pedagogie':        { label: 'Pédagogie',             group: 'savoir',        status: 'active', note: null, audit: null,         badge: null },
+  'thesaurus':        { label: 'Thésaurus',             group: 'savoir',        status: 'active', note: null, audit: null,         badge: null }
+};
+
+var GROUPS = {
+  'bloc':         { label: 'Bloc',          icon: 'bi-hospital' },
+  'equipe':       { label: 'Équipe',        icon: 'bi-people' },
+  'savoir':       { label: 'Savoir',        icon: 'bi-book' },
+  'pilotage':     { label: 'Pilotage',      icon: 'bi-gear' },
+  'espace_perso': { label: 'Espace perso',  icon: 'bi-person-circle' }
+};
+
+// ── Helpers ────────────────────────────────────────────────────────
+
+function escHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = (str === null || str === undefined) ? '' : String(str);
+  return div.innerHTML;
+}
+
+function badgeFor(note) {
+  if (note === null || note === undefined) {
+    return { class: 'badge-gris',   label: 'NON AUDITÉ', icon: 'bi-question-circle-fill' };
+  }
+  if (note >= 90) return { class: 'badge-vert',   label: 'VERT',   icon: 'bi-check-circle-fill' };
+  if (note >= 70) return { class: 'badge-orange', label: 'ORANGE', icon: 'bi-exclamation-triangle-fill' };
+  return            { class: 'badge-rouge',  label: 'ROUGE',  icon: 'bi-x-circle-fill' };
+}
+
+function moduleUrl(key) {
+  // Lien vers le module en local (file://)
+  // path relatif depuis createur/atelier/ vers modules/[key]/index.html
+  return '../../modules/' + key + '/';
+}
+
+// ── Render KPI ─────────────────────────────────────────────────────
+
+function renderKpi() {
+  var entries = Object.values(MODULES);
+  var counts = { vert: 0, orange: 0, rouge: 0, gris: 0 };
+  entries.forEach(function (m) {
+    if (m.note === null) counts.gris++;
+    else if (m.note >= 90) counts.vert++;
+    else if (m.note >= 70) counts.orange++;
+    else counts.rouge++;
+  });
+
+  var total = entries.length;
+  var html = '';
+  html += '<div class="col-md-3"><div class="legend-card text-center"><div class="display-6 fw-bold text-success">' + counts.vert + '</div><small class="text-muted">VERT — V5.1 conforme</small></div></div>';
+  html += '<div class="col-md-3"><div class="legend-card text-center"><div class="display-6 fw-bold text-warning">' + counts.orange + '</div><small class="text-muted">ORANGE — dette mineure</small></div></div>';
+  html += '<div class="col-md-3"><div class="legend-card text-center"><div class="display-6 fw-bold text-danger">' + counts.rouge + '</div><small class="text-muted">ROUGE — à refondre</small></div></div>';
+  html += '<div class="col-md-3"><div class="legend-card text-center"><div class="display-6 fw-bold text-secondary">' + counts.gris + '</div><small class="text-muted">GRIS — non audité</small></div></div>';
+
+  document.getElementById('kpiRow').innerHTML = html;
+}
+
+var _currentFilter = 'all';
+
+function bandFor(note) {
+  if (note === null || note === undefined) return 'gris';
+  if (note >= 90) return 'vert';
+  if (note >= 70) return 'orange';
+  return 'rouge';
+}
+
+// ── Render tableau plat (groupes masqués pendant transition V>5) ──
+
+function renderModulesFlat() {
+  var container = document.getElementById('modulesContainer');
+
+  // Tri : note décroissante (audités d'abord), gris à la fin (alpha)
+  var modules = Object.entries(MODULES).map(function (e) {
+    return Object.assign({ key: e[0] }, e[1]);
+  });
+
+  modules.sort(function (a, b) {
+    var aGris = a.note === null;
+    var bGris = b.note === null;
+    if (aGris && !bGris) return 1;
+    if (!aGris && bGris) return -1;
+    if (aGris && bGris) return a.label.localeCompare(b.label);
+    return b.note - a.note; // note décroissante
+  });
+
+  // Filtre actif
+  if (_currentFilter !== 'all') {
+    modules = modules.filter(function (m) { return bandFor(m.note) === _currentFilter; });
+  }
+
+  if (modules.length === 0) {
+    container.innerHTML = '<div class="legend-card text-center text-muted py-4">Aucun module dans ce filtre.</div>';
+    return;
+  }
+
+  var html = '<div class="group-card"><table class="table mb-0 table-modules"><tbody>';
+
+  modules.forEach(function (m) {
+    var b = badgeFor(m.note);
+    html += '<tr class="module-row">';
+    html += '  <td style="width:30%"><strong>' + escHtml(m.label) + '</strong>';
+    if (m.status === 'draft') html += ' <span class="badge bg-light text-dark ms-1">DRAFT</span>';
+    html += '<br><span class="module-key">modules/' + escHtml(m.key) + '/</span></td>';
+    html += '  <td class="note-cell">' + (m.note !== null ? m.note + '/100' : '—') + '</td>';
+    html += '  <td><span class="badge-pill ' + b.class + '"><i class="bi ' + b.icon + '"></i>' + b.label + '</span></td>';
+    html += '  <td class="last-audit">' + (m.audit ? 'Audit ' + escHtml(m.audit) : 'Pas d\'audit') + '</td>';
+    html += '  <td style="text-align:right">';
+    html += '    <a href="' + moduleUrl(m.key) + '" class="btn btn-sm btn-outline-secondary" title="Ouvrir le module"><i class="bi bi-box-arrow-up-right"></i></a>';
+    if (m.badge) {
+      html += '    <a href="' + escHtml(m.badge) + '" class="btn btn-sm btn-outline-primary ms-1" title="Voir le badge MD"><i class="bi bi-clipboard-check"></i></a>';
+    }
+    html += '  </td>';
+    html += '</tr>';
+
+    if (m.note_origine) {
+      html += '<tr class="module-row"><td colspan="5" class="text-muted small ps-4 pb-2"><i class="bi bi-info-circle me-1"></i>' + escHtml(m.note_origine) + '</td></tr>';
+    }
+  });
+
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+// ── Filtres ────────────────────────────────────────────────────────
+
+function initFilters() {
+  document.querySelectorAll('[data-filter]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      _currentFilter = btn.getAttribute('data-filter');
+      document.querySelectorAll('[data-filter]').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      renderModulesFlat();
+    });
+  });
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', function () {
+  renderKpi();
+  renderModulesFlat();
+  initFilters();
+});
+</script>
+
+</body>
+</html>

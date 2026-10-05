@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: backoffice -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bernard — Lectures factorielles | Des Blocs &amp; Moi</title>
+
+  <!-- CHAÎNE CSS CDS — ORDRE STRICT
+       1. Bootstrap 5.3.3
+       2. theme-base.css Smarty V5 (@63905396c73b061f336f8f5178d738627bca601c)
+       3. Bootstrap Icons 1.11.1
+       4. cds-overrides.css v2.0.0 (couche premium BDB — OBLIGATOIRE)
+       5. bernard-ui.css (cotations, spirale, grille 18 points) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="bernard-ui.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <!-- SHELL BDB BACK OFFICE — bdb-shell.js v2.3.0
+         shell-kind backoffice : header violet pale + sidebar violet nuit (R7)
+         login-mode modal : auth flow L3 — ne pas retirer -->
+    <div id="bdb-shell"
+         data-module-title="Bernard — Lectures factorielles"
+         data-module-icon="bi-person-badge"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+        <div class="container-fluid p-3 p-md-4 p-lg-5">
+
+          <!-- Marqueur de page -->
+          <div id="bernard-top" data-page="bernard" class="d-none"></div>
+
+          <!-- ============================================================ -->
+          <!-- BRIQUE 1 — PAGE HEADER                                       -->
+          <!-- ============================================================ -->
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+              <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-person-badge text-primary"></i>
+                Bernard — Lectures factorielles 18 points
+              </h1>
+              <p class="text-muted mb-0">Persona arbitre L3 — 9w8 integre en 3 — S/C modulable D/I — Jaune Spirale</p>
+            </div>
+            <a href="../atelier/index.html" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i>Atelier
+            </a>
+          </div>
+
+          <!-- ============================================================ -->
+          <!-- BRIQUE 9 — STATE : AUTH REQUIRED                             -->
+          <!-- ============================================================ -->
+          <div id="bernard-auth-overlay" class="d-none bo-auth-overlay" role="dialog" aria-modal="true">
+            <div class="card bo-card bo-accent-primary">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-primary-subtle text-primary">
+                  <i class="bi bi-lock-fill"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Connexion requise</h2>
+                <p class="text-muted mb-4">Les lectures Bernard sont reservees au createur.<br>Connecte-toi puis reviens actualiser.</p>
+                <div class="d-flex justify-content-center gap-2">
+                  <button class="btn btn-primary" id="bernard-auth-btn-login" type="button">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Ouvrir la connexion
+                  </button>
+                  <button class="btn btn-outline-secondary" id="bernard-auth-btn-refresh" type="button">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Actualiser
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================ -->
+          <!-- BRIQUE 9 — STATE : LOADING (skeleton)                        -->
+          <!-- ============================================================ -->
+          <div id="bernard-loading">
+            <div class="card bo-card">
+              <div class="card-body p-4">
+                <div class="placeholder-glow">
+                  <div class="placeholder col-4 mb-3 rounded"></div>
+                  <span class="placeholder col-8 mb-2"></span>
+                  <span class="placeholder col-6 mb-2"></span>
+                  <span class="placeholder col-5"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================ -->
+          <!-- BRIQUE 9 — STATE : ACCESS DENIED                             -->
+          <!-- ============================================================ -->
+          <div id="bernard-denied" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-danger-subtle text-danger">
+                  <i class="bi bi-shield-lock"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Acces reserve</h2>
+                <p class="text-muted mb-0">Cet espace est reserve au createur de l'instance.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================ -->
+          <!-- BRIQUE 9 — STATE : ERROR                                     -->
+          <!-- ============================================================ -->
+          <div id="bernard-error" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-4">
+                <div class="bo-state-icon bg-danger-subtle text-danger mb-3">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <p class="fw-bold mb-1">Erreur de chargement</p>
+                <p class="text-muted small mb-3" id="bernard-error-msg"></p>
+                <button class="btn btn-sm btn-outline-danger" id="btnBernardRetry" type="button">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Reessayer
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================ -->
+          <!-- CONTENU PRINCIPAL                                            -->
+          <!-- ============================================================ -->
+          <div id="bernard-content" class="d-none">
+
+            <!-- KPI CARDS -->
+            <div class="row g-2 mb-3">
+              <div class="col-6 col-md-3">
+                <div class="card bo-card">
+                  <div class="card-body py-2 px-3 text-center">
+                    <div class="bernard-kpi-value" id="kpiTotal">0</div>
+                    <div class="bernard-kpi-label">Fiches</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card bo-card">
+                  <div class="card-body py-2 px-3 text-center">
+                    <div class="bernard-kpi-value" id="kpiLese">0</div>
+                    <div class="bernard-kpi-label">Cases lesees</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card bo-card">
+                  <div class="card-body py-2 px-3 text-center">
+                    <div class="bernard-kpi-value" id="kpiSimulation">0</div>
+                    <div class="bernard-kpi-label">Simulations</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="card bo-card">
+                  <div class="card-body py-2 px-3 text-center">
+                    <div class="bernard-kpi-value" id="kpiPersonas">0</div>
+                    <div class="bernard-kpi-label">Personas lies</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- JURISPRUDENCE (accordeon) -->
+            <div class="accordion mb-3" id="bernardAccJurisp">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed py-2" type="button"
+                          data-bs-toggle="collapse" data-bs-target="#collapseJurisp"
+                          aria-expanded="false" aria-controls="collapseJurisp">
+                    <i class="bi bi-book me-2"></i>
+                    <span>Regles JURISP-BERNARD</span>
+                    <span class="badge bg-secondary ms-2" id="badgeJurispCount">0</span>
+                  </button>
+                </h2>
+                <div id="collapseJurisp" class="accordion-collapse collapse" data-bs-parent="#bernardAccJurisp">
+                  <div class="accordion-body p-2" id="jurispBody">
+                    <div class="text-center py-3 text-muted">
+                      <div class="spinner-border spinner-border-sm" role="status"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TOOLBAR FILTRES -->
+            <div class="card bo-card mb-3">
+              <div class="card-body py-2 px-3">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <div class="flex-grow-1">
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text"><i class="bi bi-search"></i></span>
+                      <input type="text" class="form-control" id="bernardSearch" placeholder="Rechercher..."/>
+                    </div>
+                  </div>
+                  <select class="form-select form-select-sm bernard-filter-select" id="bernardFilterMode">
+                    <option value="">Tous les modes</option>
+                    <option value="remplie">Remplie</option>
+                    <option value="questionnement">Questionnement</option>
+                    <option value="mixte">Mixte</option>
+                  </select>
+                  <select class="form-select form-select-sm bernard-filter-select" id="bernardFilterAxe">
+                    <option value="">Tous les axes</option>
+                    <option value="enneagramme">Enneagramme</option>
+                    <option value="disc">DISC</option>
+                    <option value="spirale">Spirale</option>
+                  </select>
+                  <button class="btn btn-sm btn-outline-secondary" id="btnBernardRefresh" type="button" title="Rafraichir">
+                    <i class="bi bi-arrow-clockwise"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- BRIQUE 9 — STATE : EMPTY (dans le flux content) -->
+            <div id="bernard-empty" class="d-none">
+              <div class="card bo-card bo-accent-primary">
+                <div class="card-body text-center py-5">
+                  <div class="bo-state-icon bg-primary-subtle text-primary mb-3">
+                    <i class="bi bi-journal-text"></i>
+                  </div>
+                  <h2 class="h5 fw-bold mb-2">Aucune fiche Bernard en base</h2>
+                  <p class="text-muted small mb-0">
+                    Les fiches sont produites en conversation avec Bernard,
+                    puis persistees sur demande explicite.<br/>
+                    Invoque-le dans Claude.ai :
+                    <code>"Bernard arbitre [sujet]"</code>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- BRIQUE 9 — STATE : NO RESULTS (filtres actifs) -->
+            <div id="bernard-no-results" class="d-none">
+              <div class="card bo-card">
+                <div class="card-body text-center py-4 text-muted">
+                  <i class="bi bi-funnel me-1"></i>Aucune fiche ne correspond aux filtres.
+                </div>
+              </div>
+            </div>
+
+            <!-- LISTE DES FICHES -->
+            <div id="bernardList"></div>
+
+          </div><!-- /bernard-content -->
+
+        </div><!-- /container-fluid -->
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom fw-semibold"></span>
+        <span class="badge bg-light text-dark border ms-2">CDS Compliant</span>
+      </small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+  <!-- OFFCANVAS DETAIL FICHE -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="bernardOffcanvas" aria-labelledby="bernardOffcanvasTitle"
+       data-bs-scroll="true">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title" id="bernardOffcanvasTitle">Fiche Bernard</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+    </div>
+    <div class="offcanvas-body" id="bernardOffcanvasBody">
+      <div class="text-center py-3 text-muted">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAÎNE JS BDB — ORDRE STRICT
+       1. Bootstrap 5.3.3 bundle
+       2. Supabase SDK
+       3. supabase-client.js (client unique window.bdb)
+       4. bdb-ui.js (helpers UI partages)
+       5. bdb-invite-guard.js (intercept mutations role=invite)
+       6. bdb-shell.js v2.3.0 (auth + nav + zero CSS injecte)
+       7. bernard-app.js (logique metier) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="bernard-app.js"></script>
+</body>
+</html>

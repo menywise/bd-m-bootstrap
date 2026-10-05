@@ -1,13 +1,26 @@
-/* thesaurus-ui.css — BDB · CDS v2.1 — uniquement ce que BS 5.3 ne couvre pas */
+/* thesaurus-ui.css — BDB · CDS v2.3 — uniquement ce que BS 5.3 ne couvre pas */
+
+/* ── Barre de recherche / filtres ──────────────────────────────── */
+.thes-search-bar {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: .5rem;
+}
 
 /* Scroll horizontal nav tabs mobile */
-#thesaurusTabs { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
-#thesaurusTabs::-webkit-scrollbar { display:none; }
+#thesaurusTabs { flex-wrap:nowrap; overflow-x:auto; }
+
+/* Masque la scrollbar horizontale sur les nav tabs */
+.thes-hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.thes-hide-scrollbar::-webkit-scrollbar { display: none; }
 
 /* Thead sticky — BS n'a pas de sticky-header natif */
 .thes-thead-sticky th {
-  position:sticky; top:0; background:#f8f9fa; z-index:2;
-  border-bottom:2px solid #dee2e6;
+  position:sticky; top:0; background:var(--bdb-bg); z-index:2;
+  border-bottom:2px solid var(--bs-border-color);
 }
 
 /* Largeurs colonnes — spécifiques métier */
@@ -16,7 +29,19 @@
 .thes-col-zone    { width:130px; }
 .thes-col-pareto  { width:110px; }
 .thes-col-freq    { width:80px; font-variant-numeric:tabular-nums; }
-.thes-col-actions { width:70px; }
+.thes-col-actions { width:90px; white-space:nowrap; }
+
+/* app-icon-btn variants (complète dbm-theme.css §10 qui n'a que --danger) */
+.app-icon-btn--success:hover {
+  background: rgba(25,135,84,.1);
+  color: #198754;
+  border-color: rgba(25,135,84,.3);
+}
+.app-icon-btn--warning:hover {
+  background: rgba(255,193,7,.15);
+  color: #997404;
+  border-color: rgba(255,193,7,.4);
+}
 
 /* .btn-xs — monté dans cds-overrides.css v1.5.0 */
 
@@ -45,25 +70,25 @@
 /* Badge SACRÉ — violet hors palette BS */
 .thes-badge-sacred {
   font-size:.6rem; font-weight:700; letter-spacing:.04em;
-  background:#7c3aed; color:#fff; border-radius:3px; padding:.1rem .3rem; vertical-align:middle;
+  background:var(--bdb-purple); color:var(--app-card-bg); border-radius:3px; padding:.1rem .3rem; vertical-align:middle;
 }
 .thes-badge-sacred-inline {
-  font-size:.65rem; font-weight:700; background:#ede9fe; color:#7c3aed;
-  border:1px solid #c4b5fd; border-radius:3px; padding:.05rem .25rem; vertical-align:middle;
+  font-size:.65rem; font-weight:700; background:var(--bdb-purple-subtle); color:var(--bdb-purple);
+  border:1px solid var(--bdb-purple); border-radius:3px; padding:.05rem .25rem; vertical-align:middle;
 }
 
 /* Tag / source modale */
 .thes-tag {
-  display:inline-block; background:#f0f4ff; color:#1d4ed8;
-  border:1px solid #bfdbfe; border-radius:.25rem;
+  display:inline-block; background:rgba(var(--bdb-primary-rgb),.06); color:var(--bs-primary);
+  border:1px solid var(--bdb-blue-subtle); border-radius:.25rem;
   font-size:.75rem; padding:.15rem .4rem; margin:.1rem .1rem 0 0;
 }
-.thes-source-item { font-size:.82rem; padding:.2rem 0; border-bottom:1px solid #f3f4f6; }
+.thes-source-item { font-size:.82rem; padding:.2rem 0; border-bottom:1px solid var(--bdb-border); }
 .thes-source-item:last-child { border-bottom:none; }
 
 /* Heatmap — composant inexistant en BS */
 .thes-heatmap-table { border-collapse:separate; border-spacing:3px; }
-.thes-heatmap-table th { font-size:.72rem; font-weight:600; color:#6c757d; padding:.25rem .4rem; }
+.thes-heatmap-table th { font-size:.72rem; font-weight:600; color:var(--app-text-muted); padding:.25rem .4rem; }
 .thes-heatmap-table th:first-child { min-width:90px; }
 .thes-heatmap-cell {
   width:60px; height:44px; border-radius:.3rem;
@@ -73,17 +98,26 @@
 .thes-heatmap-cell:hover { transform:scale(1.08); position:relative; z-index:1; }
 
 /* Barres ranking zones */
-.bar-track { height:8px; background:#e9ecef; border-radius:4px; overflow:hidden; flex:1; }
-.bar-fill  { height:100%; border-radius:4px; background:#60a5fa; transition:width .4s ease; }
+.bar-track { height:8px; background:var(--bs-secondary-bg); border-radius:4px; overflow:hidden; flex:1; }
+.bar-fill  { height:100%; border-radius:4px; background:var(--bs-primary); transition:width .4s ease; }
+
+/* Dashboard zones — labels alignés */
+.thes-zone-label { width:130px; font-size:.8rem; font-weight:500; text-align:right; flex-shrink:0; color:var(--app-text); }
+.thes-zone-value { width:55px; font-size:.78rem; font-weight:600; text-align:right; flex-shrink:0; color:var(--app-text-muted); font-variant-numeric:tabular-nums; }
+
+/* Dashboard qualité — labels alignés */
+.thes-quality-label { width:220px; font-size:.8rem; font-weight:500; flex-shrink:0; color:var(--app-text); }
+.thes-quality-progress { height:14px; border-radius:7px; }
+.thes-quality-pct { width:50px; font-size:.78rem; font-weight:600; text-align:right; flex-shrink:0; color:var(--app-text-muted); font-variant-numeric:tabular-nums; }
 
 /* Drop zone import */
 .thes-drop-zone {
-  border:2px dashed #93c5fd; border-radius:.75rem;
+  border:2px dashed rgba(var(--bdb-primary-rgb),.4); border-radius:.75rem;
   padding:1.5rem 1rem; text-align:center; cursor:pointer;
-  background:#eff6ff; transition:background .15s,border-color .15s;
+  background:rgba(var(--bdb-primary-rgb),.04); transition:background .15s,border-color .15s;
 }
-.thes-drop-zone:hover,.thes-drop-zone.drag-over { background:#dbeafe; border-color:#3b82f6; }
-.thes-drop-zone.file-ok { background:#f0fdf4; border-color:#22c55e; }
+.thes-drop-zone:hover,.thes-drop-zone.drag-over { background:var(--bdb-blue-subtle); border-color:var(--bs-primary); }
+.thes-drop-zone.file-ok { background:var(--bdb-green-subtle); border-color:var(--bdb-success); }
 
 /* Log terminal */
 .thes-import-log {
@@ -96,19 +130,19 @@
 .thes-import-log .log-err  { color:#f87171; }
 
 /* Icône IA violet custom */
-.thes-ai-icon { color:#7c3aed; }
+.thes-ai-icon { color:var(--bdb-purple); }
 
 /* Bouton IA violet custom */
-.thes-ai-btn { border:1px solid #7c3aed; color:#7c3aed; background:#faf5ff; }
-.thes-ai-btn:hover { background:#ede9fe; color:#6d28d9; border-color:#6d28d9; }
+.thes-ai-btn { border:1px solid var(--bdb-purple); color:var(--bdb-purple); background:var(--bdb-purple-light); }
+.thes-ai-btn:hover { background:var(--bdb-purple-subtle); color:var(--bdb-purple); border-color:var(--bdb-purple); }
 
 /* Alerte admin border-left custom */
-.thes-admin-alert { border-left:4px solid #f59e0b; }
+.thes-admin-alert { border-left:4px solid var(--bs-warning); }
 
 /* Champs sacrés readonly */
 #editLibelleCible[readonly],#editFrequence[readonly],
 #adminLibelle[readonly],#adminFrequence[readonly] {
-  background-color:#f8f9fa; color:#6c757d; cursor:not-allowed;
+  background-color:var(--bdb-bg); color:var(--app-text-muted); cursor:not-allowed;
 }
 
 /* Comparaison chirurgiens */
@@ -124,7 +158,7 @@
 
 /* KPI cards chirurgien */
 .thes-chir-kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:.75rem; margin-bottom:1.25rem; }
-.thes-chir-kpi-card { padding:1rem 1.1rem; border-radius:.75rem; border:1px solid #e5e7eb; background:#fff;
+.thes-chir-kpi-card { padding:1rem 1.1rem; border-radius:.75rem; border:1px solid var(--bdb-border); background:var(--app-card-bg);
   display:flex; align-items:flex-start; gap:.75rem; transition:transform .15s,box-shadow .15s; }
 .thes-chir-kpi-card:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.06); }
 .thes-chir-kpi-icon { width:40px; height:40px; border-radius:.5rem; display:flex; align-items:center; justify-content:center;
@@ -136,11 +170,11 @@
 .thes-chir-kpi-icon.red    { background:#fee2e2; color:#dc2626; }
 .thes-chir-kpi-icon.cyan   { background:#cffafe; color:#0891b2; }
 .thes-chir-kpi-val { font-size:1.5rem; font-weight:700; line-height:1.1; }
-.thes-chir-kpi-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:#6b7280; margin-top:.15rem; }
+.thes-chir-kpi-label { font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--app-text-muted); margin-top:.15rem; }
 
 /* Section headers chirurgien */
 .thes-section-title { font-size:.85rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
-  color:#374151; margin-bottom:.75rem; padding-bottom:.4rem; border-bottom:2px solid #e5e7eb; }
+  color:var(--app-text); margin-bottom:.75rem; padding-bottom:.4rem; border-bottom:2px solid var(--bdb-border); }
 .thes-section-title i { margin-right:.4rem; opacity:.6; }
 
 /* Pareto table premium */
@@ -150,30 +184,465 @@
 .thes-pareto-rank.silver { background:#f3f4f6; color:#4b5563; }
 .thes-pareto-rank.bronze { background:#fed7aa; color:#9a3412; }
 .thes-pareto-rank.normal { background:#f9fafb; color:#9ca3af; }
-.thes-pct-bar { height:6px; border-radius:3px; background:#e5e7eb; overflow:hidden; min-width:60px; }
+.thes-pct-bar { height:6px; border-radius:3px; background:var(--bdb-border); overflow:hidden; min-width:60px; }
 .thes-pct-fill { height:100%; border-radius:3px; transition:width .4s ease; }
 
 /* Rare interventions alert */
-.thes-rare-alert { border-left:4px solid #f59e0b; background:#fffbeb; border-radius:0 .5rem .5rem 0; }
+.thes-rare-alert { border-left:4px solid var(--bs-warning); background:var(--bdb-amber-subtle); border-radius:0 .5rem .5rem 0; }
 
 /* Zone bars premium */
 .thes-zone-bar-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.5rem; }
-.thes-zone-bar-label { width:130px; font-size:.78rem; font-weight:500; text-align:right; color:#374151; flex-shrink:0; }
-.thes-zone-bar-track { flex:1; height:10px; background:#f3f4f6; border-radius:5px; overflow:hidden; }
+.thes-zone-bar-label { width:130px; font-size:.78rem; font-weight:500; text-align:right; color:var(--app-text); flex-shrink:0; }
+.thes-zone-bar-track { flex:1; height:10px; background:var(--bdb-bg-alt); border-radius:5px; overflow:hidden; }
 .thes-zone-bar-fill { height:100%; border-radius:5px; transition:width .5s ease; }
-.thes-zone-bar-val { width:50px; font-size:.75rem; font-weight:600; color:#6b7280; text-align:right; }
+.thes-zone-bar-val { width:50px; font-size:.75rem; font-weight:600; color:var(--app-text-muted); text-align:right; }
 
 /* Comparison premium */
 .thes-compare-header { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:1rem; }
-.thes-compare-vs { font-size:1.5rem; font-weight:800; color:#d1d5db; }
+.thes-compare-vs { font-size:1.5rem; font-weight:800; color:var(--bdb-border); }
 .thes-compare-name { font-size:1.1rem; font-weight:700; padding:.4rem 1rem; border-radius:.5rem; }
-.thes-compare-name.a { background:#dbeafe; color:#1d4ed8; }
-.thes-compare-name.b { background:#dcfce7; color:#15803d; }
-.thes-compare-metric-row { display:flex; align-items:center; padding:.6rem 0; border-bottom:1px solid #f3f4f6; }
+.thes-compare-name.a { background:var(--bdb-blue-subtle); color:var(--bs-primary); }
+.thes-compare-name.b { background:var(--bdb-green-subtle); color:var(--bdb-success); }
+.thes-compare-metric-row { display:flex; align-items:center; padding:.6rem 0; border-bottom:1px solid var(--bdb-border); }
 .thes-compare-metric-row:last-child { border-bottom:none; }
-.thes-compare-metric-label { flex:1; font-size:.82rem; font-weight:500; color:#6b7280; text-align:center; }
+.thes-compare-metric-label { flex:1; font-size:.82rem; font-weight:500; color:var(--app-text-muted); text-align:center; }
 .thes-compare-metric-val { width:100px; text-align:center; font-size:1.1rem; font-weight:700; }
 
 /* Loading skeleton chirurgien */
-.thes-loading-block { text-align:center; padding:3rem 1rem; color:#9ca3af; }
+.thes-loading-block { text-align:center; padding:3rem 1rem; color:var(--bdb-text-light); }
 .thes-loading-block i { font-size:2rem; margin-bottom:.75rem; display:block; opacity:.3; }
+
+/* ═══════════════════════════════════════════════════
+   REMPLACEMENT style= statiques (D-2026-03-15-T04)
+   ═══════════════════════════════════════════════════ */
+.thes-kpi-purple         { color:var(--bdb-purple); }
+.thes-kpi-cyan           { color:var(--bdb-info-dark); }
+.thes-col-rank-cell      { width:44px; }
+.thes-col-nb-cell        { width:55px; }
+.thes-col-part-cell      { width:100px; }
+.thes-col-cum-cell       { width:60px; }
+.thes-badge-tiny         { font-size:.6rem; }
+.thes-scroll-260         { max-height:260px; overflow-y:auto; }
+.thes-col-40             { width:40px; }
+.thes-col-50             { width:50px; }
+
+/* ═══════════════════════════════════════════════════
+   MODALE DÉTAIL — Sections structurées UX premium
+   ═══════════════════════════════════════════════════ */
+.thes-detail-section {
+  background:var(--bdb-bg); border:1px solid var(--bdb-border); border-radius:.5rem; padding:1rem 1.1rem;
+}
+.thes-detail-section-title {
+  font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--app-text-muted); margin-bottom:.6rem; padding-bottom:.35rem; border-bottom:1px solid var(--bdb-border);
+}
+.thes-detail-section-title i { opacity:.5; }
+.thes-detail-label {
+  font-size:.7rem; font-weight:600; color:var(--bdb-text-light); text-transform:uppercase; letter-spacing:.04em;
+  margin-bottom:.15rem;
+}
+.thes-detail-value { font-size:.88rem; color:var(--bdb-text); }
+
+/* Proposition nouvel acte — bandeau discret */
+.thes-proposition {
+  background:rgba(var(--bdb-primary-rgb),.04); border:1px solid var(--bdb-blue-subtle); border-radius:.4rem;
+  padding:.5rem .75rem; font-size:.82rem; color:var(--bs-primary);
+}
+.thes-proposition::before {
+  content:'✦ '; font-size:.7rem; opacity:.6;
+}
+
+/* Définition expert — typographie améliorée */
+.thes-expert-wrapper {
+  background:var(--bdb-bg); border:1px solid var(--bdb-border); border-radius:.5rem; padding:1.25rem;
+}
+.thes-expert-header { display:flex; align-items:center; }
+.thes-expert-content {
+  font-size:.92rem; line-height:1.65; color:var(--bdb-text);
+  white-space:pre-line;
+}
+
+/* Skeleton loader — BS placeholder-glow compatible */
+.thes-skeleton {
+  padding:2rem 1rem; text-align:center;
+}
+.thes-skeleton-row {
+  height:12px; background:var(--bdb-border); border-radius:6px; margin-bottom:.6rem;
+  animation:thes-pulse 1.5s ease-in-out infinite;
+}
+.thes-skeleton-row:nth-child(2) { width:85%; }
+.thes-skeleton-row:nth-child(3) { width:70%; }
+.thes-skeleton-row:nth-child(4) { width:90%; }
+@keyframes thes-pulse {
+  0%,100% { opacity:.4; }
+  50% { opacity:1; }
+}
+
+/* ═══════════════════════════════════════════════════
+   RECATÉGORISATION — Onglet CRUD admin
+   ═══════════════════════════════════════════════════ */
+.thes-recat-batch-select { max-width:350px; }
+.thes-recat-col-proto { min-width:280px; }
+.thes-recat-col-actions { width:110px; }
+.thes-recat-note-full { white-space:pre-wrap; }
+#recatTable .recat-proto-input { font-size:.78rem; padding:.2rem .4rem; }
+#recatTable td { vertical-align:middle; }
+
+/* ═══════════════════════════════════════════════════
+   RAPPROCHEMENT FICHES — Onglet 7 admin
+   ═══════════════════════════════════════════════════ */
+.thes-rappr-summary-wrap { max-height:260px; overflow-y:auto; }
+.thes-rappr-main-wrap { overflow-x:auto; }
+.thes-rappr-chir-row { cursor:pointer; }
+.thes-rappr-chir-row:hover { background:rgba(var(--bdb-primary-rgb),.08); }
+.thes-rappr-active { background:rgba(var(--bdb-primary-rgb),.15); }
+.thes-rappr-sort-icon { font-size:.7rem; }
+.thes-rappr-id-input { min-width:110px; }
+.thes-rappr-statut-select { font-size:.8rem; min-width:150px; }
+.thes-rappr-notes-cell { background:var(--bdb-amber-subtle); min-width:80px; }
+#rapprMainTable td { vertical-align:middle; }
+
+/* ═══════════════════════════════════════════════════
+   CCAM OT — Refonte V2 (pills + slide-over)
+   ═══════════════════════════════════════════════════ */
+
+/* ── Pills internes ───────────────────────────────── */
+.thes-ccam-pills .nav-link {
+  font-size: .82rem;
+  padding: .35rem .75rem;
+  border-radius: .375rem;
+  color: var(--app-text);
+}
+.thes-ccam-pills .nav-link.active {
+  background: var(--bs-primary);
+  color: var(--app-card-bg);
+}
+.thes-ccam-pills .nav-link:not(.active):hover {
+  background: var(--bs-secondary-bg);
+}
+
+/* ── View A — Table protocoles ────────────────────── */
+.thes-ccam-table { font-size: .85rem; }
+.thes-ccam-col-liens { min-width: 160px; }
+
+/* ── View B — Classeurs accordéon ─────────────────── */
+.thes-ccam-chap-btn { font-size: .85rem; }
+.thes-ccam-chap-btn .badge { font-size: .7rem; }
+
+.thes-ccam-section-row {
+  padding: .25rem .5rem;
+  line-height: 1.5;
+  border-bottom: 1px solid var(--bdb-border);
+}
+.thes-ccam-section-row:hover {
+  background: var(--bdb-bg);
+}
+.thes-ccam-section-toggle {
+  width: 22px;
+  color: var(--app-text-muted);
+}
+.thes-ccam-indent-spacer { width: 22px; }
+.thes-ccam-section-children {
+  padding-left: 1rem;
+}
+.thes-ccam-actes-table {
+  border-left: 3px solid var(--bs-border-color);
+  padding-left: .5rem;
+}
+.thes-ccam-table-compact { font-size: .8rem; }
+.thes-ccam-table-compact th { font-weight: 600; font-size: .75rem; text-transform: uppercase; color: var(--app-text-muted); }
+
+/* Scrollable containers */
+.thes-ccam-scroll-400 { max-height: 400px; overflow-y: auto; }
+.thes-ccam-scroll-300 { max-height: 300px; overflow-y: auto; }
+
+/* ── Slide-over ───────────────────────────────────── */
+.thes-ccam-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1054;
+  background: rgba(0, 0, 0, .2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.thes-ccam-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.thes-ccam-slideover {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 60vw;
+  max-width: 95vw;
+  min-width: 380px;
+  z-index: 1055;
+  background: var(--app-card-bg);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, .08);
+  transform: translateX(100%);
+  transition: transform .25s ease;
+  display: flex;
+  flex-direction: column;
+}
+.thes-ccam-slideover.active {
+  transform: translateX(0);
+}
+
+.thes-ccam-slideover-header {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--bdb-border);
+  background: var(--bdb-bg);
+  flex-shrink: 0;
+}
+
+.thes-ccam-slideover-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.thes-ccam-slide-results {
+  max-height: calc(100vh - 380px);
+  overflow-y: auto;
+  border: 1px solid var(--bdb-border);
+  border-radius: .375rem;
+}
+.thes-ccam-slide-results table { margin-bottom: 0; }
+.thes-ccam-slide-results th { font-size: .75rem; text-transform: uppercase; color: var(--app-text-muted); position: sticky; top: 0; background: var(--app-card-bg); }
+
+/* Body lock when slide open */
+body.thes-ccam-slide-open {
+  overflow: hidden;
+}
+
+/* ── Slide-over sections ──────────────────────────── */
+.thes-ccam-slide-section {
+  border: 1px solid var(--bdb-border);
+  border-radius: .5rem;
+  overflow: hidden;
+}
+.thes-ccam-slide-section-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: .5rem .75rem;
+  border: none;
+  background: var(--bdb-bg);
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--app-text);
+  cursor: pointer;
+  text-align: left;
+}
+.thes-ccam-slide-section-toggle:hover { background: var(--bdb-bg-alt); }
+.thes-ccam-slide-section-toggle .thes-ccam-chevron { transition: transform .2s; }
+.thes-ccam-slide-section-toggle[aria-expanded="false"] .thes-ccam-chevron { transform: rotate(-90deg); }
+.thes-ccam-slide-section-body { padding: .75rem; }
+
+/* ── CCAM code preview ────────────────────────────── */
+.thes-ccam-code-preview-row {
+  padding: .4rem .5rem;
+  border-radius: .35rem;
+  border: 1px solid var(--bdb-border);
+  background: var(--bdb-bg);
+  margin-bottom: .35rem;
+}
+
+/* ── Interventions wrap ───────────────────────────── */
+.thes-ccam-slide-interv-wrap {
+  max-height: 350px;
+  overflow-y: auto;
+  border: 1px solid var(--bdb-border);
+  border-radius: .375rem;
+}
+
+/* ── Doublons hop-link ────────────────────────────── */
+.thes-ccam-hop-link {
+  cursor: pointer;
+  color: var(--bs-primary);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+.thes-ccam-hop-link:hover {
+  text-decoration-style: solid;
+}
+
+/* ── Panneau réassignement ────────────────────────── */
+.thes-ccam-reassign-panel {
+  padding: .75rem;
+  border: 2px solid var(--bs-primary);
+  border-radius: .5rem;
+  background: rgba(var(--bdb-primary-rgb),.04);
+}
+.thes-ccam-reassign-list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+.thes-ccam-reassign-row {
+  display: flex;
+  align-items: center;
+  padding: .4rem .5rem;
+  border-radius: .35rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  margin-bottom: 2px;
+}
+.thes-ccam-reassign-row:hover {
+  background: var(--bdb-blue-subtle);
+  border-color: rgba(var(--bdb-primary-rgb),.4);
+}
+
+/* ── Keyword chips ────────────────────────────────── */
+.ccam-kw-chip {
+  font-size: .72rem;
+  padding: .15rem .45rem;
+  margin-bottom: .25rem;
+}
+
+/* ── Inline note editing ──────────────────────────── */
+.thes-ccam-note-cell {
+  cursor: text;
+  border-radius: .25rem;
+  transition: background .15s;
+}
+.thes-ccam-note-cell:hover {
+  background: var(--bdb-amber-subtle);
+}
+.thes-ccam-note-input {
+  font-size: .8rem;
+  padding: .15rem .35rem;
+}
+
+/* ── Panneau glossaire ────────────────────────────── */
+.thes-ccam-glossaire-panel {
+  padding: .75rem;
+  border: 2px solid var(--bs-info);
+  border-radius: .5rem;
+  background: var(--bdb-cyan-subtle);
+}
+
+/* ── Arbre hiérarchique CCAM (fusionné depuis ccam-ui-additions.css) ─── */
+.thes-ccam-tree-wrap {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--bdb-border);
+  border-radius: .5rem;
+  padding: .5rem;
+  background: var(--bdb-bg);
+}
+.thes-ccam-tree-item {
+  padding: .2rem 0;
+  line-height: 1.4;
+}
+.thes-ccam-tree-item .ccam-tree-toggle {
+  width: 20px;
+  color: var(--app-text-muted);
+}
+.ccam-tree-leaf {
+  cursor: pointer;
+  border-radius: .25rem;
+  padding: .1rem .3rem;
+}
+.ccam-tree-leaf:hover {
+  background: var(--bdb-blue-subtle);
+}
+
+/* ── Lien row (shared slide + View B) ─────────────── */
+.thes-ccam-link-row {
+  padding: .35rem .5rem;
+  border-radius: .35rem;
+  border: 1px solid var(--bdb-border);
+  background: var(--bdb-bg);
+}
+.thes-ccam-link-row:hover {
+  background: rgba(var(--bdb-primary-rgb),.04);
+}
+
+/* ═══════════════════════════════════════════════════
+   ADMIN CRUD — Header card vertical layout
+   ═══════════════════════════════════════════════════ */
+
+/* Header admin empilé : titre+btn, filtres, compteur */
+.thes-admin-header {
+  flex-direction: column;
+  align-items: stretch;
+  gap: .75rem;
+}
+
+/* Barre filtres — horizontal wrap */
+.thes-admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+}
+
+/* Champ recherche admin avec icône */
+.thes-admin-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 160px;
+  max-width: 260px;
+}
+.thes-admin-search-icon {
+  position: absolute;
+  left: .7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--app-text-muted);
+  font-size: .8rem;
+  pointer-events: none;
+}
+.thes-admin-search-input {
+  padding-left: 2rem;
+}
+
+/* Compteur résultats */
+.thes-admin-count {
+  font-size: .8rem;
+  color: var(--app-text-muted);
+}
+.thes-admin-count-value {
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE — 768px et moins
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .thes-admin-search-wrap {
+    max-width: none;
+    flex-basis: 100%;
+  }
+  .thes-col-zone,
+  .thes-col-pareto {
+    display: none;
+  }
+  .thes-col-libelle {
+    min-width: 140px;
+  }
+  .thes-chir-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .thes-col-type {
+    display: none;
+  }
+  .thes-col-libelle {
+    min-width: 100px;
+  }
+  .thes-chir-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

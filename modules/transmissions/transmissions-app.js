@@ -37,17 +37,6 @@ let modalTransmission, modalDetail, modalLightbox, modalConfirm;
 let searchDebounce;
 
 /* ─── TOAST ──────────────────────────────────────────────── */
-function showToast(msg, type = 'info') {
-  document.getElementById('toastMsg').textContent = msg;
-  document.getElementById('toastIcon').className = 'bi me-2 ' + (
-    type === 'error'   ? 'bi-x-circle-fill text-danger' :
-    type === 'success' ? 'bi-check-circle-fill text-success' :
-                         'bi-info-circle-fill text-primary'
-  );
-  document.getElementById('toastTitle').textContent =
-    type === 'error' ? 'Erreur' : type === 'success' ? 'Succès' : 'Info';
-  bootstrap.Toast.getOrCreateInstance(document.getElementById('toastInfo')).show();
-}
 
 /* ─── MODALE CONFIRMATION (E2 — remplace confirm() natif) ── */
 function showConfirm({ title, msg, btnLabel, btnClass, onConfirm }) {
@@ -107,18 +96,15 @@ async function loadTags() {
     .select('id, label_display, label_normalized, type')
     .in('type', TYPES).eq('is_locked', false).order('label_display');
   /* Bug B2 : GET /tags → 400 possible (colonne type cloud). Warning, pas crash. */
-  if (error) { console.warn('loadTags:', error.message); return; }
+  if (error) return;
   state.allTags = data || [];
 }
 
 async function syncTags(transmissionId, tagIds) {
-  const { error: delErr } = await DB.from('tag_links').delete().eq('content_type', 'transmission').eq('content_id', transmissionId);
-  if (delErr) console.warn('syncTags DELETE:', delErr.message);
+  const { error: delErr } = await DB.from('tag_links').delete().eq('content_type', 'transmission').eq('content_id', transmissionId).select(); // UX06 : caller confirms
   if (tagIds.length > 0) {
     const payload = tagIds.map(tid => ({ content_type: 'transmission', content_id: transmissionId, tag_id: tid }));
-    const { data, error } = await DB.from('tag_links').insert(payload).select();
-    if (error) console.warn('syncTags INSERT:', error.message, error.code, error.details);
-    if (!data?.length) console.warn('syncTags INSERT: 0 rows returned — probable RLS denial', payload);
+    await DB.from('tag_links').insert(payload).select();
   }
 }
 
@@ -144,7 +130,16 @@ async function getSignedUrl(storagePath) {
 }
 
 /* ─── LOAD TRANSMISSIONS ─────────────────────────────────── */
+async function loadDemoData() {
+  const { data } = await window.bdb.from('demo_transmissions').select('*');
+  state.transmissions = (data || []).map(t => ({
+    ...t, profile: null, images: [], centralTags: []
+  }));
+  renderList();
+}
+
 async function loadTransmissions() {
+  if (window.bdbIsDemo && window.bdbIsDemo()) { await loadDemoData(); return; }
   const list = document.getElementById('transmissionsList');
   /* E1 CORRIGÉ : skeleton loader (remplace spinner-border — D-2026-03-16-T06) */
   list.innerHTML = `
@@ -260,11 +255,6 @@ function authorInitials(profile) {
   return authorName(profile).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
-function escHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
 
 /* ─── RENDER LIST ────────────────────────────────────────── */
 function renderList() {
@@ -286,7 +276,12 @@ function renderList() {
   container.innerHTML = state.transmissions.map(t => renderCard(t)).join('');
 
   container.querySelectorAll('[data-view-id]').forEach(el => {
-    el.addEventListener('click', () => openDetail(el.dataset.viewId));
+    el.addEventListener('click', e => {
+      // Fix S128 : ignore clicks venant du menu contextuel (3 dots dropdown)
+      // sinon le click bubble depuis le bouton dropdown ouvre aussi la modale détail
+      if (e.target.closest('.dropdown')) return;
+      openDetail(el.dataset.viewId);
+    });
   });
   container.querySelectorAll('[data-edit-id]').forEach(el => {
     el.addEventListener('click', e => { e.stopPropagation(); openEditModal(el.dataset.editId); });
@@ -305,7 +300,7 @@ function renderCard(t) {
   /* C1 CORRIGÉ : style inline avatar → class trans-avatar-circle (dans transmissions-ui.css) */
   const avatarHtml = profile?.avatar_url
     ? `<img src="${escHtml(profile.avatar_url)}" alt="" class="rounded-circle trans-avatar-img">`
-    : `<div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold trans-avatar-circle">${escHtml(initials)}</div>`;
+    : `<div class="rounded-circle trans-avatar-bg d-flex align-items-center justify-content-center fw-bold trans-avatar-circle">${escHtml(initials)}</div>`;
 
   const excerpt  = escHtml(stripHtml(t.content).slice(0, 150) + (stripHtml(t.content).length > 150 ? '...' : ''));
   /* style= OK : couleur dynamique Supabase D-2026-03-15-T04 */
@@ -366,7 +361,7 @@ function renderCard(t) {
             ${catBadge ? `<div class="mt-2">${catBadge}</div>` : ''}
             <p class="text-muted small mt-2 mb-1">${excerpt}</p>
             ${tagsHtml ? `<div class="d-flex flex-wrap gap-1 mt-1">${tagsHtml}</div>` : ''}
-            <div class="text-primary small mt-1 fw-medium">Voir le détail <i class="bi bi-chevron-right"></i></div>
+            <div class="trans-text-module small mt-1 fw-medium">Voir le détail <i class="bi bi-chevron-right"></i></div>
           </div>
         </div>
       </div>
@@ -443,13 +438,16 @@ async function openDetail(id) {
       ${t.status === 'open' ? `<button class="btn btn-outline-secondary btn-sm" id="btnDetailArchive"><i class="bi bi-archive me-1"></i>Archiver</button>` : ''}
       <button class="btn btn-outline-danger btn-sm" id="btnDetailDelete"><i class="bi bi-trash me-1"></i>Supprimer</button>`;
 
-    actionsDiv.querySelector('#btnDetailEdit')?.addEventListener('click', () => {
+    actionsDiv.querySelector('#btnDetailEdit')?.addEventListener('click', (e) => {
+      e.currentTarget.blur();
       modalDetail.hide(); openEditModal(t.id);
     });
-    actionsDiv.querySelector('#btnDetailArchive')?.addEventListener('click', () => {
+    actionsDiv.querySelector('#btnDetailArchive')?.addEventListener('click', (e) => {
+      e.currentTarget.blur();
       modalDetail.hide(); archiveTransmission(t.id);
     });
-    actionsDiv.querySelector('#btnDetailDelete')?.addEventListener('click', () => {
+    actionsDiv.querySelector('#btnDetailDelete')?.addEventListener('click', (e) => {
+      e.currentTarget.blur();
       modalDetail.hide(); deleteTransmission(t.id);
     });
   } else {
@@ -488,7 +486,7 @@ async function openEditModal(id) {
 
   const { data: t } = await DB.from('transmissions')
     .select('*, category:categories(*)').eq('id', id).maybeSingle();
-  if (!t) { showToast('Transmission introuvable', 'error'); return; }
+  if (!t) { bdbToast('Transmission introuvable', 'danger'); return; }
 
   document.getElementById('formTitle').value    = t.title;
   document.getElementById('formCategory').value = t.category_id || '';
@@ -514,9 +512,9 @@ async function openEditModal(id) {
 
 /* ─── IMAGE UPLOAD ───────────────────────────────────────── */
 async function uploadImageFile(file) {
-  if (state.formImages.length >= 3) { showToast('Maximum 3 images par transmission', 'error'); return; }
-  if (!file.type.startsWith('image/')) { showToast('Seules les images sont acceptées', 'error'); return; }
-  if (file.size > 5 * 1024 * 1024) { showToast('Image trop lourde (max 5 Mo)', 'error'); return; }
+  if (state.formImages.length >= 3) { bdbToast("3 images maximum — retirez-en une pour continuer", 'danger'); return; }
+  if (!file.type.startsWith('image/')) { bdbToast("Ce fichier n'est pas une image — choisissez un fichier image", 'danger'); return; }
+  if (file.size > 5 * 1024 * 1024) { bdbToast("Cette image dépasse 5 Mo — choisissez-en une plus légère", 'danger'); return; }
 
   const progressBar  = document.getElementById('uploadProgressBar');
   const progressText = document.getElementById('uploadProgressText');
@@ -531,7 +529,7 @@ async function uploadImageFile(file) {
   const { error } = await DB.storage.from('content-images').upload(path, file, { contentType: file.type, upsert: false });
   if (error) {
     progressDiv.classList.add('d-none');
-    showToast('Erreur upload : ' + error.message, 'error');
+    bdbToast("L'image n'a pu être envoyée — réessayez dans un instant", 'danger');
     return;
   }
 
@@ -583,7 +581,7 @@ function renderTagSelector(searchVal = '') {
   if (selectedTags.length > 0) {
     /* C5 CORRIGÉ : style="cursor:pointer" → class="cds-clickable" */
     selected.innerHTML = selectedTags.map(t =>
-      `<span class="badge bg-primary me-1 mb-1 cds-clickable" data-remove-tag="${t.id}">
+      `<span class="badge trans-badge-module me-1 mb-1 cds-clickable" data-remove-tag="${t.id}">
         #${escHtml(t.label_display)} <i class="bi bi-x ms-1"></i>
       </span>`
     ).join('');
@@ -610,7 +608,7 @@ function renderTagSelector(searchVal = '') {
 
   suggestions.querySelectorAll('[data-add-tag]').forEach(el => {
     el.addEventListener('click', () => {
-      if (state.formTagIds.length >= 5) { showToast('Maximum 5 tags', 'error'); return; }
+      if (state.formTagIds.length >= 5) { bdbToast("5 tags maximum — retirez-en un pour continuer", 'danger'); return; }
       if (!state.formTagIds.includes(el.dataset.addTag)) {
         state.formTagIds.push(el.dataset.addTag);
         renderTagSelector();
@@ -651,8 +649,8 @@ async function saveTransmission() {
 
       if (state.contentTypeId) {
         /* Delete all + re-insert all — élimine 409 Conflict sur unicité position */
-        await DB.from('content_images').delete()
-          .eq('content_type_id', state.contentTypeId).eq('content_id', transmissionId);
+        await DB.from('content_images').delete() // UX06 : caller confirms
+          .eq('content_type_id', state.contentTypeId).eq('content_id', transmissionId).select();
         const toInsert = state.formImages.filter(i => i.storage_path);
         /* position 1-based — CHECK constraint content_images_position_check */
         if (toInsert.length) {
@@ -681,7 +679,7 @@ async function saveTransmission() {
 
     await syncTags(transmissionId, state.formTagIds);
     modalTransmission.hide();
-    showToast(state.editingId ? 'Transmission modifiée.' : 'Transmission créée.', 'success');
+    bdbToast(state.editingId ? 'Transmission modifiée.' : 'Transmission créée.', 'success');
     await Promise.all([loadStats(), loadTransmissions()]);
 
   } catch (err) {
@@ -701,9 +699,9 @@ function archiveTransmission(id) {
     btnLabel : 'Archiver',
     btnClass : 'btn-secondary',
     onConfirm: async () => {
-      const { error } = await DB.from('transmissions').update({ status: 'archived' }).eq('id', id);
-      if (error) { showToast(error.message, 'error'); return; }
-      showToast('Transmission archivée.', 'success');
+      const { error } = await DB.from('transmissions').update({ status: 'archived' }).eq('id', id).select();
+      if (error) { bdbToast(error.message, 'danger'); return; }
+      bdbToast('Transmission archivée.', 'success');
       await Promise.all([loadStats(), loadTransmissions()]);
     },
   });
@@ -716,9 +714,9 @@ function deleteTransmission(id) {
     btnLabel : 'Supprimer',
     btnClass : 'btn-danger',
     onConfirm: async () => {
-      const { error } = await DB.from('transmissions').update({ status: 'deleted' }).eq('id', id);
-      if (error) { showToast(error.message, 'error'); return; }
-      showToast('Transmission supprimée.', 'success');
+      const { error } = await DB.from('transmissions').update({ status: 'deleted' }).eq('id', id).select();
+      if (error) { bdbToast(error.message, 'danger'); return; }
+      bdbToast('Transmission supprimée.', 'success');
       await Promise.all([loadStats(), loadTransmissions()]);
     },
   });
@@ -734,25 +732,6 @@ function applyFilters() {
     priority: document.getElementById('btnFilterPriority').classList.contains('btn-danger'),
   };
   loadTransmissions();
-}
-
-/* ─── CDS RESILIENCE HELPERS ─────────────────────────────── */
-function cdsShowGridError(el, msg, retryFn) {
-  if (!el) return;
-  const retryBtn = retryFn
-    ? `<button class="btn btn-sm btn-outline-danger cds-error-retry" id="cdsRetryBtn">
-         <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-       </button>` : '';
-  el.innerHTML = `<div class="cds-error-state col-12">
-    <i class="bi bi-wifi-off cds-error-icon"></i>
-    <div class="cds-error-title">Données non chargées</div>
-    <div class="cds-error-msg">${escHtml(msg) || 'Impossible de contacter le serveur.'}</div>
-    ${retryBtn}
-  </div>`;
-  if (retryFn) {
-    const btn = el.querySelector('#cdsRetryBtn');
-    if (btn) btn.addEventListener('click', retryFn);
-  }
 }
 
 /* ─── INIT ───────────────────────────────────────────────── */
@@ -784,14 +763,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('.ql-container').forEach(c => c.style.height = 'auto');
   document.querySelectorAll('.ql-editor').forEach(e => { e.style.height = 'auto'; e.style.minHeight = '120px'; });
 
-  document.querySelectorAll('.dropdown').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+  /* Fix S128 v2 : guard déplacé dans le handler [data-view-id] directement
+     (cf. renderList ligne ~278). Plus besoin de délégation ici. */
 
   /* C.9 — référentiels : throw + catch centralisé. Si les fondations cassent, le module s'arrête. */
   try {
     await Promise.all([loadContentTypeId(), loadCategories(), loadTags()]);
   } catch (err) {
     cdsShowGridError(document.getElementById('transmissionsList'),
-      'Impossible de charger les référentiels. Rechargez la page.', () => location.reload());
+      'Impossible de charger les référentiels. Rechargez la page.',
+      // UX32 : reload justifie — recuperation d'erreur fatale d'initialisation
+      () => location.reload());
     return;
   }
   await Promise.all([loadStats(), loadTransmissions()]);

@@ -4,15 +4,6 @@
 // UTILITAIRES
 // ════════════════════════════════════════════════════════════
 
-function escHtml(str) {
-  if (str == null) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 function showToast(msg, type = 'success') {
   // Toast Bootstrap natif — autonome, sans dépendance externe
@@ -156,7 +147,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await Promise.all([loadRules(), loadConfig()]);
     await loadSante();
   } catch (err) {
-    console.error('[supervision] init error:', err);
   }
 
   // ── Audit ────────────────────────────────────────────────
@@ -338,7 +328,7 @@ async function scanLocalFolder() {
     // Scan modules/ et croisement avec app_modules
     await crossCheckModules(dirHandle);
   } catch (err) {
-    if (err.name !== 'AbortError') showToast('Erreur accès dossier : ' + err.message, 'error');
+    if (err.name !== 'AbortError') showToast("Le dossier n'a pu être ouvert — vérifiez les permissions", 'error');
   }
 }
 
@@ -350,7 +340,7 @@ async function crossCheckModules(dirHandle) {
       if (handle.kind === 'directory') diskModules.push(name);
     }
   } catch {
-    showToast('Dossier modules/ introuvable à la racine.', 'error');
+    showToast("Le dossier modules/ est introuvable — vérifiez la sélection", 'error');
     return;
   }
 
@@ -438,7 +428,7 @@ function initDropzone() {
 
 function auditFile(file) {
   if (!state.rules.length) {
-    showToast('Aucune règle active — audit impossible.', 'error');
+    showToast("Chargez d'abord les règles pour lancer l'audit", 'error');
     return;
   }
   const reader = new FileReader();
@@ -583,7 +573,7 @@ async function importRulesMd() {
     const text = await file.text();
     parseMdRules(file.name, text);
   } catch (err) {
-    if (err.name !== 'AbortError') showToast('Erreur lecture fichier : ' + err.message, 'error');
+    if (err.name !== 'AbortError') showToast("Le fichier n'a pu être lu — vérifiez qu'il est accessible", 'error');
   }
 }
 
@@ -617,7 +607,7 @@ function parseMdRules(filename, text) {
   const removed    = state.rules.filter(r => !newKeys.includes(r.rule_key));
 
   if (!added.length && !removed.length) {
-    showToast('Aucun écart détecté — règles déjà à jour.', 'success');
+    showToast("Les règles sont déjà à jour — aucun écart détecté.", 'success');
     return;
   }
 
@@ -656,7 +646,7 @@ async function validateDelta() {
         .from('supervision_rules')
         .update({ is_active: false })
         .in('rule_key', removed.map(r => r.rule_key))
-        .eq('doc_key', docKey);
+        .eq('doc_key', docKey).select();
       if (error) throw new Error(error.message);
     }
 
@@ -673,7 +663,7 @@ async function validateDelta() {
     const { error: cfgErr } = await DB()
       .from('supervision_config')
       .update({ version_active: version, validated_at: new Date().toISOString() })
-      .eq('doc_key', docKey);
+      .eq('doc_key', docKey).select();
     if (cfgErr) throw new Error(cfgErr.message);
 
     await loadRules();
@@ -681,7 +671,7 @@ async function validateDelta() {
     document.getElementById('conformiteDelta').classList.add('d-none');
     showToast('Règles mises à jour et validées.', 'success');
   } catch (err) {
-    showToast('Erreur validation : ' + err.message, 'error');
+    showToast("La validation n'a pu aboutir — réessayez", 'error');
   }
 }
 
@@ -835,7 +825,7 @@ async function saveModule() {
   };
 
   if (!patch.label) {
-    document.getElementById('modalModuleError').textContent = 'Le libellé est obligatoire.';
+    document.getElementById('modalModuleError').textContent = 'Un libellé est nécessaire pour continuer.';
     document.getElementById('modalModuleError').classList.remove('d-none');
     return;
   }
@@ -844,7 +834,7 @@ async function saveModule() {
   btn.disabled = true;
   btn.innerHTML = '<span class="supv-spin me-1"></span>Enregistrement…';
 
-  const { error } = await DB().from('app_modules').update(patch).eq('id', id);
+  const { error } = await DB().from('app_modules').update(patch).eq('id', id).select();
 
   btn.disabled = false;
   btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer';
@@ -918,7 +908,7 @@ async function saveSession() {
   const notes      = document.getElementById('modalSessionNotes').value.trim();
 
   if (!objective) {
-    document.getElementById('modalSessionError').textContent = 'L\'objectif est obligatoire.';
+    document.getElementById('modalSessionError').textContent = 'Un objectif est nécessaire pour continuer.';
     document.getElementById('modalSessionError').classList.remove('d-none');
     return;
   }
@@ -1315,7 +1305,7 @@ function updateAuditKpis() {
 function runAuditTables() {
   const raw = document.getElementById('pasteTables').value.trim();
   let data;
-  try { data = JSON.parse(raw); } catch { showToast('JSON invalide', 'error'); return; }
+  try { data = JSON.parse(raw); } catch { showToast("Le format du fichier n'est pas reconnu — vérifiez le contenu", 'error'); return; }
 
   auditState.realTables = data.map(r => typeof r === 'string' ? r : r.table_name).filter(Boolean);
   const findings = [];
@@ -1328,7 +1318,7 @@ function runAuditTables() {
 function runAuditRls() {
   const raw = document.getElementById('pasteRls').value.trim();
   let data;
-  try { data = JSON.parse(raw); } catch { showToast('JSON invalide', 'error'); return; }
+  try { data = JSON.parse(raw); } catch { showToast("Le format du fichier n'est pas reconnu — vérifiez le contenu", 'error'); return; }
 
   auditState.rlsData = data;
   const findings = [];
@@ -1391,7 +1381,7 @@ function runAuditCross() {
 function runAuditPs() {
   const raw = document.getElementById('pastePs').value.trim();
   let data;
-  try { data = JSON.parse(raw); } catch { showToast('JSON invalide', 'error'); return; }
+  try { data = JSON.parse(raw); } catch { showToast("Le format du fichier n'est pas reconnu — vérifiez le contenu", 'error'); return; }
 
   auditState.srcTables = data;
   const findings = [];
@@ -1478,13 +1468,13 @@ Sois concis et factuel. Pas d'introduction.`;
 
 async function purgeErreurs() {
   if (!state.isAdmin && !state.isLocal) return;
-  if (!confirm('Supprimer tous les logs 404 ? Cette action est irréversible.')) return;
+  if (!confirm("Purger tous les logs 404 ? Cette action ne peut pas être annulée.")) return;
   const { error } = await DB()
     .from('error_404_logs')
     .delete()
-    .neq('id', '00000000-0000-0000-0000-000000000000'); // supprimer tout
+    .neq('id', '00000000-0000-0000-0000-000000000000').select(); // supprimer tout
   if (error) {
-    showToast('Erreur purge : ' + error.message, 'error');
+    showToast("La purge n'a pu aboutir — réessayez", 'error');
     return;
   }
   state.erreurs = [];

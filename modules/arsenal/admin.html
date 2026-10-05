@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arsenal — Administration</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="arsenal-ui.css" rel="stylesheet"/>
+  <!-- 7 · JS média globaux (upload images modales) -->
+  <script src="../../js/bdb-media.js"></script>
+
+</head>
+
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <!-- SHELL — INTERDIT-E1 : premier enfant de <main> obligatoire -->
+  <div id="bdb-shell"
+       data-module-title="Arsenal — Administration"
+       data-module-icon="bi-box-seam"
+       data-root-path="../../"
+       data-login-mode="modal"
+       data-shell-kind="backoffice">
+  </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+      <!-- CONTENEUR PRINCIPAL MODULE -->
+  <div class="container-fluid flex-grow-1 p-0" id="arsenalMain">
+
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+      <a href="../admin/index.html" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Administration
+      </a>
+      <span class="text-muted">›</span>
+      <span class="small fw-medium">
+        <i class="bi bi-box-seam me-1 text-primary"></i>Arsenal
+      </span>
+    </div>
+
+    <!-- Note frontière classifications -->
+    <div class="px-3 pt-3 pb-0">
+      <div class="alert alert-info alert-sm py-2 mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        Les classifications (types matériel, zones, étagères) sont gérées dans
+        <a href="../admin/index.html" class="alert-link">l'administration générale</a>.
+      </div>
+    </div>
+
+    <!-- ── ONGLETS ── -->
+    <ul class="nav nav-tabs px-3 pt-2" id="arsenalTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" type="button"
+                data-tab="materiel" role="tab" aria-selected="true">
+          <i class="bi bi-tools me-2"></i>Matériel
+          <span class="badge bg-secondary ms-1" id="countMateriel">—</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" type="button"
+                data-tab="gants" role="tab" aria-selected="false">
+          <i class="bi bi-hand-index-thumb me-2"></i>Gants
+          <span class="badge bg-secondary ms-1" id="countGants">—</span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" type="button"
+                data-tab="casaques" role="tab" aria-selected="false">
+          <i class="bi bi-person-badge me-2"></i>Casaques
+          <span class="badge bg-secondary ms-1" id="countCasaques">—</span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- ══════════════════════════════════════════
+         TAB MATÉRIEL
+         ══════════════════════════════════════════ -->
+    <div id="tab-materiel">
+
+      <!-- Skeleton chargement — BLOC C.7 -->
+      <div id="arsenalSkeletonMateriel" class="placeholder-glow mb-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-3">
+            <div class="row g-2">
+              <div class="col-12 col-md-3"><span class="placeholder col-12 rounded ars-skel-row"></span></div>
+              <div class="col-6 col-md-2"><span class="placeholder col-12 rounded ars-skel-row"></span></div>
+              <div class="col-6 col-md-2"><span class="placeholder col-12 rounded ars-skel-row"></span></div>
+              <div class="col-6 col-md-2"><span class="placeholder col-12 rounded ars-skel-row"></span></div>
+              <div class="col-6 col-md-2"><span class="placeholder col-12 rounded ars-skel-row"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body p-3"><span class="placeholder col-8 rounded mb-2 d-block ars-skel-title"></span><span class="placeholder col-5 rounded ars-skel-line"></span></div></div></div>
+          <div class="col-md-6 col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body p-3"><span class="placeholder col-7 rounded mb-2 d-block ars-skel-title"></span><span class="placeholder col-4 rounded ars-skel-line"></span></div></div></div>
+          <div class="col-md-6 col-lg-4"><div class="card border-0 shadow-sm"><div class="card-body p-3"><span class="placeholder col-9 rounded mb-2 d-block ars-skel-title"></span><span class="placeholder col-6 rounded ars-skel-line"></span></div></div></div>
+        </div>
+      </div>
+
+      <!-- Filtres — affiché après chargement classification -->
+      <div class="card border-0 shadow-sm mb-4 d-none" id="arsenalFiltersMateriel">
+        <div class="card-body p-3">
+          <!-- Ligne 1 : recherche + filtres + slot admin -->
+          <div class="row g-2 mb-2">
+            <div class="col-12 col-md-3">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="search" class="form-control border-start-0" id="mSearch"
+                       placeholder="Nom, référence, description..." autocomplete="off"/>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <select class="form-select" id="mType" aria-label="Filtre type">
+                <option value="">Tous types</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <select class="form-select" id="mZoneAnat" aria-label="Filtre zone anatomique">
+                <option value="">Zone anatomique</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <select class="form-select" id="mZoneStock" aria-label="Filtre zone stockage">
+                <option value="">Zone stockage</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <select class="form-select" id="mStatut" aria-label="Filtre statut">
+                <option value="">Tous statuts</option>
+                <option value="disponible">Disponible</option>
+                <option value="indisponible">Indisponible</option>
+                <option value="en_reparation">En réparation</option>
+                <option value="manquant">Manquant</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-1 d-flex gap-1">
+              <button class="btn btn-outline-secondary flex-grow-1" type="button"
+                      id="mBtnClear" title="Effacer les filtres">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+            <!-- SLOT ADMIN — BLOC C.6 : masqué par défaut, révélé par initAdminSlots() -->
+            <div class="col-12 col-md-auto d-none" id="arsenalAdminSlotMateriel">
+              <button class="btn btn-primary w-100" type="button" id="btnNewMateriel">
+                <i class="bi bi-plus-lg me-1"></i>Matériel
+              </button>
+            </div>
+          </div>
+          <!-- Ligne 2 : Famille 4D + OptimOPM -->
+          <div class="row g-2">
+            <div class="col-12 col-md-4">
+              <select class="form-select form-select-sm" id="mFamille4D" aria-label="Filtre famille 4D">
+                <option value="">Toutes familles 4D</option>
+                <option value="DMI">DMI — Boîte implant</option>
+                <option value="ANCILLAIRES">Ancillaires — Boîte métal chirurgien</option>
+                <option value="DM">DM — Sachet / blister</option>
+                <option value="PACKS">Packs — Emballage multi-items</option>
+                <option value="PLIAGES">Pliages — Papier bleu</option>
+                <option value="DOUBLES_SACHETS">Doubles sachets — Papier rose</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-upc text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-start-0" id="mOptimOPM"
+                       placeholder="Code OptimOPM..." autocomplete="off"/>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <small class="text-muted fst-italic">
+                <i class="bi bi-info-circle me-1"></i>Filtres cumulables — résultats en temps réel
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="materielGrid" class="row g-3"></div>
+    </div><!-- /#tab-materiel -->
+
+
+    <!-- ══════════════════════════════════════════
+         TAB GANTS
+         ══════════════════════════════════════════ -->
+    <div id="tab-gants" class="d-none">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <div class="col-12 col-md-5">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="search" class="form-control border-start-0" id="gSearch"
+                       placeholder="Titre, marque, modèle..." autocomplete="off"/>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <select class="form-select" id="gLatex" aria-label="Filtre latex">
+                <option value="">Latex / Sans latex</option>
+                <option value="true">Sans latex</option>
+                <option value="false">Avec latex</option>
+              </select>
+            </div>
+            <!-- SLOT ADMIN — BLOC C.6 -->
+            <div class="col-12 col-md-auto d-none" id="arsenalAdminSlotGants">
+              <button class="btn btn-primary w-100" type="button" id="btnNewGant">
+                <i class="bi bi-plus-lg me-1"></i>Gant
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="gantsGrid" class="row g-3"></div>
+    </div><!-- /#tab-gants -->
+
+
+    <!-- ══════════════════════════════════════════
+         TAB CASAQUES
+         ══════════════════════════════════════════ -->
+    <div id="tab-casaques" class="d-none">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <div class="col-12 col-md-5">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="search" class="form-control border-start-0" id="cSearch"
+                       placeholder="Titre, spécialité..." autocomplete="off"/>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <!-- cRenforcee = filtre toolbar (DISTINCT de cFormRenforcee = form modale) -->
+              <select class="form-select" id="cRenforcee" aria-label="Filtre casaque renforcée">
+                <option value="">Standard / Renforcée</option>
+                <option value="true">Renforcée</option>
+                <option value="false">Standard</option>
+              </select>
+            </div>
+            <!-- SLOT ADMIN — BLOC C.6 -->
+            <div class="col-12 col-md-auto d-none" id="arsenalAdminSlotCasaques">
+              <button class="btn btn-primary w-100" type="button" id="btnNewCasaque">
+                <i class="bi bi-plus-lg me-1"></i>Casaque
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="casaquesGrid" class="row g-3"></div>
+    </div><!-- /#tab-casaques -->
+
+  </div><!-- /#arsenalMain -->
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — CDS Compliant v2.2.1</small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL MATÉRIEL
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalMateriel" tabindex="-1"
+     aria-labelledby="modalMaterielLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalMaterielLabel">Nouveau matériel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="mFormError" class="alert alert-danger d-none" role="alert"></div>
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label fw-semibold" for="mNom">
+              Nom <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="mNom"
+                   placeholder="Nom du matériel" autocomplete="off"/>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold" for="mRef">Référence</label>
+            <input type="text" class="form-control" id="mRef" placeholder="Réf. catalogue"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="mFormType">Type de matériel</label>
+            <select class="form-select" id="mFormType">
+              <option value="">— Sélectionner —</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="mFormStatut">Statut</label>
+            <select class="form-select" id="mFormStatut">
+              <option value="disponible">Disponible</option>
+              <option value="indisponible">Indisponible</option>
+              <option value="en_reparation">En réparation</option>
+              <option value="manquant">Manquant</option>
+            </select>
+          </div>
+          <!-- Famille 4D + OptimOPM -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="mFormFamille4D">Famille 4D</label>
+            <select class="form-select" id="mFormFamille4D">
+              <option value="">— Sélectionner —</option>
+              <option value="DMI">DMI — Boîte implant labellisée</option>
+              <option value="ANCILLAIRES">Ancillaires — Boîte métal chirurgien</option>
+              <option value="DM">DM — Sachet / blister individuel</option>
+              <option value="PACKS">Packs — Emballage multi-items stérile</option>
+              <option value="PLIAGES">Pliages — Papier bleu sous plastique</option>
+              <option value="DOUBLES_SACHETS">Doubles sachets — Papier rose en casier</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="mFormOptimOPM">Code OptimOPM</label>
+            <input type="text" class="form-control" id="mFormOptimOPM"
+                   placeholder="Ex: OPM-12345"/>
+          </div>
+          <!-- Zone anatomique avec suggestion §6 -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="mFormZoneAnat">Zone anatomique</label>
+            <select class="form-select" id="mFormZoneAnat">
+              <option value="">— Sélectionner —</option>
+            </select>
+            <!-- Bannière suggestion §6 — jamais silencieuse (CTX §6 / §10) -->
+            <div id="mZoneSuggestion" class="d-none ars-zone-suggestion mt-2 rounded-3 p-2"
+                 role="region" aria-label="Suggestion de zone anatomique">
+              <div class="small mb-1">
+                🔎 <strong>Suggestion de zone :</strong>
+                <span id="mZoneSugZone" class="fw-semibold"></span>
+              </div>
+              <div class="small mb-1">
+                📌 <strong>Justification :</strong>
+                mot-clé détecté = "<span id="mZoneSugKw" class="fst-italic"></span>"
+              </div>
+              <div class="small mb-2">⚠️ <strong>Statut :</strong> À VALIDER PAR UN HUMAIN</div>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-warning" id="mBtnAppliquerZone">
+                  <i class="bi bi-check-lg me-1"></i>Appliquer
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                        id="mBtnIgnorerZone">Ignorer</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="mFormZoneStock">Zone de stockage</label>
+            <select class="form-select" id="mFormZoneStock">
+              <option value="">— Sélectionner —</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="mFormEtagere">Étagère</label>
+            <select class="form-select" id="mFormEtagere">
+              <option value="">— Sélectionner —</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="mLocalisation">
+              Localisation (texte libre)
+            </label>
+            <input type="text" class="form-control" id="mLocalisation"
+                   placeholder="Ex: Armoire 3, tiroir 2"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="mDescription">Description</label>
+            <textarea class="form-control" id="mDescription"
+                      rows="3" placeholder="Description, remarques..."></textarea>
+          </div>
+          <!-- Images -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Images <span class="text-muted fw-normal">(max 3)</span>
+            </label>
+            <div id="mUploadArea"
+                 class="ars-upload-area border border-dashed rounded-3 p-3 text-center mb-2"
+                 role="button" tabindex="0" aria-label="Zone de dépôt d'images">
+              <i class="bi bi-cloud-arrow-up fs-3 text-muted d-block"></i>
+              <p class="small text-muted mb-1">Glissez ou cliquez pour sélectionner</p>
+              <input type="file" id="mFileInput" accept="image/*" multiple class="d-none"/>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="mBtnImages">
+                <i class="bi bi-image me-1"></i>Choisir
+              </button>
+            </div>
+            <div id="mImagePreviews" class="d-flex flex-wrap gap-2"></div>
+          </div>
+          <!-- Priorité -->
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="mPriority" role="switch"/>
+              <label class="form-check-label" for="mPriority">
+                <i class="bi bi-fire text-danger me-1"></i>Prioritaire
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="mBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL GANT
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalGant" tabindex="-1"
+     aria-labelledby="modalGantLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalGantLabel">Nouveau gant</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="gFormError" class="alert alert-danger d-none" role="alert"></div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="gTitre">
+              Titre <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="gTitre" autocomplete="off"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="gMarque">Marque</label>
+            <input type="text" class="form-control" id="gMarque"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="gModele">Modèle</label>
+            <input type="text" class="form-control" id="gModele"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="gMatiere">Matière</label>
+            <input type="text" class="form-control" id="gMatiere"
+                   placeholder="Ex: nitrile, latex, vinyl"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="gTailles">Tailles disponibles</label>
+            <input type="text" class="form-control" id="gTailles"
+                   placeholder="Ex: 6, 6.5, 7, 7.5, 8"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="gCouleurs">Couleurs disponibles</label>
+            <input type="text" class="form-control" id="gCouleurs"
+                   placeholder="Ex: bleu, beige"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="gLocalisation">Localisation</label>
+            <input type="text" class="form-control" id="gLocalisation"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="gDescription">Description</label>
+            <textarea class="form-control" id="gDescription" rows="2"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="gRemarques">Remarques d'usage</label>
+            <textarea class="form-control" id="gRemarques" rows="2"></textarea>
+          </div>
+          <!-- Images -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Images <span class="text-muted fw-normal">(max 3)</span>
+            </label>
+            <div id="gUploadArea"
+                 class="ars-upload-area border border-dashed rounded-3 p-3 text-center mb-2"
+                 role="button" tabindex="0" aria-label="Zone de dépôt d'images">
+              <i class="bi bi-cloud-arrow-up fs-3 text-muted d-block"></i>
+              <input type="file" id="gFileInput" accept="image/*" multiple class="d-none"/>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="gBtnImages">
+                <i class="bi bi-image me-1"></i>Choisir
+              </button>
+            </div>
+            <div id="gImagePreviews" class="d-flex flex-wrap gap-2"></div>
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox"
+                     id="gSansLatex" role="switch"/>
+              <label class="form-check-label" for="gSansLatex">Sans latex</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="gBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL CASAQUE
+     ═══════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalCasaque" tabindex="-1"
+     aria-labelledby="modalCasaqueLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalCasaqueLabel">Nouvelle casaque</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="cFormError" class="alert alert-danger d-none" role="alert"></div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="cTitre">
+              Titre <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="cTitre" autocomplete="off"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="cCategorie">Catégorie</label>
+            <input type="text" class="form-control" id="cCategorie"
+                   placeholder="Ex: stérile, non stérile"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="cSpecialite">Spécialité</label>
+            <input type="text" class="form-control" id="cSpecialite"
+                   placeholder="Ex: orthopédie, cardio"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="cTaille">Taille disponible</label>
+            <input type="text" class="form-control" id="cTaille"
+                   placeholder="Ex: S, M, L, XL"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold" for="cLocalisation">Localisation</label>
+            <input type="text" class="form-control" id="cLocalisation"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="cDescription">Description</label>
+            <textarea class="form-control" id="cDescription" rows="2"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold" for="cRemarques">Remarques d'usage</label>
+            <textarea class="form-control" id="cRemarques" rows="2"></textarea>
+          </div>
+          <!-- Images -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Images <span class="text-muted fw-normal">(max 3)</span>
+            </label>
+            <div id="cUploadArea"
+                 class="ars-upload-area border border-dashed rounded-3 p-3 text-center mb-2"
+                 role="button" tabindex="0" aria-label="Zone de dépôt d'images">
+              <i class="bi bi-cloud-arrow-up fs-3 text-muted d-block"></i>
+              <input type="file" id="cFileInput" accept="image/*" multiple class="d-none"/>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="cBtnImages">
+                <i class="bi bi-image me-1"></i>Choisir
+              </button>
+            </div>
+            <div id="cImagePreviews" class="d-flex flex-wrap gap-2"></div>
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <!-- cFormRenforcee = form (DISTINCT de cRenforcee = filtre toolbar CTX §9) -->
+              <input class="form-check-input" type="checkbox"
+                     id="cFormRenforcee" role="switch"/>
+              <label class="form-check-label" for="cFormRenforcee">Renforcée</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="cBtnSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- LIGHTBOX -->
+<div class="modal fade" id="modalLightbox" tabindex="-1" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0 bg-transparent">
+      <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+              data-bs-dismiss="modal" aria-label="Fermer la vue agrandie"></button>
+      <img id="lightboxImg" src="" alt="Vue agrandie" class="w-100 rounded ars-lightbox-img"/>
+    </div>
+  </div>
+</div>
+
+
+<!-- TOAST -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi me-2 text-primary" id="toastIcon"></i>
+      <strong class="me-auto" id="toastTitle">Info</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast"
+              aria-label="Fermer"></button>
+    </div>
+    <div class="toast-body" id="toastMsg">—</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CHAÎNE JS — ordre immuable BLOC E
+     ═══════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+
+<script src="arsenal-app.js"></script>
+<!-- Guard admin — après arsenal-app.js (arsenal-app s'init lui-même) -->
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    await window.bdbShellReady;
+    if (!window.bdbUser?.isAdmin) {
+      location.href = '../../index.html';
+    }
+    // arsenal-app.js appelle initAdminSlots() et révèle les slots admin
+  });
+</script>
+
+</body>
+</html>

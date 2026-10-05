@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Des Blocs &amp; Moi — Le savoir operatoire, partage</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <style>
+    /* ── Site/Editorial overrides (public, no sidebar) ────── */
+    body {
+      background: #fff;
+    }
+
+    .site-nav {
+      background: #fff;
+      border-bottom: 1px solid var(--app-border);
+      padding: 0 1.5rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--app-primary);
+      text-decoration: none;
+    }
+    .site-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .site-nav-links a {
+      font-size: .9rem;
+      color: var(--app-text);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color var(--app-transition);
+    }
+    .site-nav-links a:hover { color: var(--app-primary); }
+
+    .site-nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .45rem 1.1rem;
+      background: var(--app-primary);
+      color: #fff;
+      border-radius: 2rem;
+      font-size: .85rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background var(--app-transition);
+    }
+    .site-nav-cta:hover { background: #0b5ed7; color: #fff; }
+
+    .site-hero {
+      text-align: center;
+      padding: 5rem 1.5rem 4rem;
+      background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
+    }
+    .site-hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 700px;
+      margin: 0 auto 1rem;
+      color: var(--app-text);
+    }
+    .site-hero p {
+      font-size: 1.1rem;
+      color: var(--app-text-muted);
+      max-width: 550px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+    .site-hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .site-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .65rem 1.5rem;
+      background: var(--app-primary);
+      color: #fff;
+      border-radius: 2rem;
+      font-size: .95rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background var(--app-transition);
+    }
+    .site-btn-primary:hover { background: #0b5ed7; color: #fff; }
+    .site-btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .65rem 1.5rem;
+      border: 1.5px solid var(--app-border);
+      color: var(--app-text);
+      border-radius: 2rem;
+      font-size: .95rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all var(--app-transition);
+    }
+    .site-btn-outline:hover { border-color: var(--app-primary); color: var(--app-primary); }
+
+    .site-section {
+      padding: 4rem 1.5rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .site-section-title {
+      text-align: center;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+    .site-section-subtitle {
+      text-align: center;
+      font-size: 1rem;
+      color: var(--app-text-muted);
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .site-feature-card {
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+    .site-feature-icon {
+      width: 56px; height: 56px;
+      border-radius: .75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+    }
+    .site-feature-title { font-weight: 600; font-size: 1rem; margin-bottom: .4rem; }
+    .site-feature-desc { font-size: .875rem; color: var(--app-text-muted); line-height: 1.5; }
+
+    .site-stb-card {
+      background: var(--app-bg);
+      border-radius: var(--app-card-radius);
+      padding: 1.25rem;
+      border: 1px solid var(--app-border);
+      height: 100%;
+    }
+    .site-stb-num {
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--app-primary);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: .4rem;
+    }
+    .site-stb-title { font-weight: 600; font-size: .9rem; margin-bottom: .35rem; }
+    .site-stb-desc { font-size: .8rem; color: var(--app-text-muted); line-height: 1.5; }
+
+    .site-cta-band {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      background: linear-gradient(135deg, #0d6efd 0%, #6f42c1 100%);
+      color: #fff;
+    }
+    .site-cta-band h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: .75rem; }
+    .site-cta-band p { font-size: 1rem; opacity: .85; max-width: 500px; margin: 0 auto 1.5rem; }
+    .site-cta-band .site-btn-primary {
+      background: #fff;
+      color: var(--app-primary);
+    }
+    .site-cta-band .site-btn-primary:hover { background: #f0f4ff; }
+
+    .site-footer {
+      padding: 2rem 1.5rem;
+      border-top: 1px solid var(--app-border);
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: .8rem;
+      color: var(--app-text-muted);
+    }
+    .site-footer a { color: var(--app-text-muted); text-decoration: none; }
+    .site-footer a:hover { color: var(--app-primary); }
+
+    /* Mobile nav */
+    .site-nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      color: var(--app-text);
+      cursor: pointer;
+    }
+    @media (max-width: 767px) {
+      .site-nav-links { display: none; }
+      .site-nav-toggle { display: flex; }
+      .site-hero h1 { font-size: 1.75rem; }
+      .site-hero { padding: 3rem 1rem 2.5rem; }
+      .site-section { padding: 2.5rem 1rem; }
+      .site-cta-band { padding: 2.5rem 1rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+<!-- ════════════ NAVIGATION ════════════ -->
+<nav class="site-nav" role="banner">
+  <a href="#" class="site-nav-brand">
+    <i class="bi bi-heart-pulse"></i> Des Blocs &amp; Moi
+  </a>
+  <ul class="site-nav-links">
+    <li><a href="#">Fonctionnalites</a></li>
+    <li><a href="#">Pourquoi DBM</a></li>
+    <li><a href="#">Tarifs</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <div class="d-flex align-items-center gap-3">
+    <a href="#" class="site-nav-cta"><i class="bi bi-box-arrow-in-right"></i> Connexion</a>
+    <button class="site-nav-toggle" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+  </div>
+</nav>
+
+<!-- ════════════ HERO ════════════ -->
+<section class="site-hero" id="main-content">
+  <h1>Le savoir operatoire, enfin transmis</h1>
+  <p>
+    La bonne information trouve la bonne personne, au bon moment,
+    au bon endroit, avec le niveau de detail qu'elle est prete a recevoir.
+  </p>
+  <div class="site-hero-actions">
+    <a href="#" class="site-btn-primary"><i class="bi bi-play-circle"></i> Decouvrir en 2 min</a>
+    <a href="#" class="site-btn-outline"><i class="bi bi-calendar3"></i> Demander une demo</a>
+  </div>
+</section>
+
+<!-- ════════════ FEATURES ════════════ -->
+<section class="site-section">
+  <h2 class="site-section-title">Ce que DBM change au bloc</h2>
+  <p class="site-section-subtitle">
+    Chaque module repond a une situation de blocage reelle, identifiee sur le terrain.
+  </p>
+  <div class="row g-4">
+    <div class="col-sm-6 col-lg-4">
+      <div class="site-feature-card">
+        <div class="site-feature-icon" style="background:#e8f0fe;color:#1a56db"><i class="bi bi-book"></i></div>
+        <div class="site-feature-title">Glossaire partage</div>
+        <div class="site-feature-desc">Un seul nom pour chaque objet, chaque geste, chaque terme. Fini les 3 noms pour la meme chose.</div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-4">
+      <div class="site-feature-card">
+        <div class="site-feature-icon" style="background:#ecfdf5;color:#166534"><i class="bi bi-list-check"></i></div>
+        <div class="site-feature-title">Protocoles complets</div>
+        <div class="site-feature-desc">Materiel, installation, preferences chirurgien, variantes — tout est lie, rien n'est isole.</div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-4">
+      <div class="site-feature-card">
+        <div class="site-feature-icon" style="background:#f3e8ff;color:#7e22ce"><i class="bi bi-clipboard2-check"></i></div>
+        <div class="site-feature-title">Transmissions tracees</div>
+        <div class="site-feature-desc">Ce que Sabine sait en sortant de salle, Julie le retrouve en arrivant le lendemain.</div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-4">
+      <div class="site-feature-card">
+        <div class="site-feature-icon" style="background:#fffbeb;color:#92400e"><i class="bi bi-sliders2"></i></div>
+        <div class="site-feature-title">Preferences chirurgien</div>
+        <div class="site-feature-desc">Les habitudes du Dr X documentees une seule fois, accessibles a toute l'equipe.</div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-4">
+      <div class="site-feature-card">
+        <div class="site-feature-icon" style="background:#fef2f2;color:#991b1b"><i class="bi bi-mortarboard"></i></div>
+        <div class="site-feature-title">Formation integree</div>
+        <div class="site-feature-desc">Cours, objectifs, carnet de bord. La novice progresse sans se noyer.</div>
+      </div>
+    </div>
+    <div class="col-sm-6 col-lg-4">
+      <div class="site-feature-card">
+        <div class="site-feature-icon" style="background:#e8f0fe;color:#1a56db"><i class="bi bi-body-text"></i></div>
+        <div class="site-feature-title">Atlas anatomique</div>
+        <div class="site-feature-desc">Regions, structures, voies d'abord. Le savoir anatomique au service du geste.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ STB ════════════ -->
+<section style="background:var(--app-bg);padding:4rem 1.5rem">
+  <div style="max-width:1100px;margin:0 auto">
+    <h2 class="site-section-title">7 blocages reels, 7 reponses concretes</h2>
+    <p class="site-section-subtitle">
+      Chaque fonctionnalite nait d'une situation vecue au bloc. Pas d'un brainstorm marketing.
+    </p>
+    <div class="row g-3">
+      <div class="col-sm-6 col-lg-4">
+        <div class="site-stb-card">
+          <div class="site-stb-num">STB-01</div>
+          <div class="site-stb-title">Le materiel est la mais personne ne le reconnait</div>
+          <div class="site-stb-desc">3 noms pour le meme objet. Le glossaire unifie le vocabulaire.</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <div class="site-stb-card">
+          <div class="site-stb-num">STB-02</div>
+          <div class="site-stb-title">Les preferences du chirurgien ne sont jamais dites</div>
+          <div class="site-stb-desc">Mais toujours attendues. Les fiches preferences documentent l'implicite.</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <div class="site-stb-card">
+          <div class="site-stb-num">STB-03</div>
+          <div class="site-stb-title">Les taches arrivent decoupees, sans contexte</div>
+          <div class="site-stb-desc">Fiches, installation, transmissions, organisateur : tout est relie.</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <div class="site-stb-card">
+          <div class="site-stb-num">STB-04</div>
+          <div class="site-stb-title">Chaque acteur nomme a sa facon</div>
+          <div class="site-stb-desc">Le thesaurus et le glossaire creent une langue commune.</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <div class="site-stb-card">
+          <div class="site-stb-num">STB-05</div>
+          <div class="site-stb-title">L'evident pour l'expert est invisible pour la novice</div>
+          <div class="site-stb-desc">Cours, anatomie et fiches detaillees comblent l'ecart.</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <div class="site-stb-card">
+          <div class="site-stb-num">STB-06</div>
+          <div class="site-stb-title">Le savoir part avec les gens</div>
+          <div class="site-stb-desc">Carnet de bord et planning assurent la continuite.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════ CTA BAND ════════════ -->
+<section class="site-cta-band">
+  <h2>Pret a transmettre le savoir operatoire ?</h2>
+  <p>Rejoignez les equipes qui ne repartent plus de zero chaque matin.</p>
+  <a href="#" class="site-btn-primary"><i class="bi bi-envelope"></i> Demander un acces</a>
+</section>
+
+<!-- ════════════ FOOTER ════════════ -->
+<footer class="site-footer">
+  <div>
+    <span>&copy; 2026 Des Blocs &amp; Moi</span>
+  </div>
+  <div class="d-flex gap-3">
+    <a href="#">Mentions legales</a>
+    <a href="#">Politique de confidentialite</a>
+    <a href="#">Accessibilite</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

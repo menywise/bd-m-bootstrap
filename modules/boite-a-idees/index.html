@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui | Theme: DBM -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>Boite a idees - Des Blocs &amp; Moi</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="boite-a-idees-ui.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --module-color: #86efac;
+      --module-color-strong: #4ade80;
+      --module-color-text: #14532d;
+      --module-color-soft: rgba(134, 239, 172, 0.15);
+    }
+  </style>
+</head>
+
+<body class="sidebar-closed">
+
+  <div id="wrapper">
+
+    <div id="bdb-shell"
+         data-module-title="Boite a idees"
+         data-module-icon="bi-lightbulb"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-theme="dbm">
+    </div>
+
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="equipe" style="--module-color:#86efac;--module-color-strong:#4ade80;--module-color-text:#14532d;--module-color-soft:rgba(134,239,172,0.15)">
+
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d Ariane">
+                <a href="../../index.html">Accueil</a>
+                <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+                <span>Boite a idees</span>
+              </nav>
+            </section>
+
+            <section class="app-zone" data-zone="Page Title">
+              <div class="p-4 rounded shadow-sm mb-3" style="background:linear-gradient(135deg, #86efac 0%, #4ade80 100%);color:#14532d">
+                <h1 class="mb-2 fw-bold"><i class="bi bi-lightbulb me-2"></i>Boite a idees</h1>
+                <p style="opacity:0.75" class="mb-0">Idees et propositions de l equipe</p>
+              </div>
+            </section>
+
+            <section class="app-zone" data-zone="Filters">
+              <div style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1rem">
+                <div class="row g-2 align-items-center">
+                  <div class="col">
+                    <select class="form-select form-select-sm" id="collabProjectSelect" aria-label="Selectionner un projet">
+                      <option value="">- Chargement... -</option>
+                    </select>
+                  </div>
+                  <div class="col-auto" style="width:180px">
+                    <button class="btn btn-module-outline btn-sm w-100" id="btnNewProject" type="button">
+                      <i class="bi bi-folder-plus me-1"></i>Nouveau projet
+                    </button>
+                  </div>
+                  <div class="col-auto d-none" id="collabToolbarAdminSlot" style="width:180px">
+                    <button class="btn btn-module btn-sm w-100" id="btnAdminPanel" type="button">
+                      <i class="bi bi-shield-check me-1"></i>Admin
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="app-zone" data-zone="Content">
+              <div class="app-card" data-accent="module">
+                <div class="app-card-body">
+
+                  <div id="loadingState">
+                    <div class="placeholder-glow p-3">
+                      <div class="placeholder col-8 rounded mb-3 fs-5"></div>
+                      <div class="placeholder col-5 rounded mb-2"></div>
+                      <div class="placeholder col-7 rounded"></div>
+                    </div>
+                  </div>
+
+                  <div id="emptyState" class="app-empty d-none">
+                    <i class="bi bi-lightbulb"></i>
+                    <p style="font-size:.95rem;font-weight:500;margin:1rem 0 .5rem">Aucun projet actif</p>
+                    <p style="font-size:.85rem;color:var(--app-text-muted)">Creez-en un ou attendez la validation d un projet.</p>
+                    <button class="btn btn-module btn-sm mt-2" id="btnEmptyNewProject" type="button">
+                      <i class="bi bi-folder-plus me-1"></i>Nouveau projet
+                    </button>
+                  </div>
+
+                  <div id="errorState" class="app-empty d-none">
+                    <i class="bi bi-wifi-off"></i>
+                    <p style="font-size:.95rem;font-weight:500">Erreur de chargement</p>
+                  </div>
+
+                  <div id="collabContent" class="d-none">
+
+                    <!-- Tabs (4 onglets) -->
+                    <ul class="nav bdb-tabs mb-3" id="collabTabs" role="tablist" style="border-bottom:1px solid var(--bs-border-color)">
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link active collab-tab-btn" data-tab="brainstorm" type="button" role="tab" aria-selected="true">
+                          <i class="bi bi-lightbulb me-1"></i>Brainstorming
+                        </button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link collab-tab-btn" data-tab="vote" type="button" role="tab" aria-selected="false">
+                          <i class="bi bi-hand-thumbs-up me-1"></i>Vote
+                        </button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link collab-tab-btn" data-tab="matrix" type="button" role="tab" aria-selected="false">
+                          <i class="bi bi-grid-3x3-gap me-1"></i>Priorisation
+                        </button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link collab-tab-btn" data-tab="report" type="button" role="tab" aria-selected="false">
+                          <i class="bi bi-file-earmark-text me-1"></i>Rapport
+                        </button>
+                      </li>
+                    </ul>
+
+                    <!-- Pane Brainstorming -->
+                    <div id="pane-brainstorm" class="collab-pane">
+                      <div class="row g-2 mb-3 align-items-end">
+                        <div class="col-auto" style="width:180px">
+                          <select id="selectIdeaCategory" class="form-select form-select-sm" aria-label="Categorie de l idee"></select>
+                        </div>
+                        <div class="col">
+                          <input type="text" id="inputIdea" class="form-control form-control-sm" placeholder="Saisissez une idee..." autocomplete="off" maxlength="500">
+                        </div>
+                        <div class="col-auto" style="width:180px">
+                          <button class="btn btn-module btn-sm w-100" id="btnAddIdea" type="button">
+                            <i class="bi bi-plus-circle me-1"></i>Ajouter
+                          </button>
+                        </div>
+                      </div>
+                      <div id="collabPendingSection" class="d-none mb-3">
+                        <h6 class="text-muted text-uppercase small mb-2 fw-semibold">
+                          <i class="bi bi-hourglass me-1"></i>En attente de validation
+                        </h6>
+                        <div id="collabPendingIdeas" class="row g-2"></div>
+                      </div>
+                      <div id="collabIdeasGrid" class="row g-2"></div>
+                    </div>
+
+                    <!-- Pane Vote -->
+                    <div id="pane-vote" class="collab-pane d-none">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0"><i class="bi bi-hand-thumbs-up me-1"></i>Votez pour les meilleures idees</h6>
+                        <span class="badge bg-light text-dark border" id="collabVoteCount">0 vote</span>
+                      </div>
+                      <div id="listVotes" class="list-group"></div>
+                    </div>
+
+                    <!-- Pane Matrix -->
+                    <div id="pane-matrix" class="collab-pane d-none">
+                      <div class="row g-2">
+                        <div class="col-md-3">
+                          <h6 class="text-muted text-uppercase small fw-bold mb-2"><i class="bi bi-inbox me-1"></i>Non classes</h6>
+                          <div id="collabDeckZone" class="collab-deck-zone collab-dropzone p-2 rounded" data-quadrant="">
+                            <div id="list-deck"></div>
+                          </div>
+                        </div>
+                        <div class="col-md-9">
+                          <div class="row g-2">
+                            <div class="col-md-6">
+                              <div class="collab-quadrant-zone collab-dropzone h-100" data-quadrant="high-easy">
+                                <h6 class="fw-bold text-center mb-2">Quick Wins<br><small class="text-muted fw-normal">Impact Fort / Effort Faible</small></h6>
+                                <div id="list-high-easy" class="collab-quadrant-list"></div>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="collab-quadrant-zone collab-dropzone h-100" data-quadrant="high-hard">
+                                <h6 class="fw-bold text-center mb-2">Projets Strategiques<br><small class="text-muted fw-normal">Impact Fort / Effort Fort</small></h6>
+                                <div id="list-high-hard" class="collab-quadrant-list"></div>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="collab-quadrant-zone collab-dropzone h-100" data-quadrant="low-easy">
+                                <h6 class="fw-bold text-center mb-2">A planifier<br><small class="text-muted fw-normal">Impact Faible / Effort Faible</small></h6>
+                                <div id="list-low-easy" class="collab-quadrant-list"></div>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="collab-quadrant-zone collab-dropzone h-100" data-quadrant="low-hard">
+                                <h6 class="fw-bold text-center mb-2">A eviter<br><small class="text-muted fw-normal">Impact Faible / Effort Fort</small></h6>
+                                <div id="list-low-hard" class="collab-quadrant-list"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Pane Rapport -->
+                    <div id="pane-report" class="collab-pane d-none">
+                      <div class="d-flex justify-content-end mb-2">
+                        <button class="btn btn-module-outline btn-sm" id="btnExportMd" type="button">
+                          <i class="bi bi-markdown me-1"></i>Exporter Markdown
+                        </button>
+                      </div>
+                      <div id="collabReport"></div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+
+          <footer class="app-footer">
+            <small>&copy; 2026 <span class="app-nom"></span></small>
+          </footer>
+
+        </main>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODALES (hors wrapper) -->
+
+  <div class="modal fade" id="collabModalProject" tabindex="-1" aria-labelledby="collabModalProjectLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="collabModalProjectLabel"><i class="bi bi-folder-plus me-2"></i>Nouveau projet</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="newProjectTitle">Titre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="newProjectTitle" maxlength="200" placeholder="Ex : Amelioration accueil patient">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="newProjectDesc">Description</label>
+            <textarea class="form-control" id="newProjectDesc" rows="3" maxlength="500" placeholder="Contexte, objectif..."></textarea>
+          </div>
+          <div class="alert alert-info py-2 mb-0 small" id="collabProjectDraftNotice">
+            <i class="bi bi-info-circle me-1"></i>Le projet sera soumis a validation admin avant d etre visible par tous.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module" id="btnCreateProject">
+            <i class="bi bi-send me-1"></i>Soumettre
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="collabModalAdmin" tabindex="-1" aria-labelledby="collabModalAdminLabel">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="collabModalAdminLabel"><i class="bi bi-shield-check me-2"></i>Administration Boite a idees</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="nav bdb-tabs mb-3" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" type="button" role="tab" data-admin-tab="pending-projects">
+                <i class="bi bi-folder me-1"></i>Projets en attente
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" type="button" role="tab" data-admin-tab="pending-ideas">
+                <i class="bi bi-lightbulb me-1"></i>Idees en attente
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" type="button" role="tab" data-admin-tab="categories">
+                <i class="bi bi-tags me-1"></i>Categories
+              </button>
+            </li>
+          </ul>
+          <div id="adminTabContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="collab-toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="collabToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="collabToastBody"></div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script src="boite-a-idees.js"></script>
+
+</body>
+</html>

@@ -34,21 +34,11 @@ let quillDesc, quillPrec, modalInstall, modalInstallView, modalLightbox;
 
 /* ─── UTILS ─────────────────────────────────────────────── */
 
-/** INTERDIT-C6 : échappement obligatoire sur tout innerHTML avec donnée DB */
-function escHtml(str) {
-  if (str == null) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
 
 function showToast(msg, type = 'info') {
   const iconMap = { error: 'bi-x-circle-fill text-danger', success: 'bi-check-circle-fill text-success', info: 'bi-info-circle-fill text-primary' };
   document.getElementById('toastIcon').className = 'bi me-2 ' + (iconMap[type] || iconMap.info);
-  document.getElementById('toastTitle').textContent = type === 'error' ? 'Erreur' : type === 'success' ? 'Succès' : 'Info';
+  document.getElementById('toastTitle').textContent = type === 'error' ? 'Attention' : type === 'success' ? 'Enregistré' : 'À noter';
   document.getElementById('toastMsg').textContent = msg;
   bootstrap.Toast.getOrCreateInstance(document.getElementById('toastInfo')).show();
 }
@@ -146,10 +136,10 @@ async function loadRelatedFiches(installId) {
 async function syncRelations(installId) {
   if (!state.contentTypeId || !state.ficheContentTypeId) return;
   await DB.from('content_relations')
-    .delete()
+    .delete() // UX06 : caller confirms
     .eq('source_type_id', state.contentTypeId)
     .eq('source_id', installId)
-    .eq('target_type_id', state.ficheContentTypeId);
+    .eq('target_type_id', state.ficheContentTypeId).select();
   if (state.formFicheIds.length) {
     await DB.from('content_relations').insert(state.formFicheIds.map(fId => ({
       source_type_id: state.contentTypeId, source_id: installId,
@@ -179,9 +169,9 @@ async function loadTagsForRecord(id) {
 
 async function syncTags(recordId) {
   await DB.from('tag_links')
-    .delete()
+    .delete() // UX06 : caller confirms
     .eq('content_id', recordId)
-    .eq('content_type', 'installation_patient');
+    .eq('content_type', 'installation_patient').select();
   if (state.formTagIds.length > 0) {
     await DB.from('tag_links').insert(state.formTagIds.map(tagId => ({
       content_id: recordId, content_type: 'installation_patient', tag_id: tagId,
@@ -283,7 +273,7 @@ async function syncImages(recordId) {
   const existingPaths = new Set((existing || []).map(i => i.storage_path));
   const newPaths = new Set(state.formImages.map(i => i.storage_path).filter(Boolean));
   const toDelete = (existing || []).filter(i => !newPaths.has(i.storage_path));
-  if (toDelete.length) await DB.from('content_images').delete().in('id', toDelete.map(i => i.id));
+  if (toDelete.length) await DB.from('content_images').delete().in('id', toDelete.map(i => i.id)).select(); // UX06 : caller confirms
   const toInsert = state.formImages.filter(i => i.storage_path && !existingPaths.has(i.storage_path));
   if (toInsert.length) await DB.from('content_images').insert(toInsert.map(i => ({
     content_type_id: state.contentTypeId, content_id: recordId,
@@ -303,6 +293,15 @@ async function getSignedUrls(paths) {
 /* ─── LOAD ──────────────────────────────────────────────── */
 
 async function loadItems() {
+  if (window.bdbIsDemo && window.bdbIsDemo()) {
+    const { data } = await window.bdb.from('demo_installation').select('*');
+    state.items = data || [];
+    if (!state.items.length) { setGridState('empty'); return; }
+    const grid = document.getElementById('installGrid');
+    grid.innerHTML = state.items.map(item => renderCard(item)).join('');
+    setGridState('data');
+    return;
+  }
   setGridState('loading');
 
   let q = DB.from('installation_patient')
@@ -483,7 +482,8 @@ async function openView(id) {
   footer.innerHTML = `
     ${state.isAdmin ? `<button class="btn btn-outline-info me-auto" data-edit-view="${escHtml(id)}"><i class="bi bi-pencil me-1"></i>Modifier</button>` : ''}
     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>`;
-  footer.querySelector('[data-edit-view]')?.addEventListener('click', () => {
+  footer.querySelector('[data-edit-view]')?.addEventListener('click', (e) => {
+    e.currentTarget.blur();
     modalInstallView.hide(); openModal(id);
   });
 }
@@ -554,7 +554,7 @@ async function openModal(id = null) {
 async function saveItem() {
   const titre = document.getElementById('iTitre').value.trim();
   if (!titre) {
-    document.getElementById('iFormError').textContent = 'Le titre est obligatoire.';
+    document.getElementById('iFormError').textContent = 'Un titre est nécessaire pour continuer.';
     document.getElementById('iFormError').classList.remove('d-none');
     return;
   }
@@ -604,8 +604,8 @@ async function saveItem() {
 /* ─── DELETE ────────────────────────────────────────────── */
 
 async function deleteItem(id) {
-  if (!confirm('Supprimer cette installation ?')) return;
-  const { error } = await DB.from('installation_patient').delete().eq('id', id);
+  if (!confirm("Retirer cette installation définitivement ?")) return;
+  const { error } = await DB.from('installation_patient').delete().eq('id', id).select();
   if (error) { showToast(error.message, 'error'); return; }
   showToast('Installation supprimée.', 'success');
   loadItems();
@@ -627,7 +627,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (state.isAdmin) {
     const slot = document.getElementById('headerAdminSlot');
     slot.classList.remove('d-none');
-    slot.innerHTML = `<button class="btn btn-info text-white" id="btnNew">
+    slot.innerHTML = `<button class="btn btn-primary btn-sm" id="btnNew">
       <i class="bi bi-plus-lg me-1"></i>Nouvelle installation
     </button>`;
     document.getElementById('btnNew').addEventListener('click', () => openModal());

@@ -1,0 +1,135 @@
+﻿<!--
+  PROJECT  : Des Blocs & Moi (BDB)
+  FILE     : notifications.html
+  MODULE   : Racine
+  DATE     : 2026-04-13
+  AUTEUR   : Manu + Claude
+  RÔLE     : Centre de notifications in-app.
+             État actuel : empty state — module à construire (session dédiée).
+             Structure prête pour branchement Supabase (table notifications à créer).
+  PERSONAS : Tous — Olivia (admin), Sabine (terrain).
+  CHAÎNE CSS : BLOC E standard. root-path="..".
+  NOTE     : Aucune table notifications n'existe en base à ce jour.
+             Cette page est un placeholder fonctionnel conforme CDS.
+             Session dédiée requise pour implémenter le système de notifications.
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: APP-TRANSVERSE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notifications | DBM</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/cds-overrides.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <div id="bdb-shell"
+       data-module-title="Notifications"
+       data-module-icon="bi-bell"
+       data-root-path="../"
+       data-shell-kind="backoffice"
+       data-login-mode="modal">
+  </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+      <div class="container-fluid p-4 bg-light flex-grow-1">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-7">
+
+        <!-- Header + actions -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <div>
+            <h2 class="fw-bold mb-1">Notifications</h2>
+            <p class="text-muted mb-0 small">Ce qui s'est passé depuis ta dernière visite.</p>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary d-none" id="btnMarkAll">
+            <i class="bi bi-check-all me-1"></i>Tout marquer comme lu
+          </button>
+        </div>
+
+        <!-- Filtres -->
+        <div class="d-flex gap-2 mb-4 flex-wrap">
+          <button class="btn btn-sm btn-primary" data-notif-filter="all">Toutes</button>
+          <button class="btn btn-sm btn-outline-secondary" data-notif-filter="unread">Non lues</button>
+          <button class="btn btn-sm btn-outline-secondary" data-notif-filter="admin">Admin</button>
+        </div>
+
+        <!-- État : chargement -->
+        <div id="notifLoading">
+          <div class="placeholder-glow mb-3">
+            <div class="placeholder col-12 rounded mb-2"</div>
+            <div class="placeholder col-12 rounded mb-2"</div>
+            <div class="placeholder col-8 rounded"</div>
+          </div>
+        </div>
+
+        <!-- État : vide (affiché par JS) -->
+        <div id="notifEmpty" class="d-none">
+          <div class="cds-error-state">
+            <i class="bi bi-bell-slash fs-1 text-muted"></i>
+            <div class="cds-error-title">Aucune notification pour le moment</div>
+            <p class="cds-error-msg">
+              Les nouvelles transmissions, les contenus validés et les signalements
+              traités apparaîtront ici.
+            </p>
+          </div>
+        </div>
+
+        <!-- Liste notifications (peuplée par JS) -->
+        <div id="notifList" class="d-none d-flex flex-column gap-2"></div>
+
+      </div>
+    </div>
+  </div>
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System —
+    <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="../js/bdb-ui.js"></script>
+<script src="../js/bdb-invite-guard.js"></script>
+<script src="../js/bdb-shell.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+
+  const loading = document.getElementById('notifLoading');
+  const empty   = document.getElementById('notifEmpty');
+  const list    = document.getElementById('notifList');
+
+  // Table notifications non créée à ce jour — empty state immédiat
+  // TODO : brancher sur table notifications quand elle existera
+  loading.classList.add('d-none');
+  empty.classList.remove('d-none');
+
+  // Filtres — passifs pour l'instant
+  document.querySelectorAll('[data-notif-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-notif-filter]').forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-outline-secondary');
+      });
+      btn.classList.add('btn-primary');
+      btn.classList.remove('btn-outline-secondary');
+    });
+  });
+});
+</script>
+</body>
+</html>

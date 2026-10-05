@@ -10,30 +10,22 @@
    ============================================================ */
 
 
+/* ── Pastille couleur catégorie — dynamique DB via custom property ── */
+#cbMain .cb-cat-dot { color: var(--cat-c); }
+#cbMain .cb-cat-pill {
+  background: color-mix(in srgb, var(--cat-c) 12%, transparent);
+  color: var(--cat-c);
+  border: 1px solid var(--cat-c);
+}
+/* ── Progress fill catégorie — largeur dynamique via custom property ── */
+#cbMain .cb-cat-progress-fill[style*="--cb-w"] { width: var(--cb-w); }
+
 /* ── Skeleton pane (violation V1 résolue — D-2026-03-16-T06) ── */
 #cbMain .cb-skeleton-pane {
   background: #fff;
   border: 1px solid var(--bs-border-color);
   border-top: none;
   border-radius: 0 0 8px 8px;
-}
-
-
-/* ── Bannière hors service ───────────────────────────────────── */
-#cbMain #cbOfflineBanner {
-  display: none;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  color: #856404;
-  font-size: 0.875rem;
-}
-#cbMain #cbOfflineBanner.show {
-  display: flex;
 }
 
 
@@ -106,7 +98,7 @@
 }
 #cbMain .cb-item-required::after {
   content: ' ★';
-  color: #dc3545;
+  color: var(--bs-danger);
   font-size: 0.65rem;
   vertical-align: super;
 }
@@ -210,7 +202,7 @@
   letter-spacing: 0.05em;
 }
 #cbMain .cb-inactivity-warn {
-  color: #dc3545;
+  color: var(--bs-danger);
 }
 
 
@@ -325,4 +317,68 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
   }
+}
+
+/* ── Admin (cb-admin-* scopés — INTERDIT-17) ── */
+.cb-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ── Typographie micro chip mentor ─────────────────────────── */
+.cb-text-micro { font-size: 0.65rem; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   AJOUTS S128 — extraction inline styles (V6 INTERDIT-C2)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.cb-page-banner {
+  background: linear-gradient(135deg, var(--module-color) 0%, var(--module-color-strong) 100%);
+  color: var(--module-color-text);
+}
+
+.cb-page-subtitle { opacity: 0.75; }
+
+.cb-toolbar-bar {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.cb-toolbar-search {
+  max-width: 360px;
+  flex: 1 1 240px;
+}
+
+.cb-empty-state { padding: 3rem 1rem; }
+
+.cb-empty-icon {
+  font-size: 3rem;
+  color: var(--bs-secondary-color);
+  opacity: 0.5;
+}
+
+.cb-empty-icon--danger {
+  color: var(--bs-danger);
+  opacity: 0.7;
+}
+
+.cb-empty-title {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 1rem 0 0.5rem;
+}
+
+.cb-empty-help { color: var(--bs-secondary-color); }
+
+.cb-tabs-card { padding: 0; overflow: hidden; }
+.cb-tabs-body { padding: 0; }
+
+.cb-select-180 {
+  width: 180px;
+  max-width: 100%;
 }

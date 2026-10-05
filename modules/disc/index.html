@@ -1,548 +1,479 @@
-<!--
-╔══════════════════════════════════════════════════════════════════════════════╗
-║  DISC_ENGINE v2.1 — Bible de Bloc (BDB)                                      ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║  FILE     : disc_v2.1.html                                                   ║
-║  UPDATE   : 2026-02-25                                                       ║
-║  STATUT   : INTÉGRÉ — module BDB v2.1                                        ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║  NEW v2.1 : CRUD Personas, Tests DISC + VAKOG, Référentiels intégrés         ║
-║  STACK    : Bootstrap 5.3.2 + Bootstrap Icons 1.11.1 + CDS theme-base.css   ║
-╚══════════════════════════════════════════════════════════════════════════════╝
--->
 <!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
 <html lang="fr" data-bs-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DISC_ENGINE v2.1 | Bible de Bloc</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
-    <link href="../../css/cds-overrides.css" rel="stylesheet"/>
-    <link href="disc-ui.css" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <script src="../../js/supabase-client.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>DISC Engine - Des Blocs &amp; Moi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="disc-ui.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --module-color: #86efac;
+      --module-color-strong: #4ade80;
+      --module-color-text: #14532d;
+      --module-color-soft: rgba(134, 239, 172, 0.15);
+    }
+  </style>
 </head>
-<body class="d-flex min-vh-100">
-
-
-<!-- ── OFFCANVAS ──────────────────────────────────────────────── -->
-<div class="offcanvas offcanvas-start bdb-offcanvas" tabindex="-1" id="bdbMainMenu" aria-labelledby="bdbMenuLabel">
-  <div class="offcanvas-header border-bottom border-secondary">
-    <a href="../../index.html" class="d-flex align-items-center gap-2 text-decoration-none">
-      <i class="bi bi-hospital fs-4 text-primary"></i>
-      <div>
-        <div class="fw-bold text-white lh-1">Bible de Bloc</div>
-        <div class="bdb-offcanvas-sub">Ortho-Neuro · CDS</div>
-      </div>
-    </a>
-    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
-  </div>
-  <div class="offcanvas-body d-flex flex-column p-0">
-    <nav class="flex-grow-1 py-2" aria-label="Navigation BDB">
-      <ul class="nav flex-column px-2 gap-1">
-        <li><a href="../../index.html"                        class="nav-link bdb-nav-link"><i class="bi bi-house me-2"></i>Accueil</a></li>
-        <li><a href="../../modules/planning/dashboard.html"  class="nav-link bdb-nav-link"><i class="bi bi-calendar2-week me-2"></i>Planning</a></li>
-        <li><a href="../../modules/annuaire/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-people me-2"></i>Annuaire</a></li>
-        <li><a href="../../modules/transmissions/index.html" class="nav-link bdb-nav-link"><i class="bi bi-arrow-left-right me-2"></i>Transmissions</a></li>
-        <li><a href="../../modules/arsenal/index.html"       class="nav-link bdb-nav-link"><i class="bi bi-box-seam me-2"></i>Arsenal</a></li>
-        <li><a href="../../modules/fiches/index.html"        class="nav-link bdb-nav-link"><i class="bi bi-file-earmark-medical me-2"></i>Fiches</a></li>
-        <li><a href="../../modules/preferences/index.html"   class="nav-link bdb-nav-link"><i class="bi bi-person-gear me-2"></i>Préférences</a></li>
-        <li><a href="../../modules/cours/index.html"         class="nav-link bdb-nav-link"><i class="bi bi-mortarboard me-2"></i>Cours</a></li>
-        <li><a href="../../modules/anatomie/index.html"      class="nav-link bdb-nav-link"><i class="bi bi-activity me-2"></i>Anatomie</a></li>
-        <li><a href="../../modules/installation/index.html"  class="nav-link bdb-nav-link"><i class="bi bi-hospital me-2"></i>Installation</a></li>
-        <li class="bdb-nav-admin d-none"><hr class="border-secondary my-1"/></li>
-        <li><a href="../../modules/admin/index.html" class="nav-link bdb-nav-link bdb-nav-admin d-none"><i class="bi bi-shield-check me-2"></i>Administration</a></li>
-      </ul>
-    </nav>
-    <div class="bdb-offcanvas-footer border-top border-secondary">
-      <div class="d-flex align-items-center gap-2">
-        <span class="bdb-sync-dot" role="status" aria-label="Statut connexion"></span>
-        <small class="text-white-50">Système OK</small>
-      </div>
-      <div class="d-flex align-items-center gap-2 mt-2">
-        <div class="bdb-avatar-xs bdb-offcanvas-avatar" id="offcanvasAvatarInitials">?</div>
-        <small class="text-white-50" id="offcanvasUserName">…</small>
-      </div>
+<body class="sidebar-closed">
+  <div id="wrapper">
+    <div id="bdb-shell"
+         data-module-title="DISC Engine"
+         data-module-icon="bi-diagram-3-fill"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice"
+         data-shell-theme="dbm">
     </div>
-  </div>
-</div>
-
-
-<main class="d-flex flex-column flex-grow-1 main-content">
-
-<!-- ── HEADER ────────────────────────────────────────────────── -->
-<header class="bdb-module-header sticky-top d-flex align-items-center justify-content-between px-3 px-md-4" id="bdbHeader">
-  <div class="d-flex align-items-center gap-3">
-    <button class="btn btn-sm bdb-menu-btn" data-bs-toggle="offcanvas" data-bs-target="#bdbMainMenu" aria-label="Ouvrir le menu" aria-controls="bdbMainMenu">
-      <i class="bi bi-list fs-5"></i>
-    </button>
-    <div class="d-flex align-items-center gap-2">
-      <i class="bi bi-diagram-3-fill bdb-module-header-icon"></i>
-      <h1 class="bdb-module-header-title mb-0">DISC Engine</h1>
-    </div>
-    <span class="text-muted d-none d-md-inline small" id="header-breadcrumb">Dashboard</span>
-  </div>
-  <div class="d-flex align-items-center gap-2">
-    <div id="headerActions" class="d-flex align-items-center gap-2"></div>
-    <span id="bdbBadgeAdmin" class="badge bg-danger d-none">Admin</span>
-    <div class="position-relative">
-      <button class="bdb-avatar-btn" id="bdbAvatarBtn" aria-label="Menu utilisateur" aria-expanded="false" aria-haspopup="true">
-        <span id="bdbAvatarInitials">?</span>
-      </button>
-      <div class="bdb-user-menu" id="bdbUserMenu" role="menu">
-        <div class="bdb-user-menu-header">
-          <div class="fw-semibold small" id="bdbMenuName">…</div>
-          <div class="bdb-user-menu-email" id="bdbMenuEmail"></div>
-        </div>
-        <a href="../../modules/profile/index.html" class="bdb-user-menu-item" role="menuitem">
-          <i class="bi bi-person-circle"></i>Mon profil
-        </a>
-        <a href="../../admin-memo.html" class="bdb-user-menu-item bdb-admin-only d-none" role="menuitem">
-          <i class="bi bi-journal-bookmark-fill"></i>Mémo admin
-        </a>
-        <div class="bdb-menu-sep"></div>
-        <button class="bdb-user-menu-item danger w-100" id="bdbBtnLogout" role="menuitem">
-          <i class="bi bi-box-arrow-right"></i>Déconnexion
-        </button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<div class="disc-shell d-flex flex-grow-1">
-    <!-- SIDEBAR -->
-    <nav class="disc-sidebar d-none d-lg-flex flex-column" id="sidebar">
-        <div class="disc-nav-section">Navigation</div>
-        <a href="#" class="disc-nav-link active" data-nav="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
-        <a href="#" class="disc-nav-link" data-nav="personas"><i class="bi bi-person-badge"></i> Personas <span class="badge bg-secondary-subtle text-secondary ms-auto" id="snav-personas">0</span></a>
-        <div class="disc-nav-section mt-1">Tests</div>
-        <a href="#" class="disc-nav-link" data-nav="test-disc"><i class="bi bi-clipboard-check"></i> Test DISC</a>
-        <a href="#" class="disc-nav-link" data-nav="test-vakog"><i class="bi bi-eye"></i> Test VAKOG</a>
-        <div class="disc-nav-section mt-1">Référentiels</div>
-        <a href="#" class="disc-nav-link" data-nav="ref-disc"><i class="bi bi-graph-up-arrow"></i> Styles DISC</a>
-        <a href="#" class="disc-nav-link" data-nav="ref-vakog"><i class="bi bi-eye-fill"></i> Canaux VAKOG</a>
-        <div class="disc-nav-section mt-1">Pédagogie</div>
-        <a href="#" class="disc-nav-link" data-nav="scenarios"><i class="bi bi-layers"></i> Scénarios <span class="badge bg-secondary-subtle text-secondary ms-auto" id="snav-scenarios">0</span></a>
-        <a href="#" class="disc-nav-link" data-nav="export"><i class="bi bi-box-arrow-up-right"></i> Export IA</a>
-        <div class="mt-auto p-3 border-top">
-        </div>
-    </nav>
-
-    <!-- MAIN -->
-    <div class="disc-main">
-
-        <!-- ════════════════ DASHBOARD ════════════════ -->
-        <div class="disc-view active" id="view-dashboard">
-            <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-                <h1 class="mb-2 h3"><i class="bi bi-diagram-3-fill me-2"></i>DISC_ENGINE v2.1 — Dashboard</h1>
-                <p class="mb-0 opacity-75">Module Personas & Scénarios Pédagogiques · Bible de Bloc · Tests DISC & VAKOG</p>
-            </div>
-            <div class="row g-3 mb-4" id="kpi-row"></div>
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-transparent"><strong><i class="bi bi-diagram-3 me-2 text-primary"></i>Répartition DISC</strong></div>
-                <div class="card-body"><div class="row g-3" id="disc-distribution"></div></div>
-            </div>
-            <div class="card shadow-sm">
-                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
-                    <strong><i class="bi bi-person-badge me-2 text-primary"></i>Équipe</strong>
-                    <a href="#" class="btn btn-sm btn-outline-primary" data-nav="personas"><i class="bi bi-arrow-right me-1"></i>Tous les personas</a>
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="equipe" style="--module-color:#86efac;--module-color-strong:#4ade80;--module-color-text:#14532d;--module-color-soft:rgba(134,239,172,0.15)">
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d Ariane">
+                <a href="../../index.html">Accueil</a>
+                <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+                <span>DISC Engine</span>
+              </nav>
+            </section>
+            <section class="app-zone" data-zone="Page Title">
+              <div class="p-4 rounded shadow-sm mb-3" style="background:linear-gradient(135deg, #86efac 0%, #4ade80 100%);color:#14532d">
+                <h1 class="mb-2 fw-bold"><i class="bi bi-diagram-3-fill me-2"></i>DISC Engine</h1>
+                <p style="opacity:0.75" class="mb-0">Profils DISC et VAKOG - tests, decouverte, scenarios pedagogiques</p>
+              </div>
+            </section>
+            <section class="app-zone" data-zone="Filters">
+              <div style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1rem">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <div class="input-group input-group-sm" style="max-width:360px;flex:1 1 240px">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="search" id="search-personas" class="form-control border-start-0 disc-search" placeholder="Rechercher persona, scenario..." aria-label="Recherche"/>
+                  </div>
+                  <span class="text-muted small ms-1">Filtre DISC :</span>
+                  <span class="badge disc-filter-pill disc-badge-D active-filter px-3 py-2" data-disc-filter="ALL" role="button">Tous</span>
+                  <span class="badge disc-filter-pill disc-badge-D px-3 py-2" data-disc-filter="D" role="button">D</span>
+                  <span class="badge disc-filter-pill disc-badge-I px-3 py-2" data-disc-filter="I" role="button">I</span>
+                  <span class="badge disc-filter-pill disc-badge-S px-3 py-2" data-disc-filter="S" role="button">S</span>
+                  <span class="badge disc-filter-pill disc-badge-C px-3 py-2" data-disc-filter="C" role="button">C</span>
+                  <a href="admin.html" class="btn btn-outline-secondary btn-sm bdb-admin-only d-none ms-auto">
+                    <i class="bi bi-gear me-1"></i>Administration
+                  </a>
                 </div>
-                <div class="card-body"><div class="row g-3" id="dashboard-preview"></div></div>
-            </div>
-        </div>
-
-        <!-- ════════════════ PERSONAS ════════════════ -->
-        <div class="disc-view" id="view-personas">
-            <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-                <div class="d-flex align-items-start justify-content-between">
+              </div>
+            </section>
+            <section class="app-zone" data-zone="Content">
+              <div id="disc-loading-state" class="app-card">
+                <div class="app-card-body d-flex justify-content-center align-items-center p-5">
+                  <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div>
+                  <span class="ms-3 text-muted">Chargement du module DISC...</span>
+                </div>
+              </div>
+              <div id="disc-error-state" class="app-card d-none">
+                <div class="app-card-body">
+                  <div class="alert alert-danger d-flex align-items-center gap-3 mb-0">
+                    <i class="bi bi-exclamation-triangle-fill fs-3"></i>
                     <div>
-                        <h1 class="mb-2 h3"><i class="bi bi-person-badge me-2"></i>Personas pédagogiques</h1>
-                        <p class="mb-0 opacity-75">Profils psycho-pédagogiques de l'équipe · CRUD actif</p>
+                      <strong>Erreur de chargement</strong>
+                      <p class="mb-2 small" id="disc-error-msg">Impossible de charger les donnees.</p>
+                      <button class="btn btn-sm btn-outline-danger" id="btn-disc-reload"><i class="bi bi-arrow-counterclockwise me-1"></i>Reessayer</button>
                     </div>
-                    <button class="btn btn-light btn-sm mt-1" id="btn-new-persona">
-                        <i class="bi bi-plus-lg me-1"></i>Nouveau
-                    </button>
+                  </div>
                 </div>
-            </div>
-            <div class="card shadow-sm mb-4">
-                <div class="card-body py-2">
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <input type="text" class="form-control form-control-sm disc-search" id="search-personas" placeholder="Rechercher…">
-                        <span class="text-muted small ms-1">Filtre :</span>
-                        <span class="badge disc-filter-pill disc-badge-D active-filter px-3 py-2" data-disc-filter="ALL">Tous</span>
-                        <span class="badge disc-filter-pill disc-badge-D px-3 py-2" data-disc-filter="D">D</span>
-                        <span class="badge disc-filter-pill disc-badge-I px-3 py-2" data-disc-filter="I">I</span>
-                        <span class="badge disc-filter-pill disc-badge-S px-3 py-2" data-disc-filter="S">S</span>
-                        <span class="badge disc-filter-pill disc-badge-C px-3 py-2" data-disc-filter="C">C</span>
+              </div>
+              <div id="disc-ready-state" class="app-card d-none" data-accent="module" style="padding:0;overflow:hidden">
+                <div class="disc-shell d-flex">
+                  <nav class="disc-sidebar d-none d-lg-flex flex-column" id="sidebar">
+                    <div class="disc-nav-section">Mon espace</div>
+                    <a href="#" class="disc-nav-link active" data-nav="dashboard"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+                    <a href="#" class="disc-nav-link" data-nav="mon-profil"><i class="bi bi-person-circle"></i> Mon profil</a>
+                    <div class="disc-nav-section mt-1">Tests</div>
+                    <a href="#" class="disc-nav-link" data-nav="test-disc"><i class="bi bi-clipboard-check"></i> Test DISC</a>
+                    <a href="#" class="disc-nav-link" data-nav="test-vakog"><i class="bi bi-eye"></i> Test VAKOG</a>
+                    <div class="disc-nav-section mt-1">Explorer</div>
+                    <a href="#" class="disc-nav-link" data-nav="decouverte"><i class="bi bi-people"></i> Decouverte</a>
+                    <a href="#" class="disc-nav-link" data-nav="ref-disc"><i class="bi bi-graph-up-arrow"></i> Styles DISC</a>
+                    <a href="#" class="disc-nav-link" data-nav="ref-vakog"><i class="bi bi-eye-fill"></i> Canaux VAKOG</a>
+                    <div class="bdb-admin-only d-none">
+                      <div class="disc-nav-section mt-1">Administration</div>
+                      <a href="#" class="disc-nav-link" data-nav="distribution"><i class="bi bi-bar-chart"></i> Distribution</a>
+                      <a href="#" class="disc-nav-link" data-nav="personas"><i class="bi bi-person-badge"></i> Personas <span class="badge bg-secondary-subtle text-secondary ms-auto" id="snav-personas">0</span></a>
+                      <a href="#" class="disc-nav-link" data-nav="scenarios"><i class="bi bi-layers"></i> Scenarios <span class="badge bg-secondary-subtle text-secondary ms-auto" id="snav-scenarios">0</span></a>
+                      <a href="#" class="disc-nav-link" data-nav="export"><i class="bi bi-box-arrow-up-right"></i> Export IA</a>
                     </div>
-                </div>
-            </div>
-            <div class="row g-3" id="persona-grid"></div>
-        </div>
-
-        <!-- ════════════════ TEST DISC ════════════════ -->
-        <div class="disc-view" id="view-test-disc">
-            <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-                <h1 class="mb-2 h3"><i class="bi bi-clipboard-check me-2"></i>Test de profil DISC</h1>
-                <p class="mb-0 opacity-75">12 questions · Identifiez votre style comportemental dominant</p>
-            </div>
-
-            <!-- Sélecteur persona à associer -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-body py-2">
-                    <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <label class="form-label mb-0 small fw-semibold">Associer le résultat à :</label>
-                        <select class="form-select form-select-sm disc-select-persona" id="disc-test-persona-select">
-                            <option value="">— Ne pas associer —</option>
-                        </select>
-                        <span class="badge bg-info-subtle text-info border border-info-subtle">Optionnel</span>
+                    <div class="mt-auto p-3 border-top"></div>
+                  </nav>
+                  <div class="disc-main p-3 flex-grow-1">
+                    <div class="disc-view active" id="view-dashboard">
+                      <div class="row g-3 mb-4" id="kpi-row"></div>
+                      <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-transparent"><strong><i class="bi bi-diagram-3 me-2" style="color:var(--module-color-strong)"></i>Tendance equipe (anonyme)</strong></div>
+                        <div class="card-body"><div class="row g-3" id="disc-distribution"></div></div>
+                      </div>
+                      <div class="card shadow-sm" id="dashboard-cta">
+                        <div class="card-body text-center py-4">
+                          <i class="bi bi-clipboard-check fs-1 mb-2 d-block" style="color:var(--module-color-strong)"></i>
+                          <h5>Decouvrez votre profil</h5>
+                          <p class="text-muted mb-3">Passez les tests DISC et VAKOG pour obtenir votre profil personnalise.</p>
+                          <div class="d-flex gap-2 justify-content-center">
+                            <button class="btn btn-module btn-sm" data-nav="test-disc"><i class="bi bi-clipboard-check me-1"></i>Test DISC</button>
+                            <button class="btn btn-outline-success btn-sm" data-nav="test-vakog"><i class="bi bi-eye me-1"></i>Test VAKOG</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card shadow-sm d-none" id="dashboard-profil-summary"></div>
                     </div>
-                </div>
-            </div>
-
-            <div id="disc-test-container"></div>
-
-            <!-- Résultats -->
-            <div class="card shadow-sm d-none" id="disc-test-results">
-                <div class="card-header bg-transparent"><strong><i class="bi bi-bar-chart me-2 text-primary"></i>Résultats DISC</strong></div>
-                <div class="card-body" id="disc-results-body"></div>
-                <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
-                    <button class="btn btn-outline-secondary btn-sm" id="btn-disc-retake">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>Recommencer
-                    </button>
-                    <button class="btn btn-primary btn-sm d-none" id="btn-disc-inject">
-                        <i class="bi bi-person-badge me-1"></i>Appliquer au persona sélectionné
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ════════════════ TEST VAKOG ════════════════ -->
-        <div class="disc-view" id="view-test-vakog">
-            <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-                <h1 class="mb-2 h3"><i class="bi bi-eye me-2"></i>Test de profil VAKOG</h1>
-                <p class="mb-0 opacity-75">10 questions · Découvrez vos canaux sensoriels dominants</p>
-            </div>
-
-            <div class="card shadow-sm mb-4">
-                <div class="card-body py-2">
-                    <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <label class="form-label mb-0 small fw-semibold">Associer le résultat à :</label>
-                        <select class="form-select form-select-sm disc-select-persona" id="vakog-test-persona-select">
-                            <option value="">— Ne pas associer —</option>
-                        </select>
-                        <span class="badge bg-info-subtle text-info border border-info-subtle">Optionnel</span>
+                    <div class="disc-view" id="view-mon-profil">
+                      <div id="mon-profil-content"></div>
+                      <div id="mon-profil-empty" class="d-none">
+                        <div class="alert alert-info d-flex align-items-center gap-3">
+                          <i class="bi bi-info-circle fs-3"></i>
+                          <div>
+                            <strong>Aucun profil enregistre</strong>
+                            <p class="mb-2 small">Passez les tests DISC et VAKOG pour generer votre profil.</p>
+                            <div class="d-flex gap-2">
+                              <button class="btn btn-sm btn-module" data-nav="test-disc">Test DISC</button>
+                              <button class="btn btn-sm btn-outline-success" data-nav="test-vakog">Test VAKOG</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                </div>
-            </div>
-
-            <div id="vakog-test-container"></div>
-
-            <div class="card shadow-sm d-none" id="vakog-test-results">
-                <div class="card-header bg-transparent"><strong><i class="bi bi-bar-chart me-2 text-success"></i>Résultats VAKOG</strong></div>
-                <div class="card-body" id="vakog-results-body"></div>
-                <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
-                    <button class="btn btn-outline-secondary btn-sm" id="btn-vakog-retake">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i>Recommencer
-                    </button>
-                    <button class="btn btn-primary btn-sm d-none" id="btn-vakog-inject">
-                        <i class="bi bi-person-badge me-1"></i>Appliquer au persona sélectionné
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ════════════════ RÉFÉRENTIEL DISC ════════════════ -->
-        <div class="disc-view" id="view-ref-disc">
-            <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-                <h1 class="mb-2 h3"><i class="bi bi-graph-up-arrow me-2"></i>Référentiel DISC</h1>
-                <p class="mb-0 opacity-75">Synthèse comparative des styles de communication</p>
-            </div>
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-primary text-white py-3 text-center">
-                    <i class="bi bi-lightning-charge-fill fs-4"></i>
-                    <div class="small mt-1 fw-bold">Guide de Communication par Profil</div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr class="table-light">
-                                <th class="text-uppercase small fw-bold text-muted border-end disc-col-critere">Critère</th>
+                    <div class="disc-view" id="view-test-disc">
+                      <h2 class="h5 fw-bold mb-3"><i class="bi bi-clipboard-check me-2" style="color:var(--module-color-strong)"></i>Test de profil DISC</h2>
+                      <p class="small text-muted">12 questions - identifiez votre style comportemental dominant</p>
+                      <div id="disc-test-container"></div>
+                      <div class="card shadow-sm d-none mt-3" id="disc-test-results">
+                        <div class="card-header bg-transparent"><strong><i class="bi bi-bar-chart me-2" style="color:var(--module-color-strong)"></i>Resultats DISC</strong></div>
+                        <div class="card-body" id="disc-results-body"></div>
+                        <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
+                          <button class="btn btn-outline-secondary btn-sm" id="btn-disc-retake"><i class="bi bi-arrow-counterclockwise me-1"></i>Recommencer</button>
+                          <span class="badge bg-success-subtle text-success ms-auto align-self-center" id="disc-save-badge"><i class="bi bi-check-circle me-1"></i>Profil sauvegarde</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="disc-view" id="view-test-vakog">
+                      <h2 class="h5 fw-bold mb-3"><i class="bi bi-eye me-2" style="color:var(--module-color-strong)"></i>Test de profil VAKOG</h2>
+                      <p class="small text-muted">10 questions - decouvrez vos canaux sensoriels dominants</p>
+                      <div id="vakog-test-container"></div>
+                      <div class="card shadow-sm d-none mt-3" id="vakog-test-results">
+                        <div class="card-header bg-transparent"><strong><i class="bi bi-bar-chart me-2 text-success"></i>Resultats VAKOG</strong></div>
+                        <div class="card-body" id="vakog-results-body"></div>
+                        <div class="card-footer bg-transparent d-flex gap-2 flex-wrap">
+                          <button class="btn btn-outline-secondary btn-sm" id="btn-vakog-retake"><i class="bi bi-arrow-counterclockwise me-1"></i>Recommencer</button>
+                          <span class="badge bg-success-subtle text-success ms-auto align-self-center" id="vakog-save-badge"><i class="bi bi-check-circle me-1"></i>Profil sauvegarde</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="disc-view" id="view-decouverte">
+                      <h2 class="h5 fw-bold mb-3"><i class="bi bi-people me-2" style="color:var(--module-color-strong)"></i>Decouverte DISC</h2>
+                      <p class="small text-muted">Les 4 profils - compatibilites - tendance de votre equipe</p>
+                      <div class="row g-3 mb-3" id="decouverte-profils"></div>
+                      <div class="card shadow-sm">
+                        <div class="card-header bg-transparent"><strong><i class="bi bi-arrows-expand me-2" style="color:var(--module-color-strong)"></i>Compatibilites entre profils</strong></div>
+                        <div class="card-body" id="decouverte-compat"></div>
+                      </div>
+                    </div>
+                    <div class="disc-view" id="view-ref-disc">
+                      <h2 class="h5 fw-bold mb-3"><i class="bi bi-graph-up-arrow me-2" style="color:var(--module-color-strong)"></i>Referentiel DISC</h2>
+                      <p class="small text-muted">Synthese comparative des styles de communication</p>
+                      <div class="card shadow-sm border-0">
+                        <div class="card-header bg-success text-white py-3 text-center">
+                          <i class="bi bi-lightning-charge-fill fs-4"></i>
+                          <div class="small mt-1 fw-bold">Guide de communication par profil</div>
+                        </div>
+                        <div class="table-responsive">
+                          <table class="table table-hover align-middle mb-0">
+                            <thead>
+                              <tr class="table-light">
+                                <th class="text-uppercase small fw-bold text-muted border-end disc-col-critere">Critere</th>
                                 <th class="text-center border-end"><div class="badge bg-danger fs-6 px-3 py-2 mb-1">D</div><div class="small fw-bold text-danger">DOMINANT</div></th>
                                 <th class="text-center border-end"><div class="badge bg-warning text-dark fs-6 px-3 py-2 mb-1">I</div><div class="small fw-bold text-warning">INFLUENT</div></th>
-                                <th class="text-center border-end"><div class="badge bg-primary fs-6 px-3 py-2 mb-1">S</div><div class="small fw-bold text-primary">STABLE</div></th>
-                                <th class="text-center"><div class="badge bg-success fs-6 px-3 py-2 mb-1">C</div><div class="small fw-bold text-success">CONFORME</div></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-chat-text text-primary me-2"></i>Ton</td><td class="border-end">Direct, sec, autoritaire</td><td class="border-end">Chaleureux, énergique, collaboratif</td><td class="border-end">Posé, rassurant, pédagogique</td><td>Factuel, technique, exhaustif</td></tr>
-                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-check-circle text-success me-2"></i>Encouragé</td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-danger"></i> Zéro bavardage</li><li><i class="bi bi-arrow-right-short text-danger"></i> Phrases courtes</li><li><i class="bi bi-arrow-right-short text-danger"></i> Action immédiate</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-warning"></i> Formules positives</li><li><i class="bi bi-arrow-right-short text-warning"></i> Métaphores visuelles</li><li><i class="bi bi-arrow-right-short text-warning"></i> Vocabulaire engageant</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-primary"></i> Explications pas à pas</li><li><i class="bi bi-arrow-right-short text-primary"></i> Validation des étapes</li><li><i class="bi bi-arrow-right-short text-primary"></i> Avertissements bienveillants</li></ul></td>
-                                <td><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-success"></i> Références normatives</li><li><i class="bi bi-arrow-right-short text-success"></i> Justifications techniques</li><li><i class="bi bi-arrow-right-short text-success"></i> Cas limites documentés</li></ul></td>
-                            </tr>
-                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-x-circle text-danger me-2"></i>Interdit</td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Formules politesse</li><li><i class="bi bi-x text-danger"></i> Explications non sollicitées</li><li><i class="bi bi-x text-danger"></i> Justifications longues</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Ton froid/distant</li><li><i class="bi bi-x text-danger"></i> Jargon sans explication</li><li><i class="bi bi-x text-danger"></i> Réponses sèches</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Précipitation</li><li><i class="bi bi-x text-danger"></i> Changements brusques</li><li><i class="bi bi-x text-danger"></i> Manque de contexte</li></ul></td>
-                                <td><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Approximations</li><li><i class="bi bi-x text-danger"></i> Généralités</li><li><i class="bi bi-x text-danger"></i> Absence de sources</li></ul></td>
-                            </tr>
-                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-patch-check text-success me-2"></i>Validation</td>
-                                <td class="border-end"><span class="badge bg-danger-subtle text-danger border border-danger px-2 py-1"><i class="bi bi-check-lg me-1"></i>Ok Manu.</span></td>
-                                <td class="border-end"><span class="badge bg-warning-subtle text-warning border border-warning px-2 py-1"><i class="bi bi-star-fill me-1"></i>Génial ! On continue ?</span></td>
-                                <td class="border-end"><span class="badge bg-primary-subtle text-primary border border-primary px-2 py-1"><i class="bi bi-clock me-1"></i>C'est noté. Quand tu es prêt.</span></td>
-                                <td><span class="badge bg-success-subtle text-success border border-success px-2 py-1"><i class="bi bi-clipboard-check me-1"></i>Modification conforme.</span></td>
-                            </tr>
-                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-diagram-3 text-info me-2"></i>Structure</td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li>1️⃣ Action en 1 ligne</li><li>2️⃣ Code/Question</li><li>3️⃣ Attente validation</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li>1️⃣ Contexte positif</li><li>2️⃣ Explication imagée</li><li>3️⃣ Code commenté</li><li>4️⃣ Question engageante</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li>1️⃣ Résumé action</li><li>2️⃣ Étapes numérotées</li><li>3️⃣ Vérification douce</li></ul></td>
-                                <td><ul class="list-unstyled mb-0 small"><li>1️⃣ Diagnostic précis</li><li>2️⃣ Référence normative</li><li>3️⃣ Cas limite documenté</li></ul></td>
-                            </tr>
-                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-rulers text-info me-2"></i>Longueur</td>
-                                <td class="border-end text-center"><span class="badge bg-danger fs-6 px-3 py-2">Minimale</span></td>
-                                <td class="border-end text-center"><span class="badge bg-warning text-dark fs-6 px-3 py-2">Moyenne+</span></td>
-                                <td class="border-end text-center"><span class="badge bg-primary fs-6 px-3 py-2">Moyenne</span></td>
-                                <td class="text-center"><span class="badge bg-success fs-6 px-3 py-2">Maximale</span></td>
-                            </tr>
-                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-bullseye text-warning me-2"></i>Usage idéal</td>
-                                <td class="border-end"><span class="badge bg-danger-subtle text-danger me-1"><i class="bi bi-speedometer2"></i></span>Production quotidienne</td>
-                                <td class="border-end"><span class="badge bg-warning-subtle text-warning me-1"><i class="bi bi-lightbulb"></i></span>Brainstorming, prototypes</td>
-                                <td class="border-end"><span class="badge bg-primary-subtle text-primary me-1"><i class="bi bi-book"></i></span>Formations, migrations</td>
-                                <td><span class="badge bg-success-subtle text-success me-1"><i class="bi bi-search"></i></span>Audits, code review</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="card-footer bg-light border-top py-3">
-                    <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <span class="badge bg-danger fs-5 px-3 py-2">D</span>
-                        <div><strong class="d-block">DISC — Styles de Communication</strong><small class="text-muted">Référentiel BDB v3.0 · 2026</small></div>
-                        <div class="ms-auto d-flex gap-2 flex-wrap">
-                            <span class="badge bg-primary-subtle text-primary px-2 py-1"><i class="bi bi-shield-check me-1"></i>v3.0</span>
-                            <span class="badge bg-warning-subtle text-warning px-2 py-1"><i class="bi bi-robot me-1"></i>Anti-Hallu</span>
-                            <span class="badge bg-success-subtle text-success px-2 py-1"><i class="bi bi-calendar-check me-1"></i>2026</span>
+                                <th class="text-center border-end"><span class="badge disc-badge-S fs-6 px-3 py-2 mb-1 d-inline-block">S</span><div class="small fw-bold disc-letter-S">STABLE</div></th>
+                                <th class="text-center"><span class="badge disc-badge-C fs-6 px-3 py-2 mb-1 d-inline-block">C</span><div class="small fw-bold disc-letter-C">CONSCIENCIEUX</div></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr><td class="fw-bold bg-light border-end"><i class="bi bi-chat-text" style="color:var(--module-color-strong)"></i> Ton</td><td class="border-end">Direct, sec, autoritaire</td><td class="border-end">Chaleureux, energique, collaboratif</td><td class="border-end">Pose, rassurant, pedagogique</td><td>Factuel, technique, exhaustif</td></tr>
+                              <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-check-circle text-success me-2"></i>Encourage</td><td class="border-end">Concis, resultat, defi</td><td class="border-end">Enthousiasme, creativite, reconnaissance</td><td class="border-end">Ecoute, stabilite, accompagnement</td><td>Precision, donnees, rigueur</td></tr>
+                              <tr><td class="fw-bold bg-light border-end"><i class="bi bi-x-circle text-danger me-2"></i>A eviter</td><td class="border-end">Longs discours, hesitations</td><td class="border-end">Isolation, froideur, rigidite</td><td class="border-end">Pression, changements brusques</td><td>Imprecision, raccourcis, flou</td></tr>
+                              <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Sous stress</td><td class="border-end">Autoritaire, impulsif</td><td class="border-end">Bavard, disperse</td><td class="border-end">Passif, resistant</td><td>Paralyse, perfectionniste</td></tr>
+                              <tr><td class="fw-bold bg-light border-end"><i class="bi bi-emoji-smile text-success me-2"></i>Moteur</td><td class="border-end">Resultats, controle</td><td class="border-end">Reconnaissance, fun</td><td class="border-end">Harmonie, securite</td><td>Qualite, expertise</td></tr>
+                            </tbody>
+                          </table>
                         </div>
+                      </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ════════════════ RÉFÉRENTIEL VAKOG ════════════════ -->
-        <div class="disc-view" id="view-ref-vakog">
-            <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-                <h1 class="mb-2 h3"><i class="bi bi-eye-fill me-2"></i>Référentiel VAKOG</h1>
-                <p class="mb-0 opacity-75">Synthèse comparative des canaux sensoriels de communication</p>
-            </div>
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-success text-white py-3 text-center">
-                    <i class="bi bi-stars fs-4"></i>
-                    <div class="small mt-1 fw-bold">Guide des Canaux Sensoriels</div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="text-uppercase small text-muted border-end disc-col-critere-sm">Critère</th>
+                    <div class="disc-view" id="view-ref-vakog">
+                      <h2 class="h5 fw-bold mb-3"><i class="bi bi-eye-fill me-2 text-success"></i>Referentiel VAKOG</h2>
+                      <p class="small text-muted">Synthese comparative des canaux sensoriels de communication</p>
+                      <div class="card shadow-sm border-0">
+                        <div class="card-header bg-success text-white py-3 text-center">
+                          <i class="bi bi-stars fs-4"></i>
+                          <div class="small mt-1 fw-bold">Guide des canaux sensoriels</div>
+                        </div>
+                        <div class="table-responsive">
+                          <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                              <tr>
+                                <th class="text-uppercase small text-muted border-end disc-col-critere-sm">Critere</th>
                                 <th class="text-center border-end"><div class="badge bg-primary-subtle text-primary fs-6 px-3 py-2 mb-1">V</div><div class="small fw-bold text-primary">VISUEL</div></th>
                                 <th class="text-center border-end"><div class="badge bg-info-subtle text-info fs-6 px-3 py-2 mb-1">A</div><div class="small fw-bold text-info">AUDITIF</div></th>
-                                <th class="text-center border-end"><div class="badge bg-success-subtle text-success fs-6 px-3 py-2 mb-1">K</div><div class="small fw-bold text-success">KINESTHÉSIQUE</div></th>
+                                <th class="text-center border-end"><div class="badge bg-success-subtle text-success fs-6 px-3 py-2 mb-1">K</div><div class="small fw-bold text-success">KINESTHESIQUE</div></th>
                                 <th class="text-center border-end"><div class="badge bg-warning-subtle text-dark fs-6 px-3 py-2 mb-1">O</div><div class="small fw-bold text-warning">OLFACTIF</div></th>
                                 <th class="text-center"><div class="badge bg-danger-subtle text-danger fs-6 px-3 py-2 mb-1">G</div><div class="small fw-bold text-danger">GUSTATIF</div></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-chat-text text-primary me-2"></i>Vocabulaire</td><td class="border-end small">Voir, regarder, imaginer, clair, flou, perspective, visualiser</td><td class="border-end small">Entendre, écouter, sonner, harmonieux, rythme, résonner, accord</td><td class="border-end small">Sentir, toucher, ressentir, concret, solide, fluide, équilibre</td><td class="border-end small">Flairer, odeur, parfum, senteur, fraîcheur, ambiance</td><td class="small">Goûter, saveur, doux, amer, digérer, apprécier</td></tr>
-                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-emoji-smile text-success me-2"></i>Métaphores</td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-primary"></i> "C'est clair comme de l'eau de roche"</li><li><i class="bi bi-arrow-right-short text-primary"></i> "Je vois ce que tu veux dire"</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-info"></i> "Ça sonne juste"</li><li><i class="bi bi-arrow-right-short text-info"></i> "J'entends ce que tu dis"</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-success"></i> "Je saisis l'idée"</li><li><i class="bi bi-arrow-right-short text-success"></i> "C'est concret"</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-warning"></i> "Je flaire un problème"</li><li><i class="bi bi-arrow-right-short text-warning"></i> "L'ambiance du projet"</li></ul></td>
-                                <td><ul class="list-unstyled mb-0 small"><li><i class="bi bi-arrow-right-short text-danger"></i> "Goûter au succès"</li><li><i class="bi bi-arrow-right-short text-danger"></i> "Digérer l'information"</li></ul></td>
-                            </tr>
-                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-check-circle text-success me-2"></i>Préférences</td>
-                                <td class="border-end small"><div>📊 Diagrammes, schémas</div><div>🎨 Couleurs, visuels</div><div>📐 Structures claires</div></td>
-                                <td class="border-end small"><div>🎵 Explications orales</div><div>💬 Discussions</div><div>🎙️ Ton de voix</div></td>
-                                <td class="border-end small"><div>✋ Exemples pratiques</div><div>🎯 Actions concrètes</div><div>🏃 Faire pour comprendre</div></td>
-                                <td class="border-end small"><div>🌿 Contexte ambiant</div><div>💨 Atmosphère</div><div>🍃 Intuition spatiale</div></td>
-                                <td class="small"><div>🍰 Récompenses tangibles</div><div>⭐ Satisfactions mesurées</div><div>🎁 Résultats appréciables</div></td>
-                            </tr>
-                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-x-circle text-danger me-2"></i>À éviter</td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Texte dense sans structure</li><li><i class="bi bi-x text-danger"></i> Monotonie visuelle</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Trop de visuels sans explication</li><li><i class="bi bi-x text-danger"></i> Silence prolongé</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Trop de théorie abstraite</li><li><i class="bi bi-x text-danger"></i> Absence d'exemples</li></ul></td>
-                                <td class="border-end"><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Environnement sterile</li><li><i class="bi bi-x text-danger"></i> Absence d'atmosphère</li></ul></td>
-                                <td><ul class="list-unstyled mb-0 small"><li><i class="bi bi-x text-danger"></i> Absence de feedback</li><li><i class="bi bi-x text-danger"></i> Manque de célébration</li></ul></td>
-                            </tr>
-                            <tr><td class="fw-bold bg-light border-end"><i class="bi bi-rulers text-info me-2"></i>Fréquence</td>
-                                <td class="border-end text-center"><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">55%</span><div class="small text-muted mt-1">Majoritaire</div></td>
-                                <td class="border-end text-center"><span class="badge bg-info-subtle text-info fs-6 px-3 py-2">30%</span><div class="small text-muted mt-1">Courant</div></td>
-                                <td class="border-end text-center"><span class="badge bg-success-subtle text-success fs-6 px-3 py-2">15%</span><div class="small text-muted mt-1">Régulier</div></td>
-                                <td class="border-end text-center"><span class="badge bg-warning-subtle text-dark fs-6 px-3 py-2">Rare</span><div class="small text-muted mt-1">Contextuel</div></td>
-                                <td class="text-center"><span class="badge bg-danger-subtle text-danger fs-6 px-3 py-2">Rare</span><div class="small text-muted mt-1">Métaphorique</div></td>
-                            </tr>
-                            <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-bullseye text-warning me-2"></i>Usage idéal</td>
-                                <td class="border-end"><span class="badge bg-primary-subtle text-primary me-1"><i class="bi bi-diagram-3"></i></span>Architectures, UX/UI</td>
-                                <td class="border-end"><span class="badge bg-info-subtle text-info me-1"><i class="bi bi-mic"></i></span>Explications verbales, débats</td>
-                                <td class="border-end"><span class="badge bg-success-subtle text-success me-1"><i class="bi bi-terminal"></i></span>Tutoriels pratiques, démos</td>
-                                <td class="border-end"><span class="badge bg-warning-subtle text-dark me-1"><i class="bi bi-cloud"></i></span>Culture d'équipe</td>
-                                <td><span class="badge bg-danger-subtle text-danger me-1"><i class="bi bi-star"></i></span>Feedback, célébrations</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="card-footer bg-light border-top py-3">
-                    <div class="d-flex align-items-center gap-3 flex-wrap">
-                        <span class="badge bg-success-subtle text-success fs-5 px-3 py-2">V</span>
-                        <div><strong class="d-block">VAKOG — Canaux Sensoriels</strong><small class="text-muted">Référentiel BDB v1.0 · 2026</small></div>
-                        <div class="ms-auto"><span class="badge bg-light text-dark border">Sentinelle CSS Compliant</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ════════════════ SCÉNARIOS ════════════════ -->
-        <div class="disc-view" id="view-scenarios">
-            <div id="scenario-list-view">
-                <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-                    <h1 class="mb-2 h3"><i class="bi bi-layers me-2"></i>Scénarios pédagogiques</h1>
-                    <p class="mb-0 opacity-75">Situations jouables · formation & débriefing</p>
-                </div>
-                <div id="scenario-list" class="d-flex flex-column gap-3"></div>
-            </div>
-            <div id="scene-viewer-view" class="d-none">
-                <div class="d-flex align-items-center gap-3 mb-4">
-                    <button class="btn btn-outline-secondary btn-sm" id="btn-back-scenarios"><i class="bi bi-arrow-left me-1"></i>Scénarios</button>
-                    <h2 class="h5 mb-0 fw-bold" id="scene-scenario-title"></h2>
-                    <span class="badge bg-secondary-subtle text-secondary" id="scene-scenario-version"></span>
-                </div>
-                <ul class="nav nav-tabs mb-4" id="scene-tabs"></ul>
-                <div class="row g-3" id="scene-body"></div>
-            </div>
-        </div>
-
-        <!-- ════════════════ EXPORT IA ════════════════ -->
-        <div class="disc-view" id="view-export">
-            <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-                <h1 class="mb-2 h3"><i class="bi bi-box-arrow-up-right me-2"></i>Export IA</h1>
-                <p class="mb-0 opacity-75">Génère un prompt LLM ou JSON structuré</p>
-            </div>
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-transparent"><strong><i class="bi bi-person-badge me-2 text-primary"></i>Personas à inclure</strong></div>
-                        <div class="card-body" id="export-persona-list"></div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-header bg-transparent"><strong><i class="bi bi-layers me-2 text-primary"></i>Scénario</strong></div>
-                        <div class="card-body" id="export-scenario-list"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="text-center mb-4">
-                <button class="btn btn-primary btn-lg" id="btn-generate-export">
-                    <i class="bi bi-lightning-charge-fill me-2"></i>Générer l'export
-                </button>
-            </div>
-            <div class="card shadow-sm d-none" id="export-result-card">
-                <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
-                    <strong><i class="bi bi-code-square me-2 text-primary"></i>Export généré</strong>
-                    <div class="d-flex gap-2">
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary active" data-export-mode="prompt">Prompt LLM</button>
-                            <button class="btn btn-outline-primary" data-export-mode="json">JSON</button>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr><td class="fw-bold bg-light border-end"><i class="bi bi-chat-text" style="color:var(--module-color-strong)"></i> Vocabulaire</td><td class="border-end small">Voir, regarder, imaginer, clair, perspective</td><td class="border-end small">Entendre, ecouter, sonner, harmonieux</td><td class="border-end small">Sentir, toucher, ressentir, concret, fluide</td><td class="border-end small">Flairer, odeur, parfum, fraicheur</td><td class="small">Gouter, saveur, doux, amer, digerer</td></tr>
+                              <tr class="table-light"><td class="fw-bold bg-white border-end"><i class="bi bi-rulers text-info me-2"></i>Frequence</td>
+                                <td class="border-end text-center"><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">55%</span></td>
+                                <td class="border-end text-center"><span class="badge bg-info-subtle text-info fs-6 px-3 py-2">30%</span></td>
+                                <td class="border-end text-center"><span class="badge bg-success-subtle text-success fs-6 px-3 py-2">15%</span></td>
+                                <td class="border-end text-center"><span class="badge bg-warning-subtle text-dark fs-6 px-3 py-2">Rare</span></td>
+                                <td class="text-center"><span class="badge bg-danger-subtle text-danger fs-6 px-3 py-2">Rare</span></td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
-                        <button class="btn btn-sm btn-outline-secondary" id="btn-copy-export"><i class="bi bi-clipboard me-1"></i>Copier</button>
+                      </div>
                     </div>
+                    <div class="disc-view" id="view-distribution">
+                      <h2 class="h5 fw-bold mb-3"><i class="bi bi-bar-chart me-2" style="color:var(--module-color-strong)"></i>Distribution equipe</h2>
+                      <p class="small text-muted">Tendances DISC et VAKOG agregees - anonyme</p>
+                      <div id="distribution-content"></div>
+                      <div id="distribution-empty" class="d-none">
+                        <div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>Aucun membre n a encore passe de test.</div>
+                      </div>
+                    </div>
+                    <div class="disc-view" id="view-personas">
+                      <div class="d-flex align-items-start justify-content-between mb-3">
+                        <div>
+                          <h2 class="h5 fw-bold mb-1"><i class="bi bi-person-badge me-2" style="color:var(--module-color-strong)"></i>Personas pedagogiques</h2>
+                          <p class="small text-muted mb-0">Profils fictifs sandbox - CRUD admin</p>
+                        </div>
+                        <button class="btn btn-module btn-sm" id="btn-new-persona"><i class="bi bi-plus-lg me-1"></i>Nouveau</button>
+                      </div>
+                      <div class="row g-3" id="persona-grid"></div>
+                    </div>
+                    <div class="disc-view" id="view-scenarios">
+                      <div id="scenario-list-view">
+                        <h2 class="h5 fw-bold mb-1"><i class="bi bi-layers me-2" style="color:var(--module-color-strong)"></i>Scenarios pedagogiques</h2>
+                        <p class="small text-muted mb-3">Situations jouables - formation et debriefing</p>
+                        <div id="scenario-list" class="d-flex flex-column gap-3"></div>
+                      </div>
+                      <div id="scene-viewer-view" class="d-none">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                          <button class="btn btn-outline-secondary btn-sm" id="btn-back-scenarios"><i class="bi bi-arrow-left me-1"></i>Scenarios</button>
+                          <h2 class="h6 mb-0 fw-bold" id="scene-scenario-title"></h2>
+                          <span class="badge bg-secondary-subtle text-secondary" id="scene-scenario-version"></span>
+                        </div>
+                        <ul class="nav nav-tabs mb-3" id="scene-tabs"></ul>
+                        <div class="row g-3" id="scene-body"></div>
+                      </div>
+                    </div>
+                    <div class="disc-view" id="view-export">
+                      <h2 class="h5 fw-bold mb-1"><i class="bi bi-box-arrow-up-right me-2" style="color:var(--module-color-strong)"></i>Export IA</h2>
+                      <p class="small text-muted mb-3">Prompts LLM auto-enrichis par tendances equipe</p>
+                      <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                          <div class="card shadow-sm h-100">
+                            <div class="card-header bg-transparent"><strong><i class="bi bi-person-badge me-2" style="color:var(--module-color-strong)"></i>Personas a inclure</strong></div>
+                            <div class="card-body" id="export-persona-list"></div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="card shadow-sm h-100">
+                            <div class="card-header bg-transparent"><strong><i class="bi bi-layers me-2" style="color:var(--module-color-strong)"></i>Scenario</strong></div>
+                            <div class="card-body" id="export-scenario-list"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="text-center mb-3">
+                        <button class="btn btn-module" id="btn-generate-export"><i class="bi bi-lightning-charge-fill me-2"></i>Generer l export</button>
+                      </div>
+                      <div class="card shadow-sm d-none" id="export-result-card">
+                        <div class="card-header bg-transparent d-flex align-items-center justify-content-between">
+                          <strong><i class="bi bi-code-square me-2" style="color:var(--module-color-strong)"></i>Export genere</strong>
+                          <div class="d-flex gap-2">
+                            <div class="btn-group btn-group-sm">
+                              <button class="btn btn-outline-primary active" data-export-mode="prompt">Prompt LLM</button>
+                              <button class="btn btn-outline-primary" data-export-mode="json">JSON</button>
+                            </div>
+                            <button class="btn btn-sm btn-outline-secondary" id="btn-copy-export"><i class="bi bi-clipboard me-1"></i>Copier</button>
+                          </div>
+                        </div>
+                        <div class="card-body">
+                          <textarea class="form-control disc-export-textarea" id="export-textarea" readonly></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="card-body">
-                    <textarea class="form-control disc-export-textarea" id="disc-export-textarea" readonly></textarea>
-                </div>
-            </div>
-        </div>
-
+              </div>
+            </section>
+          </div>
+          <footer class="app-footer">
+            <small>&copy; 2026 <span class="app-nom"></span> - DISC Engine v3.0</small>
+          </footer>
+        </main>
+      </div>
     </div>
-</div>
-
-<!-- FOOTER -->
-<footer class="mt-auto py-3 border-top text-center text-muted bg-white">
-    <small>&copy; 2026 DISC_ENGINE v2.1 · Bible de Bloc · <span class="badge bg-light text-dark border">Sentinelle CSS Compliant</span></small>
-</footer>
-</main>
-
-<!-- TOASTS -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  </div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasPersona" aria-labelledby="offcanvasPersonaLabel">
+    <div class="offcanvas-header border-bottom">
+      <div class="d-flex align-items-center gap-3" id="persona-detail-header"></div>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+    </div>
+    <div class="offcanvas-body" id="persona-detail-body"></div>
+  </div>
+  <div class="modal modal-lg fade" id="modalPersona" tabindex="-1" aria-labelledby="modalPersonaLabel">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalPersonaLabel"><i class="bi bi-person-plus me-2"></i>Nouveau persona</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <h6 class="text-uppercase text-muted small mb-2">Identite</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-4"><label class="form-label small" for="f-prenom">Prenom</label><input type="text" class="form-control form-control-sm" id="f-prenom" placeholder="Prenom"></div>
+            <div class="col-md-4"><label class="form-label small" for="f-nom">Nom</label><input type="text" class="form-control form-control-sm" id="f-nom" placeholder="Nom"></div>
+            <div class="col-md-4"><label class="form-label small" for="f-code">Code canonique</label><input type="text" class="form-control form-control-sm" id="f-code" placeholder="NOM_P"></div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label small" for="f-fn">Fonction</label>
+              <select class="form-select form-select-sm" style="width:180px;max-width:100%" id="f-fn">
+                <option value="infirmier">Infirmier(e)</option>
+                <option value="aide-soignant">Aide-soignant(e)</option>
+                <option value="cadre">Cadre</option>
+                <option value="etudiant">Etudiant(e)</option>
+                <option value="medecin">Medecin</option>
+              </select>
+            </div>
+            <div class="col-md-6"><label class="form-label small" for="f-role">Role pedagogique</label><input type="text" class="form-control form-control-sm" id="f-role" placeholder="Ex: Infirmier tuteur"></div>
+          </div>
+          <h6 class="text-uppercase text-muted small mb-2">Profils psychometriques</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small" for="f-disc">Style DISC</label>
+              <select class="form-select form-select-sm" style="width:180px;max-width:100%" id="f-disc">
+                <option value="D">D - Dominant</option>
+                <option value="I">I - Influent</option>
+                <option value="S">S - Stable</option>
+                <option value="C">C - Consciencieux</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small" for="f-ennea">Enneagramme</label>
+              <select class="form-select form-select-sm" style="width:180px;max-width:100%" id="f-ennea">
+                <option value="1">1 - Perfectionniste</option>
+                <option value="2">2 - Altruiste</option>
+                <option value="3">3 - Battant</option>
+                <option value="4">4 - Romantique</option>
+                <option value="5">5 - Observateur</option>
+                <option value="6">6 - Loyaliste</option>
+                <option value="7">7 - Epicurien</option>
+                <option value="8">8 - Chef</option>
+                <option value="9">9 - Mediateur</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small" for="f-position">Position de vie (AT)</label>
+              <select class="form-select form-select-sm" style="width:180px;max-width:100%" id="f-position">
+                <option value="+/+">+/+ (OK/OK)</option>
+                <option value="+/-">+/- (OK/pas OK)</option>
+                <option value="-/+">-/+ (pas OK/OK)</option>
+                <option value="-/-">-/- (pas OK/pas OK)</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label small" for="f-vakog-p">VAKOG primaire</label>
+              <select class="form-select form-select-sm" style="width:180px;max-width:100%" id="f-vakog-p">
+                <option value="visuel">Visuel</option>
+                <option value="auditif">Auditif</option>
+                <option value="kinesthesique">Kinesthesique</option>
+                <option value="olfactif">Olfactif</option>
+                <option value="gustatif">Gustatif</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small" for="f-vakog-s">VAKOG secondaire</label>
+              <select class="form-select form-select-sm" style="width:180px;max-width:100%" id="f-vakog-s">
+                <option value="visuel">Visuel</option>
+                <option value="auditif" selected>Auditif</option>
+                <option value="kinesthesique">Kinesthesique</option>
+                <option value="olfactif">Olfactif</option>
+                <option value="gustatif">Gustatif</option>
+              </select>
+            </div>
+          </div>
+          <h6 class="text-uppercase text-muted small mb-2">Analyse Transactionnelle</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6"><label class="form-label small">Etats du moi - Base</label><div class="disc-tag-input" id="tags-at-base"></div></div>
+            <div class="col-md-6"><label class="form-label small">Etats du moi - Stress</label><div class="disc-tag-input" id="tags-at-stress"></div></div>
+          </div>
+          <h6 class="text-uppercase text-muted small mb-2">Competences</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6"><label class="form-label small">Savoir-etre</label><div class="disc-tag-input" id="tags-se"></div></div>
+            <div class="col-md-6"><label class="form-label small">Meta-programmes</label><div class="disc-tag-input" id="tags-meta"></div></div>
+          </div>
+          <div id="crud-test-results-section" class="d-none"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-danger btn-sm d-none" id="btn-delete-persona"><i class="bi bi-trash me-1"></i>Supprimer</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+          <button class="btn btn-module btn-sm" id="btn-save-persona"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="modalConfirmDelete" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Confirmer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body"><p class="mb-0">Supprimer ce persona ? Cette action est irreversible.</p></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+          <button class="btn btn-danger btn-sm" id="btn-confirm-delete"><i class="bi bi-trash me-1"></i>Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toastSuccess" class="toast" role="alert">
-        <div class="toast-header text-success"><i class="bi bi-check-circle-fill me-2"></i><strong class="me-auto">Succès</strong><button type="button" class="btn-close" data-bs-dismiss="toast"></button></div>
-        <div class="toast-body" id="toast-success-body">OK.</div>
+      <div class="toast-header text-success"><i class="bi bi-check-circle-fill me-2"></i><strong class="me-auto">Succes</strong><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button></div>
+      <div class="toast-body" id="toast-success-body">OK.</div>
     </div>
     <div id="toastInfo" class="toast" role="alert">
-        <div class="toast-header text-primary"><i class="bi bi-info-circle-fill me-2"></i><strong class="me-auto">Info</strong><button type="button" class="btn-close" data-bs-dismiss="toast"></button></div>
-        <div class="toast-body" id="toast-info-body">Information.</div>
+      <div class="toast-header text-primary"><i class="bi bi-info-circle-fill me-2"></i><strong class="me-auto">Info</strong><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button></div>
+      <div class="toast-body" id="toast-info-body">Information.</div>
     </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════
-     DISC_ENGINE — Modules IIFE v2.1
-═══════════════════════════════════════════════════════ -->
-<script>
-// ── BDB Header universel ──────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
-  const _s = await window.bdbGetSession();
-  if (!_s) { window.location.href = '../../login.html'; return; }
-  try {
-    const { data: _p } = await window.bdb.from('profiles_directory')
-      .select('prenom, nom, initials').eq('user_id', _s.user.id).maybeSingle();
-    const ini  = (_p?.initials || ((_p?.prenom?.[0]||'') + (_p?.nom?.[0]||'')) || _s.user.email.substring(0,2)).toUpperCase();
-    const name = [_p?.prenom, _p?.nom].filter(Boolean).join(' ') || _s.user.email;
-    document.getElementById('bdbAvatarInitials').textContent      = ini;
-    document.getElementById('offcanvasAvatarInitials').textContent = ini;
-    document.getElementById('offcanvasUserName').textContent      = name;
-    document.getElementById('bdbMenuName').textContent            = name;
-    document.getElementById('bdbMenuEmail').textContent           = _s.user.email;
-  } catch(_) {}
-  try {
-    const { data: _r } = await window.bdb.from('user_roles')
-      .select('role').eq('user_id', _s.user.id).maybeSingle();
-    if (_r?.role === 'admin') {
-      document.getElementById('bdbBadgeAdmin').classList.remove('d-none');
-      document.querySelectorAll('.bdb-nav-admin').forEach(el => el.classList.remove('d-none'));
-    }
-  } catch(_) {}
-  document.getElementById('bdbBtnLogout').addEventListener('click', async () => {
-    await window.bdb.auth.signOut();
-    window.location.href = '../../login.html';
-  });
-  const _btn  = document.getElementById('bdbAvatarBtn');
-  const _menu = document.getElementById('bdbUserMenu');
-  _btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const open = _menu.classList.toggle('open');
-    _btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  });
-  document.addEventListener('click', () => {
-    _menu.classList.remove('open');
-    _btn.setAttribute('aria-expanded', 'false');
-  });
-  _menu.addEventListener('click', e => e.stopPropagation());
-});
-// ── Fin BDB Header ────────────────────────────────────────────
-</script>
-<script src="core/disc-schema.js"></script>
-<script src="services/disc-storage.js"></script>
-<script src="core/disc-persona-store.js"></script>
-<script src="core/disc-scenarios.js"></script>
-<script src="core/disc-engine.js"></script>
-<script src="services/disc-tests.js"></script>
-<script src="ui/disc-controller.js"></script>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="disc-schema.js"></script>
+  <script src="disc-tests.js"></script>
+  <script src="disc-profil-service.js"></script>
+  <script src="disc-persona-store.js"></script>
+  <script src="disc-scenarios.js"></script>
+  <script src="disc-engine.js"></script>
+  <script src="disc-controller.js"></script>
 </body>
 </html>

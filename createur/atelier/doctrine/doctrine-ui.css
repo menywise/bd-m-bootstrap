@@ -1,0 +1,103 @@
+/* ============================================================================
+   doctrine-ui.css — Module L3 atelier/doctrine/
+   Styles scopés .dtree-* et .doctrine-* (aucune fuite globale)
+   CDS : zéro !important, zéro dépendance, variables Bootstrap réutilisées
+   ============================================================================ */
+
+/* ---------- Dimensions toolbar (INTERDIT-C2 : sort du HTML) ---------- */
+.doctrine-search       { max-width: 240px; }
+.doctrine-offcanvas    { width: 520px; max-width: 95vw; }
+
+/* ---------- Arbre ---------- */
+.dtree-container       { background:#fff; min-height:400px; }
+
+.dtree-node            { position:relative; }
+.dtree-node-row        { display:flex; align-items:flex-start; gap:.25rem; padding:.2rem 0; border-radius:.25rem; transition:background .1s; }
+.dtree-node-row:hover  { background: rgba(0,0,0,.03); }
+.dtree-node-row.dtree-star        { background:#fffbea; }
+.dtree-node-row.dtree-match       { background:#fff3bf; }
+.dtree-node-row.dtree-placeholder { background:#e7f1ff; font-style:italic; }
+.dtree-node-row.dtree-error       { background:#f8d7da; }
+
+.dtree-children        { margin-left:1rem; padding-left:.5rem; border-left:1px solid var(--bs-border-color, #dee2e6); }
+
+/* ---------- Boutons d'action ligne ---------- */
+.dtree-btn-toggle, .dtree-btn-zoom {
+  width:1.5rem; height:1.5rem;
+  display:inline-flex; align-items:center; justify-content:center;
+  border:0; background:transparent;
+  color: var(--bs-secondary, #6c757d);
+  cursor:pointer; padding:0;
+  font-size:.75rem; flex-shrink:0;
+}
+.dtree-btn-toggle:hover, .dtree-btn-zoom:hover { color: var(--bs-body-color, #212529); }
+.dtree-btn-toggle:disabled { visibility:hidden; }
+
+.dtree-zoom-dot { font-size:.4rem; }
+.dtree-icon-xl  { font-size:3rem; }
+
+.dtree-btn-row         { display:inline-flex; gap:.15rem; opacity:0; transition:opacity .12s; flex-shrink:0; }
+.dtree-node-row:hover .dtree-btn-row { opacity:1; }
+.dtree-btn-row button  {
+  width:1.4rem; height:1.4rem;
+  border:1px solid transparent; background:transparent;
+  color: var(--bs-secondary, #6c757d);
+  border-radius:.2rem; font-size:.7rem;
+  display:inline-flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.dtree-btn-row button:hover { background:#fff; border-color: var(--bs-border-color, #dee2e6); color: var(--bs-body-color, #212529); }
+.dtree-btn-row .dtree-btn-del:hover { color: var(--bs-danger, #dc3545); border-color: var(--bs-danger, #dc3545); }
+
+/* ---------- Titre cliquable et édition inline ---------- */
+.dtree-title           {
+  flex:1; cursor:pointer; min-width:0;
+  word-break: break-word; line-height:1.4;
+  padding:.1rem .25rem;
+}
+.dtree-title:hover     { background: rgba(13,110,253, .04); border-radius:.2rem; }
+.dtree-title[contenteditable="true"] {
+  outline: 2px solid var(--bs-primary, #0d6efd);
+  background:#fff;
+}
+
+/* ---------- Annotations (abréviation, statut, meta) ---------- */
+.dtree-abbrev          { font-weight:600; color: var(--bs-primary, #0d6efd); margin-right:.3rem; }
+.dtree-attribution     { font-size:.7rem; color: var(--bs-secondary, #6c757d); margin-left:.35rem; font-style:italic; }
+
+.dtree-badge-note      { margin-left:.3rem; color: var(--bs-info, #0dcaf0); }
+.dtree-badge-fab       { margin-left:.3rem; color: var(--bs-success, #198754); }
+.dtree-badge-meta      { margin-left:.3rem; color: var(--bs-warning, #ffc107); }
+
+/* ---------- Statuts ---------- */
+.dtree-status-a_verifier,
+.dtree-status-a_definir,
+.dtree-status-placeholder { opacity:.85; }
+.dtree-status-a_verifier .dtree-title::after,
+.dtree-status-a_definir .dtree-title::after {
+  content:"à vérifier"; font-size:.65rem; color: var(--bs-warning, #ffc107);
+  margin-left:.4rem; padding:.05rem .35rem; border:1px solid currentColor; border-radius:.2rem;
+}
+
+/* ---------- Breadcrumb zoom ---------- */
+.doctrine-breadcrumb .breadcrumb-item + .breadcrumb-item::before { content:"›"; }
+.doctrine-breadcrumb a { color: var(--bs-primary, #0d6efd); text-decoration:none; }
+.doctrine-breadcrumb a:hover { text-decoration:underline; }
+
+/* ---------- Empty state bouton ---------- */
+#stateEmpty, #stateError, #stateLoading { min-height:240px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+
+/* ---------- Offcanvas tabs ---------- */
+.doctrine-offcanvas .nav-tabs .nav-link    { font-size:.85rem; padding:.4rem .7rem; }
+.doctrine-offcanvas textarea               { font-size:.85rem; resize:vertical; }
+.doctrine-offcanvas textarea.form-control  { line-height:1.45; }
+
+/* ---------- Toasts ---------- */
+#toastContainer { z-index: 1090; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 576px) {
+  .doctrine-search     { max-width: 100%; }
+  .doctrine-offcanvas  { width: 100%; }
+  .dtree-btn-row       { opacity:1; }
+}

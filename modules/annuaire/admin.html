@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: ADMIN | Auth: admin uniquement | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Annuaire — Administration</title>
+
+  <!-- BLOC E CSS — Chaîne V5.1 (CONV-CHAIN-E) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="annuaire-ui.css" rel="stylesheet"/>
+
+  <!-- Variables couleur module (CONV-MODULE-COLOR-02) -->
+  <style>
+    :root {
+      --module-color: #86efac;
+      --module-color-strong: #4ade80;
+      --module-color-text: #14532d;
+      --module-color-soft: rgba(134, 239, 172, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <div id="bdb-shell"
+       data-module-title="Annuaire — Administration"
+       data-module-icon="bi-people"
+       data-root-path="../../"
+       data-login-mode="modal"
+       data-shell-theme="dbm"
+       data-shell-kind="backoffice">
+  </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+      <div class="container-fluid flex-grow-1 p-0">
+
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+      <a href="../admin/index.html" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Administration
+      </a>
+      <span class="text-muted">›</span>
+      <span class="small fw-medium">
+        <i class="bi bi-people me-1"></i>Annuaire
+      </span>
+    </div>
+
+    <ul class="nav nav-tabs px-3 pt-2" id="annAdminTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-dashboard-btn" data-bs-toggle="tab"
+          data-bs-target="#tab-dashboard" type="button" role="tab"
+          aria-controls="tab-dashboard" aria-selected="true">
+          <i class="bi bi-bar-chart me-1"></i>Dashboard
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-config-btn" data-bs-toggle="tab"
+          data-bs-target="#tab-config" type="button" role="tab"
+          aria-controls="tab-config" aria-selected="false">
+          <i class="bi bi-sliders me-1"></i>Configuration
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+
+      <!-- ═══ DASHBOARD ═══════════════════════════════════════ -->
+      <div class="tab-pane fade show active px-3 pt-3 pb-4" id="tab-dashboard"
+           role="tabpanel" aria-labelledby="tab-dashboard-btn">
+
+        <div id="dashLoading" class="mt-2">
+          <div class="placeholder-glow">
+            <div class="placeholder col-12 rounded mb-2 ann-admin-skeleton-row"></div>
+            <div class="placeholder col-12 rounded mb-2 ann-admin-skeleton-row"></div>
+            <div class="placeholder col-12 rounded mb-2 ann-admin-skeleton-row"></div>
+          </div>
+        </div>
+        <div id="dashError" class="d-none mt-2">
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-wifi-off fs-1 mb-2 opacity-50"></i>
+            <div class="fw-semibold mb-1">Données non chargées</div>
+            <div class="small mb-2" id="dashErrorMsg">Erreur de chargement.</div>
+            <button class="btn btn-sm btn-outline-danger" id="dashRetryBtn">
+              <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
+            </button>
+          </div>
+        </div>
+        <div id="dashContent" class="d-none mt-2">
+
+          <h6 class="ann-admin-section-label"><i class="bi bi-people me-1"></i>Équipe</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="card border-0 shadow-sm text-center p-3">
+                <div class="ann-admin-kpi" id="dashKpiTotal">—</div>
+                <div class="text-muted small">Membres</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card border-0 shadow-sm text-center p-3">
+                <div class="ann-admin-kpi text-success" id="dashKpiApproved">—</div>
+                <div class="text-muted small">Approuvés</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card border-0 shadow-sm text-center p-3">
+                <div class="ann-admin-kpi text-warning" id="dashKpiPending">—</div>
+                <div class="text-muted small">En attente</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card border-0 shadow-sm text-center p-3">
+                <div class="ann-admin-kpi text-danger" id="dashKpiIncomplete">—</div>
+                <div class="text-muted small">Profils incomplets</div>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="ann-admin-section-label"><i class="bi bi-diagram-3 me-1"></i>Répartition par fonction</h6>
+          <div id="dashRepartition" class="mb-4"></div>
+
+          <h6 class="ann-admin-section-label"><i class="bi bi-person-badge me-1"></i>Complétude équipement</h6>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small fw-semibold">Casaque renseignée</span>
+                  <span class="small text-muted" id="dashCasaqueLabel">—</span>
+                </div>
+                <div class="progress ann-admin-progress">
+                  <div class="progress-bar bg-success" id="dashCasaqueBar" role="progressbar"
+                       style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><!-- style= OK : largeur dynamique -->
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small fw-semibold">1re paire de gants renseignée</span>
+                  <span class="small text-muted" id="dashGantsLabel">—</span>
+                </div>
+                <div class="progress ann-admin-progress">
+                  <div class="progress-bar bg-success" id="dashGantsBar" role="progressbar"
+                       style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><!-- style= OK : largeur dynamique -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /tab-dashboard -->
+
+      <!-- ═══ CONFIGURATION ════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-config"
+           role="tabpanel" aria-labelledby="tab-config-btn">
+
+        <div class="row g-0 ann-admin-config-row">
+
+          <!-- ── Sidebar fonctions ─────────────────────────── -->
+          <div class="col-md-3 border-end ann-admin-fn-sidebar">
+            <div class="p-3 border-bottom">
+              <p class="text-muted small mb-0 lh-sm">
+                Sélectionnez un type de membre pour configurer les sections de sa fiche.
+              </p>
+            </div>
+            <nav aria-label="Types de membres" id="fnSidebar">
+              <!-- Injecté par annuaire-admin.js -->
+            </nav>
+          </div>
+
+          <!-- ── Panneau sections ──────────────────────────── -->
+          <div class="col-md-9 ann-admin-sections-panel p-4">
+
+            <!-- C.9 — loading -->
+            <div id="sectionsLoading">
+              <div class="placeholder-glow">
+                <div class="placeholder col-12 rounded mb-2 ann-admin-skeleton-row"></div>
+                <div class="placeholder col-12 rounded mb-2 ann-admin-skeleton-row"></div>
+                <div class="placeholder col-12 rounded mb-2 ann-admin-skeleton-row"></div>
+              </div>
+            </div>
+
+            <!-- C.9 — empty -->
+            <div id="sectionsEmpty" class="d-none text-center py-5 text-muted">
+              <i class="bi bi-layout-text-sidebar fs-2 d-block mb-2"></i>
+              <p class="small">Aucune section configurée pour ce type de membre.</p>
+            </div>
+
+            <!-- C.9 — error -->
+            <div id="sectionsError" class="d-none">
+              <div class="alert alert-danger d-flex align-items-center gap-2 small py-2">
+                <i class="bi bi-exclamation-triangle flex-shrink-0"></i>
+                <span id="sectionsErrorMsg">Erreur de chargement.</span>
+                <button class="btn btn-sm btn-outline-danger ms-auto" id="sectionsRetryBtn">Réessayer</button>
+              </div>
+            </div>
+
+            <!-- C.9 — contenu -->
+            <div id="sectionsList" class="d-none">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <h6 class="fw-bold mb-0" id="sectionsTitle">—</h6>
+                  <p class="text-muted small mb-0">
+                    Glisser-déposer pour réordonner · Toggle pour masquer une section ou un champ
+                  </p>
+                </div>
+                <button class="btn btn-sm btn-outline-secondary flex-shrink-0" id="btnSaveOrder">
+                  <i class="bi bi-check-lg me-1"></i>Enregistrer l'ordre
+                </button>
+              </div>
+              <div id="sectionsContainer" aria-label="Sections de la fiche"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /tab-config -->
+
+    </div><!-- /tab-content -->
+  </div>
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — CDS Compliant</small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<!-- TOAST — pattern bdbToast (bdb-ui.js) -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastMsg" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastText">Message</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS — Chaîne JS V5 -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script

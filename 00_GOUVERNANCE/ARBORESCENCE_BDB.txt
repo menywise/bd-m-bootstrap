@@ -1,0 +1,808 @@
+﻿Structure du dossier
+Le numÚro de sÚrie du volume est 765B-EBCD
+C:\DEV\BIBLE_DE_BLOC
+|   .env
+|   .ftpignore
+|   .gitignore
+|   .htaccess
+|   403.html
+|   404.html
+|   aide.html
+|   archivage.html
+|   changelog.html
+|   CLAUDE.md
+|   CLAUDE_PROJECT_INVENTORY.txt
+|   contact.html
+|   export.html
+|   favicon.ico
+|   impressions.html
+|   index.html
+|   login.html
+|   maintenance.html
+|   manifest.json
+|   mentions-legales.html
+|   notifications.html
+|   offline.html
+|   onboarding.html
+|   parametres.html
+|   pending.html
+|   politique-confidentialite.html
+|   recherche-app.js
+|   recherche.html
+|   reset-password.html
+|   robots.txt
+|   saisie-invite.html
+|   session-expiree.html
+|   sondage.html
+|   suppression-compte.html
+|   sw.js
+|   test-php-info.php
+|   unauthorized.html
+|   _TEMPLATE_PORTAIL_V5_0_1.html
+|   _TEMPLATE_RACINE_V5_0_1.html
+|   
++---.claude
+|       settings.local.json
+|       
++---.vscode
+|       extensions.json
+|       settings.json
+|       
++---00_GOUVERNANCE
+|   |   00_BDB_SURFACE_MAP_V1_2_0.md
+|   |   01_ACCES_NIVEAUX_V1_2_0.md
+|   |   02_BACK_OFFICE_REF_V1_1_0.md
+|   |   02_SUPABASE_DATA_MODEL_V1_24_0.md
+|   |   03_CATALOGUE_BS_SMARTY_V1_0_0.md
+|   |   04_PEDAGOGIE_BDB_V1_0_0.md
+|   |   10_ARCHITECTURE_REGLES_TECHNIQUES_V3_0_0.md
+|   |   10_CHANTIER_TECHNIQUE_V1_1_0.md
+|   |   12_SYSTEM_ARCHITECTURE_V2_5_0.md
+|   |   13_AUDIT_SECURITE_V1_0_0.md
+|   |   21_TEMPLATE_CTX_MODULE_V2_0_0.md
+|   |   40_CTX_ADMIN_V2_2_0.md
+|   |   41_CTX_ANATOMIE_V1_2_1.md
+|   |   42_CTX_ANNUAIRE_V1_2_1.md
+|   |   43_CTX_ARSENAL_V2_2_2.md
+|   |   44_CTX_CARNET_BORD_V2_0_1.md
+|   |   45_CTX_BOITE_A_IDEES_V1_4_0.md
+|   |   46_CTX_COURS_V2_1_0.md
+|   |   47_CTX_DEMO_V1_1_0.md
+|   |   48_CTX_DISC_V3_1_0.md
+|   |   49_CTX_VEILLE_DOCUMENTAIRE_V2_3_0.md
+|   |   50_CTX_FICHES_V3_1_1.md
+|   |   51_CTX_GED_V1_0_2.md
+|   |   52_CTX_GLOSSAIRE_V2_0_0.md
+|   |   54_CTX_INSTALLATION_V2_1_0.md
+|   |   57_CTX_NOTES_INTER_V1_0_0.md
+|   |   58_CTX_OBJECTIFS_IDE_V1_2_0.md
+|   |   59_CTX_ORGANISATEUR_V2_0_0.md
+|   |   60_CTX_INTERVIEW_V4_0_0.md
+|   |   61_CTX_PEDAGOGIE_V1_2_2.md
+|   |   62_CTX_PI_V1_0_0.md
+|   |   63_CTX_PLANNING_V1_5_0.md
+|   |   64_CTX_PREFERENCES_V1_5_0.md
+|   |   65_CTX_PROFILE.md
+|   |   66_CTX_RECUEIL_SITUATION_V1_1_0.md
+|   |   67_CTX_SITE.md
+|   |   68_CTX_SUPERVISION_V1_3_0.md
+|   |   69_CTX_THESAURUS_V2_1_0.md
+|   |   70_CTX_TRANSMISSIONS_V1_5_0.md
+|   |   83_CHECKLIST_DEPLOIEMENT_OVH.md
+|   |   ADMIN_BACK_OFFICE_PATTERN_V1_0_0.md
+|   |   ARBORESCENCE_BDB.txt
+|   |   audit_atelier_sessions.sql
+|   |   audit_pedagogie_2026-04-18.sql
+|   |   CATALOGUE_OPEN_SOURCE_BDB_V1_1_0.md
+|   |   CHECKLIST_CALCULATEUR_V5.md
+|   |   DATA_METIER_PACKS_V1_0_0.md
+|   |   DATA_METIER_SUTURES_V1_0_0.md
+|   |   flux_acteurs_preferences_v2_pharmacie.svg
+|   |   GUIDE_MIGRATION_V5.md
+|   |   migration_v5.zip
+|   |   S108_GPS_AUDIT_FICHIERS.md
+|   |   SOCLE_TERRAIN_PRICING_V1_1_0.md
+|   |   
+|   +---DATA_METIER
+|   |       arsenal_ortho_V4 view.csv
+|   |       
+|   +---migration_v5
+|   |       STENCIL_BACKOFFICE_V5_MINIMAL.html
+|   |       
+|   \---_deltas
+|           01_ACCES_NIVEAUX_V1_1_0.md
+|           02_BACK_OFFICE_REF_V1_0_0.md
+|           02_SUPABASE_DATA_MODEL_V1_22_0.md
+|           21_TEMPLATE_CTX_MODULE_V1_2_0.md
+|           BDB_SURFACE_MAP_V1_0_0.md
+|           BDB_SURFACE_MAP_V1_1_0.md
+|           
++---assets
+|   |   isabell-p.jpg
+|   |   isabell-p.png
+|   |   
+|   \---icons
+|           icon-180.png
+|           icon-192.png
+|           icon-512.png
+|           README.txt
+|           
++---atelier
+|   |   atelier-app.js
+|   |   atelier-nav.js
+|   |   atelier-tables-app-modules.html
+|   |   atelier-tables-index-app.js
+|   |   atelier-tables-index.html
+|   |   ccam-app.js
+|   |   ccam-validator-app.js
+|   |   ccam-validator.html
+|   |   ccam.html
+|   |   cockpit-ui.css
+|   |   cockpit.html
+|   |   compat-app.js
+|   |   compat-ui.css
+|   |   compat.html
+|   |   diagnostic-app.js
+|   |   diagnostic.html
+|   |   glossaire-feeder-app.js
+|   |   glossaire-feeder.html
+|   |   index.html
+|   |   memo-app.js
+|   |   memo.html
+|   |   overview-app.js
+|   |   overview.html
+|   |   pricing-roi-app.js
+|   |   pricing-roi.html
+|   |   schema-audit-app.js
+|   |   schema-audit.html
+|   |   session-ia-app.js
+|   |   session-ia.html
+|   |   
+|   +---cds
+|   |   |   index.html
+|   |   |   theme-crud.html
+|   |   |   theme-dashboard-print-paysage.html
+|   |   |   theme-dashboard-print-portrait.html
+|   |   |   theme-landing.html
+|   |   |   theme-showcase.html
+|   |   |   theme-wizard.html
+|   |   |   _TEMPLATE_SHOWCASE_V5_0_1.html
+|   |   |   
+|   |   +---pages-manquantes
+|   |   |       aide.html
+|   |   |       archivage.html
+|   |   |       changelog.html
+|   |   |       contact.html
+|   |   |       export.html
+|   |   |       impressions.html
+|   |   |       maintenance.html
+|   |   |       mentions-legales.html
+|   |   |       notifications.html
+|   |   |       offline.html
+|   |   |       onboarding.html
+|   |   |       parametres.html
+|   |   |       recherche.html
+|   |   |       session-expiree.html
+|   |   |       
+|   |   +---pages-racine
+|   |   |       403.html
+|   |   |       404.html
+|   |   |       login.html
+|   |   |       pending.html
+|   |   |       reset-password.html
+|   |   |       unauthorized.html
+|   |   |       
+|   |   \---template-vierge
+|   |           index.html
+|   |           theme-crud.html
+|   |           theme-dashboard-print-paysage.html
+|   |           theme-dashboard-print-portrait.html
+|   |           theme-landing.html
+|   |           theme-showcase.html
+|   |           theme-wizard.html
+|   |           
+|   \---doctrine
+|           admin-app.js
+|           admin.html
+|           doctrine-app.js
+|           doctrine-seed.js
+|           doctrine-ui.css
+|           index.html
+|           
++---back-office
+|       CATALOGUE_KIT_BO_V5.md
+|       _TEMPLATE_BACKOFFICE_V5_0_1.html
+|       
++---bernard
+|       bernard-app.js
+|       BERNARD-CHANGELOG.md
+|       BERNARD-README.md
+|       bernard-ui.css
+|       bernard.html
+|       _TEMPLATE_fiche_bernard.md
+|       
++---conseil
+|   |   .htaccess
+|   |   conseil-app.js
+|   |   conseil-nav.js
+|   |   corrections.html
+|   |   doctrine.html
+|   |   DOCTRINE.md
+|   |   index.html
+|   |   soumissions.html
+|   |   verdicts.html
+|   |   workflow.html
+|   |   WORKFLOW.md
+|   |   
+|   +---corrections
+|   |       .gitkeep
+|   |       
+|   +---lunettes
+|   |       architecture.html
+|   |       ARCHITECTURE.md
+|   |       createur.html
+|   |       CREATEUR.md
+|   |       index.html
+|   |       marche.html
+|   |       MARCHE.md
+|   |       philosophie.html
+|   |       PHILOSOPHIE.md
+|   |       terrain.html
+|   |       TERRAIN.md
+|   |       
+|   +---prompts
+|   |       gemini.html
+|   |       GEMINI.md
+|   |       index.html
+|   |       perplexity.html
+|   |       PERPLEXITY.md
+|   |       
+|   +---soumissions
+|   |       .gitkeep
+|   |       
+|   +---templates
+|   |       rapport.html
+|   |       RAPPORT.md
+|   |       soumission.html
+|   |       SOUMISSION.md
+|   |       
+|   \---verdicts
+|           .gitkeep
+|           
++---css
+|       cds-overrides.css
+|       index-ui.css
+|       login-ui.css
+|       theme-base.css
+|       
++---js
+|       .htaccess
+|       bdb-crud-helpers.js
+|       bdb-demo.js
+|       bdb-fonctions.js
+|       bdb-glossaire-tooltip.js
+|       bdb-invite-guard.js
+|       bdb-media.js
+|       bdb-password-policy.js
+|       bdb-preview.js
+|       bdb-pwa.js
+|       bdb-search.js
+|       bdb-shell.js
+|       bdb-signalement.js
+|       bdb-site-hydrate.js
+|       bdb-toast.js
+|       bdb-ui.js
+|       config.js
+|       supabase-client.js
+|       
++---migrations
+|   |   000_baseline_functions.sql
+|   |   001_baseline_users.sql
+|   |   002_baseline_content.sql
+|   |   003_baseline_metier.sql
+|   |   004_baseline_materiel.sql
+|   |   008_app_navigation.sql
+|   |   012_security_session.sql
+|   |   013_supervision.sql
+|   |   014_livret.sql
+|   |   015_objectifs.sql
+|   |   017_carnet_bord.sql
+|   |   018b_thesaurus_rpc.sql
+|   |   018_thesaurus_schema.sql
+|   |   018_thesaurus_seed_interventions.sql
+|   |   018_thesaurus_seed_interventions_part1.sql
+|   |   018_thesaurus_seed_interventions_part2.sql
+|   |   018_thesaurus_seed_interventions_part3.sql
+|   |   018_thesaurus_seed_interventions_part4.sql
+|   |   018_thesaurus_seed_interventions_part5.sql
+|   |   018_thesaurus_seed_interventions_part6.sql
+|   |   018_thesaurus_seed_interventions_part7.sql
+|   |   018_thesaurus_seed_interventions_part8.sql
+|   |   018_thesaurus_seed_protocoles.sql
+|   |   019_thesaurus_enrichissement.sql
+|   |   021b_thesaurus_v2_insert_2026.sql
+|   |   021d_thesaurus_v2_reinsert_2026.sql
+|   |   021_thesaurus_v2_schema.sql
+|   |   022_thesaurus_protocoles_nerf_ulnaire.sql
+|   |   023_thesaurus_normalisation_libelles.sql
+|   |   024_thesaurus_nettoyage_zone_anat.sql
+|   |   025_thesaurus_protocoles_neuro_cicatrice_cle_hd.sql
+|   |   026_thesaurus_recreer_ACT0207.sql
+|   |   027_staging_interventions_ortho.sql
+|   |   028_nettoyage_staging_ortho.sql
+|   |   029_migration.sql
+|   |   054_a_update_sexe.sql
+|   |   054_b_update_sexe.sql
+|   |   054_c_update_sexe.sql
+|   |   054_d_update_sexe.sql
+|   |   054_e_update_sexe.sql
+|   |   054_f_update_sexe.sql
+|   |   054_g_update_sexe.sql
+|   |   054_h_update_sexe.sql
+|   |   054_i_update_sexe.sql
+|   |   055_a_update_sexe_fix.sql
+|   |   055_b_update_sexe_fix.sql
+|   |   055_c_update_sexe_fix.sql
+|   |   055_d_update_sexe_fix.sql
+|   |   055_e_update_sexe_fix.sql
+|   |   055_f_update_sexe_fix.sql
+|   |   055_g_update_sexe_fix.sql
+|   |   055_h_update_sexe_fix.sql
+|   |   055_i_update_sexe_fix.sql
+|   |   066d_biceps_fusion_rename.sql
+|   |   067b_normalisation_libelles.sql
+|   |   067c_fusions_accents.sql
+|   |   067c_fusions_accents_etape0.sql
+|   |   067d_reprise.sql
+|   |   067d_reprise_etape0.sql
+|   |   067e_ablation_accents.sql
+|   |   067e_etape0.sql
+|   |   067f_recalcul_frequences.sql
+|   |   067_fusion_doublons.sql
+|   |   067_fusion_doublons_v2.sql
+|   |   068b_enrichissement_structurel.sql
+|   |   068b_renommages_S1_fusions_infiltration.sql
+|   |   068c_renommages_S1_articles_accents.sql
+|   |   068d_correctif_anomalies.sql
+|   |   068d_S1_S2_tendons_reprises_fusions.sql
+|   |   068e_fusions_ablation_famille.sql
+|   |   068f_fusion_kyste_calcification.sql
+|   |   068g_prothese_ablation_S2.sql
+|   |   068_harmoniser_specialite_neurochirurgie.sql
+|   |   069l_fusion_morsures_synonymes.sql
+|   |   070_thesaurus_fiches_papier.sql
+|   |   075_glossaire_fesf.sql
+|   |   076a_glossaire_v2_alter.sql
+|   |   076b_glossaire_v2_seed.sql
+|   |   076c_glossaire_v2_rpc.sql
+|   |   077_dork_supabase_schema.sql
+|   |   077_paxis_tables.sql
+|   |   077_paxis_tables_PROPOSITION.sql
+|   |   079a_gouvernance_seed.sql
+|   |   079b_gouvernance_seed_decisions.sql
+|   |   080_convention_prefixes.sql
+|   |   081_cloture_session_27.sql
+|   |   082_seed_atelier_decisions.sql
+|   |   083_seed_atelier_sessions.sql
+|   |   084_seed_atelier_arbitrages.sql
+|   |   085_seed_atelier_principes.sql
+|   |   090_glossaire_decouverte_v2.sql
+|   |   090_planning_supabase.sql
+|   |   090_update_session3_gouvernance.sql
+|   |   091_glossaire_candidats.sql
+|   |   100_ccam_liaison_auto.sql
+|   |   100_ccam_liaison_auto_v2.sql
+|   |   114_add_is_suspended_profiles_directory.sql
+|   |   116_error_404_alert.sql
+|   |   117_demo_account.sql
+|   |   118_demo_tables.sql
+|   |   121_arsenal_ortho_import.sql
+|   |   123_create_glossaire_chirurgie.sql
+|   |   124_import_glossaire_chirurgie_1_20.sql
+|   |   125_import_glossaire_chirurgie_21_40.sql
+|   |   126_import_glossaire_chirurgie_41_70.sql
+|   |   127_import_glossaire_chirurgie_71_105.sql
+|   |   128_import_glossaire_chirurgie_106_165.sql
+|   |   129_import_glossaire_chirurgie_166_205.sql
+|   |   130_import_glossaire_chirurgie_206_245.sql
+|   |   131_import_glossaire_chirurgie_246_275.sql
+|   |   132_import_glossaire_chirurgie_276_305.sql
+|   |   133_import_glossaire_chirurgie_306_335.sql
+|   |   134_import_glossaire_chirurgie_336_365.sql
+|   |   135_import_glossaire_chirurgie_366_379_FINAL.sql
+|   |   136b_fix_num_article_nullable.sql
+|   |   136_schema_multi_source_categorisation.sql
+|   |   137_import_glossaire_FCO_2015.sql
+|   |   138_enrichissement_synonymes_FCO_autonomes.sql
+|   |   151_bdb_liaisons.sql
+|   |   161_seed_principes_pedagogiques.sql
+|   |   162_bernard_v1.sql
+|   |   162_bernard_v1_rollback.sql
+|   |   162_bernard_v1_verification.sql
+|   |   162_cloture_session_91.sql
+|   |   162_introspection_complementaire.sql
+|   |   163_ouverture_session_93.sql
+|   |   ccam_orphelins_restants.csv
+|   |   ccam_rapprochement_auto.csv
+|   |   ccam_rapprochement_auto_v2.csv
+|   |   diag_068b_post.sql
+|   |   diag_col_femur.sql
+|   |   diag_frequences.sql
+|   |   diag_global_anomalies.sql
+|   |   diag_libelles_anomalies.sql
+|   |   diag_libelles_articles.sql
+|   |   diag_p0_p1_p2.sql
+|   |   diag_petite_intervention.sql
+|   |   diag_petite_intervention2.sql
+|   |   diag_planning_schema.sql
+|   |   diag_qualite_protocoles.sql
+|   |   diag_sousag_osteo.sql
+|   |   glossaire_chirurgie_migrations.zip
+|   |   migration_101_bdb_dependencies.sql
+|   |   migration_120_dork_notes.sql
+|   |   migration_chu_ecoles_france.sql
+|   |   scan_067b_patterns.sql
+|   |   _ccam_rapprochement.py
+|   |   
+|   +---.claude
+|   |       settings.local.json
+|   |       
+|   \---_sessions
+|           ouverture_session_pedagogie.sql
+|           
++---modules
+|   +---admin
+|   |       admin-annuaire-app.js
+|   |       admin-app.js
+|   |       admin-preferences-app.js
+|   |       index.html
+|   |       
+|   +---anatomie
+|   |       admin.html
+|   |       anatomie-app.js
+|   |       anatomie-ui.css
+|   |       index.html
+|   |       
+|   +---annuaire
+|   |       admin.html
+|   |       annuaire-admin.js
+|   |       annuaire-app.js
+|   |       annuaire-ui.css
+|   |       index.html
+|   |       
+|   +---arsenal
+|   |       admin.html
+|   |       arsenal-app.js
+|   |       arsenal-ui.css
+|   |       index.html
+|   |       
+|   +---boite-a-idees
+|   |       admin.html
+|   |       boite-a-idees-ui.css
+|   |       boite-a-idees.js
+|   |       index.html
+|   |       
+|   +---carnet-bord
+|   |       admin.html
+|   |       carnet-bord-ui.css
+|   |       index.html
+|   |       
+|   +---cours
+|   |       admin.html
+|   |       cours-app.js
+|   |       cours-ui.css
+|   |       edit-app.js
+|   |       edit.html
+|   |       index.html
+|   |       view-app.js
+|   |       view.html
+|   |       
+|   +---disc
+|   |       admin.html
+|   |       disc-controller.js
+|   |       disc-engine.js
+|   |       disc-persona-store.js
+|   |       disc-profil-service.js
+|   |       disc-scenarios.js
+|   |       disc-schema.js
+|   |       disc-tests.js
+|   |       disc-ui.css
+|   |       index.html
+|   |       
+|   +---faq
+|   |       admin.html
+|   |       faq-admin.js
+|   |       faq-app.js
+|   |       faq-ui.css
+|   |       index.html
+|   |       
+|   +---fiches
+|   |       admin.html
+|   |       fiches-admin.js
+|   |       fiches-app.js
+|   |       fiches-ui.css
+|   |       index.html
+|   |       
+|   +---ged
+|   +---glossaire
+|   |       admin.html
+|   |       glossaire-app.js
+|   |       glossaire-ui.css
+|   |       index.html
+|   |       
+|   +---installation
+|   |       admin.html
+|   |       index.html
+|   |       installation-app.js
+|   |       installation-ui.css
+|   |       
+|   +---interview
+|   |       admin.html
+|   |       index.html
+|   |       interview-admin.js
+|   |       interview-ui.css
+|   |       
+|   +---medacta-coste
+|   |       index.html
+|   |       medacta-coste-analytics.js
+|   |       medacta-coste-app.js
+|   |       medacta-coste-jointures.js
+|   |       medacta-coste-ui.css
+|   |       
+|   +---objectifs
+|   |       admin.html
+|   |       index.html
+|   |       objectifs-app.js
+|   |       objectifs-ui.css
+|   |       
+|   +---organisateur
+|   |       admin.html
+|   |       index.html
+|   |       organisateur-admin.js
+|   |       organisateur-app.js
+|   |       organisateur-ui.css
+|   |       
+|   +---pedagogie
+|   +---planning
+|   |       add-planning-subnav.bat
+|   |       add-planning-subnav.ps1
+|   |       admin.html
+|   |       analytics-app.js
+|   |       analytics-ui.css
+|   |       analytics.html
+|   |       dashboard-app.js
+|   |       dashboard-ui.css
+|   |       export-controller.js
+|   |       export.html
+|   |       index.html
+|   |       planning-admin.js
+|   |       planning-analytics.js
+|   |       planning-availability.js
+|   |       planning-batch-modals.js
+|   |       planning-controller.js
+|   |       planning-core.js
+|   |       planning-engine.js
+|   |       planning-events.js
+|   |       planning-export.js
+|   |       planning-matrix.js
+|   |       planning-members.js
+|   |       planning-modal.js
+|   |       planning-schema.js
+|   |       planning-slot-editor.js
+|   |       planning-ui.css
+|   |       planning.html
+|   |       
+|   +---preferences
+|   |       admin.html
+|   |       index.html
+|   |       preferences-app.js
+|   |       preferences-ui.css
+|   |       
+|   +---profile
+|   |       index.html
+|   |       profile-ui.css
+|   |       
+|   +---recueil-situation
+|   |       CTX_PROJET.md
+|   |       
+|   +---supervision
+|   |       index.html
+|   |       supervision-app.js
+|   |       
+|   +---template
+|   |       _TEMPLATE_MODULE_V5_0_1.html
+|   |       
+|   +---thesaurus
+|   |       admin.html
+|   |       index.html
+|   |       rapprochement_fiches.html
+|   |       thesaurus-admin.js
+|   |       thesaurus-analytics.js
+|   |       thesaurus-app.js
+|   |       thesaurus-ccam.js
+|   |       thesaurus-enricher.jsx
+|   |       thesaurus-rapprochement-data.js
+|   |       thesaurus-rapprochement.js
+|   |       thesaurus-recat.js
+|   |       thesaurus-ui.css
+|   |       
+|   +---transmissions
+|   |       admin.html
+|   |       index.html
+|   |       transmissions-admin.js
+|   |       transmissions-app.js
+|   |       transmissions-ui.css
+|   |       
+|   \---veille-documentaire
+|           admin-bao-deepseek.html
+|           admin-bao-deepseek.js
+|           admin-bao.html
+|           admin-bao.js
+|           admin-sources-institutionnelles.html
+|           admin-sources-institutionnelles.js
+|           admin.html
+|           index.html
+|           veille-documentaire-admin.js
+|           veille-documentaire-app.js
+|           veille-documentaire-data.js
+|           veille-documentaire-engine.js
+|           veille-documentaire-render.js
+|           veille-documentaire-state.js
+|           veille-documentaire-ui.css
+|           
++---scripts
+|   |   audit-gouvernance.bat
+|   |   audit-gouvernance.ps1
+|   |   audit-hardcoded-racine.bat
+|   |   audit-hardcoded-racine.ps1
+|   |   audit-html-patterns.txt
+|   |   audit-racine.bat
+|   |   audit-racine.ps1
+|   |   audit-structure-bdb.bat
+|   |   audit-structure-bdb.ps1
+|   |   audit-ux-premium.bat
+|   |   audit-ux-premium.ps1
+|   |   audit-v5-compliance.bat
+|   |   audit-v5-compliance.ps1
+|   |   AUDIT_BDB_HTML_PATTERNS.bat
+|   |   AUDIT_BDB_HTML_PATTERNS.ps1
+|   |   AUDIT_UX_PREMIUM_REPORT.txt
+|   |   batch-anatomie-generator.bat
+|   |   batch-anatomie-generator.ps1
+|   |   batch-anatomie-system-prompt.txt
+|   |   batch-anatomie-test.bat
+|   |   batch-anatomie-test.ps1
+|   |   blitz-prompts.txt
+|   |   build-cockpit.bat
+|   |   build-cockpit.ps1
+|   |   check-bdb-tasks.bat
+|   |   check-bdb-tasks.ps1
+|   |   check-before-ftp.bat
+|   |   check-before-ftp.ps1
+|   |   claude-code-blitz.bat
+|   |   claude-code-blitz.ps1
+|   |   claude-launcher.hta
+|   |   clean-gouvernance.bat
+|   |   clean-gouvernance.ps1
+|   |   cockpit-memo.txt
+|   |   compare-claude.bat
+|   |   compare-claude.ps1
+|   |   generate_rapprochement.py
+|   |   htaccess-gouvernance.txt
+|   |   htaccess-racine.txt
+|   |   inject-auth-users.bat
+|   |   inject-auth-users.ps1
+|   |   migrate-site-public.bat
+|   |   migrate-site-public.ps1
+|   |   setup-bdb-tasks.bat
+|   |   setup-bdb-tasks.ps1
+|   |   start-bdb.bat
+|   |   start-bdb.ps1
+|   |   sync-projet-claude.bat
+|   |   sync-projet-claude.ps1
+|   |   update-instances-stats.bat
+|   |   update-instances-stats.ps1
+|   |   _OPEN-claude-code.bat
+|   |   
+|   \---_archives
+|           @v2.0.0
+|           deploy_session31.ps1
+|           fix-cdn-latest.bat
+|           fix-cdn-latest.ps1
+|           fix-dev-paths.bat
+|           fix-dev-paths.ps1
+|           fix-ux-batch-a.bat
+|           fix-ux-batch-a.ps1
+|           LANCER_SYNC.bat
+|           
++---site
+|       accessibilite.html
+|       adoption.html
+|       audiences-cta.js
+|       audiences.html
+|       faq-site.js
+|       faq.html
+|       fonctionnalites.html
+|       glossaire.html
+|       index.html
+|       instances-app.js
+|       instances-stats.js
+|       instances.html
+|       pas-app.html
+|       risques.html
+|       site-nav.js
+|       site-ui.css
+|       vision.html
+|       _TEMPLATE_MINISITE_V5_0_1.html
+|       
++---supabase
+|   |   .gitignore
+|   |   config.toml
+|   |   
+|   +---.temp
+|   |       cli-latest
+|   |       gotrue-version
+|   |       pooler-url
+|   |       postgres-version
+|   |       project-ref
+|   |       rest-version
+|   |       storage-migration
+|   |       storage-version
+|   |       
+|   \---functions
+|       +---admin-update-user
+|       |       config.toml
+|       |       index.ts
+|       |       
+|       \---delete-user
+|               .npmrc
+|               deno.json
+|               index.ts
+|               
+\---_PROJET_CLAUDE
+        00_BDB_SURFACE_MAP_V1_2_0.md
+        01_ACCES_NIVEAUX_V1_2_0.md
+        02_BACK_OFFICE_REF_V1_1_0.md
+        02_SUPABASE_DATA_MODEL_V1_24_0.md
+        03_CATALOGUE_BS_SMARTY_V1_0_0.md
+        04_PEDAGOGIE_BDB_V1_0_0.md
+        10_ARCHITECTURE_REGLES_TECHNIQUES_V3_0_0.md
+        10_CHANTIER_TECHNIQUE_V1_1_0.md
+        12_SYSTEM_ARCHITECTURE_V2_5_0.md
+        13_AUDIT_SECURITE_V1_0_0.md
+        21_TEMPLATE_CTX_MODULE_V2_0_0.md
+        40_CTX_ADMIN_V2_2_0.md
+        41_CTX_ANATOMIE_V1_2_1.md
+        42_CTX_ANNUAIRE_V1_2_1.md
+        43_CTX_ARSENAL_V2_2_2.md
+        44_CTX_CARNET_BORD_V2_0_1.md
+        45_CTX_BOITE_A_IDEES_V1_4_0.md
+        46_CTX_COURS_V2_1_0.md
+        47_CTX_DEMO_V1_1_0.md
+        48_CTX_DISC_V3_1_0.md
+        49_CTX_VEILLE_DOCUMENTAIRE_V2_3_0.md
+        50_CTX_FICHES_V3_1_1.md
+        51_CTX_GED_V1_0_2.md
+        52_CTX_GLOSSAIRE_V2_0_0.md
+        54_CTX_INSTALLATION_V2_1_0.md
+        57_CTX_NOTES_INTER_V1_0_0.md
+        58_CTX_OBJECTIFS_IDE_V1_2_0.md
+        59_CTX_ORGANISATEUR_V2_0_0.md
+        60_CTX_INTERVIEW_V4_0_0.md
+        61_CTX_PEDAGOGIE_V1_2_2.md
+        62_CTX_PI_V1_0_0.md
+        63_CTX_PLANNING_V1_5_0.md
+        64_CTX_PREFERENCES_V1_5_0.md
+        65_CTX_PROFILE.md
+        66_CTX_RECUEIL_SITUATION_V1_1_0.md
+        67_CTX_SITE.md
+        68_CTX_SUPERVISION_V1_3_0.md
+        69_CTX_THESAURUS_V2_1_0.md
+        70_CTX_TRANSMISSIONS_V1_5_0.md
+        83_CHECKLIST_DEPLOIEMENT_OVH.md
+        ADMIN_BACK_OFFICE_PATTERN_V1_0_0.md
+        CATALOGUE_OPEN_SOURCE_BDB_V1_1_0.md
+        DATA_METIER_PACKS_V1_0_0.md
+        DATA_METIER_SUTURES_V1_0_0.md
+        GUIDE_MIGRATION_V5.md
+        

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>Admin BàO Dunod</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="veille-documentaire-ui.css" rel="stylesheet"/>
+</head>
+
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <div id="bdb-shell"
+         data-module-title="Admin BàO Dunod"
+         data-module-icon="bi-book"
+         data-shell-kind="backoffice"
+         data-login-mode="modal"
+         data-root-path="../../">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+
+        <!-- Barre contexte -->
+        <div class="border-bottom bg-white px-3 py-2">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+              <li class="breadcrumb-item">
+                <a href="../admin/index.html" class="text-decoration-none">
+                  <i class="bi bi-speedometer2 me-1"></i>Administration
+                </a>
+              </li>
+              <li class="breadcrumb-item">
+                <a href="index.html" class="text-decoration-none">Veille documentaire</a>
+              </li>
+              <li class="breadcrumb-item active">BàO Dunod</li>
+            </ol>
+          </nav>
+        </div>
+
+        <!-- Onglets admin -->
+        <ul class="nav nav-tabs px-3 pt-2" id="adminTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-livres-btn" data-bs-toggle="tab"
+                    data-bs-target="#tab-livres" type="button" role="tab">
+              <i class="bi bi-book me-1"></i>Livres <span id="badgeLivres" class="badge bg-secondary-subtle text-secondary-emphasis ms-1">—</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-auteurs-btn" data-bs-toggle="tab"
+                    data-bs-target="#tab-auteurs" type="button" role="tab">
+              <i class="bi bi-people me-1"></i>Auteurs <span id="badgeAuteurs" class="badge bg-secondary-subtle text-secondary-emphasis ms-1">—</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-dash-btn" data-bs-toggle="tab"
+                    data-bs-target="#tab-dash" type="button" role="tab">
+              <i class="bi bi-graph-up me-1"></i>Tableau de bord
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content px-3 pt-3 pb-4">
+
+          <!-- ═══════════ Onglet LIVRES ═══════════ -->
+          <div class="tab-pane fade show active" id="tab-livres" role="tabpanel">
+
+            <!-- Toolbar -->
+            <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+              <div class="input-group vd-search-box">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="search" id="searchLivres" class="form-control form-control-sm" placeholder="Rechercher un livre…"/>
+              </div>
+              <select id="filterRubrique" class="form-select form-select-sm vd-filter-select">
+                <option value="">Toutes rubriques</option>
+              </select>
+              <div class="ms-auto d-flex gap-2">
+                <button id="btnExportLivres" class="btn btn-sm btn-outline-secondary" type="button">
+                  <i class="bi bi-download me-1"></i>CSV
+                </button>
+                <button id="btnAddLivre" class="btn btn-sm btn-primary" type="button">
+                  <i class="bi bi-plus-lg me-1"></i>Ajouter
+                </button>
+              </div>
+            </div>
+
+            <!-- 3 états -->
+            <div id="livresLoading">
+              <div class="placeholder-glow p-3">
+                <div class="placeholder col-8 rounded mb-3"></div>
+                <div class="placeholder col-6 rounded mb-2"></div>
+                <div class="placeholder col-7 rounded mb-2"></div>
+              </div>
+            </div>
+            <div id="livresEmpty" class="d-none text-center py-5 text-muted">
+              <i class="bi bi-book fs-1 d-block mb-2"></i>
+              <p>Aucun livre dans le catalogue.</p>
+            </div>
+            <div id="livresError" class="d-none"></div>
+            <div id="livresList" class="d-none">
+              <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Nom</th>
+                      <th>Rubrique</th>
+                      <th>Auteurs</th>
+                      <th class="text-center">Année</th>
+                      <th class="text-center">Sommaire</th>
+                      <th>État</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="livresBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════════ Onglet AUTEURS ═══════════ -->
+          <div class="tab-pane fade" id="tab-auteurs" role="tabpanel">
+
+            <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+              <div class="input-group vd-search-box">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="search" id="searchAuteurs" class="form-control form-control-sm" placeholder="Rechercher un auteur…"/>
+              </div>
+              <div class="ms-auto">
+                <button id="btnAddAuteur" class="btn btn-sm btn-primary" type="button">
+                  <i class="bi bi-plus-lg me-1"></i>Ajouter
+                </button>
+              </div>
+            </div>
+
+            <div id="auteursLoading">
+              <div class="placeholder-glow p-3">
+                <div class="placeholder col-6 rounded mb-2"></div>
+                <div class="placeholder col-4 rounded mb-2"></div>
+              </div>
+            </div>
+            <div id="auteursEmpty" class="d-none text-center py-5 text-muted">
+              <i class="bi bi-people fs-1 d-block mb-2"></i>
+              <p>Aucun auteur.</p>
+            </div>
+            <div id="auteursError" class="d-none"></div>
+            <div id="auteursList" class="d-none">
+              <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Nom</th>
+                      <th class="text-end">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auteursBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══════════ Onglet DASHBOARD ═══════════ -->
+          <div class="tab-pane fade" id="tab-dash" role="tabpanel">
+            <div id="dashLoading" class="placeholder-glow p-3">
+              <div class="placeholder col-4 rounded mb-2"></div>
+              <div class="placeholder col-3 rounded"></div>
+            </div>
+            <div id="dashContent" class="d-none"></div>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom"></span></small>
+    </footer>
+
+  </div>
+
+  <!-- ═══════════ MODAL LIVRE ═══════════ -->
+  <div class="modal fade" id="modalLivre" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLivreTitle">Ajouter un livre</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="livreId"/>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="livreNom" class="form-label">Nom (code court) <span class="text-danger">*</span></label>
+              <input type="text" id="livreNom" class="form-control" required placeholder="BAO-FORMA-2020"/>
+            </div>
+            <div class="col-12">
+              <label for="livreTitre" class="form-label">Titre complet</label>
+              <input type="text" id="livreTitre" class="form-control" placeholder="La boîte à outils des formateurs"/>
+            </div>
+            <div class="col-md-6">
+              <label for="livreIsbn" class="form-label">ISBN</label>
+              <input type="text" id="livreIsbn" class="form-control" placeholder="978-2-10-…"/>
+            </div>
+            <div class="col-md-3">
+              <label for="livreAnnee" class="form-label">Année</label>
+              <input type="number" id="livreAnnee" class="form-control" min="1990" max="2030"/>
+            </div>
+            <div class="col-md-3">
+              <label for="livrePages" class="form-label">Pages</label>
+              <input type="number" id="livrePages" class="form-control" min="0"/>
+            </div>
+            <div class="col-md-6">
+              <label for="livreRubrique" class="form-label">Rubrique</label>
+              <input type="text" id="livreRubrique" class="form-control" placeholder="Efficacité professionnelle"/>
+            </div>
+            <div class="col-md-6">
+              <label for="livreEditeur" class="form-label">Éditeur</label>
+              <input type="text" id="livreEditeur" class="form-control" value="DUNOD"/>
+            </div>
+            <div class="col-12">
+              <label for="livreAuteursStr" class="form-label">Auteurs (texte libre)</label>
+              <input type="text" id="livreAuteursStr" class="form-control" placeholder="Bouchut Fabienne, Cuisiniez Frédérique"/>
+            </div>
+            <div class="col-md-4">
+              <label for="livreEtat" class="form-label">État</label>
+              <select id="livreEtat" class="form-select">
+                <option value="">—</option>
+                <option value="a_acheter">À acheter</option>
+                <option value="commande">Commandé</option>
+                <option value="recu">Reçu</option>
+                <option value="lu">Lu</option>
+                <option value="indexe">Indexé</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="livreEtiquette" class="form-label">Étiquette</label>
+              <input type="text" id="livreEtiquette" class="form-control" placeholder="prioritaire"/>
+            </div>
+            <div class="col-md-4">
+              <label for="livrePrix" class="form-label">Prix achat (€)</label>
+              <input type="number" id="livrePrix" class="form-control" step="0.01" min="0"/>
+            </div>
+            <div class="col-12">
+              <label for="livreAlerte" class="form-label">Alerte</label>
+              <input type="text" id="livreAlerte" class="form-control" placeholder="Note importante…"/>
+            </div>
+            <div class="col-md-6">
+              <label for="livreCoverUrl" class="form-label">URL couverture</label>
+              <input type="url" id="livreCoverUrl" class="form-control"/>
+            </div>
+            <div class="col-md-6">
+              <label for="livreGoogleUrl" class="form-label">URL Google Books</label>
+              <input type="url" id="livreGoogleUrl" class="form-control"/>
+            </div>
+            <div class="col-md-6">
+              <label for="livreFeuilletageUrl" class="form-label">URL feuilletage</label>
+              <input type="url" id="livreFeuilletageUrl" class="form-control"/>
+            </div>
+            <div class="col-md-6">
+              <label for="livreZotero" class="form-label">Zotero</label>
+              <input type="text" id="livreZotero" class="form-control"/>
+            </div>
+            <div class="col-12">
+              <div class="form-check">
+                <input type="checkbox" id="livreHasSommaire" class="form-check-input"/>
+                <label for="livreHasSommaire" class="form-check-label">Sommaire disponible</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="livreSommaireMd" class="form-label">Sommaire (Markdown)</label>
+              <textarea id="livreSommaireMd" class="form-control" rows="6"></textarea>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" id="btnSaveLivre" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MODAL AUTEUR ═══════════ -->
+  <div class="modal fade" id="modalAuteur" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAuteurTitle">Ajouter un auteur</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="auteurId"/>
+          <label for="auteurNom" class="form-label">Nom <span class="text-danger">*</span></label>
+          <input type="text" id="auteurNom" class="form-control" required placeholder="Bouchut Fabienne"/>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" id="btnSaveAuteur" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS chain -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <!-- Admin JS (ISO-02 : pas dans index.html) -->
+  <script src="admin-bao.js"></script>
+</body>
+</html>

@@ -1,0 +1,1069 @@
+/* =========================================================
+   MODULE PRÉFÉRENCES CHIRURGIEN — BDB V3
+   Tables  : preferences_chirurgien · pref_referentiels
+             profiles_directory · thesaurus_protocoles
+             tag_links · tags
+   RBAC    : admin = tout / chirurgien = ses propres prefs
+   Shell   : bdb-shell.js — window.bdbUser (INTERDIT-B2)
+   V3      : 16 sections · chips natifs · schema V3
+             migration backward-compat V2→V3
+   ========================================================= */
+
+const DB = window.bdb;
+
+/* ── SCHEMA V3 ──────────────────────────────────────────── */
+const PREF_SCHEMA_V3 = {
+  v: 3,
+  scope: { level: 'global', secteur: null, type: null },
+  ouverture_salle: {
+    bistouri: {
+      present: false, modele: null, position: null,
+      reglages_coupe_w: 80, reglages_coupe_mode: null,
+      reglages_coag_w: 80, reglages_coag_mode: null,
+      bipolaire: { present: false, w: 15, mode: null, comment: '' },
+      comment: '',
+    },
+    neptune:        { present: false, comment: '' },
+    garrot:         { present: false, position: null, pression_mmhg: null, duree_min: null, comment: '' },
+    colonne_arthro: { present: false, comment: '' },
+    table_pont:     { present: false, comment: '' },
+    table_bras:     { present: false, comment: '' },
+    tablette:       { present: false, comment: '' },
+    bureau:         { present: false, comment: '' },
+  },
+  ampli: {
+    present: false, taille: null, position: null,
+    pedale:      { present: false, comment: '' },
+    resume_dose: { present: false, comment: '' },
+    images:      { present: false, faces: [], comment: '' },
+    comment: '',
+  },
+  habillage: {
+    gants_1: { taille: null, modele: null },
+    gants_2: { present: false, taille: null, modele: null, comment: '' },
+    casaque:  { type: null, taille: null },
+    casque:   { present: false, comment: '' },
+  },
+  installation: {
+    table:           { modele: null, variante: null, comment: '' },
+    decubitus:       null,
+    appuis:          [],
+    tetiere:         { present: false, modele: null, comment: '' },
+    gelose:          [],
+    gelose_comment:  '',
+    piquet_toupet:   { present: false, comment: '' },
+    stresseur_genou: { present: false, comment: '' },
+    cavalier:        { present: false, comment: '' },
+    arceau_tete:     { present: false, comment: '' },
+  },
+  pulsavac:      { present: false, comment: '' },
+  ciment:        { present: false, nom: null, melangeur: null, bouchon: null, comment: '' },
+  sutures: {
+    agrafe:  { present: false, modele: null, comment: '' },
+    lignes:  [],
+    allergie: null,
+  },
+  pansement:      { present: false, type: null, comment: '' },
+  immobilisation: { present: false, type: null, comment: '' },
+  infiltrations:  { molecules: [], comment: '' },
+  redon:          { present: false, modele: null, comment: '' },
+  biobank:        { present: false, comment: '' },
+  lames_scie:     { present: false, modele: null, comment: '' },
+  anapath:        { present: false, comment: '' },
+  notes: '',
+};
+
+const SUTURE_PLANS   = ['Profond','Aponévrose','Sous-peau','Peau','Ligature','Capsule','Musculaire'];
+const SUTURE_TYPES   = ['Vicryl','PDS','Monocryl','Prolène','Nylon','Fil tressé'];
+const SUTURE_TAILLES = ['5-0','4-0','3-0','2-0','1-0','1','0'];
+const SUTURE_MODES   = ['Points séparés','Surjet','Surjet intradermique','Agrafes'];
+
+/* ── STATE ──────────────────────────────────────────────── */
+const state = {
+  user: null, isAdmin: false,
+  prefs: [], doctors: [], allTags: [],
+  refs: {},
+  editingId: null, editingChirId: null,
+  sutures: [],
+  selectedProto: null, formTagIds: [],
+};
+
+let quill, modalPref, modalView, draggedSection = null;
+
+/* ── UTILS ──────────────────────────────────────────────── */
+function avatarColor(name) {
+  const c = ['#6366f1','#8b5cf6','#ec4899','#f97316','#14b8a6','#0ea5e9','#84cc16'];
+  let h = 0;
+  for (let i=0;i<(name||'').length;i++) h=(h*31+name.charCodeAt(i))&0xffffffff;
+  return c[Math.abs(h)%c.length];
+}
+
+function ref(cat) { return state.refs[cat] || []; }
+
+function buildSelect(id, cat, selected, ph='— Choisir —') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<option value="">${escHtml(ph)}</option>` +
+    ref(cat).map(v=>`<option ${v===selected?'selected':''}>${escHtml(v)}</option>`).join('');
+}
+
+/* ── CHIP HELPERS ───────────────────────────────────────── */
+function setChipRadio(name, value) {
+  document.querySelectorAll(`[name="${CSS.escape(name)}"]`).forEach(r => r.checked = (r.value === value));
+}
+function getChipRadio(name) {
+  return document.querySelector(`[name="${CSS.escape(name)}"]:checked`)?.value || null;
+}
+function setChipsCheck(name, values) {
+  const arr = Array.isArray(values) ? values : [];
+  document.querySelectorAll(`[name="${CSS.escape(name)}"]`).forEach(c => c.checked = arr.includes(c.value));
+}
+function getChipsCheck(name) {
+  return [...document.querySelectorAll(`[name="${CSS.escape(name)}"]:checked`)].map(c => c.value);
+}
+
+/* ── C.9 ────────────────────────────────────────────────── */
+function setPrefsState(s, errMsg) {
+  ['prefsLoading','prefsEmpty','prefsError','prefsList']
+    .forEach(id => document.getElementById(id)?.classList.add('d-none'));
+  const t = {loading:'prefsLoading',empty:'prefsEmpty',error:'prefsError',data:'prefsList'}[s];
+  if (t) document.getElementById(t)?.classList.remove('d-none');
+  if (s==='error'&&errMsg) document.getElementById('prefsErrorMsg').textContent = errMsg;
+  if (s==='empty'&&state.isAdmin) document.getElementById('btnNewEmpty')?.classList.remove('d-none');
+}
+
+function canEdit(p) { return state.isAdmin || p.chirurgien_id === state.user?.id; }
+
+/* ── PARSE + MIGRATION V2→V3 ────────────────────────────── */
+function parsePref(raw) {
+  const def = JSON.parse(JSON.stringify(PREF_SCHEMA_V3));
+  if (!raw || typeof raw !== 'object') return def;
+  if (raw.v === 3) return deepMergeV3(def, raw);
+  if (raw.v === 2) return migrateV2toV3(raw, def);
+  return def;
+}
+
+function deepMergeV3(def, src) {
+  if (!src || typeof src !== 'object') return def;
+  for (const k of Object.keys(def)) {
+    if (!(k in src)) continue;
+    if (src[k] !== null && typeof src[k] === 'object' && !Array.isArray(src[k])) {
+      def[k] = deepMergeV3(def[k], src[k]);
+    } else {
+      def[k] = src[k];
+    }
+  }
+  return def;
+}
+
+function migrateV2toV3(v2, def) {
+  // Bistouri
+  const be = v2.bistouri_electrique || {};
+  def.ouverture_salle.bistouri = {
+    ...def.ouverture_salle.bistouri,
+    present: be.present||false, modele: be.modele||null, position: be.position||null,
+    reglages_coupe_w: be.coupe_w||80, reglages_coupe_mode: be.coupe_mode||null,
+    reglages_coag_w: be.coag_w||80, reglages_coag_mode: be.coag_mode||null,
+    bipolaire: { present: be.bipolaire_present||false, w: be.bipolaire_w||15, mode: be.bipolaire_mode||null, comment: '' },
+  };
+  // Garrot
+  const g = v2.garrot || {};
+  def.ouverture_salle.garrot = { ...def.ouverture_salle.garrot,
+    present: g.present||false, position: g.position||null,
+    pression_mmhg: g.pression_mmhg||null, duree_min: g.duree_min||null,
+  };
+  // Pulsavac
+  def.pulsavac.present = v2.pulsavac||false;
+  // Ampli
+  const a = v2.ampli_brillance || {};
+  def.ampli.present = a.present||false;
+  def.ampli.position = a.position||null;
+  def.ampli.pedale.present = a.pedale||false;
+  // Ciment
+  const c = v2.ciment || {};
+  def.ciment = { ...def.ciment, present: c.present||false, nom: c.nom||null, melangeur: c.melangeur||null };
+  // Habillage
+  const eq = v2.equipement_chirurgien || {};
+  def.habillage.gants_1 = { taille: eq.gants_1_taille||null, modele: eq.gants_1_modele||null };
+  def.habillage.gants_2 = { present: eq.gants_2_present||false, taille: eq.gants_2_taille||null, modele: eq.gants_2_modele||null, comment: '' };
+  def.habillage.casaque = { type: eq.casaque_type||null, taille: eq.casaque_taille||null };
+  def.habillage.casque  = { present: eq.casque||false, comment: '' };
+  // Installation
+  const ins = v2.installation || {};
+  def.installation.decubitus = ins.decubitus||null;
+  def.installation.appuis    = ins.appuis||[];
+  // Sutures (from fermeture)
+  const fe = v2.fermeture || {};
+  def.sutures.agrafe  = { present: fe.agrafe||false, modele: fe.agrafe_modele||null, comment: '' };
+  def.sutures.lignes  = fe.sutures||[];
+  def.sutures.allergie = fe.allergie||null;
+  // Pansement
+  const pan = v2.pansement || {};
+  def.pansement = { present: pan.present||false, type: pan.type||null, comment: '' };
+  // Immobilisation (from attelle)
+  const att = v2.attelle || {};
+  def.immobilisation = { present: att.present||false, type: att.modele||null, comment: '' };
+  // Anapath
+  def.anapath.present = v2.anapath||false;
+  // Infiltration
+  const inf = v2.infiltration || {};
+  def.infiltrations.molecules = inf.molecule ? [inf.molecule] : [];
+  def.infiltrations.comment   = [inf.dose, inf.timing].filter(Boolean).join(' · ');
+  // Notes
+  def.notes = v2.notes||'';
+  return def;
+}
+
+/* ── DATA LOADING ───────────────────────────────────────── */
+async function loadReferentiels() {
+  const {data,error} = await DB.from('pref_referentiels').select('categorie,libelle')
+    .eq('actif',true).order('categorie').order('ordre');
+  if (error) throw error;
+  state.refs = {};
+  (data||[]).forEach(r => { if (!state.refs[r.categorie]) state.refs[r.categorie]=[]; state.refs[r.categorie].push(r.libelle); });
+}
+
+async function loadDoctors() {
+  const {data} = await DB.from('profiles_directory').select('user_id,nom,prenom')
+    .eq('fonction','medecin').eq('approved',true).order('nom');
+  state.doctors = data||[];
+  const sf  = document.getElementById('pChirurgien');
+  const sf2 = document.getElementById('pFormChirurgien');
+  state.doctors.forEach(d => {
+    const label = `Dr ${d.nom||''} ${d.prenom||''}`.trim();
+    sf.add(new Option(label,d.user_id));
+    sf2.add(new Option(label,d.user_id));
+  });
+}
+
+async function loadTags() {
+  const {data} = await DB.from('tags').select('id,label_display,type').order('label_display');
+  state.allTags = (data||[]).filter(t=>['personne','marque','intervention','materiel','libre'].includes(t.type));
+}
+
+async function searchProtocoles(q) {
+  if (!q||q.length<2) return [];
+  const {data} = await DB.from('thesaurus_protocoles').select('id,id_protocole,libelle_cible')
+    .or(`libelle_cible.ilike.%${q}%,id_protocole.ilike.%${q}%`).order('libelle_cible').limit(10);
+  return data||[];
+}
+
+async function syncTags(recordId) {
+  await DB.from('tag_links').delete().eq('content_id',recordId).eq('content_type','preferences_chirurgien').select();
+  if (state.formTagIds.length>0)
+    await DB.from('tag_links').insert(state.formTagIds.map(tagId=>({content_id:recordId,content_type:'preferences_chirurgien',tag_id:tagId})));
+}
+
+/* ── LOAD PREFS ─────────────────────────────────────────── */
+async function loadPrefs() {
+  setPrefsState('loading');
+  let q = DB.from('preferences_chirurgien').select('*').order('created_at',{ascending:false}).limit(200);
+  const search = document.getElementById('pSearch').value.trim();
+  const global = document.getElementById('pGlobal').value;
+  const chir   = document.getElementById('pChirurgien').value;
+  if (search) q = q.or(`titre.ilike.%${search}%`);
+  if (global==='true')  q = q.eq('is_global',true);
+  if (global==='false') q = q.eq('is_global',false);
+  if (global==='draft') q = q.eq('is_dev',true);
+  else                  q = q.eq('is_dev',false);
+  if (chir) q = q.eq('chirurgien_id',chir);
+  const {data,error} = await q;
+  if (error)       { setPrefsState('error',error.message); return; }
+  if (!data?.length) { setPrefsState('empty'); return; }
+
+  const chirIds  = [...new Set(data.map(p=>p.chirurgien_id).filter(Boolean))];
+  const protoIds = [...new Set(data.map(p=>p.protocole_id).filter(Boolean))];
+  const {data:profiles} = await DB.from('profiles_directory').select('user_id,name,nom,prenom,initials').in('user_id',chirIds);
+  const profMap = Object.fromEntries((profiles||[]).map(p=>[p.user_id,p]));
+  let protoMap = {};
+  if (protoIds.length) {
+    const {data:protos} = await DB.from('thesaurus_protocoles').select('id,id_protocole,libelle_cible').in('id',protoIds);
+    protoMap = Object.fromEntries((protos||[]).map(p=>[p.id,p]));
+  }
+  state.prefs = data.map(p=>({...p,_profile:profMap[p.chirurgien_id]||null,_protocole:protoMap[p.protocole_id]||null}));
+  document.getElementById('prefsList').innerHTML =
+    `<div class="d-flex flex-column gap-3">${state.prefs.map(renderPrefCard).join('')}</div>`;
+  setPrefsState('data');
+  attachCardListeners();
+}
+
+/* ── CARDS ──────────────────────────────────────────────── */
+function renderPrefBadges(pref) {
+  const p = parsePref(pref.preferences);
+  if (p.v !== 3) {
+    const text = (pref.description||'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    return text ? `<p class="text-muted small mb-0 mt-1">${escHtml(text.slice(0,120))}${text.length>120?'…':''}</p>` : '';
+  }
+  const badges = [];
+  const h  = p.habillage;
+  const os = p.ouverture_salle;
+  if (h?.gants_1?.taille)      badges.push(`<span class="pref-badge"><i class="bi bi-hand-index"></i>Gants ${escHtml(h.gants_1.taille)}</span>`);
+  if (h?.casaque?.taille)      badges.push(`<span class="pref-badge"><i class="bi bi-person"></i>Casaque ${escHtml(h.casaque.taille)}</span>`);
+  if (os?.garrot?.present)     badges.push(`<span class="pref-badge"><i class="bi bi-bandaid"></i>Garrot${os.garrot.pression_mmhg?' '+os.garrot.pression_mmhg+' mmHg':''}</span>`);
+  if (os?.bistouri?.present)   badges.push(`<span class="pref-badge"><i class="bi bi-lightning-charge"></i>BE</span>`);
+  if (p.sutures?.lignes?.length) badges.push(`<span class="pref-badge"><i class="bi bi-scissors"></i>${p.sutures.lignes.length} plan${p.sutures.lignes.length>1?'s':''}</span>`);
+  if (p.installation?.appuis?.length) badges.push(`<span class="pref-badge"><i class="bi bi-layout-sidebar"></i>${p.installation.appuis.length} appui${p.installation.appuis.length>1?'s':''}</span>`);
+  if (p.ciment?.present)       badges.push(`<span class="pref-badge"><i class="bi bi-droplet-half"></i>${escHtml(p.ciment.nom||'Ciment')}</span>`);
+  return badges.length ? `<div class="pref-badges">${badges.join('')}</div>` : '';
+}
+
+function renderPrefCard(p) {
+  const prof  = p._profile;
+  const proto = p._protocole;
+  const initials = prof?.initials||(prof?.nom||'?').substring(0,2).toUpperCase();
+  const fullName = prof ? `Dr ${escHtml(prof.nom||'')} ${escHtml(prof.prenom||'')}`.trim() : '—';
+  const bg = avatarColor(fullName);
+  const scopeLevel = p.scope_level||(p.is_global?'global':'protocole');
+  let scopeBadge;
+  if (scopeLevel==='global')      scopeBadge=`<span class="pref-global-badge"><i class="bi bi-globe me-1"></i>Globale</span>`;
+  else if (proto)                 scopeBadge=`<span class="pref-proto-badge">${escHtml(proto.id_protocole)}</span><span class="text-muted small ms-1">${escHtml(proto.libelle_cible)}</span>`;
+  else if (p.scope_secteur)       scopeBadge=`<span class="badge bg-info-subtle text-info">${escHtml(p.scope_secteur)}</span>`;
+  else if (p.scope_type)          scopeBadge=`<span class="badge bg-warning-subtle text-warning">${escHtml(p.scope_type)}</span>`;
+  else                            scopeBadge=`<span class="badge bg-secondary-subtle text-secondary">Non liée</span>`;
+  const draftBadge = p.is_dev ? `<span class="badge bg-warning text-dark ms-1" style="font-size:.6rem">Brouillon</span>` : '';
+  const validateBtn = canEdit(p)&&p.is_dev&&state.isAdmin
+    ? `<button class="pref-menu-btn rounded text-success" data-action="validate" data-id="${escHtml(p.id)}" title="Valider"><i class="bi bi-check-circle"></i></button>` : '';
+  const editBtn = canEdit(p)
+    ? `<button class="pref-menu-btn rounded" data-action="edit" data-id="${escHtml(p.id)}" title="Modifier"><i class="bi bi-pencil"></i></button>
+       <button class="pref-menu-btn rounded" data-action="delete" data-id="${escHtml(p.id)}" title="Retirer"><i class="bi bi-trash3"></i></button>` : '';
+  return `<div class="card border-0 shadow-sm pref-card" data-action="view" data-id="${escHtml(p.id)}">
+    <div class="card-body p-3"><div class="d-flex align-items-start gap-3">
+      <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0 pref-chir-avatar" style="background:${bg}">${escHtml(initials)}</div>
+      <div class="flex-grow-1 min-w-0"><div class="d-flex justify-content-between align-items-start gap-2">
+        <div>
+          <div class="fw-semibold small">${fullName}${draftBadge}</div>
+          <div class="mt-1 d-flex flex-wrap align-items-center gap-1">${scopeBadge}</div>
+          <div class="fw-normal text-body small mt-1">${escHtml(p.titre||'')}</div>
+          ${renderPrefBadges(p)}
+        </div>
+        <div class="d-flex gap-1 flex-shrink-0">${validateBtn}${editBtn}</div>
+      </div></div>
+    </div></div>
+  </div>`;
+}
+
+function attachCardListeners() {
+  document.querySelectorAll('#prefsList [data-action]').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const action = el.dataset.action, id = el.dataset.id;
+      if (action==='view')     openViewModal(id);
+      if (action==='edit')     openPrefModal(id);
+      if (action==='delete')   deletePref(id);
+      if (action==='validate') validatePref(id);
+    });
+  });
+  document.querySelectorAll('#prefsList .pref-card').forEach(card => {
+    card.addEventListener('click', () => openViewModal(card.dataset.id));
+  });
+}
+
+/* ── SUTURES ────────────────────────────────────────────── */
+function renderSutureLine(s, i) {
+  const sel = (cls, arr, val) =>
+    `<select class="form-select form-select-sm ${cls}"><option value=""></option>${arr.map(v=>`<option ${v===val?'selected':''}>${escHtml(v)}</option>`).join('')}</select>`;
+  return `<div class="sut-row">
+    ${sel('sut-plan',SUTURE_PLANS,s.plan)}${sel('sut-type',SUTURE_TYPES,s.type)}
+    ${sel('sut-taille',SUTURE_TAILLES,s.taille)}${sel('sut-mode',SUTURE_MODES,s.mode)}
+    <input class="form-control form-control-sm sut-ref" value="${escHtml(s.ref||'')}"/>
+    <button type="button" class="btn-del-sut" data-del="${i}"><i class="bi bi-x"></i></button>
+  </div>`;
+}
+function renderSutures() {
+  const c = document.getElementById('suturesList');
+  if (!c) return;
+  c.innerHTML = state.sutures.map((s,i) => renderSutureLine(s,i)).join('');
+  c.querySelectorAll('.btn-del-sut').forEach(btn => btn.addEventListener('click', () => {
+    collectSutures(); state.sutures.splice(parseInt(btn.dataset.del,10),1); renderSutures();
+  }));
+}
+function collectSutures() {
+  state.sutures = [...document.querySelectorAll('#suturesList .sut-row')].map(r => ({
+    plan: r.querySelector('.sut-plan')?.value||'',
+    type: r.querySelector('.sut-type')?.value||'',
+    taille: r.querySelector('.sut-taille')?.value||'',
+    mode: r.querySelector('.sut-mode')?.value||'',
+    ref: r.querySelector('.sut-ref')?.value||'',
+  }));
+}
+
+/* ── PROTO SEARCH ───────────────────────────────────────── */
+function renderProtoSelected() {
+  const el = document.getElementById('pProtoSelected'); if (!el) return;
+  if (!state.selectedProto) { el.innerHTML=''; return; }
+  const p = state.selectedProto;
+  el.innerHTML = `<div class="d-inline-flex align-items-center gap-2 bg-light rounded px-2 py-1">
+    <span class="pref-proto-code">${escHtml(p.id_protocole)}</span>
+    <span class="small">${escHtml(p.libelle_cible)}</span>
+    <button type="button" class="btn-close" style="width:10px;height:10px" id="btnClearProto"></button>
+  </div>`;
+  document.getElementById('btnClearProto')?.addEventListener('click', () => {
+    state.selectedProto=null; document.getElementById('pProtoSearch').value=''; renderProtoSelected();
+  });
+}
+
+function initProtoSearch() {
+  const inp = document.getElementById('pProtoSearch');
+  const res = document.getElementById('pProtoResults');
+  if (!inp||!res) return;
+  let deb;
+  inp.addEventListener('input', () => {
+    clearTimeout(deb); const q = inp.value.trim();
+    if (q.length<2) { res.classList.remove('open'); return; }
+    deb = setTimeout(async () => {
+      const protos = await searchProtocoles(q);
+      if (!protos.length) res.innerHTML = `<div class="pref-proto-empty">Aucun protocole pour "${escHtml(q)}"</div>`;
+      else {
+        res.innerHTML = protos.map(p=>`<div class="pref-proto-item" data-id="${escHtml(p.id)}" data-code="${escHtml(p.id_protocole)}" data-label="${escHtml(p.libelle_cible)}"><span class="pref-proto-code">${escHtml(p.id_protocole)}</span><span>${escHtml(p.libelle_cible)}</span></div>`).join('');
+        res.querySelectorAll('.pref-proto-item').forEach(item => item.addEventListener('click', () => {
+          state.selectedProto = {id:item.dataset.id,id_protocole:item.dataset.code,libelle_cible:item.dataset.label};
+          inp.value=''; res.classList.remove('open'); renderProtoSelected();
+        }));
+      }
+      res.classList.add('open');
+    }, 250);
+  });
+  inp.addEventListener('blur', () => setTimeout(()=>res.classList.remove('open'),200));
+}
+
+/* ── TAGS ───────────────────────────────────────────────── */
+function renderTagSelector() {
+  const search   = document.getElementById('pTagSearch')?.value?.toLowerCase()||'';
+  const filtered = state.allTags.filter(t=>!state.formTagIds.includes(t.id)&&(!search||t.label_display.toLowerCase().includes(search))).slice(0,10);
+  document.getElementById('pTagResults').innerHTML = filtered.map(t=>
+    `<button type="button" class="btn btn-sm btn-outline-secondary" data-tag-id="${escHtml(t.id)}"><i class="bi bi-plus me-1"></i>${escHtml(t.label_display)}<span class="badge bg-light text-muted ms-1 pref-tag-type">${escHtml(t.type)}</span></button>`
+  ).join('');
+  document.querySelectorAll('#pTagResults [data-tag-id]').forEach(btn => btn.addEventListener('click', () => {
+    if (state.formTagIds.length>=5) { bdbToast('5 tags maximum.','error'); return; }
+    state.formTagIds.push(btn.dataset.tagId); document.getElementById('pTagSearch').value=''; renderTagSelector();
+  }));
+  const sel = state.allTags.filter(t=>state.formTagIds.includes(t.id));
+  const ct  = document.getElementById('pSelectedTags');
+  ct.innerHTML = sel.length
+    ? sel.map(t=>`<span class="badge bg-primary d-flex align-items-center gap-1">${escHtml(t.label_display)}<button type="button" class="btn-close btn-close-white p-0 pref-tag-remove" data-remove-tag="${escHtml(t.id)}"></button></span>`).join('')
+    : '<span class="text-muted small">Aucun tag sélectionné</span>';
+  ct.querySelectorAll('[data-remove-tag]').forEach(btn => btn.addEventListener('click', () => {
+    state.formTagIds = state.formTagIds.filter(id=>id!==btn.dataset.removeTag); renderTagSelector();
+  }));
+}
+
+/* ── SCOPE UI ───────────────────────────────────────────── */
+function updateScopeUI() {
+  const level = document.getElementById('pScopeLevel')?.value||'global';
+  document.getElementById('selScopeSecteur')?.classList.toggle('d-none', !['secteur','type','protocole'].includes(level));
+  document.getElementById('selScopeType')?.classList.toggle('d-none', !['type','protocole'].includes(level));
+  document.getElementById('pProtoRow')?.classList.toggle('d-none', level!=='protocole');
+}
+
+/* ── PLATEAU VARIANTE ───────────────────────────────────── */
+function showPlateauVariante() {
+  const isP = getChipRadio('grpTable') === 'Plateau';
+  document.getElementById('plateauVarianteRow')?.classList.toggle('d-none', !isP);
+  if (!isP) setChipRadio('grpPlateauVar', null);
+}
+
+/* ── BUILD SELECTS (referentiels DB) ────────────────────── */
+function buildSelects(p) {
+  const os = p.ouverture_salle;
+  const h  = p.habillage;
+  buildSelect('selGarrotPos',   'garrot_position', os.garrot.position);
+  buildSelect('selAmpliPos',    'pos_salle',       p.ampli.position);
+  buildSelect('selBEPos',       'pos_salle',       os.bistouri.position);
+  buildSelect('selBEModele',    'be_modele',       os.bistouri.modele);
+  buildSelect('selCoupeMode',   'be_mode_coupe',   os.bistouri.reglages_coupe_mode);
+  buildSelect('selCoagMode',    'be_mode_coag',    os.bistouri.reglages_coag_mode);
+  buildSelect('selBipoMode',    'be_mode_bipo',    os.bistouri.bipolaire.mode);
+  buildSelect('selDecubitus',   'decubitus',       p.installation.decubitus);
+  buildSelect('selG1Modele',    'gants_modele',    h.gants_1.modele);
+  buildSelect('selG2Modele',    'gants_modele',    h.gants_2.modele);
+  buildSelect('selCasaqueType', 'casaque_type',    h.casaque.type);
+  buildSelect('selScopeSecteur','secteur',         p.scope?.secteur);
+  buildSelect('selScopeType',   'type_chirurgie',  p.scope?.type);
+}
+
+/* ── OPEN MODAL (create / edit) ─────────────────────────── */
+async function openPrefModal(id) {
+  state.editingId = id||null; state.editingChirId = null;
+  state.sutures = []; state.selectedProto = null; state.formTagIds = [];
+  document.getElementById('pFormError')?.classList.add('d-none');
+  document.getElementById('pTitre').value = '';
+  document.getElementById('pScopeLevel').value = 'global';
+  document.getElementById('pFormChirurgien').value = '';
+
+  // ── Reset tous les toggles
+  const TOGGLES = ['togBE','togNeptune','togGarrot','togColonneArthro','togTablePont','togTableBras',
+    'togTablette','togBureau','togBipo','togAmpli','togPedaleAmpli','togResumeDose','togImages',
+    'togGants2','togCasque','togTetiere','togPiquetToupet','togStresseurGenou','togCavalier',
+    'togArceauTete','togPulsavac','togCiment','togAgrafe','togPansement','togImmob',
+    'togRedon','togBiobank','togLames','togAnapath'];
+  TOGGLES.forEach(tid => { const e=document.getElementById(tid); if(e) e.checked=false; });
+
+  // ── Reset tous les sub panels
+  const SUBS = ['beSub','neptuneSub','garrotSub','colonneArthroSub','tablePontSub','tableBrasSub',
+    'tabletteSub','bureauSub','bipoSub','ampliSub','pedaleAmpliSub','resumeDoseSub','imagesSub',
+    'gants2Sub','casqueSub','tetiereSub','piquetToupetSub','stresseurGenouSub','cavalierSub',
+    'arceauTeteSub','pulsavacSub','cimentSub','agrafeSub','pansementSub','immobSub',
+    'redonSub','biobankSub','lamesSub','anapathSub'];
+  SUBS.forEach(sid => document.getElementById(sid)?.classList.remove('on'));
+
+  // ── Reset chips
+  document.querySelectorAll('#prefAccordion [name^="grp"]').forEach(r => r.checked=false);
+
+  // ── Reset commentaires
+  document.querySelectorAll('#prefAccordion [id^="inpCmt"]').forEach(ta => ta.value='');
+  document.querySelectorAll('#prefAccordion [id^="inpGarrot"]').forEach(inp => inp.value='');
+  const inpAllergie = document.getElementById('inpAllergie');
+  if (inpAllergie) inpAllergie.value='';
+
+  // ── Reset selects
+  ['selBEModele','selBEPos','selCoupeMode','selCoagMode','selBipoMode','selGarrotPos',
+   'selAmpliPos','selDecubitus','selG1Taille','selG1Modele','selG2Taille','selG2Modele',
+   'selCasaqueType','selCasaqueTaille'].forEach(sid => { const e=document.getElementById(sid); if(e) e.value=''; });
+
+  // ── Reset sliders
+  const rC=document.getElementById('rCoupe'); if(rC){rC.value=80;document.getElementById('vCoupe').textContent='80 W';}
+  const rG=document.getElementById('rCoag');  if(rG){rG.value=80;document.getElementById('vCoag').textContent='80 W';}
+  const rB=document.getElementById('rBipo');  if(rB){rB.value=15;document.getElementById('vBipo').textContent='15 W';}
+  document.getElementById('plateauVarianteRow')?.classList.add('d-none');
+
+  // ── Reset BE tabs
+  document.querySelectorAll('.be-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.be-pnl').forEach(t=>t.classList.remove('on'));
+  document.querySelector('.be-tab[data-be="coupe"]')?.classList.add('active');
+  document.getElementById('beCoupe')?.classList.add('on');
+
+  if (quill) quill.setContents([]);
+  updateScopeUI();
+  renderSutures(); renderProtoSelected(); renderTagSelector();
+
+  const def = JSON.parse(JSON.stringify(PREF_SCHEMA_V3));
+  buildSelects(def);
+  document.getElementById('pChirurgienRow')?.classList.toggle('d-none', !!id||!state.isAdmin);
+  document.getElementById('modalPrefLabel').textContent = id ? 'Modifier la préférence' : 'Nouvelle préférence chirurgien';
+
+  if (id) {
+    document.getElementById('pBtnSave').disabled=true;
+    const {data:rec} = await DB.from('preferences_chirurgien').select('*').eq('id',id).maybeSingle();
+    if (!rec) { bdbToast("Préférence introuvable — rechargez.",'error'); return; }
+    if (!canEdit(rec)) { bdbToast("Action non disponible pour votre profil.",'error'); return; }
+    state.editingChirId = rec.chirurgien_id;
+    const p = parsePref(rec.preferences);
+
+    document.getElementById('pTitre').value = rec.titre||'';
+    document.getElementById('pScopeLevel').value = rec.scope_level||(rec.is_global?'global':'protocole');
+    updateScopeUI();
+    if (rec.protocole_id) {
+      const {data:proto} = await DB.from('thesaurus_protocoles').select('id,id_protocole,libelle_cible').eq('id',rec.protocole_id).maybeSingle();
+      if (proto) { state.selectedProto=proto; renderProtoSelected(); }
+    }
+
+    buildSelects(p);
+
+    // Helpers locaux
+    const tog = (tid,v) => { const e=document.getElementById(tid); if(e) e.checked=v; };
+    const sub = (sid,v) => { if(v) document.getElementById(sid)?.classList.add('on'); };
+    const txt = (tid,v) => { const e=document.getElementById(tid); if(e) e.value=v||''; };
+    const rng = (rid,vid,v,def) => { const r=document.getElementById(rid); if(r){r.value=v||def;document.getElementById(vid).textContent=(v||def)+' W';} };
+
+    // Ouverture de salle
+    const os = p.ouverture_salle;
+    tog('togBE',os.bistouri.present); sub('beSub',os.bistouri.present);
+    rng('rCoupe','vCoupe',os.bistouri.reglages_coupe_w,80);
+    rng('rCoag', 'vCoag', os.bistouri.reglages_coag_w, 80);
+    tog('togBipo',os.bistouri.bipolaire.present); sub('bipoSub',os.bistouri.bipolaire.present);
+    rng('rBipo','vBipo',os.bistouri.bipolaire.w,15);
+    txt('inpCmtBipo', os.bistouri.bipolaire.comment);
+    txt('inpCmtBE',   os.bistouri.comment);
+
+    tog('togNeptune',os.neptune.present);       sub('neptuneSub',os.neptune.present);       txt('inpCmtNeptune',os.neptune.comment);
+    tog('togGarrot',os.garrot.present);         sub('garrotSub',os.garrot.present);
+    txt('inpGarrotPression',os.garrot.pression_mmhg); txt('inpGarrotDuree',os.garrot.duree_min);
+    txt('inpCmtGarrot',os.garrot.comment);
+    tog('togColonneArthro',os.colonne_arthro.present); sub('colonneArthroSub',os.colonne_arthro.present); txt('inpCmtColonneArthro',os.colonne_arthro.comment);
+    tog('togTablePont',os.table_pont.present);  sub('tablePontSub',os.table_pont.present);  txt('inpCmtTablePont',os.table_pont.comment);
+    tog('togTableBras',os.table_bras.present);  sub('tableBrasSub',os.table_bras.present);  txt('inpCmtTableBras',os.table_bras.comment);
+    tog('togTablette',os.tablette.present);     sub('tabletteSub',os.tablette.present);     txt('inpCmtTablette',os.tablette.comment);
+    tog('togBureau',os.bureau.present);         sub('bureauSub',os.bureau.present);         txt('inpCmtBureau',os.bureau.comment);
+
+    // Ampli
+    tog('togAmpli',p.ampli.present); sub('ampliSub',p.ampli.present);
+    setChipRadio('grpAmpliTaille', p.ampli.taille);
+    tog('togPedaleAmpli',p.ampli.pedale.present);  sub('pedaleAmpliSub',p.ampli.pedale.present);  txt('inpCmtPedaleAmpli',p.ampli.pedale.comment);
+    tog('togResumeDose',p.ampli.resume_dose.present); sub('resumeDoseSub',p.ampli.resume_dose.present); txt('inpCmtResumeDose',p.ampli.resume_dose.comment);
+    tog('togImages',p.ampli.images.present); sub('imagesSub',p.ampli.images.present);
+    setChipsCheck('grpAmpliImgFace', p.ampli.images.faces);
+    txt('inpCmtImages', p.ampli.images.comment);
+    txt('inpCmtAmpli',  p.ampli.comment);
+
+    // Habillage
+    const h = p.habillage;
+    const g1t = document.getElementById('selG1Taille'); if(g1t) g1t.value=h.gants_1.taille||'';
+    tog('togGants2',h.gants_2.present); sub('gants2Sub',h.gants_2.present);
+    const g2t = document.getElementById('selG2Taille'); if(g2t) g2t.value=h.gants_2.taille||'';
+    txt('inpCmtGants2',h.gants_2.comment);
+    const sct = document.getElementById('selCasaqueTaille'); if(sct) sct.value=h.casaque.taille||'';
+    tog('togCasque',h.casque.present); sub('casqueSub',h.casque.present); txt('inpCmtCasque',h.casque.comment);
+
+    // Installation
+    const ins = p.installation;
+    setChipRadio('grpTable', ins.table.modele);
+    setChipRadio('grpPlateauVar', ins.table.variante);
+    showPlateauVariante();
+    txt('inpCmtTable', ins.table.comment);
+    setChipsCheck('grpAppuis', ins.appuis);
+    tog('togTetiere',ins.tetiere.present); sub('tetiereSub',ins.tetiere.present);
+    setChipRadio('grpTetiere', ins.tetiere.modele); txt('inpCmtTetiere',ins.tetiere.comment);
+    setChipsCheck('grpGelose', ins.gelose); txt('inpCmtGelose',ins.gelose_comment);
+    tog('togPiquetToupet',ins.piquet_toupet.present);   sub('piquetToupetSub',ins.piquet_toupet.present);   txt('inpCmtPiquetToupet',ins.piquet_toupet.comment);
+    tog('togStresseurGenou',ins.stresseur_genou.present);sub('stresseurGenouSub',ins.stresseur_genou.present);txt('inpCmtStresseurGenou',ins.stresseur_genou.comment);
+    tog('togCavalier',ins.cavalier.present);  sub('cavalierSub',ins.cavalier.present);  txt('inpCmtCavalier',ins.cavalier.comment);
+    tog('togArceauTete',ins.arceau_tete.present); sub('arceauTeteSub',ins.arceau_tete.present); txt('inpCmtArceauTete',ins.arceau_tete.comment);
+
+    // Pulsavac
+    tog('togPulsavac',p.pulsavac.present); sub('pulsavacSub',p.pulsavac.present); txt('inpCmtPulsavac',p.pulsavac.comment);
+
+    // Ciment
+    tog('togCiment',p.ciment.present); sub('cimentSub',p.ciment.present);
+    setChipRadio('grpCimentNom',     p.ciment.nom);
+    setChipRadio('grpCimentMel',     p.ciment.melangeur);
+    setChipRadio('grpCimentBouchon', p.ciment.bouchon);
+    txt('inpCmtCiment', p.ciment.comment);
+
+    // Sutures
+    state.sutures = [...(p.sutures.lignes||[])]; renderSutures();
+    tog('togAgrafe',p.sutures.agrafe.present); sub('agrafeSub',p.sutures.agrafe.present);
+    setChipRadio('grpAgrafe', p.sutures.agrafe.modele); txt('inpCmtAgrafe',p.sutures.agrafe.comment);
+    if (inpAllergie) inpAllergie.value = p.sutures.allergie||'';
+
+    // Pansement
+    tog('togPansement',p.pansement.present); sub('pansementSub',p.pansement.present);
+    setChipRadio('grpPansement', p.pansement.type); txt('inpCmtPansement',p.pansement.comment);
+
+    // Immobilisation
+    tog('togImmob',p.immobilisation.present); sub('immobSub',p.immobilisation.present);
+    setChipRadio('grpImmob', p.immobilisation.type); txt('inpCmtImmob',p.immobilisation.comment);
+
+    // Infiltrations
+    setChipsCheck('grpInfiltr', p.infiltrations.molecules); txt('inpCmtInfiltr',p.infiltrations.comment);
+
+    // Redon
+    tog('togRedon',p.redon.present); sub('redonSub',p.redon.present);
+    setChipRadio('grpRedon', p.redon.modele); txt('inpCmtRedon',p.redon.comment);
+
+    // Biobank
+    tog('togBiobank',p.biobank.present); sub('biobankSub',p.biobank.present); txt('inpCmtBiobank',p.biobank.comment);
+
+    // Lames de scie
+    tog('togLames',p.lames_scie.present); sub('lamesSub',p.lames_scie.present);
+    setChipRadio('grpLames', p.lames_scie.modele); txt('inpCmtLames',p.lames_scie.comment);
+
+    // Anapath
+    tog('togAnapath',p.anapath.present); sub('anapathSub',p.anapath.present); txt('inpCmtAnapath',p.anapath.comment);
+
+    // Notes
+    const notesSource = (p.notes?.trim()&&p.notes!=='<p><br></p>') ? p.notes : (rec.description||'');
+    if (quill&&notesSource) quill.clipboard.dangerouslyPasteHTML(notesSource);
+
+    // Tags
+    const {data:tagLinks} = await DB.from('tag_links').select('tag_id').eq('content_id',id).eq('content_type','preferences_chirurgien');
+    state.formTagIds = (tagLinks||[]).map(t=>t.tag_id); renderTagSelector();
+    document.getElementById('pBtnSave').disabled=false;
+  }
+
+  modalPref.show();
+}
+
+/* ── COLLECT FORM ───────────────────────────────────────── */
+function collectFormData() {
+  collectSutures();
+  const scopeLevel = document.getElementById('pScopeLevel')?.value||'global';
+  const notes = quill ? DOMPurify.sanitize(quill.root.innerHTML) : '';
+  const g  = id => document.getElementById(id);
+  const gv = id => g(id)?.value||null;
+  const gc = id => g(id)?.checked||false;
+  const gt = id => g(id)?.value?.trim()||'';
+
+  return {
+    v: 3,
+    scope: { level: scopeLevel, secteur: gv('selScopeSecteur'), type: gv('selScopeType') },
+    ouverture_salle: {
+      bistouri: {
+        present: gc('togBE'), modele: gv('selBEModele'), position: gv('selBEPos'),
+        reglages_coupe_w: parseInt(gv('rCoupe')||'80',10), reglages_coupe_mode: gv('selCoupeMode'),
+        reglages_coag_w:  parseInt(gv('rCoag')||'80',10),  reglages_coag_mode:  gv('selCoagMode'),
+        bipolaire: { present: gc('togBipo'), w: parseInt(gv('rBipo')||'15',10), mode: gv('selBipoMode'), comment: gt('inpCmtBipo') },
+        comment: gt('inpCmtBE'),
+      },
+      neptune:        { present: gc('togNeptune'),       comment: gt('inpCmtNeptune') },
+      garrot:         { present: gc('togGarrot'), position: gv('selGarrotPos'), pression_mmhg: gv('inpGarrotPression'), duree_min: gv('inpGarrotDuree'), comment: gt('inpCmtGarrot') },
+      colonne_arthro: { present: gc('togColonneArthro'), comment: gt('inpCmtColonneArthro') },
+      table_pont:     { present: gc('togTablePont'),     comment: gt('inpCmtTablePont') },
+      table_bras:     { present: gc('togTableBras'),     comment: gt('inpCmtTableBras') },
+      tablette:       { present: gc('togTablette'),      comment: gt('inpCmtTablette') },
+      bureau:         { present: gc('togBureau'),        comment: gt('inpCmtBureau') },
+    },
+    ampli: {
+      present: gc('togAmpli'), taille: getChipRadio('grpAmpliTaille'), position: gv('selAmpliPos'),
+      pedale:      { present: gc('togPedaleAmpli'), comment: gt('inpCmtPedaleAmpli') },
+      resume_dose: { present: gc('togResumeDose'),  comment: gt('inpCmtResumeDose') },
+      images:      { present: gc('togImages'), faces: getChipsCheck('grpAmpliImgFace'), comment: gt('inpCmtImages') },
+      comment: gt('inpCmtAmpli'),
+    },
+    habillage: {
+      gants_1: { taille: gv('selG1Taille'), modele: gv('selG1Modele') },
+      gants_2: { present: gc('togGants2'), taille: gv('selG2Taille'), modele: gv('selG2Modele'), comment: gt('inpCmtGants2') },
+      casaque:  { type: gv('selCasaqueType'), taille: gv('selCasaqueTaille') },
+      casque:   { present: gc('togCasque'), comment: gt('inpCmtCasque') },
+    },
+    installation: {
+      table:           { modele: getChipRadio('grpTable'), variante: getChipRadio('grpPlateauVar'), comment: gt('inpCmtTable') },
+      decubitus:       gv('selDecubitus'),
+      appuis:          getChipsCheck('grpAppuis'),
+      tetiere:         { present: gc('togTetiere'), modele: getChipRadio('grpTetiere'), comment: gt('inpCmtTetiere') },
+      gelose:          getChipsCheck('grpGelose'),
+      gelose_comment:  gt('inpCmtGelose'),
+      piquet_toupet:   { present: gc('togPiquetToupet'),    comment: gt('inpCmtPiquetToupet') },
+      stresseur_genou: { present: gc('togStresseurGenou'),  comment: gt('inpCmtStresseurGenou') },
+      cavalier:        { present: gc('togCavalier'),        comment: gt('inpCmtCavalier') },
+      arceau_tete:     { present: gc('togArceauTete'),      comment: gt('inpCmtArceauTete') },
+    },
+    pulsavac: { present: gc('togPulsavac'), comment: gt('inpCmtPulsavac') },
+    ciment: {
+      present: gc('togCiment'), nom: getChipRadio('grpCimentNom'),
+      melangeur: getChipRadio('grpCimentMel'), bouchon: getChipRadio('grpCimentBouchon'),
+      comment: gt('inpCmtCiment'),
+    },
+    sutures: {
+      agrafe:  { present: gc('togAgrafe'), modele: getChipRadio('grpAgrafe'), comment: gt('inpCmtAgrafe') },
+      lignes:  [...state.sutures],
+      allergie: g('inpAllergie')?.value?.trim()||null,
+    },
+    pansement:      { present: gc('togPansement'), type: getChipRadio('grpPansement'), comment: gt('inpCmtPansement') },
+    immobilisation: { present: gc('togImmob'),     type: getChipRadio('grpImmob'),     comment: gt('inpCmtImmob') },
+    infiltrations:  { molecules: getChipsCheck('grpInfiltr'), comment: gt('inpCmtInfiltr') },
+    redon:          { present: gc('togRedon'),     modele: getChipRadio('grpRedon'),   comment: gt('inpCmtRedon') },
+    biobank:        { present: gc('togBiobank'),   comment: gt('inpCmtBiobank') },
+    lames_scie:     { present: gc('togLames'),     modele: getChipRadio('grpLames'),   comment: gt('inpCmtLames') },
+    anapath:        { present: gc('togAnapath'),   comment: gt('inpCmtAnapath') },
+    notes,
+  };
+}
+
+/* ── SAVE ───────────────────────────────────────────────── */
+async function savePref() {
+  const titre = document.getElementById('pTitre').value.trim();
+  if (!titre) {
+    const e=document.getElementById('pFormError'); e.textContent='Un titre est nécessaire.'; e.classList.remove('d-none'); return;
+  }
+  const scopeLevel = document.getElementById('pScopeLevel')?.value||'global';
+  const isGlobal   = scopeLevel === 'global';
+  const protoId    = isGlobal ? null : (state.selectedProto?.id||null);
+  const prefData   = collectFormData();
+  let chirurgienId;
+  if (state.editingId) { chirurgienId = state.editingChirId; }
+  else {
+    chirurgienId = state.isAdmin ? document.getElementById('pFormChirurgien').value : state.user.id;
+    if (!chirurgienId) {
+      const e=document.getElementById('pFormError'); e.textContent='Veuillez sélectionner un chirurgien.'; e.classList.remove('d-none'); return;
+    }
+  }
+  const btn = document.getElementById('pBtnSave');
+  btn.disabled=true; btn.innerHTML='<span class="spinner-border spinner-border-sm me-2"></span>Enregistrement...';
+  const payload = {
+    titre, is_global:isGlobal, scope_level:scopeLevel,
+    scope_secteur:document.getElementById('selScopeSecteur')?.value||null,
+    scope_type:document.getElementById('selScopeType')?.value||null,
+    protocole_id:protoId, preferences:prefData, description:prefData.notes,
+    last_modified_by:state.user.id, updated_at:new Date().toISOString(),
+  };
+  try {
+    let recordId;
+    if (state.editingId) {
+      const{data,error}=await DB.from('preferences_chirurgien').update(payload).eq('id',state.editingId).select().single();
+      if(error)throw error; recordId=data.id;
+    } else {
+      const{data,error}=await DB.from('preferences_chirurgien').insert([{...payload,chirurgien_id:chirurgienId}]).select().single();
+      if(error)throw error; recordId=data.id;
+    }
+    await syncTags(recordId);
+    modalPref.hide();
+    bdbToast(state.editingId?'Préférence mise à jour.':'Préférence créée.','success');
+    loadPrefs();
+  } catch(err) {
+    const e=document.getElementById('pFormError');
+    e.textContent="L'enregistrement n'a pu aboutir — réessayez."; e.classList.remove('d-none');
+  } finally {
+    btn.disabled=false; btn.innerHTML='<i class="bi bi-check-lg me-1"></i>Enregistrer';
+  }
+}
+
+/* ── VALIDATE / DELETE ──────────────────────────────────── */
+async function validatePref(id) {
+  const{error}=await DB.from('preferences_chirurgien').update({is_dev:false,updated_at:new Date().toISOString()}).eq('id',id).select();
+  if(error){bdbToast(error.message,'error');return;}
+  bdbToast('Préférence publiée.','success'); loadPrefs();
+}
+async function deletePref(id) {
+  if (!confirm('Retirer définitivement cette préférence ?')) return;
+  const{error}=await DB.from('preferences_chirurgien').delete().eq('id',id).select();
+  if(error){bdbToast(error.message,'error');return;}
+  bdbToast('Préférence retirée.','success'); loadPrefs();
+}
+
+/* ── VIEW MODAL ─────────────────────────────────────────── */
+async function openViewModal(id) {
+  const body   = document.getElementById('modalViewBody');
+  const footer = document.getElementById('modalViewFooter');
+  body.innerHTML = '<div class="placeholder-glow p-3"><div class="placeholder col-5 rounded mb-3"></div><div class="placeholder col-8 rounded mb-2"></div></div>';
+  footer.innerHTML = '';
+  modalView.show();
+  const{data:rec}=await DB.from('preferences_chirurgien').select('*').eq('id',id).maybeSingle();
+  if (!rec) { body.innerHTML='<p class="text-muted p-3">Préférence introuvable.</p>'; return; }
+  const p = parsePref(rec.preferences);
+  const sections = renderViewBodyV3(p, rec);
+  body.innerHTML = `<h6 class="fw-semibold mb-2">${escHtml(rec.titre)}</h6>${sections.length?sections.join(''):'<p class="text-muted small">Aucune donnée saisie.</p>'}`;
+  if (canEdit(rec)) {
+    footer.innerHTML = `<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+      <button type="button" class="btn btn-primary" id="btnViewEdit"><i class="bi bi-pencil me-1"></i>Modifier</button>`;
+    document.getElementById('btnViewEdit')?.addEventListener('click',(e)=>{e.currentTarget.blur();modalView.hide();openPrefModal(id);});
+  } else {
+    footer.innerHTML = `<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>`;
+  }
+}
+
+function renderViewBodyV3(p, rec) {
+  const sections = [];
+  const vs = v => v ? escHtml(String(v)) : '';
+  const kv = (k,v) => v ? `<div class="pref-view-kv"><span class="pref-view-key">${k}</span><span class="pref-view-val">${vs(v)}</span></div>` : '';
+  const bd = v => `<span class="pref-badge">${vs(v)}</span>`;
+  const cm = v => v?.trim() ? `<div class="text-muted small fst-italic mt-1">${vs(v)}</div>` : '';
+  const sec = (title, content) => `<div class="pref-view-section"><div class="pref-view-section-title">${title}</div>${content}</div>`;
+
+  // Ouverture de salle
+  const os = p.ouverture_salle;
+  const osItems = [];
+  if (os.bistouri.present) {
+    let d = kv('Modèle :',os.bistouri.modele)+kv('Position :',os.bistouri.position)
+      +kv('Coupe :',os.bistouri.reglages_coupe_w+'W'+(os.bistouri.reglages_coupe_mode?' '+os.bistouri.reglages_coupe_mode:''))
+      +kv('Coag :',os.bistouri.reglages_coag_w+'W'+(os.bistouri.reglages_coag_mode?' '+os.bistouri.reglages_coag_mode:''));
+    if (os.bistouri.bipolaire.present) d += kv('Bipolaire :',os.bistouri.bipolaire.w+'W'+(os.bistouri.bipolaire.mode?' '+os.bistouri.bipolaire.mode:''))+cm(os.bistouri.bipolaire.comment);
+    osItems.push(`<div><strong>Bistouri électrique</strong><div class="pref-view-row">${d}</div>${cm(os.bistouri.comment)}</div>`);
+  }
+  if (os.neptune.present)        osItems.push(`<div><strong>Neptune</strong>${cm(os.neptune.comment)}</div>`);
+  if (os.garrot.present) {
+    let d = kv('Position :',os.garrot.position)+kv('Pression :',os.garrot.pression_mmhg?os.garrot.pression_mmhg+' mmHg':null)+kv('Durée max :',os.garrot.duree_min?os.garrot.duree_min+' min':null);
+    osItems.push(`<div><strong>Garrot pneumatique</strong><div class="pref-view-row">${d}</div>${cm(os.garrot.comment)}</div>`);
+  }
+  const simples = [{k:'colonne_arthro',l:'Colonne arthro'},{k:'table_pont',l:'Table pont'},{k:'table_bras',l:'Table à bras'},{k:'tablette',l:'Tablette'},{k:'bureau',l:'Bureau / Tabouret / Ordinateur'}];
+  simples.forEach(({k,l}) => { if(os[k]?.present) osItems.push(`<div><strong>${l}</strong>${cm(os[k].comment)}</div>`); });
+  if (osItems.length) sections.push(sec('Ouverture de salle',`<div class="d-flex flex-column gap-2">${osItems.join('')}</div>`));
+
+  // Ampli
+  const am = p.ampli;
+  if (am.present) {
+    let d = kv('Taille :',am.taille)+kv('Position :',am.position);
+    if (am.pedale.present)      d += kv('Pédale :','Oui')+cm(am.pedale.comment);
+    if (am.resume_dose.present) d += kv('Résumé de dose :','Oui')+cm(am.resume_dose.comment);
+    if (am.images.present)      d += kv('Images :',(am.images.faces.length?am.images.faces.join(' + '):'Oui'))+cm(am.images.comment);
+    sections.push(sec('Amplificateur de brillance',`<div class="pref-view-row">${d}</div>${cm(am.comment)}`));
+  }
+
+  // Habillage
+  const h = p.habillage;
+  const hBadges = [];
+  if (h.gants_1.taille) hBadges.push(bd('Gants 1re paire '+h.gants_1.taille+(h.gants_1.modele?' '+h.gants_1.modele:'')));
+  if (h.gants_2.present&&h.gants_2.taille) hBadges.push(bd('Gants 2e paire '+h.gants_2.taille+(h.gants_2.modele?' '+h.gants_2.modele:'')));
+  if (h.casaque.taille) hBadges.push(bd('Casaque '+(h.casaque.type||'')+' '+h.casaque.taille));
+  if (h.casque.present) hBadges.push(bd('Casque stérile'));
+  if (hBadges.length) sections.push(sec('Habillage',`<div class="pref-view-row">${hBadges.join('')}</div>`));
+
+  // Installation
+  const ins = p.installation;
+  let insD = '';
+  if (ins.table.modele) insD += kv('Table :',(ins.table.variante?ins.table.modele+' — '+ins.table.variante:ins.table.modele))+cm(ins.table.comment);
+  if (ins.decubitus)    insD += kv('Décubitus :',ins.decubitus);
+  if (ins.appuis.length) insD += kv('Appuis :',ins.appuis.join(', '));
+  if (ins.tetiere.present) insD += kv('Têtière :',(ins.tetiere.modele||'Oui'))+cm(ins.tetiere.comment);
+  if (ins.gelose.length)   insD += kv('Gélose / coussin :',ins.gelose.join(', '))+cm(ins.gelose_comment);
+  const extras = ['piquet_toupet','stresseur_genou','cavalier','arceau_tete'].filter(k=>ins[k]?.present);
+  const extLbl = {piquet_toupet:'Piquet de toupet',stresseur_genou:'Stresseur de genou',cavalier:'Cavalier',arceau_tete:'Arceau de tête'};
+  if (extras.length) insD += kv('Équipements :',extras.map(k=>extLbl[k]).join(', '));
+  if (insD) sections.push(sec('Installation patient',`<div class="pref-view-row">${insD}</div>`));
+
+  // Pulsavac
+  if (p.pulsavac.present) sections.push(sec('Lavage pulsé',`${bd('Pulsavac')}${cm(p.pulsavac.comment)}`));
+
+  // Ciment
+  if (p.ciment.present) {
+    let d = kv('Produit :',p.ciment.nom)+kv('Mélangeur :',p.ciment.melangeur)+kv('Bouchon :',p.ciment.bouchon);
+    sections.push(sec('Ciment',`<div class="pref-view-row">${d}</div>${cm(p.ciment.comment)}`));
+  }
+
+  // Sutures
+  const su = p.sutures;
+  if (su.lignes.length||su.agrafe.present||su.allergie) {
+    let d='';
+    if (su.lignes.length) d += `<ul class="mb-1 ps-3 small">${su.lignes.map(s=>`<li>${[s.plan,s.type,s.taille,s.mode].filter(Boolean).map(escHtml).join(' · ')}</li>`).join('')}</ul>`;
+    if (su.agrafe.present) d += kv('Agrafes :',(su.agrafe.modele||'Oui'))+cm(su.agrafe.comment);
+    if (su.allergie) d += `<div class="pref-view-kv"><span class="pref-view-key text-danger">Allergie :</span><span class="pref-view-val">${vs(su.allergie)}</span></div>`;
+    sections.push(sec('Sutures', d));
+  }
+
+  // Pansement
+  if (p.pansement.present&&p.pansement.type) sections.push(sec('Pansement',`${bd(p.pansement.type)}${cm(p.pansement.comment)}`));
+
+  // Immobilisation
+  if (p.immobilisation.present&&p.immobilisation.type) sections.push(sec('Immobilisation',`${bd(p.immobilisation.type)}${cm(p.immobilisation.comment)}`));
+
+  // Infiltrations
+  if (p.infiltrations.molecules.length) sections.push(sec('Infiltrations',`<div class="pref-view-row">${p.infiltrations.molecules.map(bd).join('')}</div>${cm(p.infiltrations.comment)}`));
+
+  // Redon
+  if (p.redon.present) sections.push(sec('Redon',`${bd(p.redon.modele||'Redon')}${cm(p.redon.comment)}`));
+
+  // Biobank
+  if (p.biobank.present) sections.push(sec('Biobank',`${bd('Prélèvement biobank')}${cm(p.biobank.comment)}`));
+
+  // Lames de scie
+  if (p.lames_scie.present) sections.push(sec('Lames de scie',`${bd(p.lames_scie.modele||'Lames')}${cm(p.lames_scie.comment)}`));
+
+  // Anapath
+  if (p.anapath.present) sections.push(sec('Anatomopathologie',`${bd('Systématique')}<div class="text-muted small mt-1"><i class="bi bi-info-circle me-1"></i>Flacon formol + bon d'envoi.</div>${cm(p.anapath.comment)}`));
+
+  // Notes
+  const notesD = p.notes?.trim()&&p.notes!=='<p><br></p>' ? p.notes : (rec.description||'');
+  if (notesD?.trim()&&notesD!=='<p><br></p>') sections.push(sec('Notes',`<div class="pref-view-description">${DOMPurify.sanitize(notesD)}</div>`));
+
+  return sections;
+}
+
+/* ── DRAG-AND-DROP (admin) ──────────────────────────────── */
+function initSectionDragDrop() {
+  if (!state.isAdmin) return;
+  const accordion = document.getElementById('prefAccordion');
+  if (!accordion) return;
+  accordion.querySelectorAll('.acc-item').forEach(section => {
+    const btn = section.querySelector('.accordion-button');
+    if (btn&&!btn.querySelector('.drag-handle')) {
+      const h = document.createElement('span');
+      h.className='drag-handle me-1'; h.title='Maintenir pour déplacer';
+      h.innerHTML='<i class="bi bi-grip-vertical"></i>';
+      h.addEventListener('click',e=>e.stopPropagation());
+      btn.insertBefore(h,btn.firstChild);
+    }
+    section.setAttribute('draggable','true');
+    section.addEventListener('dragstart',e=>{draggedSection=section;section.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    section.addEventListener('dragend',()=>{draggedSection=null;section.classList.remove('dragging');accordion.querySelectorAll('.acc-item').forEach(s=>s.classList.remove('drag-over'));});
+    section.addEventListener('dragover',e=>{e.preventDefault();if(section!==draggedSection){accordion.querySelectorAll('.acc-item').forEach(s=>s.classList.remove('drag-over'));section.classList.add('drag-over');}});
+    section.addEventListener('dragleave',e=>{if(!section.contains(e.relatedTarget))section.classList.remove('drag-over');});
+    section.addEventListener('drop',e=>{
+      e.preventDefault();section.classList.remove('drag-over');
+      if(!draggedSection||draggedSection===section) return;
+      const rect=section.getBoundingClientRect();
+      accordion.insertBefore(draggedSection,e.clientY<rect.top+rect.height/2?section:section.nextSibling);
+      draggedSection.classList.add('drop-flash');
+      draggedSection.addEventListener('animationend',()=>draggedSection?.classList.remove('drop-flash'),{once:true});
+    });
+  });
+}
+
+/* ── INIT ───────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  const u = window.bdbUser; if (!u) return;
+  state.user = {id:u.id,email:u.email}; state.isAdmin = u.isAdmin??false;
+
+  modalPref = new bootstrap.Modal(document.getElementById('modalPref'));
+  modalView = new bootstrap.Modal(document.getElementById('modalPrefView'));
+  quill = new Quill('#pQuill', {
+    theme:'snow', placeholder:"Notes libres, points d'attention...",
+    modules:{toolbar:[[{header:[2,3,false]}],['bold','italic','underline'],[{list:'ordered'},{list:'bullet'}],['blockquote'],['clean']]}
+  });
+  document.querySelectorAll('.ql-container').forEach(c=>{c.style.height='auto';});
+  document.querySelectorAll('.ql-editor').forEach(e=>{e.style.height='auto';e.style.minHeight='100px';});
+
+  if (state.isAdmin) {
+    const slot = document.getElementById('headerAdminSlot'); slot.classList.remove('d-none');
+    slot.innerHTML = `<button class="btn btn-primary btn-sm" id="btnNew"><i class="bi bi-plus-lg me-1"></i>Nouvelle préférence</button>`;
+    document.getElementById('btnNew').addEventListener('click',()=>openPrefModal());
+    document.querySelectorAll('.pref-filter-admin').forEach(el=>el.classList.remove('d-none'));
+  }
+
+  try { await Promise.all([loadReferentiels(),loadDoctors(),loadTags()]); }
+  catch(err) { setPrefsState('error','Connexion indisponible — réessayez dans un instant.'); return; }
+
+  const chirParam = new URLSearchParams(window.location.search).get('chirurgien');
+  if (chirParam) document.getElementById('pChirurgien').value = chirParam;
+  await loadPrefs();
+  initSectionDragDrop();
+
+  // Filtres
+  let deb;
+  document.getElementById('pSearch').addEventListener('input',()=>{clearTimeout(deb);deb=setTimeout(loadPrefs,400);});
+  document.getElementById('pGlobal').addEventListener('change',loadPrefs);
+  document.getElementById('pChirurgien').addEventListener('change',loadPrefs);
+  document.getElementById('pScopeLevel')?.addEventListener('change',updateScopeUI);
+
+  // Toggle map — tous les oui/non → show/hide sub
+  const toggleMap = {
+    togBE:'beSub', togNeptune:'neptuneSub', togGarrot:'garrotSub',
+    togColonneArthro:'colonneArthroSub', togTablePont:'tablePontSub',
+    togTableBras:'tableBrasSub', togTablette:'tabletteSub', togBureau:'bureauSub',
+    togBipo:'bipoSub',
+    togAmpli:'ampliSub', togPedaleAmpli:'pedaleAmpliSub',
+    togResumeDose:'resumeDoseSub', togImages:'imagesSub',
+    togGants2:'gants2Sub', togCasque:'casqueSub',
+    togTetiere:'tetiereSub',
+    togPiquetToupet:'piquetToupetSub', togStresseurGenou:'stresseurGenouSub',
+    togCavalier:'cavalierSub', togArceauTete:'arceauTeteSub',
+    togPulsavac:'pulsavacSub',
+    togCiment:'cimentSub',
+    togAgrafe:'agrafeSub',
+    togPansement:'pansementSub',
+    togImmob:'immobSub',
+    togRedon:'redonSub',
+    togBiobank:'biobankSub',
+    togLames:'lamesSub',
+    togAnapath:'anapathSub',
+  };
+  Object.entries(toggleMap).forEach(([tid,sid]) =>
+    document.getElementById(tid)?.addEventListener('change', e =>
+      document.getElementById(sid)?.classList.toggle('on', e.target.checked)
+    )
+  );
+
+  // Plateau variante
+  document.querySelectorAll('[name="grpTable"]').forEach(r =>
+    r.addEventListener('change', showPlateauVariante)
+  );
+
+  // BE tabs
+  document.querySelectorAll('.be-tab').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.be-tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.be-pnl').forEach(x=>x.classList.remove('on'));
+    tab.classList.add('active');
+    const m = {coupe:'beCoupe',coag:'beCoag',bipo:'beBipo'}[tab.dataset.be];
+    document.getElementById(m)?.classList.add('on');
+  }));
+
+  // BE sliders
+  [['rCoupe','vCoupe'],['rCoag','vCoag'],['rBipo','vBipo']].forEach(([r,v]) => {
+    const ri=document.getElementById(r),vi=document.getElementById(v);
+    if(ri&&vi) ri.addEventListener('input',()=>vi.textContent=ri.value+' W');
+  });
+
+  // Sutures
+  document.getElementById('btnAddSuture')?.addEventListener('click', () => {
+    collectSutures(); state.sutures.push({plan:'',type:'',taille:'',mode:'',ref:''}); renderSutures();
+  });
+
+  // Proto + tags + save
+  initProtoSearch();
+  document.getElementById('pTagSearch')?.addEventListener('input', renderTagSelector);
+  document.getElementById('pBtnSave')?.addEventListener('click', savePref);
+  document.getElementById('modalPref')?.addEventListener('hidden.bs.modal', () => {
+    state.formTagIds=[]; state.sutures=[]; state.selectedProto=null;
+  });
+  document.getElementById('btnNewEmpty')?.addEventListener('click', ()=>openPrefModal());
+  document.getElementById('prefsRetryBtn')?.addEventListener('click', loadPrefs);
+});

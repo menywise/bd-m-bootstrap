@@ -1,0 +1,652 @@
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║  CONSENSUS DESIGN SYSTEM - TEMPLATE CRUD                                     ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  FILE     : theme-crud.html                                                  ║
+║  VERSION  : 2.0.0                                                            ║
+║  TYPE     : CRUD (Create Read Update Delete)                                 ║
+║  UPDATE   : 2026-01-12                                                       ║
+║  STATUT   : SOURCE DE VERITE                                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  USAGE    : Gestion donnees, back-office, administration, tableaux           ║
+║  SECTIONS : Stats, Filtres, Table, Pagination, Modales CRUD                  ║
+║  PUBLIC   : Utilisateurs internes, administrateurs, gestionnaires            ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  REGLE    : Ce fichier est la REFERENCE. Toute interface CRUD CDS doit       ║
+║             heriter de cette structure. Modifications = validation Manu.     ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion CRUD | Mon Projet CDS</title>
+    
+    <!-- CDN Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- CDN CDS -->
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-print.css" rel="stylesheet" media="print"/>
+  <!-- 5 · CDS overrides globaux (scope global délibéré — CHANTIER BLOC C.2) -->
+  <!-- 6 · CSS propre au module — INTERDIT-17 : toutes les règles scopées -->
+  <link href="../../css/[module]-ui.css" rel="stylesheet"/>
+
+</head>
+<body class="d-flex min-vh-100">
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     OFFCANVAS MENU - Structure identique tous templates
+     ═══════════════════════════════════════════════════════════════════════════ -->
+
+
+<main class="d-flex flex-column flex-grow-1 main-content">
+    <div id="bdb-shell"
+         data-module-title="[TITRE_MODULE]"
+         data-module-icon="bi-[ICON_MODULE]">
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         HEADER CRUD
+         REGLE : Bouton action principale a droite (Nouveau/Ajouter)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CONTAINER CRUD
+         REGLE : container-fluid p-4 bg-light (padding + fond gris)
+         DIFFERENT de Landing qui utilise p-0 pour sections full-width
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="container-fluid p-4 bg-light flex-grow-1">
+        
+        <!-- DOC-HEADER-PRIMARY -->
+        <div class="bg-primary bg-gradient p-4 rounded shadow-sm text-white mb-4">
+            <h1 class="mb-2">
+                <i class="bi bi-table me-2"></i>Gestion des Projets
+            </h1>
+            <p class="mb-0 opacity-75">Creez, modifiez et suivez vos projets en temps reel</p>
+        </div>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             COMPOSANT : STATS CARDS
+             
+             CRUD UNIQUEMENT - Resume statistiques entites
+             REGLE : 4 colonnes (col-md-3) avec pole-card
+             REGLE : Couleurs semantiques (primary/success/warning/danger)
+             REGLE : Icone + Chiffre + Label
+             ═══════════════════════════════════════════════════════════════════ -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card shadow-sm text-center p-3 border-top border-4 border-primary pole-card">
+                    <i class="bi bi-folder fs-1 text-primary mb-2"></i>
+                    <h3 class="mb-1">47</h3>
+                    <small class="text-muted">Total Projets</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm text-center p-3 border-top border-4 border-success pole-card">
+                    <i class="bi bi-check-circle fs-1 text-success mb-2"></i>
+                    <h3 class="mb-1">32</h3>
+                    <small class="text-muted">Termines</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm text-center p-3 border-top border-4 border-warning pole-card">
+                    <i class="bi bi-clock fs-1 text-warning mb-2"></i>
+                    <h3 class="mb-1">12</h3>
+                    <small class="text-muted">En cours</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm text-center p-3 border-top border-4 border-danger pole-card">
+                    <i class="bi bi-exclamation-triangle fs-1 text-danger mb-2"></i>
+                    <h3 class="mb-1">3</h3>
+                    <small class="text-muted">En retard</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             COMPOSANT : FILTRES & RECHERCHE
+             
+             CRUD OBLIGATOIRE - Barre filtrage avant table
+             REGLE : Card avec row g-3 align-items-center
+             REGLE : Recherche (col-md-4) + Filtres select (col-md-3) + Reset
+             ═══════════════════════════════════════════════════════════════════ -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="search" class="form-control" placeholder="Rechercher un projet..." id="searchInput">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterStatus">
+                            <option value="">Tous les statuts</option>
+                            <option value="En cours">En cours</option>
+                            <option value="Termine">Termine</option>
+                            <option value="En retard">En retard</option>
+                            <option value="En attente">En attente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="filterCategory">
+                            <option value="">Toutes les categories</option>
+                            <option value="Developpement">Developpement</option>
+                            <option value="Design">Design</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary w-100" id="btnResetFilters">
+                            <i class="bi bi-x-circle me-1"></i>Reinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             COMPOSANT : DATA TABLE
+             
+             COEUR DU TEMPLATE CRUD
+             
+             REGLES STRUCTURE :
+             - card-header : Titre + badge count + boutons vue (table/grid)
+             - table-responsive : Wrapper obligatoire (mobile)
+             - table table-hover : Effet hover lignes
+             - thead bg-light : En-tete gris clair
+             
+             REGLES COLONNES :
+             - Checkbox selection (optionnel)
+             - ID/Reference
+             - Donnees principales
+             - Statut (badge)
+             - Date
+             - Actions (btn-group)
+             
+             REGLES ACCESSIBILITE :
+             - scope="col" sur th
+             - aria-label sur boutons actions
+             - data-label sur td pour responsive
+             ═══════════════════════════════════════════════════════════════════ -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Liste des Projets</strong>
+                    <span class="badge bg-secondary-subtle text-secondary ms-2">47 resultats</span>
+                </div>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary active" title="Vue tableau">
+                        <i class="bi bi-table"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" title="Vue grille">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th scope="col" class="ps-3 col-action">
+                                <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Selectionner tout">
+                            </th>
+                            <th scope="col">Projet</th>
+                            <th scope="col">Categorie</th>
+                            <th scope="col">Responsable</th>
+                            <th scope="col">Statut</th>
+                            <th scope="col">Echeance</th>
+                            <th scope="col" class="text-end pe-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- ┌─────────────────────────────────────────────────┐
+                             │ LIGNE TABLE TYPE                                │
+                             │ REGLE : data-label sur chaque td (responsive)   │
+                             │ REGLE : Badge statut avec couleur semantique    │
+                             │ REGLE : Actions en btn-group-sm                 │
+                             └─────────────────────────────────────────────────┘ -->
+                        <tr>
+                            <td class="ps-3" data-label="Selection">
+                                <input type="checkbox" class="form-check-input" aria-label="Selectionner projet">
+                            </td>
+                            <td data-label="Projet">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded bg-primary-subtle text-primary avatar avatar-sm">
+                                        <i class="bi bi-folder"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Refonte Site Web</strong>
+                                        <small class="d-block text-muted">#PRJ-001</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="Categorie">
+                                <span class="badge bg-light text-dark border">Developpement</span>
+                            </td>
+                            <td data-label="Responsable">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success text-white avatar avatar-sm">JD</div>
+                                    <span>Jean Dupont</span>
+                                </div>
+                            </td>
+                            <td data-label="Statut">
+                                <span class="badge bg-success-subtle text-success">Termine</span>
+                            </td>
+                            <td data-label="Echeance">15/01/2026</td>
+                            <td class="text-end pe-3" data-label="Actions">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Voir">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalEdit" title="Modifier">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ps-3" data-label="Selection">
+                                <input type="checkbox" class="form-check-input" aria-label="Selectionner projet">
+                            </td>
+                            <td data-label="Projet">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded bg-warning-subtle text-warning avatar avatar-sm">
+                                        <i class="bi bi-folder"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Application Mobile</strong>
+                                        <small class="d-block text-muted">#PRJ-002</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="Categorie">
+                                <span class="badge bg-light text-dark border">Developpement</span>
+                            </td>
+                            <td data-label="Responsable">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-info text-white avatar avatar-sm">ML</div>
+                                    <span>Marie Laurent</span>
+                                </div>
+                            </td>
+                            <td data-label="Statut">
+                                <span class="badge bg-warning-subtle text-dark">En cours</span>
+                            </td>
+                            <td data-label="Echeance">28/02/2026</td>
+                            <td class="text-end pe-3" data-label="Actions">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Voir">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalEdit" title="Modifier">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ps-3" data-label="Selection">
+                                <input type="checkbox" class="form-check-input" aria-label="Selectionner projet">
+                            </td>
+                            <td data-label="Projet">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded bg-danger-subtle text-danger avatar avatar-sm">
+                                        <i class="bi bi-folder"></i>
+                                    </div>
+                                    <div>
+                                        <strong>Campagne Q1</strong>
+                                        <small class="d-block text-muted">#PRJ-003</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="Categorie">
+                                <span class="badge bg-light text-dark border">Marketing</span>
+                            </td>
+                            <td data-label="Responsable">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger text-white avatar avatar-sm">SP</div>
+                                    <span>Sophie Petit</span>
+                                </div>
+                            </td>
+                            <td data-label="Statut">
+                                <span class="badge bg-danger-subtle text-danger">En retard</span>
+                            </td>
+                            <td data-label="Echeance">05/01/2026</td>
+                            <td class="text-end pe-3" data-label="Actions">
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Voir">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalEdit" title="Modifier">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- ═══════════════════════════════════════════════════════════════
+                 COMPOSANT : PAGINATION
+                 
+                 REGLE : card-footer avec justify-content-between
+                 REGLE : Info "Affichage X-Y sur Z" a gauche
+                 REGLE : Pagination Bootstrap a droite
+                 ═══════════════════════════════════════════════════════════════ -->
+            <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
+                <small class="text-muted">Affichage 1-10 sur 47</small>
+                <nav aria-label="Pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Precedent">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Suivant">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- ═══════════════════════════════════════════════════════════════════
+             COMPOSANT : BULK ACTIONS
+             
+             OPTIONNEL - Affiche quand items selectionnes
+             REGLE : d-none par defaut, visible via JS
+             REGLE : Compteur selection + boutons actions groupees
+             ═══════════════════════════════════════════════════════════════════ -->
+        <div class="card shadow-sm d-none" id="bulkActions">
+            <div class="card-body py-2">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span><strong id="bulkCount">0</strong> elements selectionnes</span>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary">
+                            <i class="bi bi-download me-1"></i>Exporter
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="bi bi-archive me-1"></i>Archiver
+                        </button>
+                        <button class="btn btn-outline-danger">
+                            <i class="bi bi-trash me-1"></i>Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+        <small>&copy; 2026 Gestion CRUD - Consensus Design System - 
+        <span class="badge bg-light text-dark border">Sentinelle CSS Compliant</span></small>
+    </footer>
+    
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MODALES CRUD
+     
+     CRUD OBLIGATOIRE : 2 modales minimum (Create + Edit)
+     OPTIONNEL : Delete confirmation, View detail
+     
+     REGLES STRUCTURE :
+     - modal-dialog modal-lg (largeur adaptee formulaires)
+     - modal-header : Icone + titre + bouton fermer
+     - modal-body : Formulaire avec row g-3
+     - modal-footer : Annuler + Action principale
+     
+     REGLES FORMULAIRES :
+     - Labels avec for="id"
+     - Champs required marques * text-danger
+     - Colonnes md-6 pour champs cote a cote
+     ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- MODAL CREATE -->
+<div class="modal fade" id="modalCreate" tabindex="-1" aria-labelledby="modalCreateLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCreateLabel">
+                    <i class="bi bi-plus-circle text-primary me-2"></i>
+                    Nouveau Projet
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCreate">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="createName" class="form-label">Nom du projet <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="createName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="createCategory" class="form-label">Categorie <span class="text-danger">*</span></label>
+                            <select class="form-select" id="createCategory" required>
+                                <option value="">Choisir...</option>
+                                <option>Developpement</option>
+                                <option>Design</option>
+                                <option>Marketing</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="createManager" class="form-label">Responsable</label>
+                            <select class="form-select" id="createManager">
+                                <option value="">Choisir...</option>
+                                <option>Jean Dupont</option>
+                                <option>Marie Laurent</option>
+                                <option>Sophie Petit</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="createStart" class="form-label">Date de debut</label>
+                            <input type="date" class="form-control" id="createStart">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="createEnd" class="form-label">Echeance</label>
+                            <input type="date" class="form-control" id="createEnd">
+                        </div>
+                        <div class="col-12">
+                            <label for="createDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="createDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="formCreate" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>Creer le projet
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDIT -->
+<div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditLabel">
+                    <i class="bi bi-pencil text-primary me-2"></i>
+                    Modifier le Projet
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Structure identique formCreate, pre-rempli via JS -->
+                <form id="formEdit">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="editName" class="form-label">Nom du projet <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editCategory" class="form-label">Categorie <span class="text-danger">*</span></label>
+                            <select class="form-select" id="editCategory" required>
+                                <option value="">Choisir...</option>
+                                <option>Developpement</option>
+                                <option>Design</option>
+                                <option>Marketing</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editStatus" class="form-label">Statut</label>
+                            <select class="form-select" id="editStatus">
+                                <option>En attente</option>
+                                <option>En cours</option>
+                                <option>Termine</option>
+                                <option>En retard</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editStart" class="form-label">Date de debut</label>
+                            <input type="date" class="form-control" id="editStart">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editEnd" class="form-label">Echeance</label>
+                            <input type="date" class="form-control" id="editEnd">
+                        </div>
+                        <div class="col-12">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescription" rows="3"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" form="formEdit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     TOAST SUCCESS
+     
+     CRUD OBLIGATOIRE - Feedback operations
+     REGLE : Position fixed bottom-0 end-0
+     REGLE : Toast-header avec icone couleur (success/danger/warning)
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastSuccess" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header text-success">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong class="me-auto">Succes</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+        </div>
+        <div class="toast-body">Operation effectuee avec succes.</div>
+    </div>
+</div>
+
+  <!-- Supabase SDK -->
+    <!-- Client Supabase BDB (source unique — INTERDIT-A1) -->
+    <!-- Shell BDB v1.3.1 — auth + offcanvas + header + window.bdbUser -->
+    <!-- ── SCRIPTS — ordre obligatoire (CHANTIER BLOC E) ────────── -->
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../../../js/bdb-modal-a11y.js"></script>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <!-- Client Supabase BDB (source unique — INTERDIT-A1) -->
+  <script src="../../js/supabase-client.js"></script>
+  <!-- Shell BDB v1.3.1 — auth + offcanvas + header + window.bdbUser -->
+  <script src="../../js/bdb-shell.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Init tooltips
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        new bootstrap.Tooltip(el);
+    });
+    
+    // ══════════════════════════════════════════════════════════════════════
+    // LOGIQUE CRUD TYPE
+    // ══════════════════════════════════════════════════════════════════════
+    
+    // Select all checkbox
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+    const bulkActions = document.getElementById('bulkActions');
+    const bulkCount = document.getElementById('bulkCount');
+    
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(cb => cb.checked = this.checked);
+            updateBulkActions();
+        });
+    }
+    
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkActions);
+    });
+    
+    function updateBulkActions() {
+        const checked = document.querySelectorAll('tbody input[type="checkbox"]:checked').length;
+        if (checked > 0) {
+            bulkActions.classList.remove('d-none');
+            bulkCount.textContent = checked;
+        } else {
+            bulkActions.classList.add('d-none');
+        }
+    }
+    
+    // Reset filters
+    const btnReset = document.getElementById('btnResetFilters');
+    if (btnReset) {
+        btnReset.addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterCategory').value = '';
+        });
+    }
+    
+    // Toast success helper
+    function showToast(message) {
+        const toast = document.getElementById('toastSuccess');
+        toast.querySelector('.toast-body').textContent = message;
+        new bootstrap.Toast(toast).show();
+    }
+    
+    // Form submissions (exemple)
+    const formCreate = document.getElementById('formCreate');
+    if (formCreate) {
+        formCreate.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Logique creation...
+            bootstrap.Modal.getInstance(document.getElementById('modalCreate')).hide();
+            showToast('Projet cree avec succes');
+            formCreate.reset();
+        });
+    }
+});
+</script>
+</body>
+</html>

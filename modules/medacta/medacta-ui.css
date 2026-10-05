@@ -1,0 +1,249 @@
+/* ============================================================
+   medacta-ui.css
+   Préfixe : .mdc-*
+   INTERDIT-17 : tout override Bootstrap scopé au module
+   ============================================================ */
+
+/* ── Légende familles implants ── */
+.mdc-legend-femur   { border-color: #60a5fa; }
+.mdc-legend-embase  { border-color: #34d399; }
+.mdc-legend-insert  { border-color: #fbbf24; }
+.mdc-legend-tige    { border-color: #a78bfa; }
+.mdc-legend-rotule  { border-color: #fb923c; }
+.mdc-legend-hinge   { border-color: #f87171; }
+
+/* ── Navigation tabs ── */
+#mdcTabs.mdc-nav-tabs {
+  border-bottom: 2px solid var(--ds-border, #e2e8f0);
+  padding-top: 0.75rem;
+  gap: 0.1rem;
+}
+
+#mdcTabs .mdc-tab-btn {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ds-text-muted, #64748b);
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--ds-radius-sm, 4px) var(--ds-radius-sm, 4px) 0 0;
+  padding: 0.45rem 0.85rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+#mdcTabs .mdc-tab-btn.active {
+  color: var(--ds-primary, #60a5fa);
+  background: #fff;
+  border-color: var(--ds-border, #e2e8f0);
+  border-bottom-color: #fff;
+  font-weight: 600;
+  margin-bottom: -2px;
+}
+
+/* ── Tab content ── */
+.mdc-tab-content {
+  padding-top: 1rem;
+}
+
+/* ── Barre recherche ── */
+.mdc-search-bar {
+  background: var(--ds-bg-card, #fff);
+  border: 1px solid var(--ds-border, #e2e8f0);
+  border-radius: var(--ds-radius, 8px);
+}
+
+/* ── Table ── */
+.mdc-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--ds-border, #e2e8f0);
+  border-radius: var(--ds-radius, 8px);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+#tableInterventions .mdc-tr-clickable {
+  cursor: pointer;
+}
+
+#tableInterventions .sticky-table-head th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8fafc;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.mdc-sort-icon {
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.mdc-sort-btn:hover .mdc-sort-icon {
+  opacity: 1;
+}
+
+.mdc-pagesize-select {
+  width: 70px;
+}
+
+.mdc-td-label {
+  max-width: 260px;
+}
+
+/* ── Badges sexe ── */
+.mdc-badge-h {
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.7rem;
+}
+
+.mdc-badge-f {
+  background: #fce7f3;
+  color: #9d174d;
+  font-size: 0.7rem;
+}
+
+/* ── KPI ── */
+.mdc-kpi-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mdc-kpi-h { color: #1d4ed8; }
+.mdc-kpi-f { color: #9d174d; }
+
+.mdc-kpi-label {
+  font-size: 0.72rem;
+  color: var(--ds-text-muted, #64748b);
+  margin-top: 0.2rem;
+}
+
+/* ── Modale détail ── */
+.mdc-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  font-size: 0.85rem;
+}
+
+.mdc-detail-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ds-text-muted, #64748b);
+  min-width: 75px;
+  flex-shrink: 0;
+  padding-top: 0.1rem;
+}
+
+.mdc-note-box {
+  background: var(--ds-bg-input, #f8fafc);
+  border: 1px solid var(--ds-border, #e2e8f0);
+  border-radius: var(--ds-radius-sm, 4px);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--ds-text, #334155);
+}
+
+.mdc-implant-line {
+  border-left: 3px solid var(--ds-border-strong, #cbd5e1);
+  background: var(--ds-bg-input, #f8fafc);
+  border-radius: 0 var(--ds-radius-sm, 4px) var(--ds-radius-sm, 4px) 0;
+  padding: 0.3rem 0.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.mdc-implant-label {
+  font-size: 0.82rem;
+  color: var(--ds-text, #334155);
+  line-height: 1.3;
+}
+
+.mdc-implant-ref {
+  font-size: 0.68rem;
+  color: var(--ds-text-muted, #64748b);
+  display: block;
+  margin-top: 0.05rem;
+}
+
+/* ── SQL block ── */
+.mdc-sql-block {
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace;
+  padding: 1rem 1.25rem;
+  margin: 0;
+  border-radius: 0;
+  overflow-x: auto;
+  max-height: 40vh;
+  overflow-y: auto;
+  white-space: pre;
+}
+
+/* ── Pills jointures ── */
+.mdc-pills .nav-link {
+  font-size: 0.82rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  color: var(--ds-text-muted, #64748b);
+  background: transparent;
+  border: 1px solid var(--ds-border, #e2e8f0);
+}
+
+.mdc-pills .nav-link.active {
+  background: var(--ds-primary, #60a5fa);
+  color: #fff;
+  border-color: var(--ds-primary, #60a5fa);
+}
+
+/* ── V4 — Chips tailles dans le tableau ── */
+.mdc-chip-taille {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-family: monospace;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+.mdc-chip-femur  { background: #dbeafe; color: #1d4ed8; }
+.mdc-chip-embase { background: #d1fae5; color: #065f46; }
+.mdc-chip-insert { background: #fef3c7; color: #92400e; }
+.mdc-chip-ep     { background: #ede9fe; color: #5b21b6; }
+.mdc-chip-inter  { background: #fee2e2; color: #b91c1c; }
+
+/* ── V4 — Badge timestamp ── */
+.mdc-ts-badge {
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+/* ── V4 — Légende familles dans modale ── */
+.mdc-legend {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  border-left: 3px solid;
+  background: #f8fafc;
+  color: var(--ds-text-muted, #64748b);
+}
+
+/* ── V4 — Sélecteur segment ── */
+.mdc-segment-btn {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.75rem;
+}
+
+.mdc-segment-btn.active.btn-success {
+  background-color: var(--ds-success, #34d399);
+  border-color: var(--ds-success, #34d399);
+  color: #fff;
+}

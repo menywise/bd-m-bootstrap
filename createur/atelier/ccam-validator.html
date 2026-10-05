@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CCAM Batch — Atelier</title>
+
+  <!-- CHAÎNE CSS CDS — ORDRE STRICT (CONV-CHAIN-E) · zéro CSS module (§9.2 T-02 Option B) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <!-- SHELL BDB BACK OFFICE — PREMIER ENFANT DE #wrapper (INTERDIT-E1) -->
+    <div id="bdb-shell"
+         data-module-title="CCAM Batch"
+         data-module-icon="bi-check2-square"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+        <div class="container-fluid p-3 p-md-4 p-lg-5">
+
+          <!-- HEADER DE PAGE -->
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+              <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-check2-square text-primary"></i>CCAM Batch Validator
+              </h1>
+              <p class="text-muted mb-0">60 orphelins · données 2026-04-05 · export SQL.</p>
+            </div>
+          </div>
+
+          <!-- MARQUEUR NAV (lu par atelier-nav.js) -->
+          <div id="atelier-top" data-page="ccam-validator" class="d-none"></div>
+
+          <!-- STATE : LOADING (skeleton — doctrine §8.6) -->
+          <div id="cv-loading">
+            <div class="card bo-card mb-4">
+              <div class="card-body">
+                <div class="placeholder-glow">
+                  <span class="placeholder col-4 mb-2"></span>
+                  <span class="placeholder col-8 mb-2"></span>
+                  <span class="placeholder col-6"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : ACCESS DENIED (isAdmin required) -->
+          <div id="cv-denied" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-danger-subtle text-danger">
+                  <i class="bi bi-shield-lock"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Accès réservé</h2>
+                <p class="text-muted mb-3">Cet outil est réservé aux administrateurs.</p>
+                <a href="index.html" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-arrow-left me-1"></i>Retour atelier
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : CONTENT -->
+          <div id="cv-content" class="d-none">
+
+            <!-- TOOLBAR en card (BO-03) -->
+            <div class="card bo-card mb-4">
+              <div class="card-body">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+
+                  <!-- Stats (gauche) -->
+                  <span class="fw-bold small me-2">
+                    <i class="bi bi-check2-square text-primary me-1"></i>Orphelins CCAM
+                  </span>
+                  <span class="badge text-bg-secondary" id="stat-total"   title="Total">—</span>
+                  <span class="badge text-bg-success"   id="stat-with"    title="Avec candidats">—</span>
+                  <span class="badge text-bg-danger"    id="stat-without" title="Sans candidat">—</span>
+                  <span class="badge text-bg-primary"   id="stat-sel"     title="Sélectionnés">—</span>
+
+                  <!-- Filtres + actions (droite via ms-auto) -->
+                  <div class="d-flex align-items-center flex-wrap gap-2 ms-auto">
+                    <select class="form-select form-select-sm w-auto" id="f-spe"
+                            aria-label="Filtrer par spécialité">
+                      <option value="">Toutes spécialités</option>
+                      <option value="ORTHO">ORTHO</option>
+                      <option value="NEURO">NEURO</option>
+                      <option value="TRAUMATO">TRAUMATO</option>
+                      <option value="SEPTIQUE">SEPTIQUE</option>
+                    </select>
+                    <select class="form-select form-select-sm w-auto" id="f-cand"
+                            aria-label="Filtrer par candidats">
+                      <option value="">Tous</option>
+                      <option value="with">Avec candidats</option>
+                      <option value="without">Sans candidat</option>
+                      <option value="sel">Sélectionnés</option>
+                    </select>
+                    <input type="text" class="form-control form-control-sm w-auto" id="f-search"
+                           placeholder="Rechercher…" aria-label="Rechercher"/>
+                    <button class="btn btn-success btn-sm" id="btn-export" type="button">
+                      <i class="bi bi-download me-1"></i>Exporter SQL
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LISTE ORPHELINS -->
+            <div class="card bo-card mb-4">
+              <div class="card-header bo-header-tint">
+                <i class="bi bi-list-ul text-primary me-2"></i>Liste des orphelins (batch)
+              </div>
+              <div class="card-body">
+                <!-- Rendu par ccam-validator-app.js (Kit BO — zéro CSS module) -->
+                <div id="list"></div>
+              </div>
+            </div>
+
+          </div><!-- /cv-content -->
+
+        </div><!-- /container-fluid -->
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom fw-semibold"></span> — Atelier L3 · CCAM Batch
+        <span class="badge bg-light text-dark border ms-2">CDS Compliant</span>
+      </small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+  <!-- MODAL SQL EXPORT (hors #wrapper — best practice Bootstrap 5) -->
+  <div class="modal fade" id="modal-sql" tabindex="-1"
+       aria-labelledby="modal-sql-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h6 class="modal-title mb-0" id="modal-sql-title">
+            <i class="bi bi-code-slash me-1"></i>INSERT INTO protocole_ccam
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-warning py-2 small mb-3" id="sql-stats"></div>
+          <textarea class="form-control font-monospace small" id="sql-output" rows="14" readonly
+                    aria-label="SQL généré"></textarea>
+        </div>
+        <div class="modal-footer py-2">
+          <button class="btn btn-outline-primary btn-sm" id="btn-copy" type="button">
+            <i class="bi bi-clipboard me-1"></i>Copier
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAÎNE JS BDB — ORDRE STRICT (CONV-CHAIN-E) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="atelier-nav.js"></script>
+  <script src="ccam-validator-app.js"></script>
+</body>
+</html>

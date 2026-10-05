@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Accueil | Des Blocs &amp; Moi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <style>
+    /* ── Portail-specific ──────────────────────────────────── */
+    .portail-welcome {
+      margin-bottom: 1.5rem;
+    }
+    .portail-welcome h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .portail-welcome p {
+      font-size: .875rem;
+      color: var(--app-text-muted);
+      margin: .25rem 0 0;
+    }
+
+    .portail-module-card {
+      background: var(--app-card-bg);
+      border-radius: var(--app-card-radius);
+      box-shadow: var(--app-card-shadow);
+      border: 1px solid var(--app-border);
+      padding: 1.25rem;
+      text-decoration: none;
+      color: var(--app-text);
+      transition: box-shadow var(--app-transition), border-color var(--app-transition);
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      height: 100%;
+    }
+    .portail-module-card:hover {
+      border-color: var(--app-primary);
+      box-shadow: 0 2px 8px rgba(13,110,253,.12);
+      color: var(--app-text);
+    }
+    .portail-module-icon {
+      width: 44px; height: 44px;
+      border-radius: .5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .portail-module-icon--blue    { background: #e8f0fe; color: #1a56db; }
+    .portail-module-icon--green   { background: #ecfdf5; color: #166534; }
+    .portail-module-icon--amber   { background: #fffbeb; color: #92400e; }
+    .portail-module-icon--purple  { background: #f3e8ff; color: #7e22ce; }
+    .portail-module-title {
+      font-weight: 600;
+      font-size: .9rem;
+      margin-bottom: .2rem;
+    }
+    .portail-module-desc {
+      font-size: .8rem;
+      color: var(--app-text-muted);
+      margin: 0;
+      line-height: 1.4;
+    }
+    .portail-module-stat {
+      font-size: .72rem;
+      color: var(--app-text-muted);
+      margin-top: .4rem;
+    }
+
+    .portail-section-label {
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--app-text-muted);
+      margin-bottom: .75rem;
+    }
+
+    .portail-activity-item {
+      display: flex;
+      gap: .75rem;
+      padding: .75rem 0;
+      border-bottom: 1px solid var(--app-border);
+      font-size: .85rem;
+    }
+    .portail-activity-item:last-child { border-bottom: none; }
+    .portail-activity-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      flex-shrink: 0;
+    }
+    .portail-activity-time {
+      font-size: .72rem;
+      color: var(--app-text-muted);
+      margin-top: .15rem;
+    }
+
+    .portail-shortcut {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .6rem .85rem;
+      background: var(--app-bg);
+      border-radius: .5rem;
+      border: 1px solid var(--app-border);
+      text-decoration: none;
+      color: var(--app-text);
+      font-size: .85rem;
+      transition: border-color var(--app-transition), background var(--app-transition);
+    }
+    .portail-shortcut:hover {
+      border-color: var(--app-primary);
+      background: var(--app-primary-soft);
+      color: var(--app-primary);
+    }
+    .portail-shortcut i { font-size: 1rem; color: var(--app-text-muted); }
+    .portail-shortcut:hover i { color: var(--app-primary); }
+  </style>
+</head>
+
+<body class="sidebar-closed">
+
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+<!-- ════════════ SIDEBAR ════════════ -->
+<nav class="app-sidebar collapsed" id="sidebar" aria-label="Navigation principale">
+  <div class="app-sidebar-brand">
+    <i class="bi bi-heart-pulse" style="font-size:1.2rem"></i>
+    Des Blocs &amp; Moi
+  </div>
+  <div class="app-sidebar-nav">
+    <div class="app-sidebar-section">Consulter</div>
+    <a href="template-module-demo.html" class="app-sidebar-link"><i class="bi bi-book"></i> Glossaire</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-list-check"></i> Protocoles</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-file-earmark-text"></i> Fiches</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-body-text"></i> Anatomie</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-box-seam"></i> Arsenal</a>
+    <div class="app-sidebar-section" style="margin-top:.75rem">Organiser</div>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-calendar3"></i> Planning</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-clipboard2-check"></i> Transmissions</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-sliders2"></i> Preferences</a>
+    <div class="app-sidebar-section" style="margin-top:.75rem">Progresser</div>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-mortarboard"></i> Cours</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-journal-bookmark"></i> Carnet de bord</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-bullseye"></i> Objectifs</a>
+  </div>
+  <div class="app-sidebar-footer">v2.0 &middot; Ortho &middot; Chenieux</div>
+</nav>
+
+<div class="app-sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ════════════ HEADER ════════════ -->
+<header class="app-header" role="banner">
+  <button class="app-header-toggle" id="sidebarToggle"
+          aria-label="Ouvrir ou fermer le menu" aria-expanded="false">
+    <i class="bi bi-list"></i>
+  </button>
+  <div class="app-header-search">
+    <i class="bi bi-search"></i>
+    <input type="search" placeholder="Rechercher dans Des Blocs &amp; Moi..."
+           aria-label="Recherche globale">
+  </div>
+  <div class="app-header-spacer"></div>
+  <button class="app-header-toggle" aria-label="Notifications">
+    <i class="bi bi-bell"></i>
+  </button>
+  <div class="app-avatar" title="Sabine D." aria-label="Profil de Sabine D.">SD</div>
+</header>
+
+<!-- ════════════ MAIN ════════════ -->
+<div class="app-layout">
+  <main class="app-main" id="main-content">
+    <div class="app-content">
+
+      <!-- Welcome -->
+      <div class="portail-welcome">
+        <h1>Bonjour Sabine</h1>
+        <p>Orthopedie &middot; Clinique Chenieux &middot; Vendredi 2 mai 2026</p>
+      </div>
+
+      <!-- KPI row -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="app-kpi">
+            <div class="app-kpi-value text-primary">395</div>
+            <div class="app-kpi-label">Protocoles</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="app-kpi">
+            <div class="app-kpi-value" style="color:#198754">567</div>
+            <div class="app-kpi-label">Termes glossaire</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="app-kpi">
+            <div class="app-kpi-value" style="color:#6f42c1">89%</div>
+            <div class="app-kpi-label">Completude</div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="app-kpi">
+            <div class="app-kpi-value" style="color:#fd7e14">12</div>
+            <div class="app-kpi-label">A enrichir</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shortcuts -->
+      <div class="mb-4">
+        <div class="portail-section-label">Acces rapides</div>
+        <div class="row g-2">
+          <div class="col-6 col-md-3"><a href="#" class="portail-shortcut"><i class="bi bi-plus-circle"></i> Nouveau protocole</a></div>
+          <div class="col-6 col-md-3"><a href="#" class="portail-shortcut"><i class="bi bi-calendar3"></i> Planning du jour</a></div>
+          <div class="col-6 col-md-3"><a href="#" class="portail-shortcut"><i class="bi bi-clipboard2-check"></i> Mes transmissions</a></div>
+          <div class="col-6 col-md-3"><a href="#" class="portail-shortcut"><i class="bi bi-search"></i> Rechercher un terme</a></div>
+        </div>
+      </div>
+
+      <!-- Modules grid -->
+      <div class="mb-4">
+        <div class="portail-section-label">Consulter</div>
+        <div class="row g-3 mb-4">
+          <div class="col-sm-6 col-xl-4">
+            <a href="template-module-demo.html" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--blue"><i class="bi bi-book"></i></div>
+              <div>
+                <div class="portail-module-title">Glossaire</div>
+                <p class="portail-module-desc">Termes chirurgicaux, abbreviations, eponymes</p>
+                <div class="portail-module-stat">567 termes &middot; 8 categories</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--green"><i class="bi bi-list-check"></i></div>
+              <div>
+                <div class="portail-module-title">Protocoles</div>
+                <p class="portail-module-desc">Fiches protocoles par intervention et specialite</p>
+                <div class="portail-module-stat">395 protocoles &middot; 89% complets</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--amber"><i class="bi bi-file-earmark-text"></i></div>
+              <div>
+                <div class="portail-module-title">Fiches</div>
+                <p class="portail-module-desc">Fiches d'intervention detaillees pour l'IBODE</p>
+                <div class="portail-module-stat">124 fiches &middot; 6 specialites</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--purple"><i class="bi bi-body-text"></i></div>
+              <div>
+                <div class="portail-module-title">Anatomie</div>
+                <p class="portail-module-desc">Atlas anatomique illustre par region et structure</p>
+                <div class="portail-module-stat">86 fiches &middot; 12 regions</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--blue"><i class="bi bi-box-seam"></i></div>
+              <div>
+                <div class="portail-module-title">Arsenal</div>
+                <p class="portail-module-desc">Inventaire materiel, ancillaires, implants</p>
+                <div class="portail-module-stat">230 references</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="portail-section-label">Organiser</div>
+        <div class="row g-3 mb-4">
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--green"><i class="bi bi-calendar3"></i></div>
+              <div>
+                <div class="portail-module-title">Planning</div>
+                <p class="portail-module-desc">Programme operatoire et organisation des salles</p>
+                <div class="portail-module-stat">Aujourd'hui : 8 interventions</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--amber"><i class="bi bi-clipboard2-check"></i></div>
+              <div>
+                <div class="portail-module-title">Transmissions</div>
+                <p class="portail-module-desc">Notes inter-equipes et releves de salle</p>
+                <div class="portail-module-stat">3 non lues</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--purple"><i class="bi bi-sliders2"></i></div>
+              <div>
+                <div class="portail-module-title">Preferences chirurgien</div>
+                <p class="portail-module-desc">Habitudes et preferences par praticien</p>
+                <div class="portail-module-stat">14 chirurgiens documentes</div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="portail-section-label">Progresser</div>
+        <div class="row g-3 mb-4">
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--blue"><i class="bi bi-mortarboard"></i></div>
+              <div>
+                <div class="portail-module-title">Cours</div>
+                <p class="portail-module-desc">Contenus pedagogiques et formations continues</p>
+                <div class="portail-module-stat">42 cours &middot; 3 parcours</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--green"><i class="bi bi-journal-bookmark"></i></div>
+              <div>
+                <div class="portail-module-title">Carnet de bord</div>
+                <p class="portail-module-desc">Suivi personnel de progression et portfolio</p>
+                <div class="portail-module-stat">12 entrees ce mois</div>
+              </div>
+            </a>
+          </div>
+          <div class="col-sm-6 col-xl-4">
+            <a href="#" class="portail-module-card">
+              <div class="portail-module-icon portail-module-icon--amber"><i class="bi bi-bullseye"></i></div>
+              <div>
+                <div class="portail-module-title">Objectifs</div>
+                <p class="portail-module-desc">Competences cibles et auto-evaluation</p>
+                <div class="portail-module-stat">4 objectifs en cours</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity + quick stats -->
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="app-card">
+            <div class="app-card-header">
+              <strong style="font-size:.9rem">Activite recente</strong>
+              <a href="#" style="font-size:.8rem;color:var(--app-primary);text-decoration:none">Voir tout</a>
+            </div>
+            <div class="app-card-body">
+              <div class="portail-activity-item">
+                <div class="portail-activity-icon" style="background:#ecfdf5;color:#166534"><i class="bi bi-plus"></i></div>
+                <div>
+                  <div><strong>Sabine D.</strong> a ajoute le terme <a href="template-item-demo.html" style="color:var(--app-primary);text-decoration:none">Arthroscopie epaule</a></div>
+                  <div class="portail-activity-time">Il y a 2 heures</div>
+                </div>
+              </div>
+              <div class="portail-activity-item">
+                <div class="portail-activity-icon" style="background:#e8f0fe;color:#1a56db"><i class="bi bi-pencil"></i></div>
+                <div>
+                  <div><strong>Manu R.</strong> a modifie le protocole <a href="#" style="color:var(--app-primary);text-decoration:none">PTH voie anterieure</a></div>
+                  <div class="portail-activity-time">Il y a 5 heures</div>
+                </div>
+              </div>
+              <div class="portail-activity-item">
+                <div class="portail-activity-icon" style="background:#f3e8ff;color:#7e22ce"><i class="bi bi-link-45deg"></i></div>
+                <div>
+                  <div><strong>Julie C.</strong> a lie 3 protocoles au code CCAM <code style="font-size:.8rem">NFFC001</code></div>
+                  <div class="portail-activity-time">Hier, 16:42</div>
+                </div>
+              </div>
+              <div class="portail-activity-item">
+                <div class="portail-activity-icon" style="background:#fffbeb;color:#92400e"><i class="bi bi-clipboard2-check"></i></div>
+                <div>
+                  <div><strong>Sabine D.</strong> a cree une transmission pour la <a href="#" style="color:var(--app-primary);text-decoration:none">salle 3</a></div>
+                  <div class="portail-activity-time">Hier, 14:15</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="app-card">
+            <div class="app-card-header">
+              <strong style="font-size:.9rem">A faire</strong>
+            </div>
+            <div class="app-card-body">
+              <div style="display:flex;flex-direction:column;gap:.6rem">
+                <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+                  <i class="bi bi-circle text-warning" style="font-size:.6rem"></i>
+                  <span>12 termes sans definition</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+                  <i class="bi bi-circle text-warning" style="font-size:.6rem"></i>
+                  <span>3 transmissions non lues</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+                  <i class="bi bi-circle text-warning" style="font-size:.6rem"></i>
+                  <span>8 protocoles incomplets</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem">
+                  <i class="bi bi-circle" style="font-size:.6rem;color:var(--app-border)"></i>
+                  <span style="color:var(--app-text-muted)">Objectif "Rachis" — 60%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /app-content -->
+
+    <footer class="app-footer">
+      <span>&copy; 2026 Des Blocs &amp; Moi</span>
+      <div class="d-flex gap-3">
+        <a href="#">Aide</a>
+        <a href="#">Accessibilite</a>
+        <a href="#">Mentions legales</a>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function() {
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  var toggle = document.getElementById('sidebarToggle');
+  var isDesktop = function() { return window.innerWidth >= 992; };
+
+  function closeSidebar() {
+    if (isDesktop()) {
+      document.body.classList.add('sidebar-closed');
+      sidebar.classList.add('collapsed');
+    } else {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function openSidebar() {
+    if (isDesktop()) {
+      document.body.classList.remove('sidebar-closed');
+      sidebar.classList.remove('collapsed');
+    } else {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+    }
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  toggle.addEventListener('click', function() {
+    var expanded = toggle.getAttribute('aria-expanded') === 'true';
+    if (expanded) closeSidebar(); else openSidebar();
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+
+  window.addEventListener('resize', function() {
+    if (isDesktop()) {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      if (document.body.classList.contains('sidebar-closed')) {
+        sidebar.classList.add('collapsed');
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

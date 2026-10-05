@@ -1,0 +1,345 @@
+/**
+ * PROJECT  : Bible de Bloc (BDB)
+ * FILE     : faq-admin.js v1.0.0
+ * MODULE   : modules/faq/ — Administration
+ * DATE     : 2026-04-12
+ * DEPENDS  : bdb-shell.js, supabase-client.js
+ */
+
+'use strict';
+
+/* ── Helpers ────────────────────────────────────────────────────────────────── */
+
+const _escEl = document.createElement('span');
+function escHtml(s) { _escEl.textContent = s ?? ''; return _escEl.innerHTML; }
+
+const FAQ_MODULE_KEYS = [
+  { key: 'general',       label: 'Questions générales'  },
+  { key: 'fiches',        label: 'Protocoles & fiches'  },
+  { key: 'transmissions', label: 'Transmissions'        },
+  { key: 'arsenal',       label: 'Matériel & arsenal'   },
+  { key: 'annuaire',      label: 'Annuaire'             },
+  { key: 'cours',         label: 'Cours & formation'    },
+  { key: 'organisateur',  label: 'Organisateur'         }
+];
+
+let _userMap = {};  // { uid: 'Prénom Nom' }
+
+function showEntriesState(id) {
+  ['entriesLoading', 'entriesEmpty', 'entriesError', 'entriesTable'].forEach(s => {
+    document.getElementById(s)?.classList.toggle('d-none', s !== id);
+  });
+}
+
+function showDraftsState(id) {
+  ['draftsLoading', 'draftsEmpty', 'draftsError', 'draftsTable'].forEach(s => {
+    document.getElementById(s)?.classList.toggle('d-none', s !== id);
+  });
+}
+
+/* ── User map ───────────────────────────────────────────────────────────────── */
+
+async function loadUserMap() {
+  const { data } = await window.bdb.from('profiles_directory').select('id, prenom, nom');
+  if (data) data.forEach(u => {
+    _userMap[u.id] = ((u.prenom || '') + ' ' + (u.nom || '')).trim() || u.id;
+  });
+}
+
+/* ── Tab 1 : Toutes les entrées ─────────────────────────────────────────────── */
+
+let _allEntries = [];
+let _entriesLoaded = false;
+
+async function loadEntries() {
+  showEntriesState('entriesLoading');
+
+  const [{ data, error }] = await Promise.all([
+    window.bdb.from('site_faq')
+      .select('id, question, reponse, categorie, module_key, show_in_site, show_in_module, position, statut, created_by, cta_label, cta_module_key')
+      .order('position', { ascending: true })
+  ]);
+
+  if (error) {
+    document.getElementById('entriesErrorMsg').textContent = error.message;
+    showEntriesState('entriesError');
+    return;
+  }
+
+  _allEntries = data || [];
+
+  // KPIs
+  const total   = _allEntries.length;
+  const active  = _allEntries.filter(e => e.statut === 'active').length;
+  const draft   = _allEntries.filter(e => e.statut === 'draft').length;
+  const onSite  = _allEntries.filter(e => e.show_in_site).length;
+  const _kpi = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  _kpi('kpiTotal',    total);   // tab badge
+  _kpi('kpiDraft',    draft);   // tab badge
+  _kpi('kpiTotalCard', total);
+  _kpi('kpiActive',   active);
+  _kpi('kpiDraftCard', draft);
+  _kpi('kpiOnSite',   onSite);
+
+  if (total === 0) { showEntriesState('entriesEmpty'); return; }
+
+  renderEntriesTable(_allEntries);
+  showEntriesState('entriesTable');
+  _entriesLoaded = true;
+}
+
+function renderEntriesTable(rows) {
+  const tbody = document.getElementById('entriesTbody');
+  tbody.innerHTML = rows.map(e => {
+    const statusBadge = e.statut === 'active'
+      ? `<span class="badge bg-success-subtle text-success border border-success-subtle">active</span>`
+      : `<span class="badge bg-warning-subtle text-warning border border-warning-subtle">brouillon</span>`;
+    const moduleLabel = FAQ_MODULE_KEYS.find(m => m.key === e.module_key)?.label || (escHtml(e.module_key || '—'));
+    const creator = e.created_by ? (escHtml(_userMap[e.created_by] || e.created_by)) : '—';
+    const visibilite = [
+      e.show_in_module ? '<span class="badge bg-light text-dark border"><i class="bi bi-grid me-1"></i>Module</span>' : '',
+      e.show_in_site   ? '<span class="badge bg-light text-dark border"><i class="bi bi-globe me-1"></i>Site</span>'   : ''
+    ].filter(Boolean).join(' ') || '—';
+    const question = escHtml((e.question || '').substring(0, 80)) + ((e.question || '').length > 80 ? '…' : '');
+    return `<tr>
+      <td class="text-muted small">${e.position ?? '—'}</td>
+      <td><span class="fw-medium">${question}</span></td>
+      <td><span class="badge bg-secondary-subtle text-secondary border">${escHtml(moduleLabel)}</span></td>
+      <td>${statusBadge}</td>
+      <td>${visibilite}</td>
+      <td class="text-muted small">${creator}</td>
+      <td>
+        <div class="d-flex gap-1">
+          ${e.statut === 'draft' ? `<button type="button" class="btn btn-xs btn-outline-success" data-action="publish" data-id="${escHtml(e.id)}" title="Publier"><i class="bi bi-check-lg"></i></button>` : ''}
+          <button type="button" class="btn btn-xs btn-outline-primary" data-action="edit" data-id="${escHtml(e.id)}" title="Modifier"><i class="bi bi-pencil"></i></button>
+          <button type="button" class="btn btn-xs btn-outline-danger" data-action="delete" data-id="${escHtml(e.id)}" data-label="${escHtml(e.question || '')}" title="Supprimer"><i class="bi bi-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Tab 2 : Brouillons en attente (lazy) ───────────────────────────────────── */
+
+let _draftsLoaded = false;
+
+async function loadDrafts() {
+  showDraftsState('draftsLoading');
+
+  const { data, error } = await window.bdb
+    .from('site_faq')
+    .select('id, question, reponse, module_key, created_by, position')
+    .eq('statut', 'draft')
+    .order('position', { ascending: true });
+
+  if (error) {
+    document.getElementById('draftsErrorMsg').textContent = error.message;
+    showDraftsState('draftsError');
+    return;
+  }
+
+  if (!data || data.length === 0) { showDraftsState('draftsEmpty'); return; }
+
+  const tbody = document.getElementById('draftsTbody');
+  tbody.innerHTML = data.map(e => {
+    const moduleLabel = FAQ_MODULE_KEYS.find(m => m.key === e.module_key)?.label || escHtml(e.module_key || '—');
+    const creator = e.created_by ? (escHtml(_userMap[e.created_by] || e.created_by)) : '—';
+    const question = escHtml((e.question || '').substring(0, 100)) + ((e.question || '').length > 100 ? '…' : '');
+    return `<tr>
+      <td><span class="fw-medium">${question}</span></td>
+      <td><span class="badge bg-secondary-subtle text-secondary border">${escHtml(moduleLabel)}</span></td>
+      <td class="text-muted small">${creator}</td>
+      <td>
+        <div class="d-flex gap-1">
+          <button type="button" class="btn btn-xs btn-outline-success" data-action="publish" data-id="${escHtml(e.id)}" title="Publier">
+            <i class="bi bi-check-lg me-1"></i>Publier
+          </button>
+          <button type="button" class="btn btn-xs btn-outline-primary" data-action="edit" data-id="${escHtml(e.id)}" title="Modifier">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button type="button" class="btn btn-xs btn-outline-danger" data-action="delete" data-id="${escHtml(e.id)}" data-label="${escHtml(e.question || '')}" title="Supprimer">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  showDraftsState('draftsTable');
+  _draftsLoaded = true;
+}
+
+/* ── Publish ────────────────────────────────────────────────────────────────── */
+
+async function publishEntry(id) {
+  const { error } = await window.bdb
+    .from('site_faq')
+    .update({ statut: 'active', show_in_module: true })
+    .eq('id', id)
+    .select();
+  if (error) { bdbToast('Erreur : ' + error.message); return; }
+  bdbToast('Entrée publiée');
+  _entriesLoaded = false;
+  _draftsLoaded  = false;
+  await loadEntries();
+  // invalidate drafts tab so it reloads on next visit
+}
+
+/* ── Delete ─────────────────────────────────────────────────────────────────── */
+
+async function deleteEntry(id, label) {
+  if (!confirm(`Supprimer "${label.substring(0, 60)}" ?`)) return;
+  const { error } = await window.bdb.from('site_faq').delete().eq('id', id).select();
+  if (error) { bdbToast('Erreur : ' + error.message); return; }
+  bdbToast('Entrée supprimée');
+  _entriesLoaded = false;
+  _draftsLoaded  = false;
+  await loadEntries();
+}
+
+/* ── Modal create / edit ────────────────────────────────────────────────────── */
+
+let _editingId = null;
+
+async function openFaqModal(id = null) {
+  _editingId = id;
+  const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalFaqAdmin'));
+
+  document.getElementById('faqAdminModalTitle').textContent = id ? 'Modifier l\'entrée FAQ' : 'Nouvelle entrée FAQ';
+  document.getElementById('faqAdminError').classList.add('d-none');
+
+  // Reset form
+  document.getElementById('faqAdminQuestion').value   = '';
+  document.getElementById('faqAdminReponse').value    = '';
+  document.getElementById('faqAdminModule').value     = 'general';
+  document.getElementById('faqAdminStatut').value     = 'active';
+  document.getElementById('faqAdminPosition').value   = '1';
+  document.getElementById('faqAdminShowMod').checked  = true;
+  document.getElementById('faqAdminShowSite').checked = false;
+  document.getElementById('faqAdminCtaLabel').value   = '';
+  document.getElementById('faqAdminCtaModule').value  = '';
+
+  if (id) {
+    const entry = _allEntries.find(e => e.id === id);
+    if (entry) {
+      document.getElementById('faqAdminQuestion').value   = entry.question || '';
+      document.getElementById('faqAdminReponse').value    = entry.reponse  || '';
+      document.getElementById('faqAdminModule').value     = entry.module_key || 'general';
+      document.getElementById('faqAdminStatut').value     = entry.statut || 'draft';
+      document.getElementById('faqAdminPosition').value   = entry.position ?? 1;
+      document.getElementById('faqAdminShowMod').checked  = !!entry.show_in_module;
+      document.getElementById('faqAdminShowSite').checked = !!entry.show_in_site;
+      document.getElementById('faqAdminCtaLabel').value   = entry.cta_label       || '';
+      document.getElementById('faqAdminCtaModule').value  = entry.cta_module_key  || '';
+    }
+  }
+
+  modal.show();
+}
+
+async function saveFaqEntry() {
+  const question = (document.getElementById('faqAdminQuestion').value || '').trim();
+  const reponse  = (document.getElementById('faqAdminReponse').value  || '').trim();
+  if (!question) {
+    document.getElementById('faqAdminError').textContent = 'La question est obligatoire.';
+    document.getElementById('faqAdminError').classList.remove('d-none');
+    return;
+  }
+
+  const payload = {
+    question,
+    reponse:         reponse || '<p class="text-muted fst-italic">Réponse à venir.</p>',
+    module_key:      document.getElementById('faqAdminModule').value  || 'general',
+    statut:          document.getElementById('faqAdminStatut').value  || 'draft',
+    position:        parseInt(document.getElementById('faqAdminPosition').value, 10) || 1,
+    show_in_module:  document.getElementById('faqAdminShowMod').checked,
+    show_in_site:    document.getElementById('faqAdminShowSite').checked,
+    cta_label:       document.getElementById('faqAdminCtaLabel').value.trim()  || null,
+    cta_module_key:  document.getElementById('faqAdminCtaModule').value.trim() || null,
+    categorie:       document.getElementById('faqAdminModule').value || 'general'
+  };
+
+  const btn = document.getElementById('faqAdminSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enregistrement…';
+
+  let error;
+  if (_editingId) {
+    ({ error } = await window.bdb.from('site_faq').update(payload).eq('id', _editingId).select());
+  } else {
+    payload.created_by = window.bdbUser.id;
+    ({ error } = await window.bdb.from('site_faq').insert(payload).select());
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Enregistrer';
+
+  if (error) {
+    document.getElementById('faqAdminError').textContent = error.message;
+    document.getElementById('faqAdminError').classList.remove('d-none');
+    return;
+  }
+
+  bootstrap.Modal.getInstance(document.getElementById('modalFaqAdmin'))?.hide();
+  bdbToast(_editingId ? 'Entrée mise à jour' : 'Entrée créée');
+  _entriesLoaded = false;
+  _draftsLoaded  = false;
+  await loadEntries();
+}
+
+/* ── Search filter ──────────────────────────────────────────────────────────── */
+
+function filterEntries(term) {
+  const t = (term || '').toLowerCase();
+  if (!t) { renderEntriesTable(_allEntries); return; }
+  const filtered = _allEntries.filter(e =>
+    (e.question || '').toLowerCase().includes(t) ||
+    (e.module_key || '').toLowerCase().includes(t) ||
+    (e.statut || '').toLowerCase().includes(t)
+  );
+  renderEntriesTable(filtered);
+}
+
+/* ── Init ───────────────────────────────────────────────────────────────────── */
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  if (!window.bdbUser?.isAdmin) { location.href = '../../index.html'; return; }
+
+  await loadUserMap();
+  await loadEntries();
+
+  document.getElementById('tab-drafts-btn').addEventListener('shown.bs.tab', async () => {
+    if (_draftsLoaded) return;
+    await loadDrafts();
+  });
+
+  document.getElementById('faqSearchAdmin').addEventListener('input', e => {
+    filterEntries(e.target.value);
+  });
+
+  document.getElementById('btnNewFaq').addEventListener('click', () => openFaqModal());
+  document.getElementById('faqAdminSaveBtn').addEventListener('click', saveFaqEntry);
+
+  /* Délégation actions table entrées (évite onclick= en innerHTML) */
+  document.getElementById('entriesTbody')?.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const id     = btn.dataset.id;
+    if (action === 'publish') await publishEntry(id);
+    else if (action === 'edit') openFaqModal(id);
+    else if (action === 'delete') await deleteEntry(id, btn.dataset.label || '');
+  });
+
+  /* Délégation actions table brouillons */
+  document.getElementById('draftsTbody')?.addEventListener('click', async e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const id     = btn.dataset.id;
+    if (action === 'publish') await publishEntry(id);
+    else if (action === 'edit') openFaqModal(id);
+    else if (action === 'delete') await deleteEntry(id, btn.dataset.label || '');
+  });
+});

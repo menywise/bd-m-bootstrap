@@ -1,0 +1,372 @@
+<!--
+  PROJECT  : Des Blocs & Moi (DB&M)
+  FILE     : instances.html v2.0.0
+  MODULE   : site/
+  DATE     : 2026-04-26
+  AUTEUR   : Manu + Claude
+  DELTA    : v2.0.0 (S#108) — Anonymisation (suppression "orthopédique" et
+             "IBODE de terrain"). Stats branchées sur RPC publique
+             site_instance_stats() au lieu de window.BDB_STATS statique.
+             Carte d'instance générée en HTML statique anonyme (plus de liste
+             dynamique). instances-stats.js conservé sur disque mais plus
+             chargé par cette page.
+             v1.0.0 — Création. Page déploiements pour Brigitte (P6 Direction).
+             Personas : P6 (BLEU/ORANGE — décideur), P5 (sceptique actif).
+             Registre : "vous" (page Direction, hors tabs audiences.html).
+             EXCEPTION-SHELL-SITE : pas de shell auth DBM, mais utilise window.bdb
+             (mode anon) pour appeler la RPC.
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../js/bdb-pwa.js"></script>
+  <title>Instances DBM — Un déploiement par bloc</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../css/dbm-theme.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="site-ui.css" rel="stylesheet"/>
+  <meta name="description" content="Instances Des Blocs & Moi : un déploiement par bloc opératoire, indépendant et personnalisé."/>
+  <meta name="keywords" content="instances DBM, déploiement par bloc, indépendance données"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/site/instances.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Instances Des Blocs & Moi"/>
+  <meta property="og:description" content="Un déploiement par bloc opératoire, indépendant et personnalisé."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/site/instances.html"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Instances Des Blocs & Moi"/>
+  <meta name="twitter:description" content="Un déploiement par bloc opératoire, indépendant et personnalisé."/>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Des Blocs & Moi","url":"https://lebloc.fr/dbm/site/instances.html","inLanguage":"fr-FR","publisher":{"@type":"Organization","name":"Des Blocs & Moi"}}
+</script>
+</head>
+<body>
+
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-controls="mainMenu" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">Déploiements</span>
+    </div>
+    <a href="../login.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1"><i class="bi bi-grid-3x3-gap me-1"></i>Mon espace</a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <div class="container py-4">
+      <div class="bg-primary bg-gradient text-white doc-header-primary">
+        <h1 class="mb-2"><i class="bi bi-geo-alt me-2"></i><span class="app-nom"></span> en production</h1>
+        <p class="mb-0 opacity-75">Les chiffres réels d'un déploiement en bloc opératoire.</p>
+      </div>
+    </div>
+
+    <!-- INSTANCE ACTIVE -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-hospital me-2 text-primary"></i>Instance en service</h2>
+        <p class="text-muted mb-4">
+          <span class="app-nom"></span> est actuellement déployé dans un bloc opératoire.
+          Les données ci-dessous sont issues de cette instance réelle.
+        </p>
+        <div class="row g-3" id="instances-list">
+          <div class="col-12">
+            <div class="panel h-100">
+              <div class="d-flex align-items-start gap-3 mb-3">
+                <div class="site-circle-lg bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
+                  <i class="bi bi-hospital text-primary fs-4"></i>
+                </div>
+                <div>
+                  <h4 class="fw-bold mb-1 fs-5">Instance en service</h4>
+                  <p class="text-muted mb-1 small">Bloc opératoire — données réelles</p>
+                  <span class="badge bg-success bg-opacity-10 text-success">En service</span>
+                </div>
+              </div>
+              <div class="row g-2 text-center">
+                <div class="col-6 col-sm-4 col-lg-2">
+                  <div class="p-2 bg-light rounded">
+                    <div class="fw-bold fs-5 text-primary" id="stat-protocoles">—</div>
+                    <small class="text-muted">protocoles</small>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-4 col-lg-2">
+                  <div class="p-2 bg-light rounded">
+                    <div class="fw-bold fs-5 text-primary" id="stat-glossaire">—</div>
+                    <small class="text-muted">termes glossaire</small>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-4 col-lg-2">
+                  <div class="p-2 bg-light rounded">
+                    <div class="fw-bold fs-5 text-primary" id="stat-materiel">—</div>
+                    <small class="text-muted">références matériel</small>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-4 col-lg-2">
+                  <div class="p-2 bg-light rounded">
+                    <div class="fw-bold fs-5 text-primary" id="stat-interventions">—</div>
+                    <small class="text-muted">actes référencés</small>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-4 col-lg-2">
+                  <div class="p-2 bg-light rounded">
+                    <div class="fw-bold fs-5 text-primary" id="stat-fiches">—</div>
+                    <small class="text-muted">fiches papier</small>
+                  </div>
+                </div>
+                <div class="col-6 col-sm-4 col-lg-2">
+                  <div class="p-2 bg-light rounded">
+                    <div class="fw-bold fs-5 text-primary" id="stat-ccam">—</div>
+                    <small class="text-muted">protocoles liés CCAM</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-muted small text-end mt-2">
+          <i class="bi bi-clock me-1"></i>Données mises à jour le <span id="stat-maj">—</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- CE QUE CES CHIFFRES REPRÉSENTENT -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-bar-chart me-2 text-primary"></i>Ce que ces chiffres représentent</h2>
+        <p class="text-muted mb-4">
+          Chaque entrée dans <span class="app-nom"></span> représente une question de moins posée à l'oral,
+          une recherche faite en autonomie, un doute levé avant d'entrer en salle.
+        </p>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="panel panel-accent-success h-100">
+              <h5 class="fw-semibold mb-2">
+                <i class="bi bi-file-text text-success me-2"></i><span id="stat-glossaire-2">—</span> termes documentés
+              </h5>
+              <p class="mb-0 text-muted">
+                Le vocabulaire chirurgical partagé par l'équipe.
+                Chaque nouveau membre y accède dès le premier jour.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-accent-primary h-100">
+              <h5 class="fw-semibold mb-2">
+                <i class="bi bi-journal-check text-primary me-2"></i><span id="stat-protocoles-2">—</span> protocoles opératoires
+              </h5>
+              <p class="mb-0 text-muted">
+                Les pratiques de l'équipe, structurées et consultables.
+                La cohérence ne dépend plus d'un seul individu.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel panel-accent-warning h-100">
+              <h5 class="fw-semibold mb-2">
+                <i class="bi bi-clipboard2-data text-warning me-2"></i><span id="stat-interventions-2">—</span> actes référencés
+              </h5>
+              <p class="mb-0 text-muted">
+                La base CCAM complète intégrée — le contexte réglementaire
+                est disponible sans chercher ailleurs.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMENT ÇA SE DÉPLOIE -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-diagram-3 me-2 text-primary"></i>Comment un déploiement se passe</h2>
+        <p class="text-muted mb-4">
+          <span class="app-nom"></span> ne nécessite ni serveur propre ni équipe IT dédiée.
+          Un déploiement complet se fait en moins d'un mois.
+        </p>
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="site-stepper">
+              <div class="site-stepper-item">
+                <h5 class="fw-semibold mb-1">Décision et configuration — quelques jours</h5>
+                <p class="text-muted mb-0">
+                  L'instance est créée, les accès sont ouverts.
+                  Aucun serveur à provisionner — <span class="app-nom"></span> repose sur une infrastructure cloud standard.
+                  Zéro coût IT initial.
+                </p>
+              </div>
+              <div class="site-stepper-item">
+                <h5 class="fw-semibold mb-1">Import des données existantes — une semaine</h5>
+                <p class="text-muted mb-0">
+                  Le programme opératoire de l'établissement est importé.
+                  Les protocoles existants (classeurs, fiches papier) sont intégrés progressivement
+                  par les cadres de bloc.
+                </p>
+              </div>
+              <div class="site-stepper-item">
+                <h5 class="fw-semibold mb-1">Mise en service et prise en main — deux semaines</h5>
+                <p class="text-muted mb-0">
+                  L'équipe accède à l'application sur ses propres appareils.
+                  Pas de formation obligatoire — l'interface est conçue pour être trouvable.
+                </p>
+              </div>
+              <div class="site-stepper-item">
+                <h5 class="fw-semibold mb-1">Enrichissement continu</h5>
+                <p class="text-muted mb-0">
+                  Les cadres et les chirurgiens ajoutent, corrigent, complètent.
+                  <span class="app-nom"></span> grandit avec les pratiques de l'équipe — sans maintenance centralisée.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CE QUE ÇA CHANGE CONCRÈTEMENT — ROI positif Direction -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Ce que ça change dans votre établissement</h2>
+        <p class="text-muted mb-4">
+          Au-delà des chiffres, trois effets observés après déploiement.
+        </p>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="panel h-100">
+              <i class="bi bi-people text-primary fs-3 d-block mb-3"></i>
+              <h5 class="fw-semibold mb-2">Cohésion d'équipe renforcée</h5>
+              <p class="text-muted mb-0">
+                Moins de questions répétitives, moins de tensions liées au manque d'information.
+                Le savoir circule — sans que les anciens s'épuisent à le transmettre à chaque nouveau visage.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel h-100">
+              <i class="bi bi-person-plus text-primary fs-3 d-block mb-3"></i>
+              <h5 class="fw-semibold mb-2">Intégration accélérée</h5>
+              <p class="text-muted mb-0">
+                Un nouveau membre trouve ses repères sans monopoliser l'attention des autres.
+                Le délai avant autonomie réelle — habituellement de plusieurs semaines — se réduit significativement.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="panel h-100">
+              <i class="bi bi-shield-check text-primary fs-3 d-block mb-3"></i>
+              <h5 class="fw-semibold mb-2">Moins d'incidents liés à l'information</h5>
+              <p class="text-muted mb-0">
+                Quand le protocole est accessible avant d'entrer en salle, les oublis diminuent.
+                Une équipe qui cherche moins improvise moins — et prépare mieux.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GARANTIES DIRECTION -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><i class="bi bi-shield-check me-2 text-primary"></i>Ce que vous ne trouverez pas dans <span class="app-nom"></span></h2>
+        <p class="text-muted mb-4">
+          Certaines questions reviennent systématiquement. Les réponses sont courtes.
+        </p>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="panel h-100">
+              <h5 class="fw-semibold mb-3"><i class="bi bi-x-circle text-danger me-2"></i>Zéro donnée patient</h5>
+              <p class="mb-0 text-muted">
+                <span class="app-nom"></span> ne stocke aucune donnée de santé nominative.
+                Protocoles, fiches et cours ne contiennent aucune information patient.
+                Le risque juridique associé est nul.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel h-100">
+              <h5 class="fw-semibold mb-3"><i class="bi bi-x-circle text-danger me-2"></i>Zéro infrastructure à maintenir</h5>
+              <p class="mb-0 text-muted">
+                <span class="app-nom"></span> fonctionne sur votre navigateur ou smartphone existant.
+                Aucun serveur local, aucune installation poste par poste,
+                aucune intervention de votre DSI requise.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel h-100">
+              <h5 class="fw-semibold mb-3"><i class="bi bi-x-circle text-danger me-2"></i>Zéro coût de licence utilisateur</h5>
+              <p class="mb-0 text-muted">
+                L'accès est ouvert à l'ensemble de l'équipe du bloc
+                sans coût par tête ni palier tarifaire à l'usage.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel h-100">
+              <h5 class="fw-semibold mb-3"><i class="bi bi-x-circle text-danger me-2"></i>Zéro dépendance à un éditeur</h5>
+              <p class="mb-0 text-muted">
+                <span class="app-nom"></span> est développé par un professionnel de bloc opératoire.
+                Les données de votre établissement vous appartiennent.
+                Export possible à tout moment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA DIRECTION -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-7 text-center">
+            <i class="bi bi-calendar-check text-primary fs-2 d-block mb-3"></i>
+            <h2 class="fw-bold mb-2">Voir <span class="app-nom"></span> dans votre établissement</h2>
+            <p class="text-muted mb-4">
+              Une démonstration sur données réelles, dans votre contexte.
+              Aucun engagement, aucun contrat préalable.
+            </p>
+            <a href="audiences.html#direction" class="btn btn-module btn-lg">
+              <i class="bi bi-send me-2"></i>Demander un accès ou une démo
+            </a>
+            <p class="text-muted small mt-3 mb-0">
+              Vous serez contacté directement par l'équipe <span class="app-nom"></span>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-4 site-nav-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6"><a href="risques.html" class="text-primary text-decoration-none fw-semibold"><i class="bi bi-arrow-left me-2"></i>Ce qui pourrait mal tourner</a></div>
+          <div class="col-6 text-end"><a href="adoption.html" class="text-primary text-decoration-none fw-semibold">Comment ça s'adopte<i class="bi bi-arrow-right ms-2"></i></a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="py-3 text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System — <a href="accessibilite.html" class="text-muted text-decoration-none">Accessibilité : WCAG AA</a></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="site-nav.js"></script>
+  <!-- Hydratation app-nom + stats RPC site_instance_stats (sans bdb-shell) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/bdb-site-hydrate.js"></script>
+  <script src="instances-app.js"></script>
+</body>
+</html>

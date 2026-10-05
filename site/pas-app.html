@@ -1,0 +1,262 @@
+<!--
+  PROJECT  : Des Blocs & Moi (DB&M)
+  FILE     : pas-app.html v4.0.0
+  MODULE   : site/
+  DATE     : 2026-03-14
+  AUTEUR   : Manu + Claude
+  DELTA    : v3→v4 — Réécriture contenu DISC/Spirale compliant.
+             Personas : P4 (BLEU), P5 (ORANGE), P8 neutralisation passive.
+             Ouverture : rassurant avant péremptoire.
+             Hors-scope : nommer sans confronter, contourner P8.
+             Règle de voix : tu partout. Ton BLEU rassurant remplace D tranchant.
+             Structure préservée. CSS inchangé.
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../js/bdb-pwa.js"></script>
+  <title>Ce que DBM n est pas — Périmètre clair</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../css/dbm-theme.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="site-ui.css" rel="stylesheet"/>
+  <meta name="description" content="Ce que Des Blocs & Moi n est pas : pas de saisie per-op, pas de DM en salle, pas de scan, pas de SIH. Pédagogie pure."/>
+  <meta name="keywords" content="périmètre DBM, pas SIH, pas saisie per-op, pédagogie"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/site/pas-app.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Ce que DBM n est pas"/>
+  <meta property="og:description" content="Pas de saisie per-op, pas de DM en salle, pas de scan. Pédagogie pure."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/site/pas-app.html"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Ce que DBM n est pas"/>
+  <meta name="twitter:description" content="Pas de saisie per-op, pas de DM en salle, pas de scan. Pédagogie pure."/>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Des Blocs & Moi","url":"https://lebloc.fr/dbm/site/pas-app.html","inLanguage":"fr-FR","publisher":{"@type":"Organization","name":"Des Blocs & Moi"}}
+</script>
+</head>
+<body>
+
+
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-controls="mainMenu" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">Ce que ce n'est pas</span>
+    </div>
+    <a href="../login.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1"><i class="bi bi-grid-3x3-gap me-1"></i>Mon espace</a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <div class="container py-4">
+      <div class="bg-primary bg-gradient text-white doc-header-primary">
+        <h1 class="mb-2"><i class="bi bi-x-circle me-2"></i>Ce que <span class="app-nom"></span> n'est pas</h1>
+        <p class="mb-0 opacity-75">Des limites claires — pour éviter les malentendus</p>
+      </div>
+    </div>
+
+    <!-- OUVERTURE RASSURANTE — P4 BLEU -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <p class="lead mb-3">
+              <span class="app-nom"></span> est un outil simple, à portée limitée — et c'est voulu.
+            </p>
+            <p class="text-muted mb-0">
+              Ces limites ne sont pas des oublis. Ce sont des choix réfléchis.
+              Ils permettent à l'app de rester utile, accessible,
+              et sans risque pour ceux qui l'utilisent.
+              Avant d'explorer ce que <span class="app-nom"></span> peut faire, voici ce qu'il ne fait pas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LES 6 LIMITES — BLEU rassurant -->
+    <section class="py-4 section-soft">
+      <div class="container">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="panel-limit h-100">
+              <h4><i class="bi bi-lightning me-2"></i>Pas un outil d'urgence</h4>
+              <p class="text-muted">
+                <span class="app-nom"></span> est fait pour le temps libre — vestiaires, pauses, préparation.
+                Pas pour être consulté en pleine intervention.
+              </p>
+              <div class="alert alert-danger mb-0">
+                Quand les gants sont mis, l'app reste dans la poche.
+                <span class="app-nom"></span> prépare — il n'intervient pas à la place du professionnel.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel-limit h-100">
+              <h4><i class="bi bi-file-earmark-text me-2"></i>Pas un document officiel</h4>
+              <p class="text-muted">
+                Zéro donnée patient. Zéro protocole médical opposable.
+                Ce que tu partages ici, c'est du savoir opérationnel —
+                pas de la responsabilité juridique.
+              </p>
+              <div class="alert alert-danger mb-0">
+                Où sont rangées les choses, comment ça fonctionne,
+                les astuces du terrain. Rien de sensible, rien d'opposable.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel-limit h-100">
+              <h4><i class="bi bi-eye-slash me-2"></i>Pas un outil de surveillance</h4>
+              <p class="text-muted">
+                <span class="app-nom"></span> n'est pas imposé. Personne ne sait qui consulte quoi.
+                Pas de classement, pas de métriques nominatives,
+                pas de rapport à la hiérarchie.
+              </p>
+              <div class="alert alert-danger mb-0">
+                Tu l'utilises si tu en as envie. Tu ne l'utilises pas
+                si tu n'en as pas besoin. Sans pression, sans compte à rendre.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel-limit h-100">
+              <h4><i class="bi bi-book me-2"></i>Pas une encyclopédie</h4>
+              <p class="text-muted">
+                <span class="app-nom"></span> ne prétend pas tout couvrir. Un nombre limité de fiches
+                essentielles — ce qui revient le plus souvent,
+                ce qui coûte le plus à chercher.
+              </p>
+              <div class="alert alert-danger mb-0">
+                L'essentiel, pas l'exhaustif. Une ressource opérationnelle,
+                pas un dictionnaire qu'on ne finit jamais.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel-limit h-100">
+              <h4><i class="bi bi-magic me-2"></i>Pas une solution à tout</h4>
+              <p class="text-muted">
+                <span class="app-nom"></span> ne règle pas les problèmes relationnels.
+                Il ne remplace pas une conversation difficile.
+                Il ne fait pas disparaître les tensions existantes.
+              </p>
+              <div class="alert alert-danger mb-0">
+                Un outil aide ceux qui veulent s'en servir.
+                Il ne change pas ce qui relève des personnes, pas des outils.
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel-limit h-100">
+              <h4><i class="bi bi-chat-dots me-2"></i>Pas un remplacement de l'oral</h4>
+              <p class="text-muted">
+                Les conversations ne disparaissent pas. Les questions complexes,
+                les cas particuliers, les situations nouvelles —
+                ça reste entre humains.
+              </p>
+              <div class="alert alert-danger mb-0">
+                Les questions simples dans l'app.
+                Les vraies conversations, libérées du bruit des répétitions.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HORS SCOPE — neutralisation P8 par contournement, pas confrontation -->
+    <section class="py-5 section-dark text-white">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><span class="app-nom"></span> ne cherche pas à convaincre tout le monde</h2>
+        <p class="opacity-75 mb-4">
+          Certains n'en auront pas besoin. D'autres ne le voudront pas.
+          C'est reconnu — et c'est respecté.
+        </p>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="hors-scope-card">
+              <h5><i class="bi bi-person-dash me-2"></i>Ceux qui n'en ont pas besoin</h5>
+              <p class="mb-0 opacity-75">
+                Le système actuel fonctionne pour eux.
+                <span class="app-nom"></span> ne leur apporte rien de plus — et ce n'est pas un problème.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="hors-scope-card">
+              <h5><i class="bi bi-person-x me-2"></i>Ceux qui préfèrent l'oral</h5>
+              <p class="mb-0 opacity-75">
+                Le savoir transmis en face à face a sa valeur propre.
+                <span class="app-nom"></span> coexiste avec cette façon de faire — il ne la remplace pas.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="hors-scope-card">
+              <h5><i class="bi bi-shield-x me-2"></i>Ceux qui ne souhaitent pas contribuer</h5>
+              <p class="mb-0 opacity-75">
+                Contribuer est toujours un choix.
+                Utiliser <span class="app-nom"></span> pour chercher, sans jamais écrire,
+                est une façon valide de s'en servir.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- À RETENIR — BLEU : cadre clair, engagements tenus -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="panel-approach">
+              <h4 class="fw-bold mb-3"><i class="bi bi-check-circle me-2 text-primary"></i>Ce que <span class="app-nom"></span> garantit</h4>
+              <p class="mb-3 text-muted">Ces limites sont tenues. Elles ne changeront pas sans en parler.</p>
+              <ul class="mb-0">
+                <li class="mb-2"><strong>Simple</strong> — un nombre raisonnable de fiches, pas une base infinie</li>
+                <li class="mb-2"><strong>Sans risque juridique</strong> — aucune donnée sensible, aucune responsabilité engagée</li>
+                <li class="mb-2"><strong>Libre</strong> — aucune obligation d'utiliser, aucune surveillance de l'usage</li>
+                <li><strong>Complémentaire</strong> — en plus de ce qui existe, pas à la place</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-4 site-nav-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6"><a href="vision.html" class="text-primary text-decoration-none fw-semibold"><i class="bi bi-arrow-left me-2"></i>Vision</a></div>
+          <div class="col-6 text-end"><a href="audiences.html" class="text-primary text-decoration-none fw-semibold">Pour qui ?<i class="bi bi-arrow-right ms-2"></i></a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <footer class="py-3 text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System — <a href="accessibilite.html" class="text-muted text-decoration-none">Accessibilité : WCAG AA</a></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="site-nav.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el)); });</script>
+  <!-- Hydratation app-nom (sans bdb-shell) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/bdb-site-hydrate.js"></script>
+</body>
+</html>

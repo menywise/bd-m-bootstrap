@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Audit N0 Skills — DB&amp;M</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/cds-overrides.css" rel="stylesheet"/>
+  <style>
+    .kpi-card { min-height: 100px; }
+    .kpi-value { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+    .kpi-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .spirale-bar { height: 22px; border-radius: 4px; transition: width 0.4s ease; }
+    .spirale-bleu { background: #0d6efd; }
+    .spirale-orange { background: #fd7e14; }
+    .spirale-jaune { background: #ffc107; }
+    .are-cell { width: 32px; height: 32px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.82rem; }
+    .are-2 { background: #fee2e2; color: #991b1b; }
+    .are-3 { background: #fef3c7; color: #92400e; }
+    .are-4 { background: #d1fae5; color: #065f46; }
+    .are-5 { background: #a7f3d0; color: #064e3b; }
+    .interdit-bar-bg { background: #e9ecef; border-radius: 4px; height: 18px; overflow: hidden; }
+    .interdit-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+    .badge-verdict-n0 { background: #065f46; color: #fff; }
+    .badge-verdict-rem { background: #991b1b; color: #fff; }
+    .relation-line { border-left: 3px solid #0d6efd; padding-left: 12px; margin-bottom: 8px; }
+    .filter-active { font-weight: 600; border-bottom: 2px solid #0d6efd; }
+    .skill-row { cursor: pointer; }
+    .skill-row:hover { background: rgba(13,110,253,0.04); }
+  </style>
+</head>
+<body>
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+    <div id="bdb-shell"
+         data-module-title="Audit N0 — Skills"
+         data-module-icon="bi-shield-check"
+         data-root-path="../">
+    </div>
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+
+        <div class="border-bottom bg-white px-3 py-2">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+              <li class="breadcrumb-item">
+                <a href="../admin/index.html" class="text-decoration-none">
+                  <i class="bi bi-speedometer2 me-1"></i>Administration
+                </a>
+              </li>
+              <li class="breadcrumb-item">
+                <a href="index.html" class="text-decoration-none">Atelier</a>
+              </li>
+              <li class="breadcrumb-item active">Audit N0 Skills</li>
+            </ol>
+          </nav>
+        </div>
+
+        <ul class="nav nav-tabs px-3 pt-2" id="auditTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-dashboard-btn" data-bs-toggle="tab"
+                    data-bs-target="#tab-dashboard" type="button" role="tab">
+              <i class="bi bi-graph-up me-1"></i>Dashboard
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-skills-btn" data-bs-toggle="tab"
+                    data-bs-target="#tab-skills" type="button" role="tab">
+              <i class="bi bi-list-ul me-1"></i>Skills <span id="skillCount" class="badge bg-secondary ms-1">0</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-relations-btn" data-bs-toggle="tab"
+                    data-bs-target="#tab-relations" type="button" role="tab">
+              <i class="bi bi-diagram-3 me-1"></i>Relations <span id="relCount" class="badge bg-secondary ms-1">0</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content px-3 pt-3 pb-4">
+
+          <!-- DASHBOARD -->
+          <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel">
+            <div id="dashLoading" class="placeholder-glow p-3">
+              <div class="placeholder col-8 rounded mb-3"></div>
+              <div class="placeholder col-5 rounded mb-2"></div>
+            </div>
+            <div id="dashContent" class="d-none"></div>
+          </div>
+
+          <!-- SKILLS TABLE -->
+          <div class="tab-pane fade" id="tab-skills" role="tabpanel">
+            <div id="skillsLoading" class="placeholder-glow p-3">
+              <div class="placeholder col-8 rounded mb-3"></div>
+            </div>
+            <div id="skillsContent" class="d-none"></div>
+          </div>
+
+          <!-- RELATIONS -->
+          <div class="tab-pane fade" id="tab-relations" role="tabpanel">
+            <div id="relsLoading" class="placeholder-glow p-3">
+              <div class="placeholder col-6 rounded mb-2"></div>
+            </div>
+            <div id="relsContent" class="d-none"></div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom"></span></small>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/bdb-ui.js"></script>
+  <script src="../js/bdb-invite-guard.js"></script>
+  <script src="../js/bdb-shell.js"></script>
+
+  <script>
+    const DB = window.bdb;
+
+    function escHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showState(prefix, state) {
+      for (const s of ['Loading', 'Content']) {
+        const el = document.getElementById(prefix + s);
+        if (el) el.classList.add('d-none');
+      }
+      const target = document.getElementById(prefix + state);
+      if (target) target.classList.remove('d-none');
+    }
+
+    /* ── KPI helpers ── */
+    function kpiCard(icon, value, label, color) {
+      return `<div class="col-6 col-md-3">
+        <div class="card kpi-card border-0 shadow-sm">
+          <div class="card-body text-center py-3">
+            <i class="bi ${escHtml(icon)} fs-4 text-${escHtml(color)} d-block mb-1"></i>
+            <div class="kpi-value text-${escHtml(color)}">${escHtml(String(value))}</div>
+            <div class="kpi-label text-muted mt-1">${escHtml(label)}</div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function spiraleBar(label, count, total, cssClass) {
+      const pct = total > 0 ? Math.round(count / total * 100) : 0;
+      return `<div class="d-flex align-items-center mb-2">
+        <span class="text-muted small" style="width:60px">${escHtml(label)}</span>
+        <div class="flex-fill mx-2">
+          <div class="spirale-bar ${escHtml(cssClass)}" style="width:${pct}%"></div>
+        </div>
+        <span class="text-muted small fw-bold">${count}</span>
+      </div>`;
+    }
+
+    function interditBar(label, covered, total) {
+      const pct = total > 0 ? Math.round(covered / total * 100) : 0;
+      const color = pct >= 60 ? '#198754' : pct >= 30 ? '#fd7e14' : '#dc3545';
+      return `<div class="d-flex align-items-center mb-2">
+        <span class="small text-muted" style="width:200px">${escHtml(label)}</span>
+        <div class="flex-fill mx-2 interdit-bar-bg">
+          <div class="interdit-bar-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <span class="small text-muted fw-bold">${covered}/${total}</span>
+      </div>`;
+    }
+
+    function areCell(val) {
+      if (val == null) return '<span class="are-cell are-2">—</span>';
+      return `<span class="are-cell are-${val}">${val}</span>`;
+    }
+
+    /* ── DASHBOARD ── */
+    async function loadDashboard(skills) {
+      const conformes = skills.filter(s => s.verdict === 'n0_conforme').length;
+      const remplacables = skills.filter(s => s.verdict === 'remplacable').length;
+      const withFab = skills.filter(s => s.a_fab3r === true && s.verdict === 'n0_conforme').length;
+      const totalConf = skills.filter(s => s.verdict === 'n0_conforme').length;
+
+      const spiraleCounts = {};
+      const enneaCounts = {};
+      const areDist = { 2: 0, 3: 0, 4: 0, 5: 0 };
+      const interdits = [0, 0, 0, 0, 0, 0];
+      const interditLabels = ['Cap silencieux', 'Destruction', 'Régression', 'Hallucination', 'Interprétation', 'Zoom'];
+
+      skills.filter(s => s.verdict === 'n0_conforme').forEach(s => {
+        spiraleCounts[s.spirale] = (spiraleCounts[s.spirale] || 0) + 1;
+        enneaCounts[s.type_ennea] = (enneaCounts[s.type_ennea] || 0) + 1;
+        if (s.are_emotion >= 2 && s.are_emotion <= 5) areDist[s.are_emotion]++;
+        if (s.interdit_1) interdits[0]++;
+        if (s.interdit_2) interdits[1]++;
+        if (s.interdit_3) interdits[2]++;
+        if (s.interdit_4) interdits[3]++;
+        if (s.interdit_5) interdits[4]++;
+        if (s.interdit_6) interdits[5]++;
+      });
+
+      let html = '<div class="row g-3 mb-4">';
+      html += kpiCard('bi-shield-check', conformes, 'N0-Conforme', 'success');
+      html += kpiCard('bi-arrow-repeat', remplacables, 'Remplaçable', 'danger');
+      html += kpiCard('bi-file-earmark-check', withFab, 'Avec FAB', 'primary');
+      html += kpiCard('bi-collection', skills.length, 'Total skills', 'secondary');
+      html += '</div>';
+
+      /* Spirale */
+      html += '<div class="row g-3 mb-4"><div class="col-md-6">';
+      html += '<div class="card border-0 shadow-sm"><div class="card-body">';
+      html += '<h6 class="text-muted mb-3"><i class="bi bi-layers me-1"></i>Spirale</h6>';
+      html += spiraleBar('Jaune', spiraleCounts.jaune || 0, totalConf, 'spirale-jaune');
+      html += spiraleBar('Orange', spiraleCounts.orange || 0, totalConf, 'spirale-orange');
+      html += spiraleBar('Bleu', spiraleCounts.bleu || 0, totalConf, 'spirale-bleu');
+      html += '</div></div></div>';
+
+      /* ARE-E */
+      html += '<div class="col-md-6">';
+      html += '<div class="card border-0 shadow-sm"><div class="card-body">';
+      html += '<h6 class="text-muted mb-3"><i class="bi bi-heart me-1"></i>ARE-Émotion</h6>';
+      [5, 4, 3, 2].forEach(e => {
+        const nb = areDist[e] || 0;
+        const pct = totalConf > 0 ? Math.round(nb / totalConf * 100) : 0;
+        const color = e >= 4 ? '#198754' : e === 3 ? '#fd7e14' : '#dc3545';
+        html += `<div class="d-flex align-items-center mb-2">
+          <span class="small text-muted" style="width:40px">E=${e}</span>
+          <div class="flex-fill mx-2 interdit-bar-bg">
+            <div class="interdit-bar-fill" style="width:${pct}%;background:${color}"></div>
+          </div>
+          <span class="small text-muted fw-bold">${nb}</span>
+        </div>`;
+      });
+      html += '</div></div></div></div>';
+
+      /* Interdits */
+      html += '<div class="card border-0 shadow-sm mb-4"><div class="card-body">';
+      html += '<h6 class="text-muted mb-3"><i class="bi bi-exclamation-triangle me-1"></i>Couverture des 6 interdits N0</h6>';
+      interdits.forEach((c, i) => {
+        html += interditBar(`${i + 1}. ${interditLabels[i]}`, c, totalConf);
+      });
+      html += '</div></div>';
+
+      document.getElementById('dashContent').innerHTML = html;
+      showState('dash', 'Content');
+    }
+
+    /* ── SKILLS TABLE ── */
+    function renderSkillsTable(skills, filter) {
+      const filtered = filter ? skills.filter(s => s.spirale === filter || s.verdict === filter) : skills;
+
+      let html = '<div class="mb-3 d-flex gap-2 flex-wrap">';
+      const filters = [
+        { key: null, label: 'Tous', icon: 'bi-grid' },
+        { key: 'jaune', label: 'Jaune', icon: 'bi-circle-fill text-warning' },
+        { key: 'orange', label: 'Orange', icon: 'bi-circle-fill' },
+        { key: 'bleu', label: 'Bleu', icon: 'bi-circle-fill text-primary' },
+        { key: 'remplacable', label: 'Remplaçable', icon: 'bi-x-circle text-danger' }
+      ];
+      filters.forEach(f => {
+        const active = (filter === f.key) || (!filter && !f.key) ? 'filter-active' : '';
+        html += `<button class="btn btn-sm btn-outline-secondary ${active}" data-filter="${f.key || ''}">
+          <i class="bi ${f.icon} me-1" style="${f.key === 'orange' ? 'color:#fd7e14' : ''}"></i>${f.label}
+        </button>`;
+      });
+      html += '</div>';
+
+      html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle">';
+      html += `<thead class="table-light"><tr>
+        <th>Skill</th><th>Spirale</th><th>Ennéa</th>
+        <th class="text-center">A</th><th class="text-center">R</th><th class="text-center">E</th>
+        <th>FAB</th><th>Fréquence</th><th>Verdict</th>
+      </tr></thead><tbody>`;
+
+      filtered.sort((a, b) => a.skill_name.localeCompare(b.skill_name)).forEach(s => {
+        const verdictBadge = s.verdict === 'n0_conforme'
+          ? '<span class="badge badge-verdict-n0">N0</span>'
+          : '<span class="badge badge-verdict-rem">REM</span>';
+        const fabIcon = s.a_fab3r ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle text-danger"></i>';
+        html += `<tr class="skill-row" data-skill="${escHtml(s.skill_name)}">
+          <td class="fw-semibold small">${escHtml(s.skill_name)}</td>
+          <td><span class="badge bg-${s.spirale === 'jaune' ? 'warning text-dark' : s.spirale === 'orange' ? 'warning text-dark' : 'primary'}">${escHtml(s.spirale || '—')}</span></td>
+          <td class="text-center">${s.type_ennea != null ? s.type_ennea : '—'}</td>
+          <td class="text-center">${areCell(s.are_action)}</td>
+          <td class="text-center">${areCell(s.are_reflexion)}</td>
+          <td class="text-center">${areCell(s.are_emotion)}</td>
+          <td class="text-center">${fabIcon}</td>
+          <td class="small text-muted">${escHtml(s.frequence || '—')}</td>
+          <td>${verdictBadge}</td>
+        </tr>`;
+        if (s.notes_audit) {
+          html += `<tr class="d-none" id="detail-${escHtml(s.skill_name)}">
+            <td colspan="9" class="small bg-light px-3 py-2">
+              <strong>Notes :</strong> ${escHtml(s.notes_audit)}
+              ${s.remplace_par ? '<br><strong>Remplacé par :</strong> ' + escHtml(s.remplace_par) : ''}
+            </td>
+          </tr>`;
+        }
+      });
+      html += '</tbody></table></div>';
+
+      document.getElementById('skillsContent').innerHTML = html;
+      showState('skills', 'Content');
+      document.getElementById('skillCount').textContent = filtered.length;
+
+      /* Filter clicks */
+      document.getElementById('skillsContent').querySelectorAll('[data-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const f = btn.dataset.filter || null;
+          renderSkillsTable(skills, f);
+        });
+      });
+
+      /* Row expand */
+      document.getElementById('skillsContent').querySelectorAll('.skill-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const detail = document.getElementById('detail-' + row.dataset.skill);
+          if (detail) detail.classList.toggle('d-none');
+        });
+      });
+    }
+
+    /* ── RELATIONS ── */
+    async function loadRelations() {
+      const { data, error } = await DB.from('skill_relations')
+        .select('*').order('skill_source');
+      if (error) { console.error(error); return; }
+
+      document.getElementById('relCount').textContent = data.length;
+
+      const typeIcons = {
+        depend_de: 'bi-arrow-right text-primary',
+        complete: 'bi-puzzle text-success',
+        remplace: 'bi-arrow-repeat text-danger',
+        collisionne_avec: 'bi-exclamation-triangle text-warning'
+      };
+      const typeLabels = {
+        depend_de: 'dépend de',
+        complete: 'complète',
+        remplace: 'remplace',
+        collisionne_avec: 'collision avec'
+      };
+
+      /* Group by source */
+      const groups = {};
+      data.forEach(r => {
+        if (!groups[r.skill_source]) groups[r.skill_source] = [];
+        groups[r.skill_source].push(r);
+      });
+
+      let html = '';
+      if (data.length === 0) {
+        html = '<div class="text-center py-5 text-muted"><i class="bi bi-diagram-3 fs-1 d-block mb-2"></i><p>Aucune relation enregistrée.</p></div>';
+      } else {
+        /* Stats par type */
+        html += '<div class="row g-2 mb-4">';
+        Object.entries(typeLabels).forEach(([key, label]) => {
+          const count = data.filter(r => r.type_relation === key).length;
+          if (count > 0) {
+            html += `<div class="col-auto"><span class="badge bg-light text-dark border">
+              <i class="bi ${typeIcons[key]} me-1"></i>${label} : ${count}
+            </span></div>`;
+          }
+        });
+        html += '</div>';
+
+        Object.keys(groups).sort().forEach(source => {
+          html += `<div class="mb-3">`;
+          html += `<div class="fw-semibold small mb-1">${escHtml(source)}</div>`;
+          groups[source].forEach(r => {
+            html += `<div class="relation-line small">
+              <i class="bi ${typeIcons[r.type_relation] || 'bi-link'} me-1"></i>
+              <span class="text-muted">${escHtml(typeLabels[r.type_relation] || r.type_relation)}</span>
+              <strong class="ms-1">${escHtml(r.skill_cible)}</strong>
+              ${r.notes ? '<br><span class="text-muted fst-italic">' + escHtml(r.notes) + '</span>' : ''}
+            </div>`;
+          });
+          html += '</div>';
+        });
+      }
+
+      document.getElementById('relsContent').innerHTML = html;
+      showState('rels', 'Content');
+    }
+
+    /* ── INIT ── */
+    document.addEventListener('DOMContentLoaded', async () => {
+      await window.bdbShellReady;
+
+      if (!window.bdbUser.isCreator) {
+        document.querySelector('main').innerHTML =
+          '<div class="text-center py-5 text-muted"><i class="bi bi-shield-lock fs-1 d-block mb-3"></i><p>Accès réservé au créateur.</p></div>';
+        return;
+      }
+
+      /* Load all skills */
+      const { data: skills, error } = await DB.from('skill_audit_n0')
+        .select('*').order('skill_name');
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      document.getElementById('skillCount').textContent = skills.length;
+
+      /* Dashboard */
+      await loadDashboard(skills);
+
+      /* Lazy load tabs */
+      let skillsLoaded = false, relsLoaded = false;
+
+      document.getElementById('tab-skills-btn').addEventListener('shown.bs.tab', () => {
+        if (!skillsLoaded) { renderSkillsTable(skills, null); skillsLoaded = true; }
+      });
+
+      document.getElementById('tab-relations-btn').addEventListener('shown.bs.tab', async () => {
+        if (!relsLoaded) { await loadRelations(); relsLoaded = true; }
+      });
+    });
+  </script>
+</body>
+</html>

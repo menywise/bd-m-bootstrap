@@ -1,0 +1,425 @@
+<!--
+  PROJECT  : Des Blocs & Moi (DB&M)
+  FILE     : audiences.html v5.2.0
+  MODULE   : site/
+  DATE     : 2026-04-09
+  AUTEUR   : Manu + Claude
+  DELTA    : v5.1→v5.2 — Session #47. Tab Direction : ajout lien instances.html
+             (preuve sociale avant formulaire CTA). Lien "Voir les déploiements en cours".
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../js/bdb-pwa.js"></script>
+  <title>Pour qui DBM — IBODE, IADE, cadres, médecins</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../css/dbm-theme.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="site-ui.css" rel="stylesheet"/>
+  <meta name="description" content="Pour qui Des Blocs & Moi ? IBODE, IADE, infirmières, cadres, médecins. Adapté à chaque acteur du bloc opératoire."/>
+  <meta name="keywords" content="IBODE, IADE, infirmières, cadres bloc, médecins, audiences"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/site/audiences.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Pour qui Des Blocs & Moi"/>
+  <meta property="og:description" content="IBODE, IADE, infirmières, cadres, médecins. Adapté à chaque acteur du bloc opératoire."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/site/audiences.html"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Pour qui Des Blocs & Moi"/>
+  <meta name="twitter:description" content="IBODE, IADE, infirmières, cadres, médecins. Adapté à chaque acteur du bloc opératoire."/>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Des Blocs & Moi","url":"https://lebloc.fr/dbm/site/audiences.html","inLanguage":"fr-FR","publisher":{"@type":"Organization","name":"Des Blocs & Moi"}}
+</script>
+</head>
+<body>
+
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-controls="mainMenu" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">Pour qui ?</span>
+    </div>
+    <a href="../login.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1"><i class="bi bi-grid-3x3-gap me-1"></i>Mon espace</a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <div class="container py-4">
+      <div class="bg-primary bg-gradient text-white doc-header-primary">
+        <h1 class="mb-2"><i class="bi bi-people me-2"></i>Pour qui ?</h1>
+        <p class="mb-0 opacity-75">Clique sur ton profil — ou sur celui de ton équipe</p>
+      </div>
+    </div>
+
+    <section class="py-4 section-white" id="audiences-tabs">
+      <div class="container">
+        <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="nouveau-tab" data-bs-toggle="tab" data-bs-target="#nouveau" type="button" role="tab">
+              <i class="bi bi-person-plus me-1"></i><span class="d-none d-sm-inline">Tu arrives</span><span class="d-sm-none">Nv.</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="ancien-tab" data-bs-toggle="tab" data-bs-target="#ancien" type="button" role="tab">
+              <i class="bi bi-person-check me-1"></i><span class="d-none d-sm-inline">Tu sais</span><span class="d-sm-none">Anc.</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="equipe-tab" data-bs-toggle="tab" data-bs-target="#equipe" type="button" role="tab">
+              <i class="bi bi-people me-1"></i><span class="d-none d-sm-inline">Ton équipe</span><span class="d-sm-none">Éq.</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="direction-tab" data-bs-toggle="tab" data-bs-target="#direction" type="button" role="tab">
+              <i class="bi bi-building me-1"></i><span class="d-none d-sm-inline">Direction</span><span class="d-sm-none">Dir.</span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="chirurgiens-tab" data-bs-toggle="tab" data-bs-target="#chirurgiens" type="button" role="tab">
+              <i class="bi bi-heart-pulse me-1"></i><span class="d-none d-sm-inline">Chirurgiens</span><span class="d-sm-none">Chir.</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="profileTabsContent">
+
+          <!-- TAB NOUVEAU — tu -->
+          <div class="tab-pane fade show active" id="nouveau" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-person-plus text-primary fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Tu arrives</h2>
+                <p class="text-muted mb-0">Trouver ce dont tu as besoin — sans avoir à le demander</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              Les premiers mois, tout semble aller de soi pour les autres.
+              Toi, tu cherches — où c'est rangé, comment ça fonctionne, qui fait quoi.
+              <span class="app-nom"></span> est là pour ça.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-shield-check text-success me-2"></i>Tu cherches seul</h5>
+                  <p class="mb-0 text-muted">Tu tapes un mot, tu trouves. Pas besoin de déranger quelqu'un pour chaque question.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-eye-slash text-success me-2"></i>Personne ne juge</h5>
+                  <p class="mb-0 text-muted">Tu cherches à ton rythme, discrètement. Ne pas savoir quelque chose n'est pas exposé.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-graph-up text-success me-2"></i>Tu progresses</h5>
+                  <p class="mb-0 text-muted">Les informations clés sont accessibles quand tu en as besoin. Tu montes en compétence sans attendre.</p>
+                </div>
+              </div>
+            </div>
+            <div class="border-top mt-4 pt-4"
+                 data-cta-persona="nouveau"
+                 data-cta-hook="Envie d'essayer BDB ?">
+              <p class="text-muted small mb-2 text-center"><i class="bi bi-play-circle me-1"></i>Envie d'essayer <span class="app-nom"></span> ?</p>
+              <div class="d-flex gap-2 justify-content-center">
+                <input type="text" class="form-control form-control-sm cta-mini-contact" placeholder="Ton email ou téléphone" maxlength="120" aria-label="Email ou téléphone"/>
+                <button class="btn btn-sm btn-outline-primary cta-mini-btn text-nowrap">Être contacté</button>
+              </div>
+              <div class="cta-mini-success d-none small text-success mt-2 text-center"><i class="bi bi-check-circle me-1"></i>Reçu — à très vite !</div>
+              <div class="cta-mini-error d-none small text-danger mt-2 text-center"></div>
+            </div>
+          </div>
+
+          <!-- TAB ANCIEN — tu -->
+          <div class="tab-pane fade" id="ancien" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-person-check text-success fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Tu sais</h2>
+                <p class="text-muted mb-0">Partager une fois — ne plus avoir à répéter</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              Tu as répondu aux mêmes questions des dizaines de fois.
+              Tu as essayé de transmettre — les classeurs, les formations, les explications.
+              <span class="app-nom"></span> te permet d'écrire une fois ce que tu sais. Après, l'app répond à ta place.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-clock text-success me-2"></i>Moins de répétitions</h5>
+                  <p class="mb-0 text-muted">Les questions simples trouvent réponse sans toi. Tu gardes du temps pour ce qui mérite vraiment une conversation.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-award text-success me-2"></i>Ton nom reste</h5>
+                  <p class="mb-0 text-muted">Ce que tu écris est signé. Ton expertise est attribuée. Ton savoir survit à ton départ.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-success h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-heart text-success me-2"></i>Tu choisis quand</h5>
+                  <p class="mb-0 text-muted">Tu contribues quand tu veux, si tu veux. Une entrée utile vaut mieux que dix contributions vides.</p>
+                </div>
+              </div>
+            </div>
+            <div class="border-top mt-4 pt-4"
+                 data-cta-persona="ancien"
+                 data-cta-hook="Envie de faire découvrir BDB à ton équipe ?">
+              <p class="text-muted small mb-2 text-center"><i class="bi bi-share me-1"></i>Envie de faire découvrir <span class="app-nom"></span> à ton équipe ?</p>
+              <div class="d-flex gap-2 justify-content-center">
+                <input type="text" class="form-control form-control-sm cta-mini-contact" placeholder="Ton email ou téléphone" maxlength="120" aria-label="Email ou téléphone"/>
+                <button class="btn btn-sm btn-outline-primary cta-mini-btn text-nowrap">Être contacté</button>
+              </div>
+              <div class="cta-mini-success d-none small text-success mt-2 text-center"><i class="bi bi-check-circle me-1"></i>Reçu — à très vite !</div>
+              <div class="cta-mini-error d-none small text-danger mt-2 text-center"></div>
+            </div>
+          </div>
+
+          <!-- TAB ÉQUIPE — tu -->
+          <div class="tab-pane fade" id="equipe" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-people text-info fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Ton équipe</h2>
+                <p class="text-muted mb-0">Moins de frictions. Plus de fluidité.</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              Les tensions au quotidien viennent souvent de petites choses —
+              une question posée au mauvais moment, une information qu'on n'avait pas,
+              une habitude que personne n'a pris le temps d'écrire. <span class="app-nom"></span> réduit ce bruit de fond.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-info h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-chat-dots text-info me-2"></i>L'ambiance s'allège</h5>
+                  <p class="mb-0 text-muted">Moins de questions répétitives, moins d'impatiences. L'atmosphère s'améliore naturellement.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-info h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-arrow-repeat text-info me-2"></i>Les départs ne font plus peur</h5>
+                  <p class="mb-0 text-muted">Le savoir de l'équipe ne part plus avec les individus. Les nouvelles arrivées s'intègrent plus vite.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-info h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-shield text-info me-2"></i>La mémoire collective existe</h5>
+                  <p class="mb-0 text-muted">Ce que l'équipe a construit ensemble est consultable — pas perdu dans les têtes.</p>
+                </div>
+              </div>
+            </div>
+            <div class="border-top mt-4 pt-4"
+                 data-cta-persona="equipe"
+                 data-cta-hook="Voir BDB en action pour votre équipe ?">
+              <p class="text-muted small mb-2 text-center"><i class="bi bi-calendar-check me-1"></i>Voir <span class="app-nom"></span> en action pour votre équipe ?</p>
+              <div class="d-flex gap-2 justify-content-center">
+                <input type="text" class="form-control form-control-sm cta-mini-contact" placeholder="Votre email ou téléphone" maxlength="120" aria-label="Email ou téléphone"/>
+                <button class="btn btn-sm btn-outline-primary cta-mini-btn text-nowrap">Être contacté</button>
+              </div>
+              <div class="cta-mini-success d-none small text-success mt-2 text-center"><i class="bi bi-check-circle me-1"></i>Reçu — à très vite !</div>
+              <div class="cta-mini-error d-none small text-danger mt-2 text-center"></div>
+              <p class="text-muted small mt-3 mb-0 text-center">
+                Tu veux d'abord comprendre ce que <span class="app-nom"></span> ne fait pas ?
+                <a href="pas-app.html" class="text-muted">Voir les limites claires →</a>
+              </p>
+            </div>
+          </div>
+
+          <!-- TAB DIRECTION — vous -->
+          <div class="tab-pane fade" id="direction" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-building text-secondary fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Direction</h2>
+                <p class="text-muted mb-0">Initiative terrain — résultats mesurables</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              <span class="app-nom"></span> est porté par l'équipe, pour l'équipe.
+              Zéro coût IT, zéro données patient, zéro risque juridique.
+              Pour la direction, c'est un levier RH à coût nul
+              avec des effets concrets sur l'intégration et la qualité.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-graph-up-arrow text-secondary me-2"></i>Intégration accélérée</h5>
+                  <p class="mb-0 text-muted">Les nouveaux arrivants trouvent l'information sans attendre. Le temps d'autonomie opérationnelle se réduit.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-shield-check text-secondary me-2"></i>Continuité assurée</h5>
+                  <p class="mb-0 text-muted">Le départ d'un expert ne détruit plus son savoir. La continuité de service ne dépend plus des individus seuls.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-emoji-smile text-secondary me-2"></i>Climat amélioré</h5>
+                  <p class="mb-0 text-muted">Réduction des tensions liées aux questions répétitives. Un indicateur bien-être qui se mesure dans les retours terrain.</p>
+                </div>
+              </div>
+            </div>
+            <div class="alert alert-secondary mt-4 mb-0 small">
+              <i class="bi bi-info-circle me-2"></i>
+              <span class="app-nom"></span> ne contient aucune donnée patient. Aucun protocole médical opposable.
+              L'app est portée bénévolement — elle ne génère pas de coût IT.
+            </div>
+
+            <!-- #47 — Lien preuve sociale vers instances.html avant le formulaire -->
+            <div class="text-center mt-4">
+              <a href="instances.html" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-geo-alt me-1"></i>Voir les chiffres du déploiement en cours
+              </a>
+            </div>
+
+            <div class="panel mt-4" id="direction-cta-panel">
+              <div class="text-center mb-4">
+                <i class="bi bi-calendar-check text-primary fs-2 d-block mb-2"></i>
+                <h4 class="fw-semibold mb-1">Voir <span class="app-nom"></span> en action</h4>
+                <p class="text-muted small mb-0">Demandez un accès ou une démonstration — sans engagement.</p>
+              </div>
+              <div id="ctaSuccess" class="d-none text-center py-3">
+                <i class="bi bi-check-circle text-success fs-2 d-block mb-2"></i>
+                <p class="fw-semibold mb-1">Demande envoyée — merci !</p>
+                <p class="text-muted small mb-0">Vous serez contacté dans les meilleurs délais.</p>
+              </div>
+              <div id="ctaError" class="alert alert-danger d-none small mb-3" role="alert"></div>
+              <div id="ctaForm">
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <label class="form-label form-label-sm" for="ctaNom">Nom *</label>
+                    <input type="text" class="form-control form-control-sm" id="ctaNom" maxlength="80" placeholder="Dupont" required/>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label form-label-sm" for="ctaPrenom">Prénom *</label>
+                    <input type="text" class="form-control form-control-sm" id="ctaPrenom" maxlength="80" placeholder="Marie" required/>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label form-label-sm" for="ctaEtablissement">Établissement *</label>
+                    <input type="text" class="form-control form-control-sm" id="ctaEtablissement" maxlength="120" placeholder="CH de…" required/>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="form-label form-label-sm" for="ctaFonction">Fonction *</label>
+                    <input type="text" class="form-control form-control-sm" id="ctaFonction" maxlength="80" placeholder="Directeur des soins, DSI…" required/>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label form-label-sm" for="ctaContact">Téléphone ou email *</label>
+                    <input type="text" class="form-control form-control-sm" id="ctaContact" maxlength="120" placeholder="06 12 34 56 78 ou nom@etablissement.fr" required/>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label form-label-sm" for="ctaMessage">Message (optionnel)</label>
+                    <textarea class="form-control form-control-sm" id="ctaMessage" rows="3" maxlength="800" placeholder="Contexte, questions particulières, créneau préféré…"></textarea>
+                  </div>
+                </div>
+                <!-- Honeypot anti-bot -->
+                <div class="visually-hidden">
+                  <input type="text" id="ctaHoneypot" tabindex="-1" autocomplete="off"/>
+                </div>
+                <button class="btn btn-module w-100 mt-3" id="btnCtaSend">
+                  <i class="bi bi-send me-2"></i>Envoyer ma demande
+                </button>
+                <p class="text-muted text-center mt-2 mb-0 small">
+                  Ces informations sont utilisées uniquement pour vous recontacter. Aucune donnée patient transmise.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB CHIRURGIENS — vous -->
+          <div class="tab-pane fade" id="chirurgiens" role="tabpanel">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <div class="profil-badge bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                <i class="bi bi-heart-pulse text-danger fs-3"></i>
+              </div>
+              <div>
+                <h2 class="mb-1 fs-4">Chirurgiens</h2>
+                <p class="text-muted mb-0">Des équipes qui arrivent préparées</p>
+              </div>
+            </div>
+            <p class="text-muted mb-4">
+              Une équipe qui a cherché avant d'entrer en salle hésite moins, interrompt moins, attend moins.
+              <span class="app-nom"></span> documente ce que vous attendez de votre équipe —
+              pour que ce ne soit plus une surprise à chaque nouvelle arrivée.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-danger h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-check2-all text-danger me-2"></i>Moins d'hésitations</h5>
+                  <p class="mb-0 text-muted">Les IDE arrivent mieux préparés. Moins d'interruptions pendant l'intervention.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-danger h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-person-heart text-danger me-2"></i>Vos préférences documentées</h5>
+                  <p class="mb-0 text-muted">Ce que vous utilisez, comment vous travaillez — l'équipe sait, même quand elle n'a pas encore travaillé avec vous.</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-danger h-100">
+                  <h5 class="fw-semibold mb-2"><i class="bi bi-clock-history text-danger me-2"></i>Fluidité opératoire</h5>
+                  <p class="mb-0 text-muted">Le bon matériel, au bon endroit, connu par tous. Moins d'attente, plus de concentration sur l'acte.</p>
+                </div>
+              </div>
+            </div>
+            <div class="border-top mt-4 pt-4"
+                 data-cta-persona="chirurgiens"
+                 data-cta-hook="Voir comment vos préférences seraient documentées ?">
+              <p class="text-muted small mb-2 text-center"><i class="bi bi-calendar-check me-1"></i>Voir comment vos préférences seraient documentées ?</p>
+              <div class="d-flex gap-2 justify-content-center">
+                <input type="text" class="form-control form-control-sm cta-mini-contact" placeholder="Votre email ou téléphone" maxlength="120" aria-label="Email ou téléphone"/>
+                <button class="btn btn-sm btn-outline-primary cta-mini-btn text-nowrap">Être contacté</button>
+              </div>
+              <div class="cta-mini-success d-none small text-success mt-2 text-center"><i class="bi bi-check-circle me-1"></i>Reçu — à très vite !</div>
+              <div class="cta-mini-error d-none small text-danger mt-2 text-center"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="py-4 site-nav-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6"><a href="pas-app.html" class="text-primary text-decoration-none fw-semibold"><i class="bi bi-arrow-left me-2"></i>Ce que ce n'est pas</a></div>
+          <div class="col-6 text-end"><a href="fonctionnalites.html" class="text-primary text-decoration-none fw-semibold">Fonctions<i class="bi bi-arrow-right ms-2"></i></a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <footer class="py-3 text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System — <a href="accessibilite.html" class="text-muted text-decoration-none">Accessibilité : WCAG AA</a></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="site-nav.js"></script>
+<script src="audiences-cta.js"></script>
+  <!-- Hydratation app-nom (sans bdb-shell) — réutilise window.bdb chargé ci-dessus -->
+  <script src="../js/bdb-site-hydrate.js"></script>
+</body>
+</html>

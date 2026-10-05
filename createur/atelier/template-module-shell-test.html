@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: TEST | Auth: bdb-shell.js | Shell: oui | Theme: DBM -->
+<!-- TEST : cette page utilise bdb-shell.js en mode data-shell-theme="dbm"
+     pour verifier que le shell genere correctement le markup DBM.
+     Comparer visuellement avec template-module-demo.html (sidebar/header statiques).
+     Prerequis : etre connecte sur localhost:5500 (session Supabase active). -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Test Shell DBM — Glossaire</title>
+  <!-- BLOC E CSS : Bootstrap + dbm-theme (PAS theme-base, PAS cds-overrides) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+</head>
+
+<body class="sidebar-closed" data-root-path="../../">
+
+<div id="wrapper">
+  <!-- INTERDIT-E1 : #bdb-shell premier enfant de #wrapper -->
+  <div id="bdb-shell"
+       data-module-title="Glossaire"
+       data-module-icon="bi-book"
+       data-root-path="../../"
+       data-login-mode="modal"
+       data-shell-theme="dbm"></div>
+
+  <div id="wrapper_content">
+    <div class="app-layout">
+      <main class="app-main" id="main-content">
+        <div class="app-content">
+
+          <!-- Breadcrumb -->
+          <nav class="app-breadcrumb" aria-label="Fil d'Ariane">
+            <a href="#">Accueil</a>
+            <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+            <span>Glossaire</span>
+          </nav>
+
+          <!-- Page title -->
+          <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
+            <div>
+              <h1 style="font-size:1.5rem;font-weight:700;margin:0">Glossaire chirurgical</h1>
+              <p style="font-size:.85rem;color:var(--app-text-muted);margin:.25rem 0 0">
+                567 termes &middot; Derniere mise a jour : 02/05/2026
+              </p>
+            </div>
+            <button class="btn btn-primary btn-sm" style="gap:.35rem;display:inline-flex;align-items:center">
+              <i class="bi bi-plus-lg"></i> Nouveau terme
+            </button>
+          </div>
+
+          <!-- KPI row -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+              <div class="app-kpi">
+                <div class="app-kpi-value text-primary">567</div>
+                <div class="app-kpi-label">Termes</div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="app-kpi">
+                <div class="app-kpi-value" style="color:#198754">8</div>
+                <div class="app-kpi-label">Categories</div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="app-kpi">
+                <div class="app-kpi-value" style="color:#6f42c1">42</div>
+                <div class="app-kpi-label">Eponymes</div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="app-kpi">
+                <div class="app-kpi-value" style="color:#fd7e14">89%</div>
+                <div class="app-kpi-label">Avec definition</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main card -->
+          <div class="app-card">
+
+            <!-- Tabs -->
+            <div class="app-card-header" style="flex-direction:column;align-items:stretch;gap:1rem">
+              <div class="app-tabs">
+                <button class="app-tab active" data-tab="tous">Tous les termes</button>
+                <button class="app-tab" data-tab="recents">Recemment ajoutes</button>
+                <button class="app-tab" data-tab="orphelins">Sans definition</button>
+              </div>
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <div style="position:relative;flex:1;min-width:180px;max-width:320px">
+                  <i class="bi bi-search" style="position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:var(--app-text-muted);font-size:.8rem"></i>
+                  <input type="search" class="form-control form-control-sm" style="padding-left:2rem"
+                         placeholder="Filtrer les termes..." aria-label="Filtrer les termes" id="filterInput">
+                </div>
+                <select class="form-select form-select-sm" style="width:auto;min-width:140px" aria-label="Filtrer par categorie">
+                  <option value="">Toutes categories</option>
+                  <option>Abreviation</option>
+                  <option>Anatomie</option>
+                  <option>Eponyme</option>
+                  <option>Materiel</option>
+                  <option>Pathologie</option>
+                  <option>Technique</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div class="app-card-body" style="padding:0">
+              <div style="overflow-x:auto">
+                <table class="app-table" id="glossaireTable">
+                  <thead>
+                    <tr>
+                      <th style="width:28%">Terme</th>
+                      <th class="col-hide-mobile" style="width:38%">Definition</th>
+                      <th style="width:14%">Categorie</th>
+                      <th class="col-hide-mobile" style="width:10%">Variantes</th>
+                      <th style="width:10%;text-align:right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="glossaireBody">
+                    <!-- JS generated -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="app-card-footer">
+              <span style="font-size:.8rem;color:var(--app-text-muted)">
+                1 - 10 sur 567 termes
+              </span>
+              <div class="app-pagination">
+                <button class="app-page-btn" disabled aria-label="Page precedente"><i class="bi bi-chevron-left"></i></button>
+                <button class="app-page-btn active">1</button>
+                <button class="app-page-btn">2</button>
+                <button class="app-page-btn">3</button>
+                <span style="padding:0 .25rem;color:var(--app-text-muted)">...</span>
+                <button class="app-page-btn">57</button>
+                <button class="app-page-btn" aria-label="Page suivante"><i class="bi bi-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /app-content -->
+
+        <!-- Footer -->
+        <footer class="app-footer">
+          <span>&copy; 2026 <span class="app-nom">Des Blocs &amp; Moi</span></span>
+          <div class="d-flex gap-3">
+            <a href="#">Aide</a>
+            <a href="#">Accessibilite</a>
+            <a href="#">Mentions legales</a>
+          </div>
+        </footer>
+
+      </main>
+    </div><!-- /app-layout -->
+  </div><!-- /wrapper_content -->
+</div><!-- /wrapper -->
+
+<!-- Chaine JS (ordre immuable) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+
+<!-- Module JS (demo data) -->
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+  // Attendre que le shell soit pret
+  await window.bdbShellReady;
+
+  // Tabs
+  document.querySelectorAll('.app-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.app-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+    });
+  });
+
+  // Demo data
+  var termes = [
+    { terme: 'Arthroscopie', def: 'Technique chirurgicale mini-invasive permettant l\'exploration et le traitement des articulations a l\'aide d\'un arthroscope.', cat: 'Technique', badge: 'app-badge-green', variantes: 3 },
+    { terme: 'Bankart (lesion de)', def: 'Desinsertion du bourrelet glenoidal antero-inferieur, generalement post-traumatique, responsable d\'instabilite anterieure de l\'epaule.', cat: 'Eponyme', badge: 'app-badge-purple', variantes: 1 },
+    { terme: 'Broche de Kirschner', def: 'Tige metallique fine utilisee pour la fixation temporaire ou definitive de fragments osseux.', cat: 'Materiel', badge: 'app-badge-amber', variantes: 2 },
+    { terme: 'Cimentoplastie', def: 'Injection de ciment chirurgical (PMMA) dans un corps vertebral fragilise pour le consolider.', cat: 'Technique', badge: 'app-badge-green', variantes: 1 },
+    { terme: 'Decubitus dorsal', def: 'Position du patient couche sur le dos, membres superieurs le long du corps ou sur des appui-bras.', cat: 'Anatomie', badge: 'app-badge-blue', variantes: 2 },
+    { terme: 'ECA', def: 'Actes Exclusifs pratiques par les IBODE : mise en place des champs, gestion instrumentiste, aide operatoire.', cat: 'Abreviation', badge: 'app-badge-blue', variantes: 0 },
+    { terme: 'FESF', def: 'Fracture de l\'extremite superieure du femur. Urgence traumatologique frequente chez le sujet age.', cat: 'Abreviation', badge: 'app-badge-blue', variantes: 1 },
+    { terme: 'Garrot pneumatique', def: 'Dispositif de compression circulaire applique sur un membre pour obtenir un champ operatoire exsangue.', cat: 'Materiel', badge: 'app-badge-amber', variantes: 1 },
+    { terme: 'Hill-Sachs (encoche de)', def: 'Fracture par impaction de la tete humerale postero-laterale consecutivement a une luxation anterieure de l\'epaule.', cat: 'Eponyme', badge: 'app-badge-purple', variantes: 0 },
+    { terme: 'Interligne articulaire', def: 'Espace entre deux surfaces articulaires visible en imagerie ou repere cliniquement lors de l\'examen.', cat: 'Anatomie', badge: 'app-badge-blue', variantes: 1 },
+  ];
+
+  var tbody = document.getElementById('glossaireBody');
+  tbody.innerHTML = termes.map(function(t) {
+    var defTrunc = t.def.length > 80 ? t.def.substring(0, 80) + '...' : t.def;
+    var varBadge = t.variantes > 0
+      ? '<span class="app-badge app-badge-gray">' + t.variantes + '</span>'
+      : '<span style="color:var(--app-text-muted)">—</span>';
+    return '<tr>'
+      + '<td><strong>' + t.terme + '</strong></td>'
+      + '<td class="col-hide-mobile" style="color:var(--app-text-muted)">' + defTrunc + '</td>'
+      + '<td><span class="app-badge ' + t.badge + '">' + t.cat + '</span></td>'
+      + '<td class="col-hide-mobile" style="text-align:center">' + varBadge + '</td>'
+      + '<td style="text-align:right">'
+      + '<div style="display:flex;gap:4px;justify-content:flex-end">'
+      + '<a class="app-icon-btn" title="Voir" role="button" aria-label="Voir ' + t.terme + '"><i class="bi bi-eye"></i></a>'
+      + '<a class="app-icon-btn" title="Modifier" role="button" aria-label="Modifier ' + t.terme + '"><i class="bi bi-pencil"></i></a>'
+      + '<a class="app-icon-btn app-icon-btn--danger" title="Supprimer" role="button" aria-label="Supprimer ' + t.terme + '"><i class="bi bi-trash3"></i></a>'
+      + '</div>'
+      + '</td>'
+      + '</tr>';
+  }).join('');
+
+  // Filter
+  document.getElementById('filterInput').addEventListener('input', function(e) {
+    var q = e.target.value.toLowerCase();
+    var rows = tbody.querySelectorAll('tr');
+    rows.forEach(function(row) {
+      var text = row.textContent.toLowerCase();
+      row.style.display = text.indexOf(q) >= 0 ? '' : 'none';
+    });
+  });
+});
+</script>
+
+</body>
+</html>

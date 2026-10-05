@@ -1,0 +1,41 @@
+/* ============================================================================
+   PEDAGOGIE — UI module (V5.1)
+   Module : Pédagogie (savoir / indigo pastel)
+   Statut : coquille placeholder — _RESERVE.md
+   Doctrine : CONV-CHAIN-E V5.1, INTERDIT-MODULE-COLOR-01
+   ============================================================================ */
+
+/* ── Bandeau page (pattern uniforme cross-modules) ─────────────────── */
+
+.pedago-page-banner {
+  background: linear-gradient(135deg, var(--module-color) 0%, var(--module-color-strong) 100%);
+  color: var(--module-color-text);
+}
+
+.pedago-page-subtitle {
+  opacity: 0.75;
+}
+
+/* ── Empty state placeholder ──────────────────────────────────────── */
+
+.pedago-empty {
+  padding: 4rem 1rem;
+}
+
+.pedago-empty-icon {
+  font-size: 3rem;
+  color: var(--app-text-muted);
+}
+
+.pedago-empty-title {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 1rem 0 0.5rem;
+}
+
+.pedago-empty-text {
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+  max-width: 480px;
+  margin: 0 auto;
+}

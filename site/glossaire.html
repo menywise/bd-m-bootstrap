@@ -1,0 +1,654 @@
+<!--
+  PROJECT  : Des Blocs & Moi (DB&M)
+  FILE     : glossaire.html v1.1.0
+  MODULE   : site/
+  DATE     : 2026-03-14
+  AUTEUR   : Manu + Claude
+  DELTA    : v1.0.0 → v1.1.0
+             - Badges catégorie : couleur pleine + libellé lisible (suppression bg-opacity-15)
+             - Catégories CRUD : dynamiques, éditables via modale "Gérer les catégories"
+             - Définitions termes techniques simplifiées : zéro jargon imbrique,
+               lisibles par un non-technicien
+             - Catégorie "outil" conservée mais redéfinie sans termes techniques internes
+  RÈGLES : Zéro style inline / Zéro handler inline / BI uniquement / data-bs-theme="light"
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../js/bdb-pwa.js"></script>
+  <title>Glossaire DBM — Démo termes du bloc opératoire</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../css/dbm-theme.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="site-ui.css" rel="stylesheet"/>
+  <meta name="description" content="Glossaire chirurgical Des Blocs & Moi : démo grand public du glossaire métier IBODE, ortho-trauma."/>
+  <meta name="keywords" content="glossaire chirurgical, abréviations bloc, éponymes IBODE"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/site/glossaire.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Glossaire chirurgical DBM (démo)"/>
+  <meta property="og:description" content="Démo grand public du glossaire métier IBODE, ortho-trauma."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/site/glossaire.html"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Glossaire chirurgical DBM (démo)"/>
+  <meta name="twitter:description" content="Démo grand public du glossaire métier IBODE, ortho-trauma."/>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Des Blocs & Moi","url":"https://lebloc.fr/dbm/site/glossaire.html","inLanguage":"fr-FR","publisher":{"@type":"Organization","name":"Des Blocs & Moi"}}
+</script>
+</head>
+<body>
+
+<!-- OFFCANVAS -->
+
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-controls="mainMenu" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">Lexique</span>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-secondary" id="btnManageCats">
+        <i class="bi bi-tags me-1"></i>Catégories
+      </button>
+      <button class="btn btn-sm btn-primary" id="btnAddTerm">
+        <i class="bi bi-plus-circle me-1"></i>Ajouter
+      </button>
+      <a href="../login.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1"><i class="bi bi-grid-3x3-gap me-1"></i>Mon espace</a>
+    </div>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <div class="container py-4">
+      <div class="bg-primary bg-gradient text-white doc-header-primary">
+        <h1 class="mb-2"><i class="bi bi-journal-text me-2"></i>Lexique <span class="app-nom"></span></h1>
+        <p class="mb-0 opacity-75">Termes du projet, méthodes, outils — expliqués simplement</p>
+      </div>
+    </div>
+
+    <!-- BARRE RECHERCHE + FILTRES -->
+    <section class="py-3 section-white border-bottom">
+      <div class="container">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+              <input type="search" class="form-control border-start-0" id="searchGlossaire" placeholder="Chercher un terme...">
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="d-flex gap-2 flex-wrap" id="filterBtns"></div>
+          </div>
+        </div>
+        <div class="mt-2">
+          <small class="text-muted" id="countLabel"></small>
+        </div>
+      </div>
+    </section>
+
+    <!-- NAVIGATION ALPHABÉTIQUE -->
+    <section class="py-2 section-soft border-bottom">
+      <div class="container">
+        <div class="d-flex flex-wrap gap-1" id="alphaNav"></div>
+      </div>
+    </section>
+
+    <!-- LISTE DES TERMES -->
+    <section class="py-4 section-white">
+      <div class="container">
+        <div id="glossaireList"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="py-3 text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System — <a href="accessibilite.html" class="text-muted text-decoration-none">Accessibilité : WCAG AA</a></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<!-- ── MODALE TERME (ajout / modification) ── -->
+<div class="modal fade" id="termModal" tabindex="-1" aria-labelledby="termModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="termModalLabel">Ajouter un terme</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId"/>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Terme <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="termNom" placeholder="Ex : Fiche d'intervention"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Définition <span class="text-danger">*</span></label>
+          <textarea class="form-control" id="termDef" rows="3" placeholder="Explication claire, sans jargon, ≤ 3 phrases."></textarea>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Catégorie</label>
+            <select class="form-select" id="termCat"></select>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Voir aussi <span class="text-muted small">(termes liés, séparés par virgule)</span></label>
+            <input type="text" class="form-control" id="termLies" placeholder="Ex : Transmission libre, Badge légitimité"/>
+          </div>
+        </div>
+        <div id="termError" class="alert alert-danger mt-3 d-none"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-module" id="btnSaveTerm">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODALE CATÉGORIES ── -->
+<div class="modal fade" id="catsModal" tabindex="-1" aria-labelledby="catsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="catsModalLabel"><i class="bi bi-tags me-2"></i>Gérer les catégories</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-secondary small mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Supprimer une catégorie réaffecte ses termes à <strong>Sans catégorie</strong>.
+        </div>
+        <div id="catsList" class="mb-3"></div>
+        <hr/>
+        <p class="fw-semibold mb-2">Ajouter une catégorie</p>
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label small">Libellé</label>
+            <input type="text" class="form-control form-control-sm" id="newCatLabel" placeholder="Ex : Pédagogie"/>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small">Couleur Bootstrap</label>
+            <select class="form-select form-select-sm" id="newCatColor">
+              <option value="primary">Bleu (primary)</option>
+              <option value="success">Vert (success)</option>
+              <option value="warning">Jaune (warning)</option>
+              <option value="danger">Rouge (danger)</option>
+              <option value="secondary">Gris (secondary)</option>
+              <option value="info">Cyan (info)</option>
+              <option value="dark">Noir (dark)</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-module btn-sm w-100" id="btnAddCat">
+              <i class="bi bi-plus-circle me-1"></i>Ajouter
+            </button>
+          </div>
+        </div>
+        <div id="catError" class="alert alert-danger mt-2 d-none"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODALE RENOMMER CATÉGORIE ── -->
+<div class="modal fade" id="editCatModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Renommer la catégorie</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editCatId"/>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold">Nouveau libellé</label>
+          <input type="text" class="form-control" id="editCatLabel"/>
+        </div>
+        <div>
+          <label class="form-label small fw-semibold">Couleur</label>
+          <select class="form-select" id="editCatColor">
+            <option value="primary">Bleu (primary)</option>
+            <option value="success">Vert (success)</option>
+            <option value="warning">Jaune (warning)</option>
+            <option value="danger">Rouge (danger)</option>
+            <option value="secondary">Gris (secondary)</option>
+            <option value="info">Cyan (info)</option>
+            <option value="dark">Noir (dark)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-module btn-sm" id="btnSaveCat">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODALE SUPPRESSION ── -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Supprimer ?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">Supprimer <strong id="deleteTargetName"></strong> définitivement ?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger btn-sm" id="btnConfirmDelete">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../js/bdb-modal-a11y.js"></script>
+<script src="site-nav.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════
+// XSS — échappement HTML obligatoire (INTERDIT-C6)
+// ════════════════════════════════════════════════════════════
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+// ════════════════════════════════════════════════════════════
+// DONNÉES — CATÉGORIES (CRUD)
+// ════════════════════════════════════════════════════════════
+var APP = document.querySelector('.app-nom')?.textContent || 'Des Blocs & Moi';
+
+let categories = [
+  { id: 'bdb',     label: APP,            color: 'primary'   },
+  { id: 'metier',  label: 'Métier bloc',     color: 'success'   },
+  { id: 'methode', label: 'Méthodes',        color: 'warning'   },
+  { id: 'outil',   label: 'Outils',          color: 'secondary' },
+  { id: 'disc',    label: 'DISC / Spirale',  color: 'info'      },
+];
+let nextCatId = 100;
+
+function getCat(id) {
+  return categories.find(c => c.id === id) || { id: 'autre', label: 'Sans catégorie', color: 'secondary' };
+}
+
+// ════════════════════════════════════════════════════════════
+// DONNÉES — TERMES
+// ════════════════════════════════════════════════════════════
+let glossaire = [
+  // ── BDB ─────────────────────────────────────────────────
+  { id: 1,  cat: 'bdb',     nom: APP,                       def: 'Des Blocs & Moi — application web qui permet à une équipe de bloc de partager et retrouver les informations opérationnelles du quotidien.', lies: 'Fiche d\'intervention, Transmission libre' },
+  { id: 2,  cat: 'bdb',     nom: 'Fiche d\'intervention',     def: 'Document décrivant une intervention chirurgicale — le matériel nécessaire, les habitudes du chirurgien, la préparation requise. Rédigée par des référents et validée avant publication.', lies: 'Transmission libre, Triple légitimité' },
+  { id: 3,  cat: 'bdb',     nom: 'Transmission libre',        def: 'Contribution spontanée d\'un membre de l\'équipe — astuce de terrain, retour d\'expérience, information pratique. Aucune obligation de format, aucune fréquence imposée.', lies: 'Fiche d\'intervention, Triple légitimité' },
+  { id: 4,  cat: 'bdb',     nom: 'Triple légitimité',         def: 'Système de trois niveaux de confiance pour une information : validée officiellement, reconnue par les pairs, ou éprouvée par l\'usage collectif.', lies: 'Badge légitimité' },
+  { id: 5,  cat: 'bdb',     nom: 'Badge légitimité',          def: 'Indicateur visuel qui montre d\'où vient la fiabilité d\'une information — validation officielle, expertise reconnue, ou très grande utilisation par l\'équipe.', lies: 'Triple légitimité' },
+  { id: 6,  cat: 'bdb',     nom: 'Recherche tolérante',       def: 'Moteur de recherche qui comprend les approximations — écrire "S3" trouve "Salle 3", écrire "sterili" trouve "stérilisateur". Pas besoin du mot exact.', lies: 'Tags' },
+  { id: 7,  cat: 'bdb',     nom: 'Escalade gracieuse',        def: 'Quand une recherche ne trouve rien, l\'app ne laisse pas l\'utilisateur sans réponse — elle propose d\'écrire l\'info manquante, de contacter quelqu\'un, ou de poser la question à l\'équipe.', lies: 'Gap de documentation' },
+  { id: 8,  cat: 'bdb',     nom: 'Gap de documentation',      def: 'Trou dans la base de connaissance — signalé automatiquement quand plusieurs personnes cherchent le même mot sans résultat. Permet de prioriser ce qu\'il faut écrire.', lies: 'Escalade gracieuse' },
+  { id: 9,  cat: 'bdb',     nom: 'Info éphémère',             def: 'Information utile pour une durée courte — panne de matériel, absence d\'un collègue. Elle disparaît automatiquement après la date fixée à sa création.', lies: 'Info permanente' },
+  { id: 10, cat: 'bdb',     nom: 'Info permanente',           def: 'Information destinée à durer dans le temps — protocoles, habitudes, savoir-faire. Chaque modification crée une nouvelle version, l\'historique reste accessible.', lies: 'Info éphémère, Versioning' },
+  { id: 11, cat: 'bdb',     nom: 'Versioning',                def: 'Numérotation des modifications d\'une information (V1, V2, V3...). On voit toujours quelle version est en cours et qui a écrit quoi, quand.', lies: 'Info permanente' },
+  { id: 12, cat: 'bdb',     nom: 'Flag "Contester"',          def: 'Bouton permettant à n\'importe qui de signaler qu\'une information lui paraît incorrecte ou périmée. L\'équipe qui gère l\'app est alors alertée pour vérifier.', lies: 'Nettoyage hebdo' },
+  { id: 13, cat: 'bdb',     nom: 'Nettoyage hebdo',           def: 'Vérification régulière des nouvelles contributions — fusion des doublons, traitement des signalements, validation des nouveaux mots-clés.', lies: 'Flag "Contester", Tags' },
+  { id: 14, cat: 'bdb',     nom: 'Tags',                      def: 'Mots-clés associés à une fiche pour faciliter la recherche. Certains sont imposés pour éviter les doublons, d\'autres sont libres. Les synonymes sont automatiquement reliés.', lies: 'Recherche tolérante' },
+  { id: 15, cat: 'bdb',     nom: 'Anonymat partiel',          def: 'Possibilité de contribuer sous un nom collectif ("Équipe Salle 3") plutôt que son prénom. L\'équipe qui administre l\'app garde toujours la traçabilité.', lies: 'Transmission libre' },
+  { id: 16, cat: 'bdb',     nom: 'Conseil des 5',             def: 'Cinq rôles qui challengent chaque décision sur ' + APP + ' : vérifier la cohérence, valider la faisabilité, simplifier, tester sur le terrain, chercher ce qui n\'a pas été vu.', lies: 'Garde-fou' },
+  { id: 17, cat: 'bdb',     nom: 'Cours',                     def: 'Module pédagogique de ' + APP + ' — contenus structurés par l\'équipe sur les gestes, les protocoles, les situations clés. Lié au carnet de bord.', lies: 'Carnet de bord, Objectifs' },
+  { id: 18, cat: 'bdb',     nom: 'Carnet de bord',            def: 'Suivi personnel de progression — chaque étape franchie est enregistrée, reliée à un contenu de formation, consultable par le cadre responsable.', lies: 'Cours, Objectifs' },
+  { id: 19, cat: 'bdb',     nom: 'Module',                    def: 'Section autonome de l\'application ' + APP + ' — chaque module a une fonction précise (planning, fiches, transmissions, glossaire...). On peut en ouvrir un sans toucher aux autres.', lies: 'Portail, ' + APP },
+  { id: 20, cat: 'bdb',     nom: 'Portail',                   def: 'Page d\'accueil de l\'application, accessible après connexion. Affiche les modules disponibles selon le rôle de l\'utilisateur.', lies: 'Module, ' + APP },
+
+  // ── MÉTIER BLOC ─────────────────────────────────────────
+  { id: 21, cat: 'metier',  nom: 'IDE',                       def: 'Infirmier(e) de Bloc opératoire. Professionnel paramédical spécialisé dans l\'assistance chirurgicale. Peut exercer en tant qu\'INSTRU ou PANSEUR selon la position dans la salle.', lies: 'INSTRU, PANSEUR, IBODE' },
+  { id: 22, cat: 'metier',  nom: 'IBODE',                     def: 'Infirmier(e) de Bloc Opératoire Diplômé(e) d\'État — spécialisation complémentaire à l\'IDE, requise pour certains actes au contact du chirurgien.', lies: 'IDE' },
+  { id: 23, cat: 'metier',  nom: 'INSTRU',                    def: 'IDE Instrumentiste — placé(e) directement au champ opératoire, passe les instruments au chirurgien au moment où il en a besoin.', lies: 'PANSEUR, IDE' },
+  { id: 24, cat: 'metier',  nom: 'PANSEUR',                   def: 'IDE Panseur — circule autour du champ opératoire, gère le matériel, fait le lien entre la salle et le reste du bloc.', lies: 'INSTRU, IDE' },
+  { id: 25, cat: 'metier',  nom: 'Bloc opératoire',           def: 'Secteur dédié aux interventions chirurgicales — salles d\'opération, couloir logistique, équipes pluridisciplinaires. ' + APP + ' est conçu pour ce contexte précis.', lies: 'Salle d\'opération' },
+  { id: 26, cat: 'metier',  nom: 'Never event',               def: 'Erreur chirurgicale grave qui ne devrait jamais se produire — opérer le mauvais côté, confondre deux patients, oublier un outil. Chaque never event est évitable avec les bonnes informations au bon moment.', lies: 'Sécurité des soins, Protocole' },
+  { id: 27, cat: 'metier',  nom: 'Savoir opérationnel',       def: 'Ce qu\'on sait faire au quotidien dans un bloc — où sont les choses, comment elles s\'utilisent, qui fait quoi. Distinct des protocoles officiels : c\'est le savoir du terrain.', lies: 'Savoir tacite, Fiche d\'intervention' },
+  { id: 28, cat: 'metier',  nom: 'Savoir tacite',             def: 'Connaissance que quelqu\'un détient sans jamais l\'avoir écrite. Elle se transmet oralement ou par l\'observation. Quand cette personne part, le savoir disparaît avec elle.', lies: 'Savoir opérationnel, Mémoire collective' },
+  { id: 29, cat: 'metier',  nom: 'Culture orale',             def: 'Façon dominante d\'apprendre au bloc — en regardant, en demandant, en répétant. Efficace pour le lien humain, fragile pour la continuité quand les gens partent.', lies: 'Savoir tacite, Mémoire collective' },
+  { id: 30, cat: 'metier',  nom: 'Mémoire collective',        def: 'Ensemble de ce qu\'une équipe sait faire ensemble — habitudes, astuces, expériences. Vulnérable au turn-over quand elle n\'est pas formalisée quelque part.', lies: 'Savoir tacite, Turn-over' },
+  { id: 31, cat: 'metier',  nom: 'Turn-over',                 def: 'Renouvellement du personnel — départs et arrivées. Chaque départ emporte du savoir non écrit. Chaque arrivée recommence depuis zéro sans les informations accumulées.', lies: 'Mémoire collective, Intégration' },
+  { id: 32, cat: 'metier',  nom: 'Dette sociale',             def: 'Sentiment de devoir quelque chose à quelqu\'un après lui avoir demandé de l\'aide plusieurs fois. Ce sentiment pousse les nouveaux à ne plus poser de questions — et à gérer seuls, parfois mal.', lies: 'Cycle toxique' },
+  { id: 33, cat: 'metier',  nom: 'Cycle toxique',             def: 'Boucle qui s\'entretient seule : le nouveau ne sait pas → demande → l\'ancien répète → se lasse → le nouveau n\'ose plus → il commet une erreur → la tension monte → ça recommence.', lies: 'Dette sociale, Savoir tacite' },
+  { id: 34, cat: 'metier',  nom: 'Sécurité des soins',        def: 'Ensemble des pratiques qui réduisent le risque d\'erreur pendant une intervention. ' + APP + ' y contribue indirectement : moins de lacunes d\'information = moins d\'hésitations = moins d\'erreurs.', lies: 'Never event, Protocole' },
+  { id: 35, cat: 'metier',  nom: 'Protocole',                 def: 'Procédure médicale officielle, validée et opposable. ' + APP + ' ne remplace pas les protocoles — il documente le savoir de terrain qui les complète au quotidien.', lies: 'Fiche d\'intervention, Sécurité des soins' },
+  { id: 36, cat: 'metier',  nom: 'Intégration',               def: 'Période pendant laquelle un nouveau professionnel apprend à fonctionner dans l\'équipe. ' + APP + ' vise à raccourcir cette période en rendant les informations accessibles sans avoir à les demander.', lies: 'Turn-over, Montée en compétence' },
+  { id: 37, cat: 'metier',  nom: 'Montée en compétence',      def: 'Progression des capacités d\'un professionnel au fil du temps. ' + APP + ' accompagne cette progression avec les modules Cours, Carnet de bord et Objectifs.', lies: 'Intégration, Cours, Carnet de bord' },
+
+  // ── MÉTHODES ────────────────────────────────────────────
+  { id: 38, cat: 'disc',    nom: 'Spirale Dynamique',         def: 'Modèle qui décrit comment les valeurs et motivations d\'une personne évoluent. Huit niveaux, du plus basique (survie immédiate) au plus complexe (vision globale). Utile pour adapter un message à ce qui compte vraiment pour quelqu\'un.', lies: 'DISC, Persona, vMème' },
+  { id: 39, cat: 'disc',    nom: 'vMème',                     def: 'Niveau actif dans la Spirale Dynamique — ce qui motive une personne ou un groupe dans un contexte donné. Un même individu peut avoir plusieurs niveaux actifs selon la situation.', lies: 'Spirale Dynamique' },
+  { id: 40, cat: 'disc',    nom: 'DISC',                      def: 'Modèle de communication en 4 profils comportementaux : Dominant (résultats, direct), Influent (relations, enthousiaste), Stable (harmonie, patient), Conforme (précision, analytique). Aide à adapter son message à l\'interlocuteur.', lies: 'Spirale Dynamique, VAKOG, Persona' },
+  { id: 41, cat: 'disc',    nom: 'Dominant (D)',              def: 'Profil DISC orienté résultats et décision rapide. Aime aller à l\'essentiel, contrôler, trancher. Pour lui : court, factuel, avec une recommandation claire.', lies: 'DISC, Influent, Stable, Conforme' },
+  { id: 42, cat: 'disc',    nom: 'Influent (I)',              def: 'Profil DISC orienté personnes et enthousiasme. Besoin de reconnaissance et de lien. Pour lui : chaleureux, narratif, impliquant émotionnellement.', lies: 'DISC, Dominant, Stable, Conforme' },
+  { id: 43, cat: 'disc',    nom: 'Stable (S)',                def: 'Profil DISC orienté stabilité et harmonie. Évite les changements brusques, cherche la sécurité. Pour lui : rassurant, progressif, avec du temps pour réfléchir.', lies: 'DISC, Dominant, Influent, Conforme' },
+  { id: 44, cat: 'disc',    nom: 'Conforme (C)',              def: 'Profil DISC orienté précision et qualité. Besoin de preuves et de faits. Pour lui : structuré, documenté, sans pression pour décider vite.', lies: 'DISC, Dominant, Influent, Stable' },
+  { id: 45, cat: 'disc',    nom: 'VAKOG',                     def: 'Modèle qui identifie le canal sensoriel dominant d\'une personne — Visuel (apprend en voyant), Auditif (apprend en écoutant), Kinesthésique (apprend en faisant). Aide à choisir le bon format de communication.', lies: 'DISC, Spirale Dynamique' },
+  { id: 46, cat: 'disc',    nom: 'Ennéagramme',               def: 'Modèle de personnalité en 9 types, centré sur les motivations profondes et les peurs. Complément à DISC pour comprendre ce qui se passe sous stress.', lies: 'DISC, Spirale Dynamique, Persona' },
+  { id: 47, cat: 'methode', nom: 'Analyse Transactionnelle',  def: 'Approche qui décrit les interactions entre personnes selon trois postures : Parent (qui protège ou juge), Adulte (qui raisonne), Enfant (qui ressent ou réagit). Utile pour comprendre pourquoi certains échanges créent des tensions.', lies: 'Cycle toxique, DISC' },
+  { id: 48, cat: 'methode', nom: 'Persona',                   def: 'Dans ' + APP + ' : représentation d\'un état vécu par un professionnel de bloc — pas un profil fictif, mais une situation réelle. Neuf personas définis selon le rapport au savoir : de "je ne sais pas encore" à "je n\'y crois pas".', lies: 'DISC, Spirale Dynamique' },
+  { id: 49, cat: 'methode', nom: 'Pyramide du changement',    def: 'Les paliers que franchit une personne avant d\'adopter quelque chose de nouveau : je ne sais pas → je n\'ai pas le droit → je ne peux pas → je n\'ose pas → je n\'y crois pas. Chaque palier demande une réponse différente.', lies: 'Persona, Adoption' },
+  { id: 50, cat: 'methode', nom: 'Effet réseau',              def: 'Plus ' + APP + ' est utilisé et alimenté, plus il devient utile — ce qui attire plus d\'utilisateurs, qui l\'alimentent encore plus. La valeur grandit avec le nombre de participants.', lies: 'Adoption, Adopteur précoce' },
+  { id: 51, cat: 'methode', nom: 'Adopteur précoce',          def: 'Personne qui adopte rapidement un nouvel outil et en parle autour d\'elle. Dans ' + APP + ' : les 2 ou 3 personnes respectées dans l\'équipe qui testent et recommandent — leur avis fait plus que n\'importe quelle communication officielle.', lies: 'Effet réseau, Persona' },
+  { id: 52, cat: 'methode', nom: 'MVP',                       def: 'Version minimum d\'un outil qui permet de tester s\'il est vraiment utile. Pour ' + APP + ' : les premières fiches essentielles, pas l\'exhaustivité. Mieux vaut 10 fiches utiles que 200 qui ne servent à rien.', lies: 'Adoption' },
+  { id: 53, cat: 'methode', nom: 'Biais de survie',           def: 'Erreur de jugement : on ne voit que les gens qui répondent, et on oublie ceux qui ne disent rien. Dans ' + APP + ' : les enthousiastes s\'expriment, les non-utilisateurs restent silencieux — leurs raisons sont tout aussi importantes.', lies: 'Garde-fou, Persona' },
+  { id: 54, cat: 'methode', nom: 'Garde-fou',                 def: 'Mécanisme concret mis en place pour éviter un problème identifié. Dans ' + APP + ' : chaque risque listé a son garde-fou — pas une précaution théorique, quelque chose de réellement implémenté.', lies: 'Conseil des 5' },
+  { id: 55, cat: 'methode', nom: 'LMS',                       def: 'Outil de suivi de formation — Learning Management System. ' + APP + ' intègre un mini-LMS avec les Cours, le Carnet de bord et les Objectifs pour accompagner la montée en compétence des IDE.', lies: 'Cours, Carnet de bord, Objectifs' },
+  { id: 56, cat: 'methode', nom: 'Ikigai',                    def: 'Concept japonais : la raison d\'être d\'une personne — ce qu\'elle aime, ce qu\'elle sait faire, ce dont les autres ont besoin. Utilisé ici pour illustrer pourquoi les motivations individuelles ne convergent pas naturellement.', lies: 'Persona, Spirale Dynamique' },
+  { id: 57, cat: 'methode', nom: 'Matrice des potentiels sociaux', def: 'Outil d\'analyse des usages numériques selon deux axes : est-ce que quelqu\'un préfère écrire ou parler ? Travailler seul ou en groupe ? Aide à comprendre pourquoi certains profils n\'adoptent pas naturellement un outil collaboratif écrit.', lies: 'DISC, Adoption, Persona' },
+
+  // ── OUTILS ──────────────────────────────────────────────
+  { id: 58, cat: 'outil',   nom: 'Supabase',                  def: 'Service en ligne qui stocke les données de ' + APP + ' — fiches, transmissions, comptes utilisateurs, tags. Accessible depuis n\'importe quel navigateur sur le réseau de l\'établissement.', lies: 'Base de données' },
+  { id: 59, cat: 'outil',   nom: 'Base de données',           def: 'Endroit où toutes les informations de ' + APP + ' sont conservées — fiches, transmissions, comptes. Elle tourne sur un service cloud fiable, maintenu en permanence.', lies: 'Supabase' },
+  { id: 60, cat: 'outil',   nom: 'Bootstrap',                 def: 'Ensemble de règles visuelles qui donne à ' + APP + ' son apparence cohérente — boutons, menus, couleurs, mise en page. Toutes les pages l\'utilisent pour que l\'interface soit identique partout.', lies: 'CDS' },
+  { id: 61, cat: 'outil',   nom: 'CDS',                       def: 'Consensus Design System — guide visuel et technique propre au projet. Définit les couleurs, les composants, les règles de mise en page communes à toutes les pages de ' + APP + '.', lies: 'Bootstrap' },
+  { id: 62, cat: 'outil',   nom: 'Contrôle d\'accès',         def: 'Mécanisme qui garantit que chaque utilisateur ne voit que ce qu\'il est autorisé à voir — selon son rôle (IDE, cadre, admin). Géré automatiquement par la base de données.', lies: 'Supabase, Rôles' },
+  { id: 63, cat: 'outil',   nom: 'CRUD',                      def: 'Les quatre actions de base sur des données : Créer, Lire, Modifier, Supprimer. Le lexique, par exemple, permet de faire les quatre sur chaque terme.', lies: 'Lexique' },
+  { id: 64, cat: 'outil',   nom: 'Stockage local',            def: 'Données conservées dans le navigateur de l\'utilisateur — accessibles même sans connexion. Utilisé provisoirement pour le module de planification, en attente d\'être synchronisé avec la base centrale.', lies: 'Base de données, Module' },
+  { id: 65, cat: 'outil',   nom: 'Lovable',                   def: 'Outil de prototypage rapide d\'interfaces basé sur l\'IA. Utilisé dans les premières phases du projet pour créer des maquettes et tester des idées rapidement. Le prototype Lovable est archivé — ' + APP + ' est maintenant en code web standard.', lies: 'Prototype' },
+  { id: 66, cat: 'outil',   nom: 'Prototype',                 def: 'Version de test d\'une interface — conçue pour valider des idées, pas pour être utilisée en production. ' + APP + ' a connu plusieurs prototypes avant d\'arriver à la version actuelle.', lies: 'Lovable, MVP' },
+  { id: 67, cat: 'outil',   nom: 'Code web standard',         def: 'Technologies de base du web (HTML, CSS, JavaScript) sans dépendance à un framework propriétaire. Choix technique de ' + APP + ' pour que n\'importe qui sachant lire du code puisse maintenir ou reprendre l\'application.', lies: 'Prototype, Lovable' },
+  { id: 68, cat: 'outil',   nom: 'Hébergement',               def: 'Service qui met l\'application ' + APP + ' en ligne, accessible depuis n\'importe quel appareil connecté au réseau de l\'établissement. Prévu chez OVH en phase de déploiement final.', lies: 'Déploiement' },
+  { id: 69, cat: 'outil',   nom: 'NOYAU_VERITE',              def: 'Document de référence du projet ' + APP + ' — toutes les règles, décisions et vérités du projet. Toute IA ou personne qui travaille sur ' + APP + ' doit le lire en premier. Ce qu\'il dit prime sur tout le reste.', lies: 'CTX, JOURNAL_DECISIONS' },
+  { id: 70, cat: 'outil',   nom: 'CTX',                       def: 'Fichier de contexte propre à chaque module de ' + APP + '. Décrit le rôle du module, ce qu\'on peut faire, ce qu\'on ne peut pas faire. Complémentaire au NOYAU_VERITE.', lies: 'NOYAU_VERITE, Module' },
+  { id: 71, cat: 'outil',   nom: 'Déploiement',               def: 'Mise en ligne d\'une nouvelle version de ' + APP + ' — rendre les modifications accessibles à tous les utilisateurs. Prévu en phase finale du projet, après validation complète.', lies: 'Hébergement' },
+];
+
+let nextId = Math.max(...glossaire.map(t => t.id)) + 1;
+let filtreActif = 'all';
+let searchActif = '';
+let deleteTargetType = null;
+let deleteTargetId = null;
+
+// ════════════════════════════════════════════════════════════
+// RENDU FILTRES
+// ════════════════════════════════════════════════════════════
+function renderFilters() {
+  const container = document.getElementById('filterBtns');
+  const catSelect = document.getElementById('termCat');
+
+  container.innerHTML = `<button class="btn btn-sm ${filtreActif === 'all' ? 'btn-primary' : 'btn-outline-secondary'} filter-btn" data-cat="all">Tous</button>` +
+    categories.map(c =>
+      `<button class="btn btn-sm ${filtreActif === c.id ? 'btn-primary' : 'btn-outline-secondary'} filter-btn" data-cat="${c.id}">${escHtml(c.label)}</button>`
+    ).join('');
+
+  catSelect.innerHTML = categories.map(c =>
+    `<option value="${c.id}">${escHtml(c.label)}</option>`
+  ).join('');
+
+  container.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filtreActif = btn.dataset.cat;
+      renderFilters();
+      render();
+    });
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDU GLOSSAIRE
+// ════════════════════════════════════════════════════════════
+function getTermesFiltres() {
+  return glossaire
+    .filter(t => filtreActif === 'all' || t.cat === filtreActif)
+    .filter(t => {
+      if (!searchActif) return true;
+      const q = searchActif.toLowerCase();
+      return t.nom.toLowerCase().includes(q) || t.def.toLowerCase().includes(q);
+    })
+    .sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+}
+
+function render() {
+  const termes = getTermesFiltres();
+  document.getElementById('countLabel').textContent =
+    `${termes.length} terme${termes.length > 1 ? 's' : ''} affiché${termes.length > 1 ? 's' : ''}`;
+
+  const lettres = [...new Set(termes.map(t => t.nom[0].toUpperCase()))].sort();
+  document.getElementById('alphaNav').innerHTML = lettres.map(l =>
+    `<a href="#lettre-${escHtml(l)}" class="badge bg-light text-dark border text-decoration-none">${escHtml(l)}</a>`
+  ).join('');
+
+  if (!termes.length) {
+    document.getElementById('glossaireList').innerHTML =
+      `<div class="text-center text-muted py-5"><i class="bi bi-search fs-2 d-block mb-2"></i>Aucun terme ne correspond.</div>`;
+    return;
+  }
+
+  const groups = {};
+  termes.forEach(t => {
+    const l = t.nom[0].toUpperCase();
+    if (!groups[l]) groups[l] = [];
+    groups[l].push(t);
+  });
+
+  document.getElementById('glossaireList').innerHTML = Object.entries(groups).map(([lettre, items]) => `
+    <div class="mb-4" id="lettre-${escHtml(lettre)}">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="display-6 fw-bold text-primary lh-1">${escHtml(lettre)}</span>
+        <div class="flex-grow-1 border-bottom border-2 border-light"></div>
+      </div>
+      <div class="row g-2">
+        ${items.map(t => renderTerme(t)).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.btn-edit-term').forEach(btn =>
+    btn.addEventListener('click', () => openEditTerm(parseInt(btn.dataset.id))));
+  document.querySelectorAll('.btn-del-term').forEach(btn =>
+    btn.addEventListener('click', () => openDeleteTerm(parseInt(btn.dataset.id))));
+}
+
+function renderTerme(t) {
+  const cat = getCat(t.cat);
+  const lies = t.lies ? t.lies.split(',').map(l => l.trim()).filter(Boolean) : [];
+  const textColor = ['warning','info'].includes(cat.color) ? 'text-dark' : 'text-white';
+  return `
+    <div class="col-12 col-lg-6">
+      <div class="panel h-100">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+          <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="fw-bold">${escHtml(t.nom)}</span>
+            <span class="badge bg-${cat.color} ${textColor}">${escHtml(cat.label)}</span>
+          </div>
+          <div class="d-flex gap-1 flex-shrink-0">
+            <button class="btn btn-sm btn-outline-secondary btn-edit-term py-0 px-2" data-id="${t.id}" title="Modifier"><i class="bi bi-pencil"></i></button>
+            <button class="btn btn-sm btn-outline-danger btn-del-term py-0 px-2" data-id="${t.id}" title="Supprimer"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+        <p class="text-muted small mb-0">${escHtml(t.def)}</p>
+        ${lies.length ? `<div class="mt-2">${lies.map(l => `<span class="badge bg-light text-dark border small me-1">${escHtml(l)}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════════════
+// CRUD TERMES
+// ════════════════════════════════════════════════════════════
+function openAddTerm() {
+  document.getElementById('editId').value = '';
+  document.getElementById('termNom').value = '';
+  document.getElementById('termDef').value = '';
+  document.getElementById('termCat').value = categories[0]?.id || '';
+  document.getElementById('termLies').value = '';
+  document.getElementById('termError').classList.add('d-none');
+  document.getElementById('termModalLabel').textContent = 'Ajouter un terme';
+  new bootstrap.Modal(document.getElementById('termModal')).show();
+}
+
+function openEditTerm(id) {
+  const t = glossaire.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('editId').value = id;
+  document.getElementById('termNom').value = t.nom;
+  document.getElementById('termDef').value = t.def;
+  document.getElementById('termCat').value = t.cat;
+  document.getElementById('termLies').value = t.lies || '';
+  document.getElementById('termError').classList.add('d-none');
+  document.getElementById('termModalLabel').textContent = 'Modifier — ' + t.nom;
+  new bootstrap.Modal(document.getElementById('termModal')).show();
+}
+
+function saveTerm() {
+  const nom = document.getElementById('termNom').value.trim();
+  const def = document.getElementById('termDef').value.trim();
+  const cat = document.getElementById('termCat').value;
+  const lies = document.getElementById('termLies').value.trim();
+  const editId = document.getElementById('editId').value;
+  const errEl = document.getElementById('termError');
+  if (!nom || !def) { errEl.textContent = 'Le terme et la définition sont obligatoires.'; errEl.classList.remove('d-none'); return; }
+  if (editId) {
+    const idx = glossaire.findIndex(t => t.id === parseInt(editId));
+    if (idx >= 0) glossaire[idx] = { id: parseInt(editId), nom, def, cat, lies };
+  } else {
+    glossaire.push({ id: nextId++, nom, def, cat, lies });
+  }
+  bootstrap.Modal.getInstance(document.getElementById('termModal')).hide();
+  render();
+}
+
+function openDeleteTerm(id) {
+  const t = glossaire.find(x => x.id === id);
+  if (!t) return;
+  deleteTargetType = 'term';
+  deleteTargetId = id;
+  document.getElementById('deleteTargetName').textContent = t.nom;
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// ════════════════════════════════════════════════════════════
+// CRUD CATÉGORIES
+// ════════════════════════════════════════════════════════════
+function renderCatsList() {
+  const el = document.getElementById('catsList');
+  if (!categories.length) { el.innerHTML = '<p class="text-muted small">Aucune catégorie.</p>'; return; }
+  const colorText = c => ['warning','info'].includes(c) ? 'text-dark' : 'text-white';
+  el.innerHTML = `<div class="d-flex flex-column gap-2">` + categories.map(c => `
+    <div class="d-flex align-items-center gap-2 p-2 bg-light rounded">
+      <span class="badge bg-${c.color} ${colorText(c.color)} flex-shrink-0">${escHtml(c.label)}</span>
+      <span class="text-muted small flex-grow-1">${glossaire.filter(t => t.cat === c.id).length} terme(s)</span>
+      <button class="btn btn-sm btn-outline-secondary py-0 px-2 btn-edit-cat" data-id="${c.id}" title="Renommer"><i class="bi bi-pencil"></i></button>
+      <button class="btn btn-sm btn-outline-danger py-0 px-2 btn-del-cat" data-id="${c.id}" title="Supprimer"><i class="bi bi-trash"></i></button>
+    </div>`).join('') + `</div>`;
+
+  el.querySelectorAll('.btn-edit-cat').forEach(btn =>
+    btn.addEventListener('click', () => openEditCat(btn.dataset.id)));
+  el.querySelectorAll('.btn-del-cat').forEach(btn =>
+    btn.addEventListener('click', () => openDeleteCat(btn.dataset.id)));
+}
+
+function openManageCats() {
+  document.getElementById('newCatLabel').value = '';
+  document.getElementById('newCatColor').value = 'primary';
+  document.getElementById('catError').classList.add('d-none');
+  renderCatsList();
+  new bootstrap.Modal(document.getElementById('catsModal')).show();
+}
+
+function addCat() {
+  const label = document.getElementById('newCatLabel').value.trim();
+  const color = document.getElementById('newCatColor').value;
+  const errEl = document.getElementById('catError');
+  if (!label) { errEl.textContent = 'Le libellé est obligatoire.'; errEl.classList.remove('d-none'); return; }
+  errEl.classList.add('d-none');
+  const id = 'cat_' + (nextCatId++);
+  categories.push({ id, label, color });
+  document.getElementById('newCatLabel').value = '';
+  renderCatsList();
+  renderFilters();
+}
+
+function openEditCat(id) {
+  const c = categories.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('editCatId').value = id;
+  document.getElementById('editCatLabel').value = c.label;
+  document.getElementById('editCatColor').value = c.color;
+  new bootstrap.Modal(document.getElementById('editCatModal')).show();
+}
+
+function saveEditCat() {
+  const id = document.getElementById('editCatId').value;
+  const label = document.getElementById('editCatLabel').value.trim();
+  const color = document.getElementById('editCatColor').value;
+  if (!label) return;
+  const idx = categories.findIndex(c => c.id === id);
+  if (idx >= 0) categories[idx] = { id, label, color };
+  bootstrap.Modal.getInstance(document.getElementById('editCatModal')).hide();
+  renderCatsList();
+  renderFilters();
+  render();
+}
+
+function openDeleteCat(id) {
+  const c = categories.find(x => x.id === id);
+  if (!c) return;
+  deleteTargetType = 'cat';
+  deleteTargetId = id;
+  document.getElementById('deleteTargetName').textContent = `la catégorie "${c.label}"`;
+  new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// ════════════════════════════════════════════════════════════
+// SUPPRESSION UNIFIÉE
+// ════════════════════════════════════════════════════════════
+function confirmDelete() {
+  if (deleteTargetType === 'term') {
+    glossaire = glossaire.filter(t => t.id !== deleteTargetId);
+    render();
+  } else if (deleteTargetType === 'cat') {
+    glossaire = glossaire.map(t => t.cat === deleteTargetId ? { ...t, cat: 'autre' } : t);
+    categories = categories.filter(c => c.id !== deleteTargetId);
+    if (filtreActif === deleteTargetId) filtreActif = 'all';
+    renderCatsList();
+    renderFilters();
+    render();
+  }
+  bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+  deleteTargetType = null;
+  deleteTargetId = null;
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderFilters();
+  render();
+
+  document.getElementById('btnAddTerm').addEventListener('click', openAddTerm);
+  document.getElementById('btnSaveTerm').addEventListener('click', saveTerm);
+  document.getElementById('btnManageCats').addEventListener('click', openManageCats);
+  document.getElementById('btnAddCat').addEventListener('click', addCat);
+  document.getElementById('btnSaveCat').addEventListener('click', saveEditCat);
+  document.getElementById('btnConfirmDelete').addEventListener('click', confirmDelete);
+
+  document.getElementById('searchGlossaire').addEventListener('input', e => {
+    searchActif = e.target.value;
+    render();
+  });
+});
+</script>
+  <!-- Hydratation app-nom (sans bdb-shell) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/bdb-site-hydrate.js"></script>
+</body>
+</html>

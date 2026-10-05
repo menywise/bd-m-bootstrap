@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rempla Midi — Des Blocs &amp; Moi</title>
+
+  <!-- BLOC E CSS — Chaîne V5.1 (CONV-CHAIN-E) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="rempla-midi-ui.css" rel="stylesheet"/>
+
+  <!-- Variables couleur module sur :root pour cascade aux modales — CONV-MODULE-COLOR-02 -->
+  <style>
+    :root {
+      --module-color: #7ec8c8;
+      --module-color-strong: #5bbcbc;
+      --module-color-text: #134e4a;
+      --module-color-soft: rgba(126, 200, 200, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- WCAG AA : skip link -->
+  <a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+  <div id="wrapper">
+
+    <!-- INTERDIT-E1 : shell = premier enfant de #wrapper -->
+    <div id="bdb-shell"
+         data-module-title="Rempla Midi"
+         data-module-icon="bi-arrow-repeat"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-theme="dbm">
+    </div>
+
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content"
+               id="remplaMain"
+               data-module-color="equipe"
+               style="--module-color:#7ec8c8;--module-color-strong:#5bbcbc;--module-color-text:#134e4a;--module-color-soft:rgba(126,200,200,0.15)">
+
+            <!-- 3 ÉTATS (overlays métier C.9) -->
+            <div id="loadingState">
+              <div class="placeholder-glow p-3">
+                <div class="placeholder col-8 rounded mb-3 fs-5"></div>
+                <div class="placeholder col-5 rounded mb-2"></div>
+                <div class="placeholder col-7 rounded mb-2"></div>
+              </div>
+            </div>
+            <div id="emptyState" class="d-none"></div>
+            <div id="errorState" class="d-none"></div>
+
+            <!-- ZONE: Breadcrumb (CONV-APP-ZONE-01,02,03) -->
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d'Ariane">
+                <a href="../../index.html">Accueil</a>
+                <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+                <span>Rempla Midi</span>
+              </nav>
+            </section>
+
+            <!-- ZONE: Page Title (bandeau coloré module — CONV-APP-ZONE-01) -->
+            <section class="app-zone" data-zone="Page Title">
+              <div class="p-4 rounded shadow-sm"
+                   style="background:linear-gradient(135deg, #7ec8c8 0%, #5bbcbc 100%);color:#134e4a">
+                <h1 class="mb-2 fw-bold"><i class="bi bi-arrow-repeat me-2"></i>Rempla Midi</h1>
+                <p class="mb-0" style="opacity:0.85">Rotation des pauses repas — bloc ortho-neuro, salles 05 à 08</p>
+              </div>
+            </section>
+
+            <!-- ZONE: KPIs (compteurs synthèse) -->
+            <section class="app-zone" data-zone="KPIs">
+              <div class="row g-3">
+                <div class="col-6 col-lg-3">
+                  <div class="app-kpi">
+                    <div class="app-kpi-value" id="heroEffectif">—</div>
+                    <div class="app-kpi-label">Agents présents</div>
+                  </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                  <div class="app-kpi">
+                    <div class="app-kpi-value" id="heroSalles">4</div>
+                    <div class="app-kpi-label">Salles ouvertes</div>
+                  </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                  <div class="app-kpi">
+                    <div class="app-kpi-value" id="heroFenetre">12:00 → 13:00</div>
+                    <div class="app-kpi-label">Fenêtre nominale</div>
+                  </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                  <div class="app-kpi">
+                    <div class="app-kpi-value" id="heroEtat">À diagnostiquer</div>
+                    <div class="app-kpi-label">État prévu</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ZONE: Diagnostic (banner état rotation) -->
+            <section class="app-zone" data-zone="Diagnostic">
+              <div id="diagBanner" class="rempla-diag d-none">
+                <i class="bi diag-ic" id="diagIcon"></i>
+                <div>
+                  <div class="diag-label" id="diagLabel"></div>
+                  <div class="diag-detail" id="diagDetail"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ZONE: Filters (toolbar globale + presets + sauvegardes) -->
+            <section class="app-zone" data-zone="Filters">
+              <div class="rempla-toolbar">
+                <div>
+                  <label>Date</label>
+                  <input type="date" class="form-control form-control-sm" id="inputDate"/>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm" id="btnPurge">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Nouvelle journee
+                </button>
+                <div class="flex-grow-1"></div>
+                <button class="btn btn-module-outline btn-sm" id="btnDiag">
+                  <i class="bi bi-lightning me-1"></i>Diagnostic
+                </button>
+                <button class="btn btn-module btn-sm" id="btnCalcAuto">
+                  <i class="bi bi-cpu me-1"></i>Calcul auto
+                </button>
+              </div>
+              <div class="rempla-presets" id="presetBar">
+                <button class="rempla-preset" data-preset="confortable">
+                  <span class="rempla-preset-ic rempla-dot-ok"><i class="bi bi-emoji-smile"></i></span>
+                  <span class="rempla-preset-label">Confortable</span>
+                  <span class="rempla-preset-detail">2 soir · 2 couloir</span>
+                </button>
+                <button class="rempla-preset" data-preset="nominal">
+                  <span class="rempla-preset-ic rempla-dot-quot"><i class="bi bi-check-circle"></i></span>
+                  <span class="rempla-preset-label">Quotidien</span>
+                  <span class="rempla-preset-detail">2 soir · 1 couloir</span>
+                </button>
+                <button class="rempla-preset" data-preset="tendu">
+                  <span class="rempla-preset-ic rempla-dot-warn"><i class="bi bi-exclamation-triangle"></i></span>
+                  <span class="rempla-preset-label">Tendu</span>
+                  <span class="rempla-preset-detail">1 couloir seul</span>
+                </button>
+                <button class="rempla-preset" data-preset="critique">
+                  <span class="rempla-preset-ic rempla-dot-crit"><i class="bi bi-x-octagon"></i></span>
+                  <span class="rempla-preset-label">Critique</span>
+                  <span class="rempla-preset-detail">1 soir seul</span>
+                </button>
+              </div>
+              <div class="rempla-card mt-2">
+                <div class="card-header py-2 d-flex align-items-center gap-2">
+                  <i class="bi bi-bookmark me-1"></i>
+                  <span class="fw-semibold small">Journées enregistrées</span>
+                  <button class="btn btn-module btn-sm ms-auto" id="btnSaveConfig">
+                    <i class="bi bi-plus-lg me-1"></i>Sauvegarder
+                  </button>
+                </div>
+                <div class="card-body py-2">
+                  <div class="rempla-saved-list" id="savedConfigsList">
+                    <small class="text-muted fst-italic">Aucune journée enregistrée</small>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ZONE: Data Card (onglets + contenu — CONV-CARD-01 data-accent="module") -->
+            <section class="app-zone" data-zone="Data Card">
+              <div class="app-card" data-accent="module">
+
+                <!-- Card header : nav onglets -->
+                <div class="app-card-header" style="padding-bottom:0">
+                  <ul class="nav bdb-tabs" role="tablist" style="border-bottom:none">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link active" id="tab-effectif" data-bs-toggle="tab" data-bs-target="#pane-effectif" type="button" role="tab" aria-selected="true">
+                        <i class="bi bi-people me-1"></i>Effectif
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="tab-plan" data-bs-toggle="tab" data-bs-target="#pane-plan" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-calendar-check me-1"></i>Plan
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="tab-timeline" data-bs-toggle="tab" data-bs-target="#pane-timeline" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-bar-chart-steps me-1"></i>Timeline
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="tab-config" data-bs-toggle="tab" data-bs-target="#pane-config" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-gear me-1"></i>Config
+                      </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link" id="tab-incompat" data-bs-toggle="tab" data-bs-target="#pane-incompat" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-person-x me-1"></i>Affinités
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Card body : tab-content -->
+                <div class="app-card-body" style="padding:0">
+                  <div class="tab-content">
+
+                    <!-- TAB: Effectif -->
+                    <div class="tab-pane fade show active p-3" id="pane-effectif" role="tabpanel">
+                      <div class="row g-2 mb-3">
+                        <div class="col-6 col-lg-3" id="salle05Card"></div>
+                        <div class="col-6 col-lg-3" id="salle06Card"></div>
+                        <div class="col-6 col-lg-3" id="salle07Card"></div>
+                        <div class="col-6 col-lg-3" id="salle08Card"></div>
+                      </div>
+                      <div class="row g-2">
+                        <div class="col-12 col-md-3" id="groupCouloir"></div>
+                        <div class="col-12 col-md-3" id="groupSoir"></div>
+                        <div class="col-12 col-md-3" id="groupDoublure"></div>
+                        <div class="col-12 col-md-3" id="groupRenforts"></div>
+                      </div>
+                    </div>
+
+                    <!-- TAB: Plan -->
+                    <div class="tab-pane fade p-3" id="pane-plan" role="tabpanel">
+                      <div id="planEmpty" class="rempla-empty">
+                        <i class="bi bi-calendar-x"></i>
+                        Cliquer <strong>Calcul auto</strong> dans la barre d'actions
+                      </div>
+                      <div id="planResult" class="d-none">
+                        <div class="rempla-kpi-strip" id="planKpis"></div>
+                        <div class="rempla-card">
+                          <div class="card-header py-2">
+                            <i class="bi bi-list-ol me-1"></i>
+                            <span class="fw-semibold small">Mouvements de rotation</span>
+                          </div>
+                          <div class="card-body p-0">
+                            <div class="table-responsive">
+                              <table class="rempla-plan-table">
+                                <thead><tr><th>#</th><th>Créneau</th><th>Pause</th><th>Salle</th><th>Poste</th><th>Remplaçant</th><th>Niv.</th></tr></thead>
+                                <tbody id="planBody"></tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                        <div id="planAlertes" class="mt-3"></div>
+                        <div class="rempla-card mt-3 d-none" id="rulesPanel">
+                          <div class="card-header py-2">
+                            <i class="bi bi-shield-check me-1"></i>
+                            <span class="fw-semibold small">Conformité règles</span>
+                          </div>
+                          <div class="card-body py-2">
+                            <div class="rempla-rules-grid" id="rulesGrid"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- TAB: Timeline -->
+                    <div class="tab-pane fade p-3" id="pane-timeline" role="tabpanel">
+                      <div id="timelineEmpty" class="rempla-empty">
+                        <i class="bi bi-bar-chart-steps"></i>
+                        Calculer un plan pour voir la timeline
+                      </div>
+                      <div id="timelineContent" class="d-none">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                          <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-module active" id="btnVueCadre" data-tl-vue="cadre"><i class="bi bi-building me-1"></i>Petit train</button>
+                            <button type="button" class="btn btn-module-outline" id="btnVueAgent" data-tl-vue="agent"><i class="bi bi-person me-1"></i>Vue agent</button>
+                          </div>
+                        </div>
+                        <div id="timelineCadre">
+                          <div class="rempla-tl-wrap"><div class="rempla-train" id="trainWrapper"></div></div>
+                        </div>
+                        <div id="timelineAgent" class="d-none">
+                          <div class="rempla-tl-wrap"><div id="timelineWrapper"></div></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- TAB: Config -->
+                    <div class="tab-pane fade p-3" id="pane-config" role="tabpanel">
+                      <div class="row g-3">
+                        <div class="col-12 col-lg-4">
+                          <div class="rempla-card mb-3">
+                            <div class="card-header py-2">
+                              <i class="bi bi-sliders2 me-1"></i>
+                              <span class="fw-semibold small">Paramètres créneau</span>
+                            </div>
+                            <div class="card-body">
+                              <div class="rempla-form-row">
+                                <label>Pause (min)</label>
+                                <input type="number" class="form-control form-control-sm" id="cfgDureePause" value="30" min="15" max="60" step="5"/>
+                              </div>
+                              <div class="rempla-form-row">
+                                <label>Nominal</label>
+                                <div class="pair">
+                                  <input type="time" class="form-control form-control-sm" id="cfgNomDebut" value="12:00"/>
+                                  <input type="time" class="form-control form-control-sm" id="cfgNomFin" value="13:00"/>
+                                </div>
+                              </div>
+                              <div class="rempla-form-row">
+                                <label>Dégradé max</label>
+                                <div class="pair">
+                                  <input type="time" class="form-control form-control-sm" id="cfgDegDebut" value="11:30"/>
+                                  <input type="time" class="form-control form-control-sm" id="cfgDegFin" value="13:30"/>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="rempla-card">
+                            <div class="card-header py-2">
+                              <i class="bi bi-heart-pulse me-1"></i>
+                              <span class="fw-semibold small">Chirurgiens (<span id="countChirurgiens">0</span>)</span>
+                            </div>
+                            <div class="card-body p-0">
+                              <div class="rempla-cfg-scroll">
+                                <table class="rempla-cfg-table">
+                                  <thead><tr><th>Nom</th><th class="text-center">Pause salle</th></tr></thead>
+                                  <tbody id="configChirBody"></tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12 col-lg-8">
+                          <div class="rempla-card">
+                            <div class="card-header py-2">
+                              <i class="bi bi-person-badge me-1"></i>
+                              <span class="fw-semibold small">Membres IDE / IBODE (<span id="countAgents">0</span>)</span>
+                            </div>
+                            <div class="card-body p-0">
+                              <div class="rempla-cfg-scroll">
+                                <table class="rempla-cfg-table">
+                                  <thead><tr><th>Nom</th><th>Rôle bloc</th><th>Cat. déf.</th><th>Préf. repas</th><th class="text-center">Comp.</th><th class="text-center">Actif</th></tr></thead>
+                                  <tbody id="configAgentsBody"></tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="rempla-card mt-3">
+                        <div class="card-header py-2"><i class="bi bi-book me-1"></i><span class="fw-semibold small">Glossaire du module</span></div>
+                        <div class="card-body rempla-glossaire">
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Catégories horaires</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>Matin (13h)</dt><dd>Termine à 13h. Mange après sur son temps. Son poste doit être couvert dès 13h.</dd>
+                              <dt>Journée</dt><dd>~7h-16h30. Doit manger dans le créneau. Part en pause puis revient comme remplaçant.</dd>
+                              <dt>12h</dt><dd>~7h-19h. Doit manger dans le créneau. Revient comme remplaçant — clé de la recirculation du petit train.</dd>
+                              <dt>Soir</dt><dd>Arrive à 12h, a déjà mangé. Remplaçant disponible immédiatement dès le 1er créneau.</dd>
+                              <dt>Couloir</dt><dd>Pas affecté à une salle. Variable d'ajustement principale. Disponible immédiatement. Plus il y a de couloirs, plus le train est court.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Postes en salle</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>Instrumentiste (I)</dt><dd>Stérile au champ. Poste critique. Remplacement crise = accord chirurgien obligatoire.</dd>
+                              <dt>Circulant (C)</dt><dd>Non stérile. Approvisionnement, traçabilité, communication. Remplacement quotidien.</dd>
+                              <dt>Doublure</dt><dd>Aide opératoire (formation ou renfort) sur intervention lourde. Pas de poste à couvrir. Si matin/13h : pas de pause repas. Si journée/12h : pause libre sans remplacement.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Niveaux de compétence</div>
+                            <dl class="rempla-glo-dl">
+                              <dt><span class="rempla-niv-quotidien">Quotidien</span></dt><dd>L'agent assure ce poste en routine.</dd>
+                              <dt><span class="rempla-niv-crise">Crise</span></dt><dd>L'agent peut assurer ce poste en mode dégradé. Accord chirurgien requis si instru.</dd>
+                              <dt>Interdit</dt><dd>L'agent ne peut pas tenir ce poste.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">États du diagnostic</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>Confortable</dt><dd>Tout le monde mange en fenêtre nominale. Plus d'un remplaçant initial.</dd>
+                              <dt>Quotidien</dt><dd>Tout le monde mange. Un seul remplaçant, pas de marge.</dd>
+                              <dt>Dégradé léger</dt><dd>Fenêtre élargie en fin seulement (12:00-13:30). 3 créneaux au lieu de 2.</dd>
+                              <dt>Dégradé complet</dt><dd>Fenêtre élargie des deux côtés (11:30-13:30). 4 créneaux. Couloir mange à 11:30.</dd>
+                              <dt>Crise</dt><dd>Affectations crise nécessaires. Remplaçants en dehors de leur compétence habituelle.</dd>
+                              <dt>Bloqué</dt><dd>Pause de salle inévitable. Aucune solution sans interrompre une intervention.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Concepts clés</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>Petit train</dt><dd>Chaîne de remplacements successifs. A mange, B le remplace, A revient, B peut manger, etc. Plus la chaîne est courte, plus c'est confortable.</dd>
+                              <dt>Fenêtre nominale</dt><dd>Plage horaire standard pour les pauses (défaut 12:00-13:00).</dd>
+                              <dt>Fenêtre dégradé léger</dt><dd>Extension fin seule (12:00-13:30). Premier niveau de dégradation.</dd>
+                              <dt>Fenêtre dégradé complet</dt><dd>Extension complète (11:30-13:30). Dernier niveau avant crise.</dd>
+                              <dt>Pause de salle</dt><dd>L'intervention s'arrête pour permettre les repas. Certains chirurgiens acceptent, d'autres refusent.</dd>
+                              <dt>Recirculation</dt><dd>Un agent 12h mange au 1er créneau, revient, et remplace un collègue au 2e créneau. Multiplie la capacité réelle.</dd>
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="rempla-card mt-3">
+                        <div class="card-header py-2"><i class="bi bi-shield-check me-1"></i><span class="fw-semibold small">Règles du module — à auditer en équipe</span></div>
+                        <div class="card-body rempla-glossaire">
+                          <p class="small rempla-muted mb-2">Chaque règle (Rnn) est une affirmation sur laquelle le moteur se base. Si une règle est fausse ou contestée, le moteur doit être corrigé.</p>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Qui mange ?</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>R01</dt><dd>Un agent <b>matin (13h)</b> ne mange pas dans le créneau. Il mange après sur son temps personnel.</dd>
+                              <dt>R02</dt><dd>Un agent <b>soir</b> a déjà mangé avant d'arriver. Il n'a pas besoin de pause repas.</dd>
+                              <dt>R03</dt><dd>Un agent <b>journée</b> ou <b>12h</b> doit manger dans le créneau. Exactement une fois.</dd>
+                              <dt>R04</dt><dd>Un agent <b>couloir</b> mange selon son horaire (journée/12h → oui, soir → non).</dd>
+                              <dt>R05</dt><dd>Une <b>doublure matin (13h)</b> n'a pas besoin de manger. Les autres doublures mangent librement sans remplacement.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Qui remplace ?</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>R06</dt><dd>Les agents <b>soir</b> et <b>couloir</b> sont les remplaçants initiaux, disponibles dès le 1er créneau.</dd>
+                              <dt>R07</dt><dd>Un agent <b>12h</b> qui a mangé revient comme remplaçant — c'est la recirculation.</dd>
+                              <dt>R08</dt><dd>Un agent <b>journée</b> qui a mangé revient comme remplaçant pour les créneaux suivants.</dd>
+                              <dt>R09</dt><dd>Une <b>doublure</b> peut être mobilisée comme remplaçante en cas de tension (dégradé/crise). Elle perd son rôle d'aide opératoire.</dd>
+                              <dt>R10</dt><dd>En mode confortable/quotidien, les doublures ne sont <b>pas</b> utilisées comme remplaçantes.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Postes et compétences</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>R11</dt><dd>Aucun poste (instru ou circu) ne peut rester vacant pendant une pause. C'est la règle fondamentale.</dd>
+                              <dt>R12</dt><dd>Un remplacement <b>instru en crise</b> nécessite l'accord du chirurgien de la salle.</dd>
+                              <dt>R13</dt><dd>Un remplacement <b>circu</b> est possible par tout agent non interdit, sans accord chirurgien.</dd>
+                              <dt>R14</dt><dd>Un agent interdit sur un poste ne peut <b>jamais</b> y être affecté, même en crise.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Créneaux et fenêtres</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>R15</dt><dd>La durée de pause est fixe : <b>30 minutes</b>. Non fracturable, non cumulable.</dd>
+                              <dt>R16</dt><dd>La fenêtre nominale est <b>12:00-13:00</b> (2 créneaux). Configurable.</dd>
+                              <dt>R17</dt><dd>La dégradation est <b>progressive</b> : d'abord extension fin seule (12:00-13:30, 3 créneaux), puis extension complète (11:30-13:30, 4 créneaux).</dd>
+                              <dt>R18</dt><dd>Le moteur essaie la fenêtre nominale, puis dégradé léger, puis dégradé complet.</dd>
+                              <dt>R18b</dt><dd>En dégradé complet, le <b>couloir mange en premier</b> (11:30) pour être disponible sur toute la plage 12:00-13:30.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Priorités et ordre</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>R19</dt><dd>Les agents <b>12h mangent au 2e service</b> par défaut. Leur après-midi est longue, ils préfèrent couper tard. La recirculation fonctionne toujours.</dd>
+                              <dt>R20</dt><dd>Les préférences individuelles (tôt/tard) sont respectées. Un 12h qui a choisi "tôt" mange tôt.</dd>
+                              <dt>R21</dt><dd>Le moteur cherche un remplaçant <b>quotidien</b> d'abord, puis <b>crise</b> si aucun quotidien disponible.</dd>
+                              <dt>R22</dt><dd>Plus il y a de couloirs, plus le petit train est court et confortable.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Chirurgiens et pause de salle</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>R23</dt><dd>Un chirurgien peut <b>accepter ou refuser</b> la pause de salle. C'est une donnée de configuration.</dd>
+                              <dt>R24</dt><dd>Si la pause de salle est inévitable et le chirurgien refuse, c'est une alerte <b>bloquante</b>.</dd>
+                              <dt>R25</dt><dd>La pause de salle est le dernier recours — elle n'est déclenchée que si aucune solution n'existe.</dd>
+                              <dt>R26</dt><dd>Si un programme operatoire est marque <b>termine</b> par le cadre, l'equipe mange puis passe au couloir.</dd>
+                            </dl>
+                          </div>
+                          <div class="rempla-glo-section">
+                            <div class="rempla-glo-titre">Flux de personnel (après rotation)</div>
+                            <dl class="rempla-glo-dl">
+                              <dt>R27</dt><dd>Quand un agent <b>soir</b> prend un poste en salle, le titulaire qu'il remplace <b>sort au couloir</b> après avoir mangé. Un instru remplace un instru, un circu remplace un circu.</dd>
+                              <dt>R28</dt><dd><b>Conservation des postes</b> : si un couloir entre en salle pour assurer un rempla, un agent de poste équivalent doit sortir au couloir. Le nombre d'agents en salle reste stable.</dd>
+                              <dt>R29</dt><dd>Quand une salle <b>termine son programme</b>, ses agents mangent (30 min) puis passent au couloir s'il reste des créneaux après leur pause.</dd>
+                              <dt>R30</dt><dd>Le cadre marque manuellement la fin de programme via une checkbox par salle.</dd>
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- TAB: Affinités -->
+                    <div class="tab-pane fade p-3" id="pane-incompat" role="tabpanel">
+                      <p class="small rempla-muted">Préférences et incompatibilités prises en compte par le moteur en mode <strong>crise</strong> uniquement.</p>
+                      <div class="row g-3">
+                        <div class="col-12 col-lg-6">
+                          <div class="rempla-card">
+                            <div class="card-header py-2"><i class="bi bi-person-x me-1"></i><span class="fw-semibold small">Chirurgien → IDE</span></div>
+                            <div class="card-body p-0">
+                              <div class="rempla-cfg-scroll">
+                                <table class="rempla-cfg-table">
+                                  <thead><tr><th>Chirurgien</th><th>IDE</th><th>Avis</th><th></th></tr></thead>
+                                  <tbody id="incompatChirBody"></tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="mt-2" id="addIncompatChirArea"></div>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                          <div class="rempla-card">
+                            <div class="card-header py-2"><i class="bi bi-emoji-frown me-1"></i><span class="fw-semibold small">IDE → Chirurgien</span></div>
+                            <div class="card-body p-0">
+                              <div class="rempla-cfg-scroll">
+                                <table class="rempla-cfg-table">
+                                  <thead><tr><th>IDE</th><th>Chirurgien</th><th>Avis</th><th></th></tr></thead>
+                                  <tbody id="incompatIdeBody"></tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="mt-2" id="addIncompatIdeArea"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div><!-- /tab-content -->
+                </div><!-- /app-card-body -->
+              </div><!-- /app-card -->
+            </section>
+
+          </div><!-- /app-content -->
+
+          <!-- Footer DBM (CONV-APP-ZONE-04 — dans main, après app-content) -->
+          <footer class="app-footer">
+            <span>&copy; 2026 <span class="app-nom"></span></span>
+          </footer>
+
+        </main>
+      </div><!-- /app-layout -->
+    </div><!-- /wrapper_content -->
+  </div><!-- /wrapper -->
+
+  <!-- TOAST hors wrapper — CONV-APP-ZONE-05 -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastMsg" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastText">Message</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS — Chaîne JS V5 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script src="rotation-engine.js"></script>
+  <script src="rempla-midi-app.js"></script>
+  <script src="../../js/bdb-pwa.js"></script>
+</body>
+</html>

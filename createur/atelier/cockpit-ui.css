@@ -1,0 +1,45 @@
+/* ================================================================
+   cockpit-ui.css — Atelier BDB L3 Créateur
+   Poste de pilotage — styles module
+   Extrait depuis build-cockpit.ps1 le 2026-04-11
+   Zéro valeur hardcodée hors couleurs sémantiques CDS
+   ================================================================ */
+
+body { background: var(--ds-bg-page, #f1f5f9); }
+
+.cockpit-header { background: var(--ds-bg-dark, #1e293b); color: #fff; padding: 1.5rem 2rem; }
+.cockpit-header h1 { font-size: 1.4rem; font-weight: 600; margin: 0; }
+.cockpit-header small { color: var(--ds-text-muted, #94a3b8); }
+
+.section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ds-text-muted, #64748b); font-weight: 600; margin-bottom: 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--ds-border, #e2e8f0); }
+
+.tool-card { background: var(--ds-bg-card, #fff); border: 1px solid var(--ds-border, #e2e8f0); border-radius: var(--ds-radius, 8px); padding: 1rem 1.25rem; transition: box-shadow var(--ds-transition, 0.2s ease); height: 100%; }
+.tool-card:hover { box-shadow: var(--ds-shadow-hover); }
+.tool-card .tool-icon { width: 40px; height: 40px; border-radius: var(--ds-radius-sm, 4px); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.tool-card h6 { font-size: 0.85rem; font-weight: 600; margin: 0; }
+.tool-card p { font-size: 0.78rem; color: var(--ds-text-muted); margin: 0.3rem 0 0; }
+
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.status-ok  { background: var(--ds-success, #34d399); }
+.status-warn { background: var(--ds-warning, #fbbf24); }
+.status-err { background: var(--ds-danger, #f87171); }
+
+.link-card { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.8rem; background: var(--ds-bg-card, #fff); border: 1px solid var(--ds-border, #e2e8f0); border-radius: var(--ds-radius-sm, 4px); text-decoration: none; color: var(--ds-text, #334155); font-size: 0.82rem; transition: all var(--ds-transition, 0.2s ease); }
+.link-card:hover { border-color: var(--ds-primary, #60a5fa); box-shadow: var(--ds-shadow); color: var(--ds-primary-hover, #3b82f6); }
+.link-card i { font-size: 1rem; color: var(--ds-primary); }
+.link-card-claude { border-color: var(--ds-success, #34d399); background: rgba(52,211,153,0.05); }
+.link-card-claude:hover { border-color: var(--ds-success, #34d399); box-shadow: 0 0 0 3px rgba(52,211,153,0.15); }
+.link-card-claude i { color: var(--ds-success, #34d399); }
+
+.gov-table { font-size: 0.75rem; }
+.gov-table td, .gov-table th { padding: 0.35rem 0.5rem; vertical-align: middle; }
+
+.cmd-block { background: #1e293b; color: #e2e8f0; padding: 0.5rem 0.8rem; border-radius: var(--ds-radius-sm, 4px); font-family: Consolas, Courier New, monospace; font-size: 0.72rem; margin-top: 0.4rem; user-select: all; cursor: pointer; }
+.cmd-block:hover { background: #334155; }
+
+.version-tag { font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 10px; background: var(--ds-bg-input); color: var(--ds-text-muted); border: 1px solid var(--ds-border); }
+
+.kpi-num   { font-size: 1.6rem; font-weight: 700; color: var(--ds-primary); line-height: 1; }
+.kpi-label { font-size: 0.7rem; color: var(--ds-text-muted); }
+
+.ck-text-sm { font-size: 0.78rem; }

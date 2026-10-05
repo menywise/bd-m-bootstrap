@@ -138,6 +138,19 @@
   color: #6c757d;
 }
 
+/* ── Admin (install-admin-* scopés — INTERDIT-17) ── */
+.install-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+#installAdminTabs ~ .tab-content .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
 /* ── Quill dans modal ── */
 #iQuillDesc .ql-toolbar,
 #iQuillPrec .ql-toolbar {
@@ -150,3 +163,6 @@
   border-color: #dee2e6;
   font-size: 0.9rem;
 }
+
+/* ── Lightbox ──────────────────────────────────────────────── */
+.inst-lightbox-img { max-height: 80vh; object-fit: contain; }

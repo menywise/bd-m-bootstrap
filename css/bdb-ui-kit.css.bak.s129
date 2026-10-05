@@ -1,0 +1,915 @@
+/* ================================================================
+   BDB — bdb-ui-kit.css
+   VERSION  : 1.0.0
+   DATE     : 2026-05-02
+   SESSION  : #112
+   STATUT   : KIT COMPOSANTS PARTAGE — surface membre + admin
+
+   OBJECTIF : Remplacer les patterns dupliques entre modules
+   (.thes-*, .glos-*, .bo-*) par un jeu unique de classes .bdb-*
+   reutilisables sur TOUT module BDB.
+
+   CHAINE CSS CDS (ordre strict) :
+     1. Bootstrap 5.3.3
+     2. theme-base.css Smarty V5 (@63905396...)
+     3. Bootstrap Icons 1.11.1
+     4. cds-overrides.css         (shell + back-office .bo-*)
+     5. >>> bdb-ui-kit.css <<<    VOUS ETES ICI
+     6. [module]-ui.css           (specifique metier uniquement)
+
+   SCOPE : Pas de prefix body.* — ces classes s'appliquent partout
+   (membre ET back-office). Les .bo-* de cds-overrides.css restent
+   valides comme alias back-office.
+
+   CONVENTION : prefixe .bdb- pour tout composant du kit.
+   Un module NE DOIT PAS redefinir un pattern qui existe ici.
+   Le [module]-ui.css ne contient que le SPECIFIQUE METIER
+   (colonnes, badges semantiques, couleurs specifiques).
+
+   RESPONSIVE : Mobile-first. Breakpoints BS 5.3.3 :
+     sm: 576px, md: 768px, lg: 992px, xl: 1200px
+
+   SOURCE : Patterns extraits de thesaurus-ui.css (549 lignes,
+   module le plus mature) + cds-overrides.css R8 (.bo-*).
+   ================================================================ */
+
+
+/* ════════════════════════════════════════════════════════════════
+   T0 — DESIGN TOKENS (CSS Custom Properties)
+   Source de verite pour couleurs, espacements, typo.
+   Les modules utilisent ces variables — jamais de valeurs en dur.
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* --- Couleurs semantiques BDB --- */
+  --bdb-primary:       #0d6efd;
+  --bdb-primary-rgb:   13, 110, 253;
+  --bdb-success:       #198754;
+  --bdb-warning:       #ffc107;
+  --bdb-warning-dark:  #b45309;
+  --bdb-danger:        #dc3545;
+  --bdb-info:          #0dcaf0;
+  --bdb-info-dark:     #0891b2;
+  --bdb-secondary:     #6c757d;
+  --bdb-purple:        #7c3aed;
+  --bdb-purple-light:  #ede9fe;
+
+  /* --- Couleurs neutres --- */
+  --bdb-text:          #1e293b;
+  --bdb-text-muted:    #64748b;
+  --bdb-text-light:    #9ca3af;
+  --bdb-bg:            #f8fafc;
+  --bdb-bg-alt:        #f3f4f6;
+  --bdb-bg-white:      #ffffff;
+  --bdb-border:        #e5e7eb;
+  --bdb-border-light:  rgba(0, 0, 0, 0.06);
+
+  /* --- Surfaces subtle (fond badges/icones) --- */
+  --bdb-blue-subtle:   #dbeafe;
+  --bdb-green-subtle:  #dcfce7;
+  --bdb-amber-subtle:  #fef3c7;
+  --bdb-red-subtle:    #fee2e2;
+  --bdb-cyan-subtle:   #cffafe;
+  --bdb-purple-subtle: #ede9fe;
+  --bdb-gray-subtle:   #f3f4f6;
+
+  /* --- Typo --- */
+  --bdb-font-xs:       .7rem;
+  --bdb-font-sm:       .78rem;
+  --bdb-font-base:     .88rem;
+  --bdb-font-md:       .95rem;
+  --bdb-font-lg:       1.15rem;
+  --bdb-font-xl:       1.5rem;
+  --bdb-font-xxl:      2rem;
+  --bdb-font-mono:     'Courier New', monospace;
+
+  /* --- Espacements --- */
+  --bdb-gap-xs:        .25rem;
+  --bdb-gap-sm:        .5rem;
+  --bdb-gap-md:        .75rem;
+  --bdb-gap-lg:        1rem;
+  --bdb-gap-xl:        1.5rem;
+
+  /* --- Radius --- */
+  --bdb-radius-sm:     .25rem;
+  --bdb-radius:        .375rem;
+  --bdb-radius-md:     .5rem;
+  --bdb-radius-lg:     .75rem;
+  --bdb-radius-full:   50%;
+
+  /* --- Shadows --- */
+  --bdb-shadow-xs:     0 1px 2px rgba(0, 0, 0, 0.04);
+  --bdb-shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --bdb-shadow-md:     0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --bdb-shadow-lg:     0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* --- Transitions --- */
+  --bdb-transition:    .15s ease;
+  --bdb-transition-md: .2s ease;
+  --bdb-transition-lg: .3s ease;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C1 — CARD (.bdb-card)
+   Brique pilier. Remplace .thes-kpi-card, .glos-card, .bo-card.
+   Modifiers : .bdb-card--hover, .bdb-card--accent-{color}
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-card {
+  background: var(--bdb-bg-white);
+  border: 1px solid var(--bdb-border-light);
+  border-radius: var(--bdb-radius-lg);
+  box-shadow: var(--bdb-shadow-sm);
+  transition: box-shadow var(--bdb-transition-md), transform var(--bdb-transition-md);
+}
+.bdb-card--hover:hover {
+  box-shadow: var(--bdb-shadow-md);
+  transform: translateY(-2px);
+}
+.bdb-card > .card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--bdb-border-light);
+  padding: var(--bdb-gap-lg) 1.25rem;
+  font-weight: 600;
+}
+.bdb-card > .card-header.bdb-card-header--tint {
+  background: linear-gradient(90deg, rgba(var(--bdb-primary-rgb), .04) 0%, transparent 100%);
+}
+
+/* Accents — bordure gauche coloree */
+.bdb-card--accent-primary   { border-left: 4px solid var(--bdb-primary); }
+.bdb-card--accent-success   { border-left: 4px solid var(--bdb-success); }
+.bdb-card--accent-warning   { border-left: 4px solid var(--bdb-warning); }
+.bdb-card--accent-danger    { border-left: 4px solid var(--bdb-danger); }
+.bdb-card--accent-info      { border-left: 4px solid var(--bdb-info); }
+.bdb-card--accent-purple    { border-left: 4px solid var(--bdb-purple); }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C2 — KPI (.bdb-kpi)
+   Compteurs et metriques. Remplace .kpi-value/.kpi-label,
+   .bo-kpi-value/.bo-kpi-label, .thes-chir-kpi-*.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-kpi-value {
+  font-size: var(--bdb-font-xxl);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--bdb-text);
+  margin: 0;
+}
+.bdb-kpi-value--sm {
+  font-size: var(--bdb-font-xl);
+}
+.bdb-kpi-label {
+  font-size: var(--bdb-font-xs);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--bdb-text-muted);
+  font-weight: 600;
+  margin-bottom: var(--bdb-gap-xs);
+}
+.bdb-kpi-sub {
+  font-size: var(--bdb-font-sm);
+  color: var(--bdb-text-muted);
+}
+.bdb-kpi-trend {
+  font-size: var(--bdb-font-sm);
+  font-weight: 500;
+}
+
+/* KPI grid — auto-responsive */
+.bdb-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--bdb-gap-md);
+  margin-bottom: 1.25rem;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C3 — ICON BADGE (.bdb-icon-badge)
+   Pastille arrondie coloree pour KPI, activite, etat.
+   Remplace .bo-icon-badge, .thes-chir-kpi-icon.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-icon-badge {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--bdb-radius-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.35rem;
+}
+.bdb-icon-badge--sm {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: .95rem;
+}
+.bdb-icon-badge--lg {
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.75rem;
+}
+
+/* Variantes couleur */
+.bdb-icon-badge.bdb-bg-blue   { background: var(--bdb-blue-subtle);   color: #2563eb; }
+.bdb-icon-badge.bdb-bg-green  { background: var(--bdb-green-subtle);  color: #16a34a; }
+.bdb-icon-badge.bdb-bg-amber  { background: var(--bdb-amber-subtle);  color: #d97706; }
+.bdb-icon-badge.bdb-bg-red    { background: var(--bdb-red-subtle);    color: #dc2626; }
+.bdb-icon-badge.bdb-bg-cyan   { background: var(--bdb-cyan-subtle);   color: var(--bdb-info-dark); }
+.bdb-icon-badge.bdb-bg-purple { background: var(--bdb-purple-subtle); color: var(--bdb-purple); }
+.bdb-icon-badge.bdb-bg-gray   { background: var(--bdb-gray-subtle);   color: var(--bdb-secondary); }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C4 — TABS PREMIUM (.bdb-tabs)
+   Underline 2px primaire sur active. Remplace .bo-tabs.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-tabs {
+  border-bottom: 1px solid rgba(0, 0, 0, .08);
+}
+.bdb-tabs .nav-link {
+  color: var(--bdb-text-muted);
+  font-weight: 500;
+  padding: .75rem 1.25rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--bdb-transition), border-color var(--bdb-transition), background var(--bdb-transition);
+}
+.bdb-tabs .nav-link:hover {
+  color: var(--bdb-primary);
+  border-color: transparent;
+  background: rgba(var(--bdb-primary-rgb), .04);
+}
+.bdb-tabs .nav-link.active {
+  color: var(--bdb-primary);
+  border-bottom-color: var(--bdb-primary);
+  background: transparent;
+  font-weight: 600;
+}
+
+/* Tabs scrollable mobile */
+.bdb-tabs--scroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.bdb-tabs--scroll::-webkit-scrollbar { display: none; }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C5 — DATA TABLE (.bdb-table)
+   Header uppercase gris, spacing genereux.
+   Remplace .bo-table, pattern repete dans chaque module.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-table thead th {
+  background: var(--bdb-bg);
+  color: #475569;
+  font-size: var(--bdb-font-xs);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-weight: 600;
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--bdb-border-light);
+}
+.bdb-table tbody td {
+  padding: .85rem 1rem;
+  border-top: 1px solid rgba(0, 0, 0, .04);
+  vertical-align: middle;
+}
+.bdb-table tbody tr:first-child td {
+  border-top: 0;
+}
+
+/* Sticky thead */
+.bdb-table--sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 2px solid #dee2e6;
+}
+
+/* Hover row */
+.bdb-table--hover tbody tr:hover {
+  background: rgba(var(--bdb-primary-rgb), .03);
+}
+
+/* Compact */
+.bdb-table--compact thead th { padding: .5rem .75rem; font-size: .68rem; }
+.bdb-table--compact tbody td { padding: .5rem .75rem; }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C6 — SECTION TITLE (.bdb-section-title)
+   Titre de section avec bordure basse. Remplace .thes-section-title.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-section-title {
+  font-size: .85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #374151;
+  margin-bottom: var(--bdb-gap-md);
+  padding-bottom: .4rem;
+  border-bottom: 2px solid var(--bdb-border);
+}
+.bdb-section-title i {
+  margin-right: .4rem;
+  opacity: .6;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C7 — DETAIL SECTION (.bdb-detail)
+   Bloc structure pour contenu de detail (modale, panneau).
+   Remplace .thes-detail-section.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-detail {
+  background: var(--bdb-bg);
+  border: 1px solid var(--bdb-border);
+  border-radius: var(--bdb-radius-md);
+  padding: 1rem 1.1rem;
+}
+.bdb-detail-title {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #6b7280;
+  margin-bottom: .6rem;
+  padding-bottom: .35rem;
+  border-bottom: 1px solid var(--bdb-border);
+}
+.bdb-detail-title i { opacity: .5; }
+.bdb-detail-label {
+  font-size: var(--bdb-font-xs);
+  font-weight: 600;
+  color: var(--bdb-text-light);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: .15rem;
+}
+.bdb-detail-value {
+  font-size: var(--bdb-font-base);
+  color: var(--bdb-text);
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C8 — SKELETON LOADER (.bdb-skeleton)
+   Placeholder de chargement anime.
+   Remplace .thes-skeleton, .bo-skel-*.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-skeleton {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+.bdb-skeleton-row {
+  height: 12px;
+  background: var(--bdb-border);
+  border-radius: 6px;
+  margin-bottom: .6rem;
+  animation: bdb-pulse 1.5s ease-in-out infinite;
+}
+.bdb-skeleton-row:nth-child(2) { width: 85%; }
+.bdb-skeleton-row:nth-child(3) { width: 70%; }
+.bdb-skeleton-row:nth-child(4) { width: 90%; }
+@keyframes bdb-pulse {
+  0%, 100% { opacity: .4; }
+  50% { opacity: 1; }
+}
+
+/* Skeleton KPI */
+.bdb-skeleton-kpi {
+  width: 90px;
+  height: 56px;
+  background: var(--bdb-border);
+  border-radius: var(--bdb-radius);
+  animation: bdb-pulse 1.5s ease-in-out infinite;
+}
+
+/* Skeleton row hauteur table */
+.bdb-skeleton-table-row {
+  height: 2.4rem;
+  background: var(--bdb-border);
+  border-radius: var(--bdb-radius-sm);
+  margin-bottom: .4rem;
+  animation: bdb-pulse 1.5s ease-in-out infinite;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C9 — STATE ICON (.bdb-state-icon)
+   Pastille ronde 64px pour empty / error / denied / auth states.
+   Remplace .bo-state-icon.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-state-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--bdb-radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C10 — AVATAR (.bdb-avatar)
+   Badge rond avec initials. Remplace .bo-avatar.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--bdb-radius-full);
+  background: linear-gradient(135deg, var(--bdb-primary) 0%, #6610f2 100%);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: .85rem;
+  box-shadow: 0 2px 6px rgba(var(--bdb-primary-rgb), .25);
+  flex-shrink: 0;
+}
+.bdb-avatar--sm { width: 2rem; height: 2rem; font-size: .75rem; }
+.bdb-avatar--lg { width: 3rem; height: 3rem; font-size: 1rem; }
+.bdb-avatar--xl { width: 3.5rem; height: 3.5rem; font-size: 1.15rem; }
+
+/* Variantes gradient */
+.bdb-avatar--grad-teal   { background: linear-gradient(135deg, #20c997, #0dcaf0); box-shadow: 0 2px 6px rgba(13, 202, 240, .25); }
+.bdb-avatar--grad-red    { background: linear-gradient(135deg, #fd7e14, #dc3545); box-shadow: 0 2px 6px rgba(220, 53, 69, .25); }
+.bdb-avatar--grad-purple { background: linear-gradient(135deg, #6f42c1, #d63384); box-shadow: 0 2px 6px rgba(111, 66, 193, .25); }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C11 — SEARCH BAR (.bdb-search)
+   Champ de recherche unifie.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-search {
+  position: relative;
+}
+.bdb-search input {
+  padding-left: 2.5rem;
+  border-radius: var(--bdb-radius);
+  border: 1px solid var(--bdb-border);
+  background: var(--bdb-bg);
+  font-size: var(--bdb-font-base);
+  transition: border-color var(--bdb-transition), box-shadow var(--bdb-transition);
+}
+.bdb-search input:focus {
+  border-color: var(--bdb-primary);
+  box-shadow: 0 0 0 .2rem rgba(var(--bdb-primary-rgb), .15);
+  background: var(--bdb-bg-white);
+}
+.bdb-search .bdb-search-icon {
+  position: absolute;
+  left: .85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--bdb-text-light);
+  font-size: .9rem;
+  pointer-events: none;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C12 — PROGRESS BAR (.bdb-progress)
+   Barres de progression. Remplace .thes-pct-bar, .bar-track.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-progress-track {
+  height: 8px;
+  background: var(--bdb-border);
+  border-radius: 4px;
+  overflow: hidden;
+  flex: 1;
+}
+.bdb-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width .4s ease;
+}
+.bdb-progress-track--thin { height: 5px; }
+.bdb-progress-track--thick { height: 14px; border-radius: 7px; }
+.bdb-progress-track--thick .bdb-progress-fill { border-radius: 7px; }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C13 — TAG (.bdb-tag)
+   Tags inline (variantes, sources, filtres).
+   Remplace .thes-tag, .glos-tag.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-tag {
+  display: inline-block;
+  background: #f0f4ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--bdb-radius-sm);
+  font-size: var(--bdb-font-xs);
+  padding: .15rem .4rem;
+  margin: .1rem .1rem 0 0;
+}
+.bdb-tag--mono {
+  font-family: var(--bdb-font-mono);
+  background: #f0f0f0;
+  color: #495057;
+  border-color: #dee2e6;
+  border-radius: 2rem;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C14 — DROP ZONE (.bdb-drop-zone)
+   Zone d'import drag-and-drop.
+   Remplace .thes-drop-zone.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-drop-zone {
+  border: 2px dashed #93c5fd;
+  border-radius: var(--bdb-radius-lg);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  background: #eff6ff;
+  transition: background var(--bdb-transition), border-color var(--bdb-transition);
+}
+.bdb-drop-zone:hover,
+.bdb-drop-zone.drag-over {
+  background: var(--bdb-blue-subtle);
+  border-color: #3b82f6;
+}
+.bdb-drop-zone.file-ok {
+  background: var(--bdb-green-subtle);
+  border-color: #22c55e;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C15 — LOG TERMINAL (.bdb-log)
+   Sortie console style terminal.
+   Remplace .thes-import-log.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-log {
+  font-size: var(--bdb-font-sm);
+  background: #1e293b;
+  color: #94a3b8;
+  padding: .75rem 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+  border-radius: 0 0 var(--bdb-radius) var(--bdb-radius);
+  font-family: var(--bdb-font-mono);
+}
+.bdb-log .log-ok   { color: #4ade80; }
+.bdb-log .log-warn { color: #facc15; }
+.bdb-log .log-err  { color: #f87171; }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C16 — SLIDE-OVER (.bdb-slideover)
+   Panneau lateral glissant. Remplace .thes-ccam-slideover.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-slideover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1054;
+  background: rgba(0, 0, 0, .2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.bdb-slideover-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bdb-slideover {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 60vw;
+  max-width: 95vw;
+  min-width: 380px;
+  z-index: 1055;
+  background: var(--bdb-bg-white);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, .08);
+  transform: translateX(100%);
+  transition: transform .25s ease;
+  display: flex;
+  flex-direction: column;
+}
+.bdb-slideover.active {
+  transform: translateX(0);
+}
+.bdb-slideover-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bdb-gap-md);
+  padding: .75rem 1rem;
+  border-bottom: 1px solid var(--bdb-border);
+  background: var(--bdb-bg);
+  flex-shrink: 0;
+}
+.bdb-slideover-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+body.bdb-slide-open {
+  overflow: hidden;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C17 — SCROLLABLES (.bdb-scroll-*)
+   Conteneurs avec hauteur max et scroll.
+   Remplace .bo-scroll-*, .thes-scroll-260.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-scroll-sm  { max-height: 240px; overflow-y: auto; }
+.bdb-scroll-md  { max-height: 360px; overflow-y: auto; }
+.bdb-scroll-lg  { max-height: 480px; overflow-y: auto; }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C18 — ALERT ACCENT (.bdb-alert-accent)
+   Alert avec bordure gauche coloree.
+   Remplace .thes-admin-alert, .thes-rare-alert.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-alert-accent {
+  border-left: 4px solid var(--bdb-warning);
+  background: #fffbeb;
+  border-radius: 0 var(--bdb-radius-md) var(--bdb-radius-md) 0;
+  padding: .75rem 1rem;
+}
+.bdb-alert-accent--danger {
+  border-left-color: var(--bdb-danger);
+  background: var(--bdb-red-subtle);
+}
+.bdb-alert-accent--info {
+  border-left-color: var(--bdb-info);
+  background: #f0faff;
+}
+.bdb-alert-accent--success {
+  border-left-color: var(--bdb-success);
+  background: var(--bdb-green-subtle);
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C19 — EMPTY STATE (.bdb-empty)
+   Etat vide structure (icone + texte).
+   Convention C.9 : loading / empty / error.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--bdb-text-light);
+}
+.bdb-empty i {
+  font-size: 2rem;
+  margin-bottom: var(--bdb-gap-md);
+  display: block;
+  opacity: .3;
+}
+.bdb-empty p {
+  font-size: var(--bdb-font-base);
+  margin: 0;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C20 — BTN-XS (.bdb-btn-xs)
+   Bouton extra-small. BS 5.3 n'a que btn-sm et btn-lg.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-btn-xs {
+  padding: .3rem .5rem;
+  font-size: .78rem;
+  line-height: 1.4;
+}
+
+/* Bouton icone carre (CRUD actions)
+   Autonome — NE PAS combiner avec .btn Bootstrap.
+   Usage : <a class="bdb-btn-icon bdb-btn-icon--primary" ...><i class="bi bi-eye"></i></a>
+*/
+.bdb-btn-icon {
+  all: unset;
+  box-sizing: border-box;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+  border: 1px solid var(--bdb-border);
+  border-radius: var(--bdb-radius);
+  color: var(--bdb-text-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: color var(--bdb-transition), border-color var(--bdb-transition), background var(--bdb-transition);
+}
+.bdb-btn-icon:hover {
+  background: var(--bdb-bg);
+}
+
+/* Variantes couleur */
+.bdb-btn-icon--primary { color: var(--bdb-primary); border-color: var(--bdb-primary); }
+.bdb-btn-icon--primary:hover { background: rgba(var(--bdb-primary-rgb), .08); }
+
+.bdb-btn-icon--danger  { color: var(--bdb-danger);  border-color: var(--bdb-danger); }
+.bdb-btn-icon--danger:hover  { background: var(--bdb-red-subtle); }
+
+.bdb-btn-icon--muted   { color: var(--bdb-text-muted); border-color: var(--bdb-border); }
+.bdb-btn-icon--muted:hover   { color: var(--bdb-text); background: var(--bdb-bg-alt); }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C21 — METRIC ROW (.bdb-metric-row)
+   Ligne label + barre + valeur pour classements/zones.
+   Remplace .thes-zone-bar-row, .thes-quality-*.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-metric-row {
+  display: flex;
+  align-items: center;
+  gap: var(--bdb-gap-sm);
+  margin-bottom: var(--bdb-gap-sm);
+}
+.bdb-metric-label {
+  width: 130px;
+  font-size: var(--bdb-font-sm);
+  font-weight: 500;
+  text-align: right;
+  color: #374151;
+  flex-shrink: 0;
+}
+.bdb-metric-value {
+  width: 55px;
+  font-size: var(--bdb-font-sm);
+  font-weight: 600;
+  text-align: right;
+  flex-shrink: 0;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   C22 — RANK BADGE (.bdb-rank)
+   Pastille de classement (1er, 2e, 3e).
+   Remplace .thes-pareto-rank.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-rank {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--bdb-radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  font-weight: 700;
+}
+.bdb-rank--gold   { background: var(--bdb-amber-subtle); color: #92400e; }
+.bdb-rank--silver { background: var(--bdb-gray-subtle);  color: #4b5563; }
+.bdb-rank--bronze { background: #fed7aa;                 color: #9a3412; }
+.bdb-rank--normal { background: #f9fafb;                 color: var(--bdb-text-light); }
+
+
+/* ════════════════════════════════════════════════════════════════
+   C23 — AI BUTTON (.bdb-ai-btn)
+   Bouton/icone violet IA.
+   Remplace .thes-ai-btn, .thes-ai-icon.
+   ════════════════════════════════════════════════════════════════ */
+
+.bdb-ai-btn {
+  border: 1px solid var(--bdb-purple);
+  color: var(--bdb-purple);
+  background: var(--bdb-purple-light);
+}
+.bdb-ai-btn:hover {
+  background: #ddd6fe;
+  color: #6d28d9;
+  border-color: #6d28d9;
+}
+.bdb-ai-icon { color: var(--bdb-purple); }
+
+
+/* ════════════════════════════════════════════════════════════════
+   R1 — RESPONSIVE MOBILE-FIRST
+   Ajustements globaux < 768px
+   ════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 767.98px) {
+  .bdb-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--bdb-gap-sm);
+  }
+  .bdb-kpi-value { font-size: var(--bdb-font-xl); }
+
+  .bdb-slideover {
+    width: 100vw;
+    min-width: unset;
+  }
+
+  .bdb-metric-label { width: 90px; font-size: .72rem; }
+  .bdb-metric-value { width: 40px; font-size: .72rem; }
+
+  .bdb-table--compact thead th { font-size: .65rem; padding: .35rem .5rem; }
+  .bdb-table--compact tbody td { padding: .35rem .5rem; }
+}
+
+@media (max-width: 400px) {
+  .bdb-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .bdb-tabs .nav-link {
+    padding: .5rem .75rem;
+    font-size: .82rem;
+  }
+}
+
+
+/* ================================================================
+   AUTH OVERLAY — positionnement + masquage (v1.1.0)
+   Porté depuis cds-overrides.css R8.8/R8.9 pour couvrir les pages
+   DBM qui ne chargent pas cds-overrides.css.
+   L'overlay #bdb-auth-overlay est injecté par bdb-shell.js en
+   premier enfant de <body>, HORS de #wrapper.
+   ================================================================ */
+
+/* ── Positionnement fullscreen de l'overlay ───────────────────── */
+body.bdb-auth-required [id$="-auth-overlay"]:not(.d-none) {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  background: #f3f4f8;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* Card centrée dans l'overlay */
+body.bdb-auth-required [id$="-auth-overlay"]:not(.d-none) > .card {
+  max-width: 32rem;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .12);
+  border-radius: .75rem;
+  border: 1px solid rgba(0, 0, 0, .08);
+}
+
+/* Icône circulaire dans la card overlay */
+body.bdb-auth-required [id$="-auth-overlay"] .bo-state-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: .75rem;
+}
+
+/* ── Masquage de tout le contenu derrière l'overlay ───────────── */
+body.bdb-auth-required #wrapper,
+body.bdb-auth-required #sidebar,
+body.bdb-auth-required #sidebarOverlay,
+body.bdb-auth-required .app-sidebar-overlay,
+body.bdb-auth-required .bdb-sig-fab,
+body.bdb-auth-required .bdb-demo-banner,
+body.bdb-auth-required .bdb-idle-warn {
+  display: none !important;
+}
+
+/* Scroll bloqué */
+body.bdb-auth-required {
+  overflow: hidden;
+}
+
+/* ────────────────── FIN bdb-ui-kit.css v1.1.0 ────────────────── */

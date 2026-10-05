@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zones de role | Des Blocs &amp; Moi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+</head>
+
+<body class="sidebar-closed">
+
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+<!-- ════════════ SIDEBAR ════════════ -->
+<nav class="app-sidebar collapsed" id="sidebar" aria-label="Navigation principale">
+  <div class="app-sidebar-brand">
+    <i class="bi bi-heart-pulse" style="font-size:1.2rem"></i>
+    Des Blocs &amp; Moi
+  </div>
+  <div class="app-sidebar-nav">
+    <div class="app-sidebar-section">Consulter</div>
+    <a href="template-module-demo.html" class="app-sidebar-link"><i class="bi bi-book"></i> Glossaire</a>
+    <a href="#" class="app-sidebar-link active"><i class="bi bi-list-check"></i> Protocoles</a>
+    <a href="#" class="app-sidebar-link"><i class="bi bi-file-earmark-text"></i> Fiches</a>
+  </div>
+  <div class="app-sidebar-footer">v2.0 &middot; Ortho &middot; Chenieux</div>
+</nav>
+<div class="app-sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ════════════ HEADER ════════════ -->
+<header class="app-header" role="banner">
+  <button class="app-header-toggle" id="sidebarToggle"
+          aria-label="Ouvrir ou fermer le menu" aria-expanded="false">
+    <i class="bi bi-list"></i>
+  </button>
+  <div class="app-header-search">
+    <i class="bi bi-search"></i>
+    <input type="search" placeholder="Rechercher..." aria-label="Recherche globale">
+  </div>
+  <div class="app-header-spacer"></div>
+
+  <!-- Role indicator in header -->
+  <span class="app-zone-badge app-zone-badge--creator">
+    <i class="bi bi-shield-fill"></i> Createur
+  </span>
+
+  <div class="app-avatar" title="Manu R." aria-label="Profil de Manu R." style="background:#ea580c">MR</div>
+</header>
+
+<!-- ════════════ MAIN ════════════ -->
+<div class="app-layout">
+  <main class="app-main" id="main-content">
+    <div class="app-content">
+
+      <!-- Breadcrumb -->
+      <nav class="app-breadcrumb" aria-label="Fil d'Ariane">
+        <a href="template-portail-demo.html">Accueil</a>
+        <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+        <span>Protocoles</span>
+      </nav>
+
+      <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
+        <div>
+          <h1 style="font-size:1.5rem;font-weight:700;margin:0">PTH voie anterieure</h1>
+          <p style="font-size:.85rem;color:var(--app-text-muted);margin:.25rem 0 0">
+            Protocole #P-0042 &middot; NFKA007 &middot; Completude 92%
+          </p>
+        </div>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════
+           ZONE MEMBRE (neutre — pas de marquage special)
+           ═══════════════════════════════════════════════════ -->
+
+      <div class="app-card mb-4">
+        <div class="app-card-header">
+          <strong style="font-size:.9rem">Informations du protocole</strong>
+        </div>
+        <div class="app-card-body">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:var(--app-text-muted);margin-bottom:.15rem">Intervention</div>
+              <div style="font-size:.9rem">Prothese totale de hanche — voie anterieure</div>
+            </div>
+            <div class="col-sm-3">
+              <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:var(--app-text-muted);margin-bottom:.15rem">Specialite</div>
+              <div style="font-size:.9rem">Orthopedie</div>
+            </div>
+            <div class="col-sm-3">
+              <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.3px;color:var(--app-text-muted);margin-bottom:.15rem">Duree</div>
+              <div style="font-size:.9rem">90 min</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Materiel (membre = lecture seule) -->
+      <div class="app-card mb-4">
+        <div class="app-card-header">
+          <strong style="font-size:.9rem">Materiel a preparer</strong>
+          <span class="app-badge app-badge-green">12 items</span>
+        </div>
+        <div class="app-card-body" style="padding:0">
+          <div style="overflow-x:auto">
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>Materiel</th>
+                  <th>Categorie</th>
+                  <th class="col-hide-mobile">Quantite</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Table orthopedique avec appui perineal</td><td><span class="app-badge app-badge-amber">Installation</span></td><td class="col-hide-mobile">1</td></tr>
+                <tr><td>Ancillaire PTH voie anterieure</td><td><span class="app-badge app-badge-blue">Ancillaire</span></td><td class="col-hide-mobile">1</td></tr>
+                <tr><td>Implants (tige, cotyle, tete, insert)</td><td><span class="app-badge app-badge-purple">Implant</span></td><td class="col-hide-mobile">1 lot</td></tr>
+                <tr><td>Moteur oscillant + lames</td><td><span class="app-badge app-badge-gray">Instrument</span></td><td class="col-hide-mobile">1</td></tr>
+                <tr><td>Ecarteurs Charnley + Hohmann</td><td><span class="app-badge app-badge-gray">Instrument</span></td><td class="col-hide-mobile">2+3</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════
+           ZONE ADMIN (violet — peut modifier des donnees)
+           ═══════════════════════════════════════════════════ -->
+
+      <div class="app-zone-separator">
+        <span class="app-zone-badge app-zone-badge--admin"><i class="bi bi-shield-lock"></i> Zone admin</span>
+      </div>
+
+      <div class="app-card app-card--admin mb-4">
+        <div class="app-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <strong style="font-size:.9rem">Gestion du protocole</strong>
+            <span class="app-zone-badge app-zone-badge--admin"><i class="bi bi-shield-lock"></i> Admin</span>
+          </div>
+          <span class="app-zone-header-hint" style="font-size:.72rem;color:var(--app-text-muted)">Modifications visibles par tous les membres</span>
+        </div>
+        <div class="app-card-body">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label" style="font-size:.8rem;font-weight:500">Statut du protocole</label>
+              <select class="form-select form-select-sm">
+                <option selected>Actif</option>
+                <option>Brouillon</option>
+                <option>Archive</option>
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label" style="font-size:.8rem;font-weight:500">Chirurgien referent</label>
+              <select class="form-select form-select-sm">
+                <option selected>Dr X X</option>
+                <option>Dr Martin Sophie</option>
+                <option>Dr Dupont Jean</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label" style="font-size:.8rem;font-weight:500">Notes admin</label>
+              <textarea class="form-control form-control-sm" rows="2" placeholder="Notes internes visibles par les administrateurs uniquement..."></textarea>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-sm btn-outline-secondary" style="display:inline-flex;align-items:center;gap:.35rem">
+              <i class="bi bi-archive"></i> Archiver
+            </button>
+            <button class="btn btn-sm btn-primary" style="display:inline-flex;align-items:center;gap:.35rem">
+              <i class="bi bi-check-lg"></i> Enregistrer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin : variantes chirurgien -->
+      <div class="app-zone-admin mb-4">
+        <div class="app-zone-header">
+          <span class="app-zone-badge app-zone-badge--admin"><i class="bi bi-shield-lock"></i> Admin</span>
+          <span class="app-zone-header-title">Variantes chirurgien</span>
+          <span class="app-zone-header-hint">Ajout ou modification des preferences par praticien</span>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div class="app-card" style="height:100%">
+              <div class="app-card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <strong style="font-size:.85rem">Dr X — Preferences</strong>
+                  <a class="app-icon-btn" title="Modifier" role="button" aria-label="Modifier preferences Dr X"><i class="bi bi-pencil"></i></a>
+                </div>
+                <div style="font-size:.8rem;color:var(--app-text-muted)">Voie anterieure, Corail Pinnacle, non cimentee, ceramique 36mm</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="app-card" style="height:100%;border-style:dashed">
+              <div class="app-card-body" style="display:flex;align-items:center;justify-content:center;min-height:80px">
+                <button class="btn btn-sm btn-outline-secondary" style="display:inline-flex;align-items:center;gap:.35rem">
+                  <i class="bi bi-plus-lg"></i> Ajouter un chirurgien
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════
+           ZONE CREATEUR (orange — peut casser l'app)
+           ═══════════════════════════════════════════════════ -->
+
+      <div class="app-zone-separator">
+        <span class="app-zone-badge app-zone-badge--creator"><i class="bi bi-shield-fill"></i> Zone createur</span>
+      </div>
+
+      <div class="app-card app-card--creator mb-4">
+        <div class="app-card-header">
+          <div class="d-flex align-items-center gap-2">
+            <strong style="font-size:.9rem">Operations avancees</strong>
+            <span class="app-zone-badge app-zone-badge--creator"><i class="bi bi-shield-fill"></i> Createur</span>
+          </div>
+          <span class="app-zone-header-hint" style="font-size:.72rem;color:var(--app-zone-creator-badge-text)">
+            <i class="bi bi-exclamation-triangle"></i> Actions irreversibles
+          </span>
+        </div>
+        <div class="app-card-body">
+
+          <!-- Data operations -->
+          <div class="mb-3">
+            <div style="font-size:.8rem;font-weight:600;margin-bottom:.5rem">Donnees</div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-sm btn-outline-secondary" style="display:inline-flex;align-items:center;gap:.35rem">
+                <i class="bi bi-database-down"></i> Export SQL
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" style="display:inline-flex;align-items:center;gap:.35rem">
+                <i class="bi bi-arrow-repeat"></i> Regenerer liaisons CCAM
+              </button>
+              <button class="btn btn-sm btn-outline-danger" style="display:inline-flex;align-items:center;gap:.35rem">
+                <i class="bi bi-trash3"></i> Supprimer le protocole
+              </button>
+            </div>
+          </div>
+
+          <!-- Schema / migration -->
+          <div class="mb-3">
+            <div style="font-size:.8rem;font-weight:600;margin-bottom:.5rem">Schema &amp; Migrations</div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-sm btn-outline-secondary" style="display:inline-flex;align-items:center;gap:.35rem">
+                <i class="bi bi-code-square"></i> Voir la migration source
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" style="display:inline-flex;align-items:center;gap:.35rem">
+                <i class="bi bi-diagram-3"></i> Inspecter les FK
+              </button>
+            </div>
+          </div>
+
+          <!-- Debug info -->
+          <div>
+            <div style="font-size:.8rem;font-weight:600;margin-bottom:.5rem">Debug</div>
+            <div style="background:var(--app-bg);border:1px solid var(--app-border);border-radius:.375rem;padding:.75rem;font-family:monospace;font-size:.75rem;color:var(--app-text-muted)">
+              <div>id: <span style="color:var(--app-text)">p-0042</span></div>
+              <div>created_at: <span style="color:var(--app-text)">2026-01-15T09:23:41Z</span></div>
+              <div>updated_at: <span style="color:var(--app-text)">2026-05-02T11:07:22Z</span></div>
+              <div>ccam_ref: <span style="color:var(--app-text)">NFKA007</span></div>
+              <div>completude: <span style="color:var(--app-text)">0.92</span></div>
+              <div>variantes_count: <span style="color:var(--app-text)">1</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Standalone zone block (no card wrapper) -->
+      <div class="app-zone-creator mb-4">
+        <div class="app-zone-header">
+          <span class="app-zone-badge app-zone-badge--creator"><i class="bi bi-shield-fill"></i> Createur</span>
+          <span class="app-zone-header-title">Audit doctrine</span>
+          <span class="app-zone-header-hint">Conformite principes BDB</span>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-4">
+            <div style="font-size:.8rem;color:var(--app-text-muted);margin-bottom:.25rem">STB adressees</div>
+            <div><span class="app-badge app-badge-green">STB-01</span> <span class="app-badge app-badge-green">STB-03</span></div>
+          </div>
+          <div class="col-sm-4">
+            <div style="font-size:.8rem;color:var(--app-text-muted);margin-bottom:.25rem">Combo gagnant</div>
+            <div style="font-size:.85rem"><strong>8/12</strong> maillons completes</div>
+          </div>
+          <div class="col-sm-4">
+            <div style="font-size:.8rem;color:var(--app-text-muted);margin-bottom:.25rem">Couche</div>
+            <div><span class="app-badge app-badge-blue">L1 Universel</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /app-content -->
+
+    <footer class="app-footer">
+      <span>&copy; 2026 Des Blocs &amp; Moi</span>
+      <div class="d-flex gap-3">
+        <a href="#">Aide</a>
+        <a href="#">Accessibilite</a>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function() {
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  var toggle = document.getElementById('sidebarToggle');
+  var isDesktop = function() { return window.innerWidth >= 992; };
+
+  document.body.classList.add('sidebar-closed');
+
+  function closeSidebar() {
+    if (isDesktop()) { document.body.classList.add('sidebar-closed'); sidebar.classList.add('collapsed'); }
+    else { sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+  function openSidebar() {
+    if (isDesktop()) { document.body.classList.remove('sidebar-closed'); sidebar.classList.remove('collapsed'); }
+    else { sidebar.classList.add('open'); overlay.classList.add('show'); }
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+  toggle.addEventListener('click', function() {
+    var expanded = toggle.getAttribute('aria-expanded') === 'true';
+    if (expanded) closeSidebar(); else openSidebar();
+  });
+  overlay.addEventListener('click', closeSidebar);
+  window.addEventListener('resize', function() {
+    if (isDesktop()) { sidebar.classList.remove('open'); overlay.classList.remove('show');
+      if (document.body.classList.contains('sidebar-closed')) sidebar.classList.add('collapsed');
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,10 +1,45 @@
 /* thesaurus-analytics.js — BDB · CDS · Module thesaurus */
 Object.assign(ThesApp, {
 
+  // ── Cache fiches papier (lazy) ─────────────────────────────
+  _fichesCache: null,
+  _fetchFiches: async function() {
+    if (this._fichesCache !== null) return this._fichesCache;
+    // Tenter Supabase
+    if (window.bdb) {
+      try {
+        var resp = await window.bdb
+          .from('thesaurus_fiches_papier')
+          .select('chirurgien, statut, id_protocole_match');
+        if (!resp.error && resp.data && resp.data.length > 0) {
+          this._fichesCache = resp.data;
+          return this._fichesCache;
+        }
+      } catch (_) { /* fallback */ }
+    }
+    // Fallback RAPPR_ROWS_ORIG
+    if (typeof RAPPR_ROWS_ORIG !== 'undefined' && RAPPR_ROWS_ORIG.length > 0) {
+      this._fichesCache = RAPPR_ROWS_ORIG.map(function(r) {
+        return { chirurgien: r.chirurgien, statut: r.statut, id_protocole_match: r.id_protocole_match || '' };
+      });
+      return this._fichesCache;
+    }
+    this._fichesCache = [];
+    return this._fichesCache;
+  },
+
+  _matchFichesChir: function(fiches, chirNom) {
+    if (!fiches || !chirNom) return [];
+    var nom = chirNom.toUpperCase();
+    return fiches.filter(function(f) {
+      return f.chirurgien.toUpperCase().indexOf(nom) !== -1;
+    });
+  },
+
   // ════════════════════════════════════════════════════════════
   // ONGLET 2 — DASHBOARDS (données protocoles = déjà en mémoire)
   // ════════════════════════════════════════════════════════════
-  initDashboard: function() {
+  initDashboard: async function() {
     var d = this.data, total = d.length; if (!total) return;
     var self = this;
     var classif = d.filter(function(p){ return p.type && p.type !== ''; }).length;
@@ -74,6 +109,9 @@ Object.assign(ThesApp, {
         'aria-valuenow="'+q.pct+'" aria-valuemin="0" aria-valuemax="100"></div></div>'+
         '<span class="thes-quality-pct">'+q.pct+' %</span></div>';
     }).join('');
+
+    // A1 + A2 — Métriques bloc (async, non-bloquant)
+    this._initBlocDashboard().catch(function() {});
   },
 
   _destroyChart: function(id) {
@@ -81,6 +119,214 @@ Object.assign(ThesApp, {
     if (el) { var c = Chart.getChart(el); if (c) c.destroy(); }
   },
 
+  // ════════════════════════════════════════════════════════════
+  // BLOC STATS — Cache mutualisé A1/A2/B1/B2
+  // ════════════════════════════════════════════════════════════
+  _blocStats: null,
+
+  _computeBlocStats: async function() {
+    if (this._blocStats) return this._blocStats;
+
+    var self = this;
+    var actifs = (this._chirurgiens || []).filter(function(c) { return c.actif === true; });
+    var piProto = this.data.find(function(p) { return p.libelle_cible === 'PETITE INTERVENTION'; });
+    var piId = piProto ? piProto.id : null;
+
+    // Fetch tous les chirurgiens EN PARALLÈLE (10x plus rapide)
+    var fetchPromises = actifs.map(function(c) {
+      return self._fetchInterv({ chirurgien_id: c.id }).catch(function() { return []; });
+    });
+    var allResults = await Promise.all(fetchPromises);
+
+    var totalInterv = 0;
+    var totalPI = 0;
+    var perChir = {};
+    var protoChirMap = {};
+
+    actifs.forEach(function(c, ci) {
+      var interv = allResults[ci] || [];
+      var protos = {};
+      var pi = 0;
+
+      interv.forEach(function(iv) {
+        totalInterv++;
+        if (iv.protocole_id) {
+          protos[iv.protocole_id] = (protos[iv.protocole_id] || 0) + 1;
+          if (!protoChirMap[iv.protocole_id]) protoChirMap[iv.protocole_id] = {};
+          protoChirMap[iv.protocole_id][c.id] = true;
+        }
+        if (iv.protocole_id === piId) pi++;
+      });
+
+      totalPI += pi;
+      perChir[c.id] = {
+        total: interv.length,
+        distinctProtos: Object.keys(protos).length,
+        piCount: pi,
+        protos: protos
+      };
+    });
+
+    // Protocoles exclusifs par chirurgien
+    var exclusifs = {};
+    actifs.forEach(function(c) { exclusifs[c.id] = []; });
+    Object.keys(protoChirMap).forEach(function(protoId) {
+      var chirIds = Object.keys(protoChirMap[protoId]);
+      if (chirIds.length === 1) {
+        var pr = self.data.find(function(p) { return p.id === protoId; });
+        if (pr && pr.type !== 'EXCLUS') {
+          exclusifs[chirIds[0]].push(pr.libelle_cible);
+        }
+      }
+    });
+
+    var fiches = [];
+    try { fiches = await this._fetchFiches(); } catch (_) { fiches = []; }
+
+    this._blocStats = {
+      totalInterv: totalInterv,
+      totalPI: totalPI,
+      actifs: actifs,
+      perChir: perChir,
+      protoChirMap: protoChirMap,
+      exclusifs: exclusifs,
+      fiches: fiches,
+      avgInterv: actifs.length > 0 ? Math.round(totalInterv / actifs.length) : 0,
+      avgProtos: actifs.length > 0 ? Math.round(Object.values(perChir).reduce(function(s, c) { return s + c.distinctProtos; }, 0) / actifs.length) : 0
+    };
+    return this._blocStats;
+  },
+
+  // ════════════════════════════════════════════════════════════
+  // A1 — KPI BLOC + A2 — TABLEAU COMPARATIF
+  // ════════════════════════════════════════════════════════════
+  _initBlocDashboard: async function() {
+    try {
+    var self = this;
+    var bs = await this._computeBlocStats();
+    var d = this.data;
+    var totalProtos = d.filter(function(p) { return p.type !== 'EXCLUS'; }).length;
+    var protosActifs = d.filter(function(p) { return p.frequence > 0 && p.type !== 'EXCLUS'; }).length;
+    var protosVides = totalProtos - protosActifs;
+
+    // A1 — KPI Bloc
+    var elInterv = document.getElementById('kpiBlocInterv');
+    if (elInterv) {
+      elInterv.textContent = this.fmtNum(bs.totalInterv);
+      document.getElementById('kpiBlocIntervSub').textContent = '2006 → 2026';
+    }
+    var elChir = document.getElementById('kpiBlocChirActifs');
+    if (elChir) {
+      elChir.textContent = bs.actifs.length;
+      var retr = (this._chirurgiens || []).filter(function(c) { return c.actif === false; }).length;
+      document.getElementById('kpiBlocChirSub').textContent = '+ ' + retr + ' retraités';
+    }
+    var elPI = document.getElementById('kpiBlocPI');
+    if (elPI) {
+      var pctPI = bs.totalInterv > 0 ? (bs.totalPI / bs.totalInterv * 100).toFixed(1) : '0';
+      elPI.textContent = this.fmtNum(bs.totalPI);
+      document.getElementById('kpiBlocPISub').textContent = pctPI + '% des interventions';
+    }
+    var elFiches = document.getElementById('kpiBlocFiches');
+    if (elFiches) {
+      var fTotal = bs.fiches.length;
+      var fRappr = bs.fiches.filter(function(f) { return f.statut === 'Rapproche'; }).length;
+      var fPct = fTotal > 0 ? Math.round(fRappr / fTotal * 100) : 0;
+      elFiches.textContent = fRappr + '/' + fTotal;
+      document.getElementById('kpiBlocFichesSub').textContent = fPct + '% couverture';
+    }
+    // C2 — Build Set of protocole IDs that have at least one fiche
+    var protoIdsWithFiche = {};
+    bs.fiches.forEach(function(f) {
+      if (f.id_protocole_match) protoIdsWithFiche[f.id_protocole_match] = true;
+    });
+    ThesApp._fichesProtoIds = { has: function(id) { return !!protoIdsWithFiche[id]; } };
+    var elPA = document.getElementById('kpiBlocProtoActifs');
+    if (elPA) {
+      elPA.textContent = protosActifs;
+      document.getElementById('kpiBlocProtoActifsSub').textContent = Math.round(protosActifs / totalProtos * 100) + '% du référentiel';
+    }
+    var elPV = document.getElementById('kpiBlocProtoVides');
+    if (elPV) {
+      elPV.textContent = protosVides;
+      document.getElementById('kpiBlocProtoVidesSub').textContent = 'trous de couverture';
+    }
+
+    // A2 — Tableau comparatif chirurgiens
+    var wrap = document.getElementById('dashChirTableWrap');
+    if (!wrap) return;
+
+    var rows = bs.actifs.map(function(c) {
+      var pc = bs.perChir[c.id] || { total: 0, distinctProtos: 0, piCount: 0 };
+      var fichesChir = self._matchFichesChir(bs.fiches, c.nom);
+      var fT = fichesChir.length;
+      var fR = fichesChir.filter(function(f) { return f.statut === 'Rapproche'; }).length;
+      var excl = (bs.exclusifs[c.id] || []).length;
+      return {
+        nom: c.label, specialite: c.specialite,
+        total: pc.total, pctBloc: bs.totalInterv > 0 ? (pc.total / bs.totalInterv * 100).toFixed(1) : '0',
+        protos: pc.distinctProtos, pctRef: totalProtos > 0 ? Math.round(pc.distinctProtos / totalProtos * 100) : 0,
+        pi: pc.piCount, pctPi: pc.total > 0 ? (pc.piCount / pc.total * 100).toFixed(1) : '0',
+        fichesR: fR, fichesT: fT, pctFiches: fT > 0 ? Math.round(fR / fT * 100) : 0,
+        exclusifs: excl
+      };
+    }).sort(function(a, b) { return b.total - a.total; });
+
+    var badge = document.getElementById('dashChirTableBadge');
+    if (badge) badge.textContent = bs.actifs.length + ' chirurgiens actifs';
+
+    var html = '<table class="table table-sm table-striped table-hover mb-0">' +
+      '<thead class="thes-thead-sticky"><tr>' +
+      '<th>Chirurgien</th>' +
+      '<th class="text-end">Interv.</th><th class="text-end">% bloc</th>' +
+      '<th class="text-end">Protos</th><th class="text-end">% réf.</th>' +
+      '<th class="text-end">PI</th><th class="text-end">% PI</th>' +
+      '<th class="text-end">Fiches</th><th class="text-end">% fich.</th>' +
+      '<th class="text-end">Exclusifs</th>' +
+      '</tr></thead><tbody>';
+
+    rows.forEach(function(r) {
+      var piCl = parseFloat(r.pctPi) > 5 ? 'text-danger fw-semibold' : '';
+      var fichCl = r.pctFiches >= 80 ? 'text-success' : r.pctFiches >= 50 ? 'text-warning' : 'text-danger';
+      html += '<tr>' +
+        '<td><span class="fw-semibold">' + escHtml(r.nom) + '</span>' +
+        (r.specialite === 'NEUROCHIRURGIE' ? ' <span class="badge thes-badge-neuro">NEURO</span>' : '') + '</td>' +
+        '<td class="text-end">' + self.fmtNum(r.total) + '</td>' +
+        '<td class="text-end text-muted">' + escHtml(r.pctBloc) + '%</td>' +
+        '<td class="text-end">' + r.protos + '</td>' +
+        '<td class="text-end text-muted">' + r.pctRef + '%</td>' +
+        '<td class="text-end ' + piCl + '">' + self.fmtNum(r.pi) + '</td>' +
+        '<td class="text-end ' + piCl + '">' + escHtml(r.pctPi) + '%</td>' +
+        '<td class="text-end">' + r.fichesR + '/' + r.fichesT + '</td>' +
+        '<td class="text-end ' + fichCl + '">' + r.pctFiches + '%</td>' +
+        '<td class="text-end">' + r.exclusifs + '</td>' +
+        '</tr>';
+    });
+
+    // Ligne total
+    var totR = rows.reduce(function(s, r) { return s + r.total; }, 0);
+    var totProtos = new Set(); rows.forEach(function(r) { /* approx */ });
+    var totPI = rows.reduce(function(s, r) { return s + r.pi; }, 0);
+    var totFR = rows.reduce(function(s, r) { return s + r.fichesR; }, 0);
+    var totFT = rows.reduce(function(s, r) { return s + r.fichesT; }, 0);
+    html += '<tr class="fw-bold table-dark">' +
+      '<td>TOTAL</td>' +
+      '<td class="text-end">' + self.fmtNum(totR) + '</td><td class="text-end">100%</td>' +
+      '<td class="text-end">—</td><td class="text-end">—</td>' +
+      '<td class="text-end">' + self.fmtNum(totPI) + '</td>' +
+      '<td class="text-end">' + (totR > 0 ? (totPI / totR * 100).toFixed(1) : '0') + '%</td>' +
+      '<td class="text-end">' + totFR + '/' + totFT + '</td>' +
+      '<td class="text-end">' + (totFT > 0 ? Math.round(totFR / totFT * 100) : 0) + '%</td>' +
+      '<td class="text-end">—</td>' +
+      '</tr>';
+
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+    } catch (e) {
+      var w = document.getElementById('dashChirTableWrap');
+      if (w) w.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-exclamation-triangle me-2"></i>Données bloc non disponibles.</div>';
+    }
+  },
 
 
   // ════════════════════════════════════════════════════════════
@@ -151,20 +397,87 @@ Object.assign(ThesApp, {
     var cumSum = 0;
     var top20cumul = top20.map(function(e) { cumSum += e[1]; return Math.round(cumSum/totalInterv*100); });
 
+    // ── Métriques enrichies ──────────────────────────────────
+    // % interventions vs total bloc (somme des fréquences protocoles)
+    var totalAllInterv = this.data.reduce(function(s, p) { return s + (p.frequence || 0); }, 0);
+    var pctInterv = totalAllInterv > 0 ? (totalInterv / totalAllInterv * 100).toFixed(1) : '0';
+
+    // % protocoles vs référentiel (hors EXCLUS)
+    var totalProtos = this.data.filter(function(p) { return p.type !== 'EXCLUS'; }).length;
+    var pctProtos = totalProtos > 0 ? Math.round(protosD / totalProtos * 100) : 0;
+
+    // Petites interventions (PI = PETITE INTERVENTION)
+    var piCount = 0;
+    interv.forEach(function(i) {
+      if (i.protocole_operatoire === 'PETITE INTERVENTION') piCount++;
+    });
+    var pctPi = totalInterv > 0 ? (piCount / totalInterv * 100).toFixed(1) : '0';
+
+    // Fiches papier rapprochées
+    var fiches = [];
+    try { fiches = await this._fetchFiches(); } catch (_) { fiches = []; }
+    var chirObj = (this._chirurgiens || []).find(function(x) { return x.id === chirId; });
+    var chirNom = chirObj ? chirObj.nom : '';
+    var fichesChir = this._matchFichesChir(fiches, chirNom);
+    var fichesTotal = fichesChir.length;
+    var fichesRappr = fichesChir.filter(function(f) { return f.statut === 'Rapproche'; }).length;
+    var pctFiches = fichesTotal > 0 ? Math.round(fichesRappr / fichesTotal * 100) : 0;
+
+    // B1 — Indicateurs vs bloc (moyenne)
+    var bs = null;
+    try { bs = await this._computeBlocStats(); } catch (_) { bs = null; }
+    var vsInterv = (bs && bs.avgInterv > 0) ? ((totalInterv / bs.avgInterv - 1) * 100).toFixed(0) : '0';
+    var vsProtos = (bs && bs.avgProtos > 0) ? ((protosD / bs.avgProtos - 1) * 100).toFixed(0) : '0';
+    function vsBadge(pct) {
+      var n = parseInt(pct, 10);
+      if (n > 5)  return ' <span class="badge bg-success-subtle text-success thes-badge-tiny">\u25B2 +' + n + '%</span>';
+      if (n < -5) return ' <span class="badge bg-danger-subtle text-danger thes-badge-tiny">\u25BC ' + n + '%</span>';
+      return ' <span class="badge bg-secondary-subtle text-secondary thes-badge-tiny">\u25BA moy.</span>';
+    }
+
+    // B2 — Protocoles exclusifs
+    var exclusifsList = (bs && bs.exclusifs && bs.exclusifs[chirId]) ? bs.exclusifs[chirId] : [];
+
     var html = '';
 
-    // KPI cards — style="color:#7c3aed" → class thes-kpi-purple
+    // KPI cards — 6 métriques + vs-bloc + exclusifs
     html += '<div class="thes-chir-kpi-grid">' +
-      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon blue"><i class="bi bi-activity"></i></div><div><div class="thes-chir-kpi-val text-primary">' + this.fmtNum(totalInterv) + '</div><div class="thes-chir-kpi-label">Interventions' + (annee ? ' ('+escHtml(annee)+')' : '') + '</div></div></div>' +
-      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon green"><i class="bi bi-journal-check"></i></div><div><div class="thes-chir-kpi-val text-success">' + protosD + '</div><div class="thes-chir-kpi-label">Protocoles distincts</div></div></div>' +
-      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon amber"><i class="bi bi-calendar-check"></i></div><div><div class="thes-chir-kpi-val text-warning">' + escHtml(moisActif ? moisActif[0] : '—') + '</div><div class="thes-chir-kpi-label">Mois le + actif</div></div></div>' +
-      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon purple"><i class="bi bi-bar-chart-steps"></i></div><div><div class="thes-chir-kpi-val thes-kpi-purple">' + Math.round(protosD/420*100) + '%</div><div class="thes-chir-kpi-label">Diversité (vs 420)</div></div></div>' +
+      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon blue"><i class="bi bi-activity"></i></div><div>' +
+        '<div class="thes-chir-kpi-val text-primary">' + this.fmtNum(totalInterv) + '</div>' +
+        '<div class="thes-chir-kpi-label">Interventions' + (annee ? ' ('+escHtml(annee)+')' : '') + '</div>' +
+        '<div class="kpi-sub text-muted">' + escHtml(pctInterv) + '% du bloc' + (annee ? '' : vsBadge(vsInterv)) + '</div>' +
+      '</div></div>' +
+      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon green"><i class="bi bi-journal-check"></i></div><div>' +
+        '<div class="thes-chir-kpi-val text-success">' + protosD + '</div>' +
+        '<div class="thes-chir-kpi-label">Protocoles distincts</div>' +
+        '<div class="kpi-sub text-muted">' + pctProtos + '% du r\u00e9f.' + vsBadge(vsProtos) + '</div>' +
+      '</div></div>' +
+      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon red"><i class="bi bi-exclamation-triangle"></i></div><div>' +
+        '<div class="thes-chir-kpi-val text-danger">' + this.fmtNum(piCount) + '</div>' +
+        '<div class="thes-chir-kpi-label">Petites interventions</div>' +
+        '<div class="kpi-sub text-muted">' + escHtml(pctPi) + '% de ses interv.</div>' +
+      '</div></div>' +
+      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon cyan"><i class="bi bi-file-earmark-check"></i></div><div>' +
+        '<div class="thes-chir-kpi-val thes-kpi-cyan">' + fichesRappr + '<small class="fw-normal text-muted">/' + fichesTotal + '</small></div>' +
+        '<div class="thes-chir-kpi-label">Fiches rapproch\u00e9es</div>' +
+        '<div class="kpi-sub text-muted">' + pctFiches + '% couverture</div>' +
+      '</div></div>' +
+      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon amber"><i class="bi bi-calendar-check"></i></div><div>' +
+        '<div class="thes-chir-kpi-val text-warning">' + escHtml(moisActif ? moisActif[0] : '\u2014') + '</div>' +
+        '<div class="thes-chir-kpi-label">Mois le + actif</div>' +
+      '</div></div>' +
+      '<div class="thes-chir-kpi-card"><div class="thes-chir-kpi-icon purple"><i class="bi bi-lock"></i></div><div>' +
+        '<div class="thes-chir-kpi-val thes-kpi-purple">' + exclusifsList.length + '</div>' +
+        '<div class="thes-chir-kpi-label">Protocoles exclusifs</div>' +
+        '<div class="kpi-sub text-muted">lui seul les pratique</div>' +
+      '</div></div>' +
     '</div>';
 
-    // Row 1 : Activité annuelle + Types doughnut
+    // Row 1 : Activité annuelle/mensuelle + Types doughnut
+    var chartActivityTitle = annee ? 'Activité mensuelle ' + escHtml(annee) : 'Activité annuelle';
     html += '<div class="row g-3 mb-3">' +
       '<div class="col-12 col-lg-8"><div class="card border-0 shadow-sm h-100">' +
-        '<div class="card-header bg-white border-bottom"><div class="thes-section-title mb-0"><i class="bi bi-graph-up"></i>Activité annuelle</div></div>' +
+        '<div class="card-header bg-white border-bottom"><div class="thes-section-title mb-0"><i class="bi bi-graph-up"></i>' + chartActivityTitle + '</div></div>' +
         '<div class="card-body p-3"><canvas id="chartChirYearly" height="180"></canvas></div></div></div>' +
       '<div class="col-12 col-lg-4"><div class="card border-0 shadow-sm h-100">' +
         '<div class="card-header bg-white border-bottom"><div class="thes-section-title mb-0"><i class="bi bi-pie-chart"></i>Répartition types</div></div>' +
@@ -224,18 +537,66 @@ Object.assign(ThesApp, {
           '<i class="bi bi-check-circle me-2"></i>Aucune intervention rare — couverture complète.</div></div></div>';
     }
     html += '</div>';
+
+    // B2 — Protocoles exclusifs (card dédiée)
+    if (exclusifsList.length > 0) {
+      html += '<div class="row g-3 mt-1"><div class="col-12"><div class="card border-0 shadow-sm">' +
+        '<div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">' +
+          '<div class="thes-section-title mb-0"><i class="bi bi-lock"></i>Protocoles exclusifs — seul ' + escHtml(chirLabel) + ' les pratique</div>' +
+          '<span class="badge bg-purple-subtle thes-badge-sacred">' + exclusifsList.length + ' protocole' + (exclusifsList.length > 1 ? 's' : '') + '</span></div>' +
+        '<div class="card-body p-0"><div class="table-responsive thes-scroll-260"><table class="table table-sm mb-0"><tbody>' +
+        exclusifsList.sort().map(function(lib) {
+          return '<tr><td class="small"><i class="bi bi-lock-fill me-1 thes-kpi-purple"></i>' + escHtml(lib) + '</td></tr>';
+        }).join('') +
+        '</tbody></table></div></div></div></div></div>';
+    }
+
     res.innerHTML = html;
 
     // Charts
     setTimeout(function() {
-      var years = Object.keys(yearMap).sort();
+      var MOIS_LABELS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
       self._destroyChart('chartChirYearly');
+
+      var chartLabels, chartData, chartType, chartTension, chartPointRadius;
+      if (annee) {
+        // Mode mensuel : 12 barres pour l'année sélectionnée
+        chartLabels = MOIS_LABELS;
+        chartData = MOIS_LABELS.map(function(_, i) {
+          var key = annee + '-' + String(i + 1).padStart(2, '0');
+          return moisMap[key] || 0;
+        });
+        chartType = 'bar';
+        chartTension = 0;
+        chartPointRadius = 0;
+      } else {
+        // Mode annuel : courbe multi-années
+        var years = Object.keys(yearMap).sort();
+        chartLabels = years;
+        chartData = years.map(function(y) { return yearMap[y]; });
+        chartType = 'line';
+        chartTension = 0.3;
+        chartPointRadius = 4;
+      }
+
       new Chart(document.getElementById('chartChirYearly'), {
-        type:'line',
-        data:{labels:years, datasets:[{label:'Interventions',data:years.map(function(y){return yearMap[y];}),
-          borderColor:'#2563eb',backgroundColor:'#2563eb15',fill:true,tension:0.3,pointRadius:4,pointBackgroundColor:'#2563eb'}]},
-        options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.raw+' interventions';}}}},
-          scales:{x:{grid:{display:false}},y:{beginAtZero:true,grid:{color:'#f3f4f6'}}},responsive:true,maintainAspectRatio:false}
+        type: chartType,
+        data: { labels: chartLabels, datasets: [{
+          label: 'Interventions',
+          data: chartData,
+          borderColor: '#2563eb',
+          backgroundColor: annee ? '#93c5fd' : '#2563eb15',
+          fill: !annee,
+          tension: chartTension,
+          pointRadius: chartPointRadius,
+          pointBackgroundColor: '#2563eb',
+          borderRadius: annee ? 4 : 0
+        }]},
+        options: {
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(c) { return c.raw + ' interventions'; } } } },
+          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#f3f4f6' } } },
+          responsive: true, maintainAspectRatio: false
+        }
       });
       self._destroyChart('chartChirType');
       var typeLabels = Object.keys(typeMap).filter(function(k){return typeMap[k]>0;});

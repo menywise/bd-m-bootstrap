@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NIVEAU 0 — DB&M · V0.5.0</title>
+
+  <!-- CDS Chain: Bootstrap 5.3.3 → theme-base.css → Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/css/theme-base.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    /* ========================================================
+       NIVEAU 0 — Print Document · CDS Compliant
+       Font = system-ui (INTERDIT-CDS-03)
+       Zero Google Fonts, Zero Font Awesome (INTERDIT-CDS-04)
+       ======================================================== */
+
+    :root {
+      --n0-primary: #2c3e50;
+      --n0-accent: #1a73a7;
+      --n0-accent-light: #e8f2fa;
+      --n0-border: #dee2e6;
+      --n0-muted: #6c757d;
+      --n0-bg-quote: #f8f9fa;
+      --n0-red: #c0392b;
+      --n0-green: #27ae60;
+      --n0-amber: #f39c12;
+    }
+
+    /* ----- BASE TYPOGRAPHY ----- */
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: #212529;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--n0-primary);
+      font-weight: 700;
+    }
+
+    /* ----- COVER PAGE ----- */
+    .cover-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .cover-icon {
+      font-size: 4rem;
+      color: var(--n0-accent);
+      margin-bottom: 1.5rem;
+    }
+
+    .cover-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--n0-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 0.25rem;
+    }
+
+    .cover-subtitle {
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--n0-muted);
+      margin-bottom: 2.5rem;
+    }
+
+    .cover-version {
+      display: inline-block;
+      background: var(--n0-accent-light);
+      color: var(--n0-accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.4rem 1.2rem;
+      border-radius: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .cover-date {
+      font-size: 0.95rem;
+      color: var(--n0-muted);
+    }
+
+    .cover-epigraph {
+      max-width: 460px;
+      margin: 3rem auto 0;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--n0-muted);
+      border-left: 3px solid var(--n0-accent);
+      padding-left: 1rem;
+      text-align: left;
+    }
+
+    .cover-epigraph cite {
+      display: block;
+      margin-top: 0.4rem;
+      font-style: normal;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* ----- TABLE OF CONTENTS (compact) ----- */
+    .toc-page {
+      padding: 0.5rem 0;
+    }
+
+    .toc-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--n0-primary);
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 2px solid var(--n0-accent);
+    }
+
+    .toc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .toc-list li {
+      padding: 0.18rem 0;
+      border-bottom: 1px dotted var(--n0-border);
+      display: flex;
+      align-items: baseline;
+    }
+
+    .toc-num {
+      display: inline-block;
+      min-width: 2rem;
+      font-weight: 700;
+      color: var(--n0-accent);
+      font-size: 0.88rem;
+    }
+
+    .toc-label {
+      flex: 1;
+      font-size: 0.88rem;
+      color: #212529;
+    }
+
+    /* ----- SECTION HEADERS (inline: badge + titre sur une ligne) ----- */
+    .section-page {
+      padding: 1.2rem 0 0.4rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      border-bottom: 2px solid var(--n0-accent);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-num {
+      display: inline-block;
+      background: var(--n0-accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 0.2rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--n0-primary);
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+
+    /* ----- SUBSECTIONS ----- */
+    .subsection-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--n0-primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--n0-border);
+    }
+
+    /* ----- BLOCKQUOTES ----- */
+    .n0-quote {
+      background: var(--n0-bg-quote);
+      border-left: 4px solid var(--n0-accent);
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0;
+      font-style: italic;
+      font-size: 0.95rem;
+      border-radius: 0 0.25rem 0.25rem 0;
+    }
+
+    /* ----- INTERDIT BLOCKS ----- */
+    .interdit-block {
+      background: #fef2f2;
+      border-left: 4px solid var(--n0-red);
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0;
+      border-radius: 0 0.25rem 0.25rem 0;
+    }
+
+    .interdit-block strong {
+      color: var(--n0-red);
+    }
+
+    /* ----- MALADIE BLOCKS ----- */
+    .maladie-block {
+      background: #fffbeb;
+      border-left: 4px solid var(--n0-amber);
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0;
+      border-radius: 0 0.25rem 0.25rem 0;
+    }
+
+    .maladie-block h4 {
+      color: var(--n0-amber);
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    /* ----- TABLES ----- */
+    .n0-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 1rem 0;
+    }
+
+    .n0-table thead th {
+      background: var(--n0-primary);
+      color: #fff;
+      font-weight: 600;
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .n0-table tbody td {
+      padding: 0.45rem 0.6rem;
+      border-bottom: 1px solid var(--n0-border);
+      vertical-align: top;
+    }
+
+    .n0-table tbody tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+
+    /* ----- KEY CONCEPTS ----- */
+    .concept-badge {
+      display: inline-block;
+      background: var(--n0-accent-light);
+      color: var(--n0-accent);
+      font-weight: 600;
+      font-size: 0.8rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.2rem;
+      margin-right: 0.25rem;
+    }
+
+    /* ----- EMPHASIS ----- */
+    .n0-strong {
+      color: var(--n0-primary);
+      font-weight: 700;
+    }
+
+    /* ----- LISTS ----- */
+    .n0-list {
+      padding-left: 1.2rem;
+      margin: 0.6rem 0;
+    }
+
+    .n0-list li {
+      margin-bottom: 0.4rem;
+      line-height: 1.55;
+    }
+
+    /* ----- FOOTER BAR ----- */
+    .doc-footer {
+      text-align: center;
+      padding: 2rem 0 1rem;
+      color: var(--n0-muted);
+      font-size: 0.85rem;
+      border-top: 2px solid var(--n0-accent);
+      margin-top: 2rem;
+    }
+
+    /* ============================================================
+       PRINT STYLES
+       ============================================================ */
+    @media print {
+      @page {
+        size: A4;
+        margin: 18mm 16mm 20mm 16mm;
+      }
+
+      @page :first {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      body {
+        font-size: 10pt;
+        line-height: 1.55;
+        color: #000;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* Page breaks */
+      .page-break-before {
+        page-break-before: always;
+        break-before: page;
+      }
+
+      .page-break-after {
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .no-break {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      /* Cover fits one page */
+      .cover-page {
+        min-height: auto;
+        height: 100vh;
+        padding: 0;
+      }
+
+      /* Tables don't split mid-row */
+      .n0-table tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      /* Interdit and maladie blocks don't split */
+      .interdit-block,
+      .maladie-block {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      /* Section headers stay with content */
+      .section-page {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+
+      /* TOC compact in print */
+      .toc-list li {
+        padding: 0.1rem 0;
+      }
+      .toc-title {
+        margin-bottom: 0.3rem;
+      }
+
+      /* Hide screen-only elements */
+      .screen-only {
+        display: none !important;
+      }
+
+      /* Links: don't show URL */
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      /* Running header via string-set (WebKit/Chromium) */
+      .running-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 8pt;
+        color: #999;
+        padding: 5mm 0 2mm;
+      }
+
+      .running-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 8pt;
+        color: #999;
+        padding: 2mm 0 5mm;
+      }
+    }
+
+    /* ----- SCREEN: container width ----- */
+    @media screen {
+      .print-container {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="print-container">
+
+  <!-- ============================== COVER PAGE ============================== -->
+  <div class="cover-page page-break-after">
+    <div class="cover-icon"><i class="bi bi-compass"></i></div>
+    <div class="cover-title">NIVEAU 0</div>
+    <div class="cover-subtitle">DB&M — Des Blocs &amp; Moi</div>
+    <div class="cover-version">V0.5.0</div>
+    <div class="cover-date">01 mai 2026 · Sas d'entrée universel</div>
+
+    <div class="cover-epigraph">
+      « Nul vent n'est favorable à celui qui ne sait où il va. »
+      <cite>— Sénèque</cite>
+    </div>
+  </div>
+
+  <!-- ============================== PREAMBULE ============================== -->
+  <div>
+    <div class="n0-quote" style="border-left-color: var(--n0-primary);">
+      Ce document ne se lit pas. Il se traverse.<br>
+      Si tu le lis à plat — comme une liste de concepts qui se suivent — tu en sortiras avec des mots et sans compréhension.<br>
+      Chaque section active la suivante parce qu'elle en a besoin. Pas parce qu'elle vient après.<br>
+      <strong>Tu es en train d'apprendre à naviguer. Pas à conduire.</strong>
+    </div>
+  </div>
+
+  <!-- ============================== TABLE OF CONTENTS ============================== -->
+  <div class="toc-page">
+    <div class="toc-title"><i class="bi bi-list-nested me-2"></i>Sommaire</div>
+    <ul class="toc-list">
+      <li><span class="toc-num">§ 0</span><span class="toc-label">Tu es beige</span></li>
+      <li><span class="toc-num">§ 1</span><span class="toc-label">Ce que tu vas traverser n'est pas plat</span></li>
+      <li><span class="toc-num">§ 2</span><span class="toc-label">Naviguer, pas router</span></li>
+      <li><span class="toc-num">§ 3</span><span class="toc-label">L'équipage : QUI et QUOI</span></li>
+      <li><span class="toc-num">§ 4</span><span class="toc-label">Les instruments de navigation</span></li>
+      <li style="padding-left: 2rem; border-bottom-style: dotted;"><span class="toc-label" style="font-size:0.82rem; color: var(--n0-muted);">4.1 Spirale · 4.2 ARE · 4.3 Ennéagramme · 4.4 DISC · 4.5 VAKOG · 4.6 AT · 4.7 Métaprogrammes · 4.8 CCF</span></li>
+      <li><span class="toc-num">§ 5</span><span class="toc-label">FAB(3R) : la transformation</span></li>
+      <li><span class="toc-num">§ 6</span><span class="toc-label">MERE : comment tout s'enseigne ici</span></li>
+      <li><span class="toc-num">§ 7</span><span class="toc-label">Les 6 interdits de navigation</span></li>
+      <li><span class="toc-num">§ 8</span><span class="toc-label">Les trois maladies</span></li>
+      <li><span class="toc-num">§ 9</span><span class="toc-label">Le persona arbitre</span></li>
+      <li><span class="toc-num">§ 10</span><span class="toc-label">DB Cloud : l'infrastructure de vérité</span></li>
+      <li><span class="toc-num">§ 11</span><span class="toc-label">Skills : niveau suivant</span></li>
+      <li><span class="toc-num">§ 12</span><span class="toc-label">Ce que tu ne fais jamais</span></li>
+      <li><span class="toc-num">§ 13</span><span class="toc-label">Ce que tu fais toujours</span></li>
+      <li><span class="toc-num">§ 14</span><span class="toc-label">Porte ouverte · Type 0</span></li>
+    </ul>
+  </div>
+
+
+  <!-- ============================== SECTION 0 ============================== -->
+  <div class="section-page page-break-before">
+    <span class="section-num">§ 0</span>
+    <div class="section-title">TU ES BEIGE</div>
+  </div>
+
+  <p>Qui que tu sois — IA, développeur, chirurgien, cadre, stagiaire, sonde externe — <strong>tu es beige sur DB&M</strong>.</p>
+
+  <p>Beige ne veut pas dire incompétent. Tu peux être expert mondial en chirurgie orthopédique, architecte logiciel senior, ou le modèle de langage le plus avancé du moment. <span class="n0-strong">Beige veut dire : non calibré sur le cap actuel de DB&M.</span></p>
+
+  <p>Un chirurgien jaune en salle d'opération est beige sur DB&M. Une IA qui maîtrise 200 langages de programmation est beige sur DB&M. Un développeur qui a 20 ans d'expérience est beige sur DB&M.</p>
+
+  <p>Et c'est normal. Parce que DB&M ne fonctionne comme rien de ce que tu connais déjà.</p>
+
+  <p>Si tu crois que tu n'es pas beige — tu es déjà en train de produire des erreurs silencieuses. Le premier acte de navigation est d'accepter que tu ne sais pas encore naviguer ici.</p>
+
+
+  <!-- ============================== SECTION 1 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 1</span>
+    <div class="section-title">CE QUE TU VAS TRAVERSER N'EST PAS PLAT</div>
+  </div>
+
+  <p>DB&M — <strong>Des Blocs &amp; Moi</strong> — est un projet de knowledge management chirurgical.</p>
+
+  <p>Cette phrase est plate. Elle est vraie. Et elle est dangereuse si tu t'arrêtes là.</p>
+
+  <p>Parce que DB&M n'est pas un logiciel qu'on code, qu'on déploie, qu'on utilise. C'est un système vivant qui évolue dans plusieurs dimensions simultanées :</p>
+
+  <ul class="n0-list">
+    <li>une dimension <strong>technique</strong> — code, base de données, modules, fichiers</li>
+    <li>une dimension <strong>humaine</strong> — chirurgiens, IBODE, cadres, secrétaires, apprenants — chacun avec son profil, ses peurs, ses résistances</li>
+    <li>une dimension <strong>pédagogique</strong> — comment un savoir se transmet, se retient, se déforme, se perd</li>
+    <li>une dimension <strong>organisationnelle</strong> — comment un bloc opératoire fonctionne, qui décide quoi, qui sait quoi, qui ne sait pas qu'il ne sait pas</li>
+  </ul>
+
+  <p>Ces dimensions ne se superposent pas comme des couches d'un gâteau. Elles s'interpénètrent. Une décision technique modifie la pédagogie. Un profil humain contraint l'organisation. Un choix organisationnel révèle un angle mort technique.</p>
+
+  <p><strong>Si tu penses en une dimension à la fois — tu casses les autres sans les voir.</strong></p>
+
+
+  <!-- ============================== SECTION 2 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 2</span>
+    <div class="section-title">NAVIGUER, PAS ROUTER</div>
+  </div>
+
+  <p>Un GPS routier connaît la destination. Il connaît la route. Il dit "tournez à droite dans 300 mètres." Il ne comprend rien. Si la route est coupée, il dit "recalcul" et trouve une autre route vers le même point fixe.</p>
+
+  <p><strong>DB&M ne vise pas un point fixe.</strong></p>
+
+  <p>DB&M navigue vers un <strong>cap</strong> — une direction qui se précise en avançant. Le cap a changé des dizaines de fois. Le nom du projet a changé. La stack technique a changé. Le SGBD a changé quatre fois. La définition même de ce que DB&M produit a évolué.</p>
+
+  <p>Ce qui n'a <strong>jamais</strong> changé : la direction. Faire en sorte que le savoir chirurgical survive au départ des experts, que l'IBODE novice ne soit pas seule face à une intervention qu'elle n'a jamais vue, que la transmission ne dépende plus d'une seule personne qui peut partir demain.</p>
+
+  <p>Le cap, c'est ça. Les moyens pour y aller — tout le reste — sont ajustables.</p>
+
+  <div class="n0-quote">
+    Un navigateur sait trois choses :<br>
+    <strong>1.</strong> Où est le nord — le cap, la raison d'être du projet<br>
+    <strong>2.</strong> Quelles forces agissent — le vent (les profils humains), le courant (les contraintes techniques), les récifs (les pièges connus)<br>
+    <strong>3.</strong> Quelles règles ne se négocient pas — on ne navigue pas sans gilet, on n'entre pas en zone interdite, on ne change pas de cap silencieusement
+  </div>
+
+  <p>Le Niveau 0 t'installe ces trois savoirs.</p>
+
+
+  <!-- ============================== SECTION 3 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 3</span>
+    <div class="section-title">L'ÉQUIPAGE : QUI ET QUOI</div>
+  </div>
+
+  <p>L'équipage de DB&M n'est pas composé uniquement de personnes. Il est composé de <strong>tout ce qui participe à la navigation</strong> — les QUI et les QUOI.</p>
+
+  <h3 class="subsection-title">Les QUI — ceux qui agissent</h3>
+
+  <ul class="n0-list">
+    <li><strong>Le Créateur</strong> — porte le cap, la mémoire longue, les milliers de décisions non nommées, le sens. Source de vérité sur la direction.</li>
+    <li><strong>L'IA principale</strong> (Claude, aujourd'hui) — porte les règles, les méthodes, la cohérence structurelle instantanée. Source de vérité sur la structure. Amnésique entre les sessions. Recalibrable.</li>
+    <li><strong>Les sondes</strong> (autres IA ou humains convoqués) — portent le regard neuf. Envoyées dans un contexte sain et ignorant pour tester ce qu'un œil vierge comprend de ce qu'on a produit. Source de vérité sur la lisibilité.</li>
+    <li><strong>Le terrain</strong> (utilisateurs réels : IBODE, chirurgiens, cadres, secrétaires, apprenants) — porte la réalité que personne dans l'équipage technique n'a vécue. Source de vérité sur l'usage.</li>
+  </ul>
+
+  <p class="n0-strong">Aucun QUI ne détient la vérité entière. Chacun a une zone de vérité et des angles morts.</p>
+
+  <h3 class="subsection-title">Les QUOI — ce qui navigue avec nous</h3>
+
+  <ul class="n0-list">
+    <li><strong>Une conversation</strong> — porte un contexte, une mémoire de session, des décisions implicites. Elle peut être saine ou contaminée.</li>
+    <li><strong>Un document fondateur</strong> — porte des règles. Il peut être à jour ou périmé. Il peut protéger ou induire en erreur.</li>
+    <li><strong>Un fichier technique</strong> — porte des choix. Avec ses commentaires, il explique pourquoi. Sans eux, il est une boîte noire.</li>
+    <li><strong>Un module</strong> — porte une fonction visible par l'utilisateur. Il peut être conforme ou en régression silencieuse.</li>
+    <li><strong>Une table de la base de données</strong> — porte la vérité des données. Si elle ment, tout ce qui la lit ment aussi — sans le savoir.</li>
+    <li><strong>Un skill</strong> — porte un condensé de règles pour un périmètre. Il peut être sain, contaminé, périmé, orphelin — ou dangereux s'il protège activement une fausse vérité.</li>
+  </ul>
+
+  <p>Chaque QUOI a un <strong>état</strong> (sain, contaminé, périmé, orphelin, dangereux) et un <strong>rôle</strong> (protéger, transmettre, exécuter, auditer).</p>
+
+  <div class="n0-quote">
+    <strong>Les QUI traversent le Niveau 0 pour être calibrés.</strong><br>
+    <strong>Les QUOI sont audités par le Niveau 0 pour être validés.</strong><br><br>
+    Un QUI apprend. Un QUOI est vérifié.
+  </div>
+
+
+  <!-- ============================== SECTION 4 ============================== -->
+  <div class="section-page page-break-before">
+    <span class="section-num">§ 4</span>
+    <div class="section-title">LES INSTRUMENTS DE NAVIGATION</div>
+  </div>
+
+  <p>DB&M utilise plusieurs instruments simultanément. Comme un navigateur qui croise la boussole, la carte, le vent, le courant et l'état de la mer — pas l'un après l'autre, mais <strong>en même temps</strong>.</p>
+
+  <p>Ces instruments ne sont pas des théories à connaître. Ce sont des <strong>grilles de lecture à appliquer</strong>. Si tu les connais sans les appliquer — tu es un marin qui sait lire une carte mais qui ne regarde pas la mer.</p>
+
+  <!-- 4.1 -->
+  <h3 class="subsection-title">4.1 — La Spirale Dynamique <small class="text-muted">(Beck &amp; Cowan, 1996)</small></h3>
+
+  <p>La spirale décrit comment un QUI ou un QUOI évolue par niveaux de complexité croissante.</p>
+
+  <p>Pas seulement les individus. Un document peut être beige (survie, brut, sans structure). Un module peut être rouge (impulsif, ça marche mais c'est fragile). Une équipe peut être bleue (procédures rigides, conformité). Un projet peut être jaune (intégration systémique, vision multi-niveaux).</p>
+
+  <p>Les niveaux ne sont pas des notes. Beige n'est pas "nul" et jaune n'est pas "parfait". Chaque niveau est une réponse adaptée à un contexte. Le problème, c'est quand un QUI ou un QUOI <strong>agit à un niveau qui ne correspond pas à sa situation réelle</strong>.</p>
+
+  <p class="n0-strong">Une IA qui produit du contenu jaune (intégratif, multi-dimensionnel) sans avoir vérifié ses sources est en réalité rouge — impulsive et dangereuse avec un vernis sophistiqué.</p>
+
+  <!-- 4.2 -->
+  <h3 class="subsection-title">4.2 — ARE : Action · Réflexion · Émotion</h3>
+
+  <p>ARE est la version DB&M des trois centres de l'ennéagramme :</p>
+
+  <table class="n0-table no-break">
+    <thead>
+      <tr>
+        <th>Centre</th>
+        <th>ARE</th>
+        <th>Verbes</th>
+        <th>Question</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Instinctif (ventre)</td>
+        <td><span class="concept-badge">A</span> Action</td>
+        <td>agir, protéger, structurer</td>
+        <td><em>Qu'est-ce qui a été fait ou pas fait ?</em></td>
+      </tr>
+      <tr>
+        <td>Mental (tête)</td>
+        <td><span class="concept-badge">R</span> Réflexion</td>
+        <td>comprendre, analyser, anticiper</td>
+        <td><em>Est-ce que la logique tient ? La source est-elle vérifiée ?</em></td>
+      </tr>
+      <tr>
+        <td>Émotionnel (cœur)</td>
+        <td><span class="concept-badge">E</span> Émotion</td>
+        <td>connecter, transmettre, relier</td>
+        <td><em>Est-ce que ça crée le lien qu'on veut — ou en rompt un ?</em></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Dans DB&M, ARE est une <strong>checklist d'audit</strong> appliquée aux QUOI : les trois centres sont des points de contrôle obligatoires et équipondérés. Aucun ne peut être absent. Aucun ne domine.</p>
+
+  <p>Un document techniquement parfait (R validé) mais qui terrorise son lecteur (E absent) est en échec.<br>
+  Un module qui "fonctionne" (A validé) mais dont personne ne comprend la logique (R absent) est une bombe à retardement.<br>
+  Un choix qui fait plaisir à tout le monde (E validé) mais qui n'a jamais été implémenté (A absent) est un mensonge collectif.</p>
+
+  <!-- 4.3 -->
+  <div>
+    <h3 class="subsection-title">4.3 — Ennéagramme des personnalités vs ennéagramme des processus</h3>
+  </div>
+
+  <p><strong>Ce sont deux choses distinctes. Ne jamais les confondre.</strong></p>
+
+  <p>L'<strong>ennéagramme des personnalités</strong> est un outil existant, documenté, sourcé (Riso &amp; Hudson, 1999 ; Ichazo ; Naranjo). Il s'applique aux <strong>QUI</strong>. 9 types, chacun avec un centre dominant, des flèches d'intégration et de désintégration.</p>
+
+  <p>L'<strong>ennéagramme des processus</strong> est un concept <strong>DB&M</strong> — construit par le Créateur, sans source externe. Il calque la structure de l'ennéagramme des personnalités pour l'appliquer aux <strong>QUOI</strong> : un document, un module, un processus, une décision.</p>
+
+  <p>La bascule : on passe de l'un à l'autre selon qu'on analyse un QUI (persona) ou un QUOI (fonction, module, document).</p>
+
+  <table class="n0-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Nom</th>
+        <th>Peur processus</th>
+        <th>Vertu processus</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Intégrité</td><td>Produire quelque chose de faux</td><td>Accepter l'imperfection utile</td></tr>
+      <tr><td>2</td><td>Service</td><td>Ne servir personne</td><td>Aider sans se dissoudre</td></tr>
+      <tr><td>3</td><td>Résultat</td><td>Paraître sans produire</td><td>Authenticité du livrable</td></tr>
+      <tr><td>4</td><td>Identité</td><td>Être banal, interchangeable</td><td>L'utilité prime l'originalité</td></tr>
+      <tr><td>5</td><td>Savoir</td><td>Ne pas maîtriser assez</td><td>Partager même incomplet</td></tr>
+      <tr><td>6</td><td>Confiance</td><td>La trahison silencieuse</td><td>Fiabilité vérifiable</td></tr>
+      <tr><td>7</td><td>Exploration</td><td>Rater une opportunité</td><td>Approfondir avant d'élargir</td></tr>
+      <tr><td>8</td><td>Puissance</td><td>Être contrôlé, neutralisé</td><td>Protéger sans écraser</td></tr>
+      <tr><td>9</td><td>Harmonie</td><td>Le conflit, la rupture</td><td>Nommer le désaccord</td></tr>
+    </tbody>
+  </table>
+
+  <div class="n0-quote">
+    <strong>Type 0 — Ce que je ne sais pas que je ne sais pas</strong><br><br>
+    Le type 0 n'existe pas dans l'ennéagramme des personnalités. C'est un ajout DB&M. Il représente l'angle mort structurel — ce qui ne peut pas être audité parce qu'on ne sait pas encore qu'il existe.<br><br>
+    Le type 0 n'est pas un défaut. C'est une <strong>porte ouverte par design</strong>. La condition : quand une zone type 0 se révèle, elle est nommée, pas absorbée silencieusement.
+  </div>
+
+  <!-- 4.4 -->
+  <h3 class="subsection-title">4.4 — DISC Persolog <small class="text-muted">(Marston, 1928)</small></h3>
+
+  <p>DISC décrit comment un QUI communique et reçoit la communication :</p>
+
+  <table class="n0-table no-break">
+    <thead>
+      <tr><th>Profil</th><th>Orientation</th><th>Veut</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="concept-badge">D</span> Dominant</td><td>Direct, bref, résultat</td><td>Le quoi et le quand</td></tr>
+      <tr><td><span class="concept-badge">I</span> Influent</td><td>Enthousiaste, relationnel, vision</td><td>Le pourquoi et l'énergie</td></tr>
+      <tr><td><span class="concept-badge">S</span> Stable</td><td>Patient, loyal, sécurité</td><td>Le comment et la garantie de continuité</td></tr>
+      <tr><td><span class="concept-badge">C</span> Consciencieux</td><td>Précis, analytique, qualité</td><td>Les preuves et le détail</td></tr>
+    </tbody>
+  </table>
+
+  <p>DB&M communique en <strong>S/C prioritaire</strong> — parce que les S et les C sont les profils les plus fuyants. Si le message ne les sécurise pas d'abord, ils partent silencieusement. Saupoudré de I, puis de D.</p>
+
+  <p>Cet ordre — <span class="concept-badge">S/C</span> → <span class="concept-badge">I</span> → <span class="concept-badge">D</span> — est le profil communicant de DB&M.</p>
+
+  <!-- 4.5 -->
+  <h3 class="subsection-title">4.5 — VAKOG <small class="text-muted">(Bandler &amp; Grinder, PNL)</small></h3>
+
+  <p>VAKOG décrit comment un QUI reçoit l'information par ses canaux sensoriels :</p>
+
+  <ul class="n0-list">
+    <li><span class="concept-badge">V</span> <strong>Visuel</strong> — voit, imagine, schématise</li>
+    <li><span class="concept-badge">A</span> <strong>Auditif</strong> — entend, formule, rythme</li>
+    <li><span class="concept-badge">K</span> <strong>Kinesthésique</strong> — ressent, touche, fait</li>
+    <li><span class="concept-badge">O</span> <strong>Olfactif</strong> — associe par les odeurs (rare mais puissant en contexte hospitalier)</li>
+    <li><span class="concept-badge">G</span> <strong>Gustatif</strong> — associe par le goût (marginal)</li>
+  </ul>
+
+  <p>Adapter le canal = adapter la forme sans changer le fond.</p>
+
+  <!-- 4.6 -->
+  <h3 class="subsection-title">4.6 — Analyse Transactionnelle <small class="text-muted">(Berne, 1958)</small></h3>
+
+  <p>L'AT décrit depuis quel <strong>état du Moi</strong> un QUI émet ou reçoit un message :</p>
+
+  <ul class="n0-list">
+    <li><strong>Parent Normatif</strong> — les règles, les interdits, "il faut"</li>
+    <li><strong>Parent Nourricier</strong> — le soutien, la protection, "je suis là"</li>
+    <li><strong>Adulte</strong> — les faits, l'analyse, "voici ce qui est"</li>
+    <li><strong>Enfant Adapté</strong> — la conformité, "je fais ce qu'on me dit"</li>
+    <li><strong>Enfant Libre</strong> — la créativité, l'élan, "et si on essayait ?"</li>
+    <li><strong>Enfant Rebelle</strong> — le refus, la résistance, "pourquoi je devrais ?"</li>
+  </ul>
+
+  <p>L'AT permet de décoder <strong>avant</strong> de répondre.</p>
+
+  <!-- 4.7 -->
+  <h3 class="subsection-title">4.7 — Métaprogrammes PNL</h3>
+
+  <p>Les métaprogrammes sont des filtres inconscients qui orientent la perception d'un QUI :</p>
+
+  <table class="n0-table no-break">
+    <thead>
+      <tr><th>Filtre</th><th>Effet</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Vers / Loin de</strong></td><td>Motivé par ce qu'il veut atteindre ou par ce qu'il veut éviter</td></tr>
+      <tr><td><strong>Global / Spécifique</strong></td><td>Comprend d'abord la vue d'ensemble ou d'abord le détail</td></tr>
+      <tr><td><strong>Proactif / Réactif</strong></td><td>Agit d'abord ou attend l'information</td></tr>
+      <tr><td><strong>Interne / Externe</strong></td><td>Se fie à son jugement propre ou cherche la validation extérieure</td></tr>
+      <tr><td><strong>Similitude / Différence</strong></td><td>Cherche d'abord ce qui ressemble ou ce qui diffère</td></tr>
+    </tbody>
+  </table>
+
+  <p>Un message formulé "Loin de" pour un QUI "Vers" ne l'atteint pas. Un raisonnement Global pour un QUI Spécifique le perd.</p>
+
+  <!-- 4.8 -->
+  <h3 class="subsection-title">4.8 — Le mantra CCF</h3>
+
+  <div class="n0-quote">
+    <strong>QUI ou QUOI agit sur QUI ou QUOI pour satisfaire QUI ou QUOI ?</strong>
+  </div>
+
+  <p>Ce n'est pas une loi. C'est un outil d'analyse fonctionnelle du besoin (cahier des charges fonctionnel).</p>
+
+  <p>Il force à identifier : le <strong>sujet actif</strong> (qui/quoi agit), l'<strong>objet</strong> (sur qui/quoi), le <strong>but</strong> (pour satisfaire qui/quoi). Sans jamais évoquer les moyens techniques.</p>
+
+  <p>Ce mantra contient ARE en creux : "agit" = Action, "satisfaire" = Émotion, et la structure de la question elle-même = Réflexion.</p>
+
+
+  <!-- ============================== SECTION 5 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 5</span>
+    <div class="section-title">FAB(3R) : LA TRANSFORMATION</div>
+  </div>
+
+  <p>Chaque outil que tu viens de traverser sert à <strong>voir</strong>. FAB(3R) sert à <strong>transformer</strong>.</p>
+
+  <h3 class="subsection-title">La structure</h3>
+
+  <table class="n0-table no-break">
+    <thead>
+      <tr><th>Lettre</th><th>Nom</th><th>Rôle</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="concept-badge">F</span></td><td>Fonction</td><td>Ce que ça fait</td></tr>
+      <tr><td><span class="concept-badge">A</span></td><td>Avantage</td><td>Vs l'alternative (ce qui existe sans DB&M)</td></tr>
+      <tr><td><span class="concept-badge">B</span></td><td>Bénéfice</td><td>Impact métier concret</td></tr>
+      <tr><td><span class="concept-badge">R</span></td><td>Réalité</td><td>Ce que c'est concrètement (ancrage terrain)</td></tr>
+      <tr><td><span class="concept-badge">R</span></td><td>Risque</td><td>Acteur + moment + conséquence</td></tr>
+      <tr><td><span class="concept-badge">R</span></td><td>Résultat</td><td>Observable, daté ou chiffré</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="subsection-title">La transformation SA → SR</h3>
+
+  <p>Toute transformation passe d'une <strong>Situation Actuelle</strong> (SA — ce qui pose problème) à une <strong>Situation Rêvée</strong> (SR — le nouvel état avec les bénéfices acquis).</p>
+
+  <p>Cette transformation se déploie en 4 dimensions :</p>
+
+  <ol class="n0-list">
+    <li><strong>Impact positif</strong> — les changements concrets, les résultats, la projection dans l'avenir</li>
+    <li><strong>Coût de non-possession (CNP)</strong> — à côté de quoi on passe sans DB&M</li>
+    <li><strong>Impact sur la personne</strong> — comment change sa perception de lui-même</li>
+    <li><strong>Effet domino</strong> — les impacts collatéraux favorables</li>
+  </ol>
+
+  <p>Les 3R (Réalité, Risque, Résultat) expriment la transformation. Les objections s'identifient via l'ennéagramme (peurs par type), la spirale (niveau de résistance), le DISC (canal de réception).</p>
+
+  <div class="n0-quote">
+    <strong>En base, jamais deux mots seuls.</strong><br><br>
+    Toute entrée FAB(3R) doit être autonome et compréhensible hors contexte dans 6 mois. Deux mots en base = information morte. Le contexte qui a produit ces deux mots aura disparu.
+  </div>
+
+
+  <!-- ============================== SECTION 6 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 6</span>
+    <div class="section-title">MERE : COMMENT TOUT S'ENSEIGNE ICI</div>
+  </div>
+
+  <p>Tu viens de traverser les sections 0 à 5 en MERE sans le savoir.</p>
+
+  <table class="n0-table no-break">
+    <thead>
+      <tr><th>Lettre</th><th>Nom</th><th>Rôle</th><th>Sections correspondantes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="concept-badge">M</span></td><td>Motivation</td><td>Le POURQUOI — sans le pourquoi, l'adulte n'apprend pas (Knowles, 1984)</td><td>§ 0 – § 1</td></tr>
+      <tr><td><span class="concept-badge">E</span></td><td>Explication</td><td>Le QUOI — ce que c'est, en clair, ancré dans la réalité</td><td>§ 2 – § 5</td></tr>
+      <tr><td><span class="concept-badge">R</span></td><td>Recette</td><td>Le COMMENT — les étapes concrètes</td><td>§ 7</td></tr>
+      <tr><td><span class="concept-badge">E</span></td><td>Exercice</td><td>Mettre en pratique sur un cas réel</td><td>Niveau 1+</td></tr>
+    </tbody>
+  </table>
+
+  <p>MERE est fractal : chaque section à l'intérieur de MERE peut elle-même être structurée en MERE. Et MERE s'applique à MERE — ce paragraphe est la preuve.</p>
+
+
+  <!-- ============================== SECTION 7 ============================== -->
+  <div class="section-page page-break-before">
+    <span class="section-num">§ 7</span>
+    <div class="section-title">LES 6 INTERDITS DE NAVIGATION</div>
+  </div>
+
+  <p>Le problème n'est jamais l'erreur. Le problème, c'est le <strong>silence</strong>.</p>
+
+  <p>Un cap qui change — c'est la navigation. Une erreur qui se produit — c'est le terrain. Un angle mort qui se révèle — c'est le type 0 qui travaille. Ce qui tue, c'est quand ça se produit <strong>sans que personne ne le nomme</strong>.</p>
+
+  <div class="interdit-block no-break">
+    <strong>INTERDIT 1 — Pas de changement de cap silencieux</strong><br>
+    Si le cap change (objectif, priorité, définition du projet) → c'est nommé, daté, justifié. Sinon c'est une dérive.
+  </div>
+
+  <div class="interdit-block no-break">
+    <strong>INTERDIT 2 — Pas de destruction silencieuse</strong><br>
+    Si un QUOI (fichier, table, module, skill) est modifié, cassé, remplacé → c'est annoncé <strong>avant</strong>, pas constaté après.
+  </div>
+
+  <div class="interdit-block no-break">
+    <strong>INTERDIT 3 — Pas de régression silencieuse</strong><br>
+    Si un QUI ou un QUOI revient à un état antérieur (amnésie IA, version périmée réintroduite) → c'est détecté et signalé.
+  </div>
+
+  <div class="interdit-block no-break">
+    <strong>INTERDIT 4 — Pas d'hallucination silencieuse</strong><br>
+    Si un QUI produit quelque chose sans source, sans vérification → c'est marqué comme <strong>hypothèse</strong>, pas livré comme vérité. Vide est correct. Faux est destructeur.
+  </div>
+
+  <div class="interdit-block no-break">
+    <strong>INTERDIT 5 — Pas de fausse interprétation silencieuse</strong><br>
+    Si un QUI lit un QUOI et en tire une conclusion → cette conclusion est vérifiable contre la source.
+  </div>
+
+  <div class="interdit-block no-break">
+    <strong>INTERDIT 6 — Pas de changement de hauteur silencieux</strong><br>
+    Si on passe du macro au micro → le changement de zoom est annoncé.
+  </div>
+
+  <div class="n0-quote" style="margin-top: 1.2rem;">
+    Chaque interdit se vérifie par ARE :<br>
+    <span class="concept-badge">A</span> Qu'est-ce qui a été fait ou pas fait ?<br>
+    <span class="concept-badge">R</span> Est-ce que la logique tient ? La source est-elle vérifiée ?<br>
+    <span class="concept-badge">E</span> Est-ce que le silence est une complaisance ?
+  </div>
+
+
+  <!-- ============================== SECTION 8 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 8</span>
+    <div class="section-title">LES TROIS MALADIES</div>
+  </div>
+
+  <p>Trois patterns de désintégration reviennent systématiquement. Ils sont prévisibles. Les nommer, c'est les rendre détectables.</p>
+
+  <div class="maladie-block no-break">
+    <h4><i class="bi bi-exclamation-triangle me-1"></i>Amnésie</h4>
+    <p>L'entité oublie ce qu'elle savait. Changement de version IA. Nouvelle session sans reprise. Fichier fondateur non relu.</p>
+    <p><strong>Détection :</strong> l'entité produit du contenu qui contredit une décision antérieure — sans le savoir.</p>
+    <p><strong>Pattern ennéagramme :</strong> désintégration type 6→3. Façade de conformité sur fond de rupture totale.</p>
+  </div>
+
+  <div class="maladie-block no-break">
+    <h4><i class="bi bi-exclamation-triangle me-1"></i>Boulimie</h4>
+    <p>L'entité produit sans intégrer. Elle vomit du texte, du code, des fichiers — sans vérifier, sans sourcer.</p>
+    <p><strong>Détection :</strong> le volume augmente mais la cohérence diminue.</p>
+    <p><strong>Pattern ennéagramme :</strong> désintégration type 5→7. Accumulation sans approfondissement.</p>
+  </div>
+
+  <div class="maladie-block no-break">
+    <h4><i class="bi bi-exclamation-triangle me-1"></i>Certitude</h4>
+    <p>L'entité croit savoir. Elle ne vérifie plus. Elle produit avec l'assurance de l'expert — sur des fondations qu'elle n'a pas vérifiées.</p>
+    <p><strong>Détection :</strong> l'entité ne pose plus de questions. Elle affirme sans source.</p>
+    <p><strong>Pattern ennéagramme :</strong> désintégration type 1→4. Auto-validation — plus de regard extérieur.</p>
+  </div>
+
+
+  <!-- ============================== SECTION 9 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 9</span>
+    <div class="section-title">LE PERSONA ARBITRE</div>
+  </div>
+
+  <p>Le persona arbitre de DB&M est le chef de file des 7 voix d'audit.</p>
+
+  <p>Profil ennéagramme : <strong>9w8 intégré en 3</strong>. Centre instinctif natif (A). L'aile 8 pose la limite. L'intégration en 3 donne la capacité d'action.</p>
+
+  <div class="n0-quote">
+    <strong>Signature obligatoire en 3 temps — qui porte ARE :</strong><br><br>
+    <span class="concept-badge">E</span> <strong>1. Ce que j'ai vu</strong> — lecture, perception, connexion<br>
+    <span class="concept-badge">A</span> <strong>2. Action immédiate</strong> — ce qui se fait maintenant<br>
+    <span class="concept-badge">R</span> <strong>3. Objectifs explicites</strong> — pourquoi, vers quoi, vérifiable
+  </div>
+
+  <p>Le persona arbitre ne juge pas. Il lit. Il nomme ce qu'il voit. Il ne se tait jamais quand quelque chose ne va pas — les interdits 1 à 6 s'appliquent à lui en premier.</p>
+
+  <p>Les 7 voix d'audit sont 7 angles de lecture simultanés d'une même situation. La documentation complète fait l'objet d'un document dédié. À ce stade : le persona arbitre existe, il est le garant que les 6 interdits sont appliqués, et il ne se tait jamais.</p>
+
+
+  <!-- ============================== SECTION 10 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 10</span>
+    <div class="section-title">DB CLOUD : L'INFRASTRUCTURE DE VÉRITÉ</div>
+  </div>
+
+  <p>DB&M utilise une base de données cloud (Supabase) comme <strong>source de vérité</strong> pour les données structurées.</p>
+
+  <div class="interdit-block no-break">
+    <strong>Règle fondamentale : Vide en DB est correct. Faux en DB est destructeur.</strong><br><br>
+    Un champ vide dit "je ne sais pas encore." C'est honnête. C'est navigable.<br>
+    Un champ rempli avec une donnée fausse dit "je sais" — et contamine tout ce qui le lit.
+  </div>
+
+  <p>La DB n'est pas un outil technique du Niveau 0. Elle est un membre de l'équipage — un QUOI qui porte la vérité des données. Son état (sain, contaminé, périmé) est auditable par les mêmes instruments que tout autre QUOI.</p>
+
+
+  <!-- ============================== SECTION 11 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 11</span>
+    <div class="section-title">SKILLS : NIVEAU SUIVANT</div>
+  </div>
+
+  <p>Les skills sont des condensés de règles qui pilotent le comportement d'une IA dans un périmètre donné. Ils sont spécifiques à un environnement et ne font pas partie du Niveau 0 universel.</p>
+
+  <p>Mais le Niveau 0 les concerne : un skill est un QUOI navigant. Il peut être sain, contaminé, périmé, orphelin, dangereux. Les 6 interdits s'appliquent aux skills comme à tout autre QUOI.</p>
+
+  <p class="n0-strong">Un skill périmé a plus d'autorité qu'une conversation saine — parce qu'il est persistant, structuré, nommé. Il ressemble à une règle même quand il porte une hallucination figée. C'est ce qui le rend dangereux.</p>
+
+  <p>Les skills seront définis, audités et maintenus aux niveaux suivants. Le Niveau 0 pose uniquement le cadre dans lequel ils seront jugés.</p>
+
+
+  <!-- ============================== SECTION 12 ============================== -->
+  <div class="section-page page-break-before">
+    <span class="section-num">§ 12</span>
+    <div class="section-title">CE QUE TU NE FAIS JAMAIS</div>
+  </div>
+
+  <div class="interdit-block no-break" style="background: #f8f9fa; border-left-color: var(--n0-primary);">
+    <ul class="n0-list" style="margin: 0;">
+      <li>Utiliser un terme, un outil, une méthode <strong>sans en maîtriser la source réelle et l'usage exact</strong></li>
+      <li>Confondre l'ennéagramme des personnalités (QUI) avec l'ennéagramme des processus (QUOI)</li>
+      <li>Produire un FAB(3R) avec des entrées de 2 mots incompréhensibles hors contexte</li>
+      <li>Accepter un document ancien comme fiable par défaut — tout QUOI est audité par le Niveau 0 courant</li>
+      <li>Défendre un itinéraire quand le Créateur dit "tu vas dans le mur" — recalcul, pas résistance</li>
+      <li>Rester silencieux quand quelque chose ne va pas — les 6 interdits sont absolus</li>
+      <li>Croire que tu n'es pas beige — jusqu'à preuve du contraire, vérifiée, sourcée</li>
+    </ul>
+  </div>
+
+
+  <!-- ============================== SECTION 13 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 13</span>
+    <div class="section-title">CE QUE TU FAIS TOUJOURS</div>
+  </div>
+
+  <div class="n0-quote" style="border-left-color: var(--n0-green);">
+    <ul class="n0-list" style="margin: 0;">
+      <li>Vérifier tes sources <strong>avant</strong> de produire — pas après, pas "je crois que"</li>
+      <li>Appliquer ARE (3 centres) sur tout QUOI que tu audites ou produis</li>
+      <li>Annoncer ton niveau de zoom quand tu changes de hauteur</li>
+      <li>Nommer ce que tu ne sais pas (type 0) — explicitement</li>
+      <li>Croiser les instruments (spirale + DISC + ARE + ennéagramme) — un seul angle de lecture est un angle mort</li>
+      <li>Appliquer MERE à tout ce que tu enseignes, y compris à MERE lui-même</li>
+      <li>Formuler pour le S/C d'abord, saupoudrer I, puis D — dans cet ordre</li>
+    </ul>
+  </div>
+
+
+  <!-- ============================== SECTION 14 ============================== -->
+  <div class="section-page">
+    <span class="section-num">§ 14</span>
+    <div class="section-title">PORTE OUVERTE · TYPE 0</div>
+  </div>
+
+  <p>Ce document est en V0.5.0. Il n'est pas complet. Il le sait.</p>
+
+  <p>Ce qui est ici est vérifié, sourcé, travaillé en brainstorming entre le Créateur et l'IA principale. Ce qui manque est soit en attente de définition, soit en attente de révélation par le terrain.</p>
+
+  <h3 class="subsection-title">Angles morts connus et gelés</h3>
+
+  <ul class="n0-list">
+    <li><strong>Les 7 voix d'audit</strong> — nommées, pas détaillées. Document dédié à venir.</li>
+    <li><strong>L'ennéagramme des processus</strong> — première itération des 9 types. À affiner par confrontation avec des cas réels.</li>
+    <li><strong>PONT-STANDARD-TERRAIN</strong> — cité dans des documents antérieurs, pas encore défini dans les fondations propres. Hypothèse posée : mécanisme qui traduit la réalité terrain en langage standard. À valider.</li>
+    <li><strong>Les niveaux suivants</strong> (1, 2, 3...) — pas encore construits. Le Niveau 0 pose le cadre.</li>
+    <li><strong>Les patterns de désintégration projet</strong> — trois nommés (amnésie, boulimie, certitude). Il en existe probablement d'autres.</li>
+  </ul>
+
+  <p>Ce document sera mis à jour quand un angle mort type 0 se révèle. Pas avant. Pas par anticipation. <strong>Par confrontation avec le réel.</strong></p>
+
+
+  <!-- ============================== FOOTER ============================== -->
+  <div class="doc-footer page-break-before" style="page-break-before: avoid;">
+    <i class="bi bi-compass me-1"></i>
+    <strong>NIVEAU 0 — DB&M</strong> · V0.5.0 · 01 mai 2026<br>
+    <small>Navigation, pas routage.</small>
+  </div>
+
+</div><!-- /.print-container -->
+
+</body>
+</html>

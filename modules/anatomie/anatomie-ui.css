@@ -1,14 +1,16 @@
 /* ============================================================
    anatomie-ui.css — Module Anatomie BDB
-   VERSION : 1.1.0 — 2026-03-15
+   VERSION : 1.2.0 — 2026-04-25
    ============================================================ */
+
+.anat-quill-preview { max-height: 400px; }
 
 .anat-card {
   transition: box-shadow 0.15s ease, transform 0.1s ease;
   overflow: hidden;
 }
 .anat-card:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
   transform: translateY(-2px);
 }
 .anat-card-accent {
@@ -80,3 +82,26 @@
 }
 .ql-editor h2 { font-size: 1.1rem; font-weight: 600; }
 .ql-editor h3 { font-size: 1rem; font-weight: 600; }
+
+/* ── Admin (anat-admin-* scopés — INTERDIT-17) ── */
+.anat-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+#anatAdminTabs ~ .tab-content .btn-xs {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+/* Liaison tokens — picker protocoles */
+.anat-liaison-token .btn-close {
+  width: 0.6rem;
+  height: 0.6rem;
+  font-size: 0.55rem;
+}
+
+/* ── Lightbox ──────────────────────────────────────────────── */
+.anat-lightbox-img { max-height: 80vh; object-fit: contain; }

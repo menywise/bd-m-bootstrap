@@ -1,0 +1,12 @@
+# cockpit-memo.txt — Memo terrain BDB
+# Mis a jour a chaque cloture de session Claude
+# Format : une ligne = une info. Lignes # = ignorees.
+
+<strong>Dernier ACT :</strong> ACT-0487
+<strong>Protocoles :</strong> 396 | <strong>Interventions :</strong> 89 721
+<strong>Fiches papier :</strong> 391 (nettoyees, nom_nettoye)
+<strong>CCAM ATIH :</strong> 8 292 codes (dont 2 813 OT)
+<strong>Pont CCAM :</strong> 259 liens | trigger sync actif
+<strong>Orphelins CCAM :</strong> 86 codes a arbitrer
+<strong>PI residuelles :</strong> 175
+<strong>Session :</strong> #29 cloturee | #30 a ouvrir

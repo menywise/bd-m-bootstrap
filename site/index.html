@@ -1,0 +1,347 @@
+<!--
+  PROJECT  : Des Blocs & Moi (DB&M)
+  FILE     : index.html v4.0.0
+  MODULE   : site/
+  DATE     : 2026-03-14
+  AUTEUR   : Manu + Claude
+  DELTA    : v3→v4 — Réécriture contenu DISC/Spirale compliant.
+             Personas primaires : P1 (BEIGE/VIOLET) + P2 (VIOLET/BLEU).
+             Progression BEIGE → VIOLET → BLEU dans l'ordre de lecture.
+             Règle de voix : tu partout. ≤12 mots P1/P2.
+             Suppression : vous / vocabulaire DC / analyse systémique en tête.
+             Structure préservée. CSS inchangé.
+  CHAÎNE CSS DBM (migration 2026-05-06) :
+    1. Bootstrap 5.3.3
+    2. Bootstrap Icons 1.11.1
+    3. dbm-theme.css (local DB&M)
+    4. bdb-ui-kit.css (local DB&M)
+    5. dbm-module-color.css (local DB&M)
+    6. site-ui.css (scopé #wrapper)
+  RÈGLES : Zéro style inline / Zéro handler inline / BI uniquement / data-bs-theme="light"
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<!-- EXCEPTION-SHELL-SITE : site/ est le mini-site public DBM.
+     Pas d'authentification, pas de shell auth DBM — intentionnel et documenté.
+     Décision : D-2026-04-07-S10-02 — Ne pas corriger cette "violation". -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../js/bdb-pwa.js"></script>
+  <title>Des Blocs & Moi — Mémoire du bloc opératoire pour IBODE</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../css/dbm-theme.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="site-ui.css" rel="stylesheet"/>
+
+  <!-- PWA -->
+  <meta name="description" content="Des Blocs & Moi — La mémoire du bloc opératoire pour soignants IBODE. Trouve, partage, transmets sans déranger personne."/>
+  <meta name="keywords" content="bloc opératoire, IBODE, soignants, transmission, mémoire équipe"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/site/"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Des Blocs & Moi — Mémoire du bloc opératoire"/>
+  <meta property="og:description" content="L outil pour soignants du bloc : trouve ce que tu cherches, transmets ce que tu sais, sans déranger personne."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/site/"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Des Blocs & Moi — Mémoire du bloc opératoire"/>
+  <meta name="twitter:description" content="L outil pour soignants du bloc : trouve ce que tu cherches, transmets ce que tu sais, sans déranger personne."/>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"Des Blocs & Moi","url":"https://lebloc.fr/dbm/site/index.html","inLanguage":"fr-FR","publisher":{"@type":"Organization","name":"Des Blocs & Moi"}}
+</script>
+</head>
+<body>
+
+
+<!-- MAIN -->
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <!-- HEADER STICKY -->
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-controls="mainMenu" aria-label="Ouvrir le menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <span class="fw-semibold"><i class="bi bi-hospital me-2 text-primary"></i>Présentation Des Blocs & Moi (<span class="app-nom"></span>)</span>
+    </div>
+    <a href="../login.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1">
+      <i class="bi bi-grid-3x3-gap me-1"></i>Mon espace
+    </a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <!-- HERO — BEIGE/VIOLET : reconnaissance avant promesse -->
+    <section class="site-hero text-white">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1>Tu n'as pas à tout savoir seul.</h1>
+            <p class="lead mt-3 opacity-90">
+              Ce que tu cherches est peut-être déjà là.<br>
+              Ce que tu sais mérite de rester après ton départ.
+            </p>
+            <p class="mt-3 opacity-75">
+              <span class="app-nom"></span>, c'est la mémoire de l'équipe — disponible,
+              sans avoir à déranger personne.
+            </p>
+            <a href="vision.html" class="btn btn-light btn-lg mt-4 fw-semibold">
+              Comprendre <span class="app-nom"></span> <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECONNAISSANCE — VIOLET : tu n'es pas seul dans cet inconfort -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-9">
+            <h2 class="fw-bold mb-4">Ces situations, tu les connais.</h2>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <p class="mb-2 fw-semibold text-dark">
+                    <i class="bi bi-person-raised-hand me-2 text-muted"></i>
+                    "Je cherche, mais je ne sais pas où."
+                  </p>
+                  <p class="text-muted small mb-0">
+                    Tu arrives. Tout le monde a l'air de savoir.
+                    Toi, tu ne sais pas encore — et c'est normal.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <p class="mb-2 fw-semibold text-dark">
+                    <i class="bi bi-mic-mute me-2 text-muted"></i>
+                    "Je sais que je ne sais pas, mais je n'ose plus."
+                  </p>
+                  <p class="text-muted small mb-0">
+                    Poser la question coûte. Un regard suffit
+                    à décider de se taire — et de gérer seul.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel panel-accent-secondary h-100">
+                  <p class="mb-2 fw-semibold text-dark">
+                    <i class="bi bi-hourglass-split me-2 text-muted"></i>
+                    "J'ai répondu dix fois. Je n'en peux plus."
+                  </p>
+                  <p class="text-muted small mb-0">
+                    Tu as tout donné pour transmettre.
+                    Ça s'évapore à chaque départ. Toujours recommencer.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXEMPLE CONCRET — BLEU : preuve que ça marche -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-1">Ce que ça change, concrètement.</h2>
+        <p class="text-muted mb-4">Même situation. Résultat différent.</p>
+        <div class="row g-4 justify-content-center">
+          <div class="col-md-5">
+            <div class="compare-card">
+              <div class="compare-header bg-danger bg-opacity-10 text-danger">
+                <i class="bi bi-x-circle me-2"></i>Sans <span class="app-nom"></span>
+              </div>
+              <div class="compare-body">
+                <p class="text-muted small mb-2 fst-italic">
+                  Nouveau arrivant, 10h du matin, salle de pause.
+                  "C'est quoi le... ?"
+                </p>
+                <ol class="mb-3 ps-4 text-secondary">
+                  <li class="mb-1">Trouver un collègue disponible</li>
+                  <li class="mb-1">Attendre qu'il ait fini</li>
+                  <li class="mb-1">Poser la question — encore</li>
+                  <li>Le collègue soupire. La dixième fois.</li>
+                </ol>
+                <div class="compare-result bg-danger bg-opacity-10 text-danger">
+                  <i class="bi bi-clock me-1"></i><strong>5 à 10 minutes</strong> — et une tension qui reste
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5">
+            <div class="compare-card">
+              <div class="compare-header bg-success bg-opacity-10 text-success">
+                <i class="bi bi-check-circle me-2"></i>Avec <span class="app-nom"></span>
+              </div>
+              <div class="compare-body">
+                <p class="text-muted small mb-2 fst-italic">
+                  Même situation. Même question.
+                </p>
+                <ol class="mb-3 ps-4 text-secondary">
+                  <li class="mb-1">Ouvrir <span class="app-nom"></span> sur le téléphone</li>
+                  <li class="mb-1">Taper un mot</li>
+                  <li class="mb-1">La réponse est là</li>
+                  <li>Personne dérangé. Personne jugé.</li>
+                </ol>
+                <div class="compare-result bg-success bg-opacity-10 text-success">
+                  <i class="bi bi-lightning me-1"></i><strong>10 secondes</strong> — et on continue
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CE QUE DBM FAIT — BLEU : cadre clair, pas de surprise -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">Ce que <span class="app-nom"></span> fait — simplement.</h2>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="panel h-100 text-center">
+                  <i class="bi bi-search text-primary fs-2 d-block mb-3"></i>
+                  <h6 class="fw-semibold mb-2">Tu cherches</h6>
+                  <p class="text-muted small mb-0">
+                    Tu tapes un mot. <span class="app-nom"></span> trouve —
+                    où c'est rangé, qui sait, quoi faire.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel h-100 text-center">
+                  <i class="bi bi-pencil-square text-primary fs-2 d-block mb-3"></i>
+                  <h6 class="fw-semibold mb-2">Tu partages</h6>
+                  <p class="text-muted small mb-0">
+                    Ce que tu sais, tu l'écris une fois.
+                    L'app répond à ta place après.
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="panel h-100 text-center">
+                  <i class="bi bi-shield-check text-primary fs-2 d-block mb-3"></i>
+                  <h6 class="fw-semibold mb-2">Ça reste</h6>
+                  <p class="text-muted small mb-0">
+                    Ce que l'équipe a construit
+                    ne part plus avec ceux qui partent.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILS — montage intelligent par audience -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <h2 class="fw-bold mb-2"><span class="app-nom"></span> est fait pour toi si...</h2>
+        <p class="text-muted mb-4">Chaque rôle y trouve quelque chose de concret.</p>
+        <div class="row g-3" id="profilCards">
+          <div class="col-6 col-lg">
+            <a href="audiences.html#nouveau" class="card text-decoration-none text-center h-100 hover-lift">
+              <div class="card-body py-4">
+                <i class="bi bi-person-plus text-primary display-5 d-block mb-3"></i>
+                <h6 class="fw-semibold text-dark mb-1">Tu arrives</h6>
+                <p class="small text-muted mb-0">Trouver sans avoir à demander</p>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-lg">
+            <a href="audiences.html#ancien" class="card text-decoration-none text-center h-100 hover-lift">
+              <div class="card-body py-4">
+                <i class="bi bi-person-check text-primary display-5 d-block mb-3"></i>
+                <h6 class="fw-semibold text-dark mb-1">Tu sais</h6>
+                <p class="small text-muted mb-0">Transmettre sans se répéter</p>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-lg">
+            <a href="audiences.html#equipe" class="card text-decoration-none text-center h-100 hover-lift">
+              <div class="card-body py-4">
+                <i class="bi bi-people text-primary display-5 d-block mb-3"></i>
+                <h6 class="fw-semibold text-dark mb-1">Ton équipe</h6>
+                <p class="small text-muted mb-0">Moins de frictions, plus de fluidité</p>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-lg">
+            <a href="audiences.html#direction" class="card text-decoration-none text-center h-100 hover-lift">
+              <div class="card-body py-4">
+                <i class="bi bi-building text-primary display-5 d-block mb-3"></i>
+                <h6 class="fw-semibold text-dark mb-1">Direction</h6>
+                <p class="small text-muted mb-0">Intégration, qualité, continuité</p>
+              </div>
+            </a>
+          </div>
+          <div class="col-6 col-lg mx-auto">
+            <a href="audiences.html#chirurgiens" class="card text-decoration-none text-center h-100 hover-lift">
+              <div class="card-body py-4">
+                <i class="bi bi-heart-pulse text-primary display-5 d-block mb-3"></i>
+                <h6 class="fw-semibold text-dark mb-1">Chirurgiens</h6>
+                <p class="small text-muted mb-0">Des équipes mieux préparées</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA — VIOLET : invitation, pas injonction -->
+    <section class="section-dark text-white py-5 text-center">
+      <div class="container">
+        <h2 class="fw-bold mb-3">Envie d'en savoir plus ?</h2>
+        <p class="opacity-75 mb-4 mx-auto col-lg-6 col-md-8">
+          Commence par la vision — pourquoi <span class="app-nom"></span> existe,
+          ce qu'il change, et pour qui.
+        </p>
+        <a href="vision.html" class="btn btn-light btn-lg fw-semibold">
+          La vision de <span class="app-nom"></span> <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+        <button id="btnSiteDemo" class="btn btn-outline-light btn-lg ms-3 fw-semibold">
+          <i class="bi bi-eye me-2"></i>Explorer la démo
+        </button>
+        <div class="mt-4">
+          <a href="instances.html" class="text-white-50 small text-decoration-none">
+            <i class="bi bi-bar-chart me-1"></i>Voir les données réelles d'un déploiement →
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="py-3 text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System — <a href="accessibilite.html" class="text-muted text-decoration-none">Accessibilité : WCAG AA</a></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Hydratation app-nom (sans bdb-shell) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="../js/bdb-site-hydrate.js"></script>
+<script src="../js/bdb-demo.js"></script>
+<script src="site-nav.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+  document.getElementById('btnSiteDemo')?.addEventListener('click', function () {
+    if (typeof window.bdbEnterDemo === 'function') window.bdbEnterDemo();
+  });
+});</script>
+</body>
+</html>

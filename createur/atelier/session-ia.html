@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Session IA — Atelier</title>
+
+  <!-- CHAÎNE CSS CDS — ORDRE STRICT (CONV-CHAIN-E) · zéro CSS module (§9.2 T-02 Option B) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <div id="bdb-shell"
+         data-module-title="Session IA"
+         data-module-icon="bi-cpu-fill"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+        <div class="container-fluid p-3 p-md-4 p-lg-5">
+
+          <!-- HEADER DE PAGE -->
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+              <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-cpu-fill text-primary"></i>Session IA
+              </h1>
+              <div id="sia-banner" class="badge text-bg-light border p-2 mt-1">
+                <span id="sia-banner-text">
+                  <i class="bi bi-moon text-warning me-1"></i>
+                  <span class="text-warning-emphasis">Aucune session active</span>
+                </span>
+              </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap align-items-center">
+              <span class="small text-muted" id="sia-header-stats">—</span>
+              <button class="btn btn-sm btn-outline-secondary" id="sia-btn-refresh" type="button" aria-label="Rafraîchir">
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- MARQUEUR NAV -->
+          <div id="atelier-top" data-page="session-ia" class="d-none"></div>
+
+
+          <!-- STATE : LOADING -->
+          <div id="sia-loading">
+            <div class="card bo-card mb-4">
+              <div class="card-body text-center py-4">
+                <div class="spinner-border text-secondary" role="status">
+                  <span class="visually-hidden">Chargement…</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : ACCESS DENIED -->
+          <div id="sia-denied" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-danger-subtle text-danger">
+                  <i class="bi bi-shield-lock"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Accès réservé</h2>
+                <p class="text-muted mb-3">Cet espace est réservé à l'administrateur.</p>
+                <a href="index.html" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-arrow-left me-1"></i>Retour atelier
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : CONTENT -->
+          <div id="sia-content" class="d-none">
+
+            <!-- KPIs terrain -->
+            <div id="sia-terrain-loading" class="placeholder-glow d-flex gap-2 flex-wrap mb-3">
+              <span class="placeholder" class="bo-skel-kpi"></span>
+              <span class="placeholder" class="bo-skel-kpi"></span>
+              <span class="placeholder" class="bo-skel-kpi"></span>
+              <span class="placeholder" class="bo-skel-kpi"></span>
+              <span class="placeholder" class="bo-skel-kpi"></span>
+            </div>
+            <div id="sia-terrain-kpis" class="row g-2 mb-3 d-none"></div>
+
+            <!-- Actions prompts -->
+            <div id="sia-actions" class="d-none mb-3">
+              <div class="small fw-bold text-uppercase text-muted mb-2">
+                <i class="bi bi-lightning-fill me-1"></i>Prompts session
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-primary" id="sia-btn-prompt-ouverture" type="button">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Prompt ouverture → Claude.ai
+                </button>
+                <button class="btn btn-sm btn-outline-warning" id="sia-btn-prompt-cloture" type="button">
+                  <i class="bi bi-box-arrow-in-down me-1"></i>Prompt clôture → Claude.ai
+                </button>
+                <span id="sia-prompt-feedback" class="small align-self-center"></span>
+              </div>
+            </div>
+
+            <!-- Grille sessions + session active -->
+            <div class="row g-3 mb-3">
+              <div class="col-lg-5">
+                <div class="small fw-bold text-uppercase text-muted mb-2">
+                  <i class="bi bi-list-task me-1"></i>Backlog sessions
+                </div>
+                <div id="sia-sessions-loading" class="card bo-card">
+                  <div class="card-body d-flex align-items-center gap-2 small text-muted">
+                    <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+                  </div>
+                </div>
+                <div id="sia-sessions-list" class="d-none"></div>
+                <div id="sia-sessions-empty" class="d-none card bo-card">
+                  <div class="card-body text-center text-muted py-3">
+                    <i class="bi bi-check-circle-fill text-success d-block mb-1"></i>
+                    Backlog vide — tout est terminé.
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-7">
+                <div class="small fw-bold text-uppercase text-muted mb-2">
+                  <i class="bi bi-play-circle-fill me-1"></i>Session active
+                </div>
+                <div class="card bo-card">
+                  <div id="sia-active-loading" class="card-body d-flex align-items-center gap-2 small text-muted">
+                    <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+                  </div>
+                  <div id="sia-active-none" class="d-none card-body text-center text-muted py-4">
+                    <i class="bi bi-moon d-block mb-2"></i>
+                    <p class="mb-0">Aucune session en cours.</p>
+                    <small>Ouvre une session depuis le backlog.</small>
+                  </div>
+                  <div id="sia-active-content" class="d-none">
+                    <div class="card-header d-flex justify-content-between align-items-center bo-header-tint">
+                      <h6 class="mb-0" id="sia-active-title">Session active</h6>
+                      <span class="badge text-bg-primary" id="sia-active-badge">#?</span>
+                    </div>
+                    <div class="card-body">
+                      <p id="sia-active-date" class="small text-muted mb-3"></p>
+                      <label for="sia-avancement" class="small fw-semibold mb-1 d-block">Avancement (résumé de clôture)</label>
+                      <textarea class="form-control mb-2" id="sia-avancement" rows="4"
+                        placeholder="Ce qui a été livré, décisions prises, fichiers modifiés…"></textarea>
+                      <div class="row g-2 mb-3">
+                        <div class="col-5">
+                          <label for="sia-statut" class="small fw-semibold mb-1 d-block">Statut</label>
+                          <select class="form-select form-select-sm" id="sia-statut">
+                            <option value="fait">✅ Fait</option>
+                            <option value="partiel">⚠️ Partiel</option>
+                            <option value="abandonne">❌ Abandonné</option>
+                          </select>
+                        </div>
+                        <div class="col-7">
+                          <label for="sia-refs" class="small fw-semibold mb-1 d-block">Refs décisions (virgule)</label>
+                          <input type="text" class="form-control form-control-sm" id="sia-refs"
+                            placeholder="D-2026-04-06-S03-01, …"/>
+                        </div>
+                      </div>
+                      <div class="d-flex gap-2 flex-wrap mb-3">
+                        <button class="btn btn-success btn-sm" id="sia-btn-gen-sql" type="button">
+                          <i class="bi bi-code-square me-1"></i>Générer SQL
+                        </button>
+                        <button class="btn btn-outline-success btn-sm d-none" id="sia-btn-dl-sql" type="button">
+                          <i class="bi bi-download me-1"></i>Télécharger .sql
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" id="sia-btn-cloture-rpc" type="button">
+                          <i class="bi bi-x-circle me-1"></i>Clôturer directement
+                        </button>
+                      </div>
+                      <div id="sia-sql-preview-wrap" class="d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">SQL → coller dans l'éditeur Supabase</small>
+                          <button class="btn btn-sm btn-outline-secondary" id="sia-btn-copy-sql" type="button">
+                            <i class="bi bi-clipboard me-1"></i>Copier
+                          </button>
+                        </div>
+                        <pre class="bg-dark text-light font-monospace small rounded p-2 mb-0" id="sia-sql-preview" class="bo-pre-scroll"></pre>
+                      </div>
+                      <div id="sia-cloture-feedback" class="d-none alert mt-2 mb-0 py-2 small"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Arbitrages -->
+            <div id="sia-arbitrages-section" class="d-none mb-3">
+              <div class="small fw-bold text-uppercase text-danger mb-2">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>Arbitrages en attente
+              </div>
+              <div class="card bo-card">
+                <div id="sia-arbitrages-body"></div>
+              </div>
+            </div>
+
+            <!-- Décisions récentes -->
+            <div class="mb-3">
+              <div class="small fw-bold text-uppercase text-muted mb-2">
+                <i class="bi bi-journal-check me-1"></i>Décisions récentes
+              </div>
+              <div class="card bo-card">
+                <div id="sia-decisions-loading" class="card-body d-flex align-items-center gap-2 small text-muted">
+                  <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+                </div>
+                <div id="sia-decisions-content" class="d-none table-responsive">
+                  <table class="table table-hover bo-table small mb-0">
+                    <thead>
+                      <tr>
+                        <th class="small text-uppercase text-muted">Réf</th>
+                        <th class="small text-uppercase text-muted">Titre</th>
+                        <th class="small text-uppercase text-muted">Module</th>
+                        <th class="small text-uppercase text-muted">Date</th>
+                        <th class="small text-uppercase text-muted">#S</th>
+                      </tr>
+                    </thead>
+                    <tbody id="sia-decisions-tbody"></tbody>
+                  </table>
+                </div>
+                <div id="sia-decisions-empty" class="d-none card-body text-center text-muted py-3">
+                  <i class="bi bi-journal d-block mb-1"></i>Aucune décision.
+                </div>
+              </div>
+            </div>
+
+            <!-- Ajouter une décision -->
+            <div class="mb-3">
+              <div class="small fw-bold text-uppercase text-muted mb-2">
+                <i class="bi bi-plus-circle me-1"></i>Ajouter une décision
+              </div>
+              <div class="card bo-card">
+                <div class="card-body">
+                  <div class="row g-2">
+                    <div class="col-md-2 col-6">
+                      <label class="small fw-semibold mb-1 d-block" for="sia-dec-ref">Réf</label>
+                      <input type="text" class="form-control form-control-sm" id="sia-dec-ref" placeholder="D-2026-04-06-S03-01"/>
+                    </div>
+                    <div class="col-md-5 col-6">
+                      <label class="small fw-semibold mb-1 d-block" for="sia-dec-titre">Titre <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control form-control-sm" id="sia-dec-titre" placeholder="Titre court et factuel"/>
+                    </div>
+                    <div class="col-md-3 col-6">
+                      <label class="small fw-semibold mb-1 d-block" for="sia-dec-module">Module cible</label>
+                      <input type="text" class="form-control form-control-sm" id="sia-dec-module" placeholder="thesaurus, faq…"/>
+                    </div>
+                    <div class="col-md-2 col-6">
+                      <label class="small fw-semibold mb-1 d-block" for="sia-dec-tags">Tags (virgule)</label>
+                      <input type="text" class="form-control form-control-sm" id="sia-dec-tags" placeholder="ddl, rls"/>
+                    </div>
+                    <div class="col-12">
+                      <label class="small fw-semibold mb-1 d-block" for="sia-dec-desc">Description</label>
+                      <textarea class="form-control form-control-sm" id="sia-dec-desc" rows="2" placeholder="Description complète."></textarea>
+                    </div>
+                    <div class="col-12 d-flex align-items-center gap-2">
+                      <button class="btn btn-primary btn-sm" id="sia-btn-add-decision" type="button">
+                        <i class="bi bi-plus-lg me-1"></i>Insérer
+                      </button>
+                      <span id="sia-dec-feedback" class="small"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /sia-content -->
+
+        </div><!-- /container-fluid -->
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom fw-semibold"></span> — Atelier L3 · Session IA
+        <span class="badge bg-light text-dark border ms-2">CDS Compliant</span>
+      </small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+  <!-- CHAÎNE JS BDB — ORDRE STRICT (CONV-CHAIN-E) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="atelier-nav.js"></script>
+  <script src="session-ia-app.js"></script>
+</body>
+</html>

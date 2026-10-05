@@ -1,0 +1,367 @@
+/**
+ * DBM Module Color — Coherence visuelle par module DB&M
+ * 
+ * Variable --module-color injectee sur .app-content via style inline.
+ * Couleur derivee de app_groups.color (palette pastel) :
+ *   bloc          #93c5fd (bleu pastel)
+ *   equipe        #86efac (vert pastel)
+ *   savoir        #c4b5fd (indigo pastel)
+ *   pilotage      #cbd5e1 (gris pale)
+ *   espace_perso  #fdba74 (peche pastel)
+ *
+ * Variables auxiliaires :
+ *   --module-color-strong : version plus saturee pour hover, focus, accents
+ *   --module-color-text   : couleur texte sombre lisible sur fond pastel
+ *   --module-color-soft   : version transparente pour fonds
+ *
+ * Usage cible :
+ *   - bandeau colore module (deja applique inline)
+ *   - .btn-module : bouton principal du module
+ *   - .btn-module-outline : bouton secondaire outline
+ *   - .app-card[data-accent] : bordure-left de la couleur module
+ *   - inputs focus border : couleur module
+ *
+ * Charge APRES dbm-theme.css et bdb-ui-kit.css, AVANT [module]-ui.css.
+ *
+ * Version : 1.0.0
+ * Date    : 2026-05-05
+ */
+
+
+/* ══════════════════════════════════════════════════════════
+   1. CASCADE DES VARIABLES par module (injectees inline)
+   ══════════════════════════════════════════════════════════ */
+
+.app-content[data-module-color] {
+  /* Fallback si rien injecte */
+  --module-color:        var(--app-primary, #0d6efd);
+  --module-color-strong: var(--app-primary, #0d6efd);
+  --module-color-text:   #1e293b;
+  --module-color-soft:   rgba(13, 110, 253, .08);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   2. BOUTONS — couleur du module
+   ══════════════════════════════════════════════════════════ */
+
+.btn-module {
+  background: var(--module-color, var(--bs-primary));
+  border-color: var(--module-color-strong, var(--bs-primary));
+  color: var(--module-color-text, #fff);
+  transition: filter .2s ease, transform .1s ease;
+}
+.btn-module:hover,
+.btn-module:focus {
+  background: var(--module-color-strong, var(--bs-primary));
+  border-color: var(--module-color-strong, var(--bs-primary));
+  color: var(--module-color-text, #fff);
+  filter: brightness(.95);
+}
+.btn-module:active { transform: translateY(1px); }
+
+.btn-module-outline {
+  background: transparent;
+  border: 1px solid var(--module-color-strong, var(--bs-primary));
+  color: var(--module-color-text, var(--module-color-strong, var(--bs-primary)));
+  transition: background .2s ease, color .2s ease;
+}
+.btn-module-outline:hover,
+.btn-module-outline:focus {
+  background: var(--module-color, var(--bs-primary));
+  color: var(--module-color-text, #fff);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   3. CARDS — accent de la couleur module
+   ══════════════════════════════════════════════════════════ */
+
+.app-card[data-accent="module"] {
+  border-left: 3px solid var(--module-color, var(--bs-primary));
+}
+
+.app-card[data-accent="module-strong"] {
+  border-left: 4px solid var(--module-color-strong, var(--bs-primary));
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   4. INPUTS — focus border couleur module
+   ══════════════════════════════════════════════════════════ */
+
+.app-content[data-module-color] .form-control:focus,
+.app-content[data-module-color] .form-select:focus,
+.app-content[data-module-color] .input-group-text + .form-control:focus {
+  border-color: var(--module-color-strong, var(--bs-primary));
+  box-shadow: 0 0 0 .15rem var(--module-color-soft, rgba(13,110,253,.15));
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   5. NAV-TABS / NAV-PILLS — accent couleur module
+   ══════════════════════════════════════════════════════════ */
+
+.app-content[data-module-color] .bdb-tabs .nav-link.active,
+.app-content[data-module-color] .nav-pills .nav-link.active {
+  background: var(--module-color-soft, rgba(13,110,253,.08));
+  border-bottom-color: var(--module-color-strong, var(--bs-primary));
+  color: var(--module-color-text, var(--module-color-strong));
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   6. APP-ZONE — sections enveloppees (issue de template-module-demo)
+   Pattern : <section class="app-zone" data-zone="...">
+   Chaque zone peut disparaitre sans casser la page.
+   ══════════════════════════════════════════════════════════ */
+
+.app-zone {
+  margin-bottom: .75rem;
+}
+.app-zone:last-child { margin-bottom: 0; }
+/* Espace reduit entre Breadcrumb et Page Title (eviter rupture verticale inutile) */
+.app-zone[data-zone="Breadcrumb"] {
+  margin-bottom: .5rem;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   7. BANDEAU MODULE — fix lisibilite paragraphe
+   ══════════════════════════════════════════════════════════ */
+
+.app-zone[data-zone="Page Title"] .p-4.rounded.shadow-sm h1,
+.app-zone[data-zone="Page Title"] .p-4.rounded.shadow-sm p {
+  /* Hereditent le color du parent (defini inline) */
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   8. ALPHABET INDEX — couleur module au lieu de bs-primary
+   Concerne notamment le glossaire (.glos-alpha-btn) — pattern
+   reutilisable pour tout module a index alphabetique
+   ══════════════════════════════════════════════════════════ */
+
+.app-content[data-module-color] .glos-alpha-btn:hover,
+.app-content[data-module-color] .glos-alpha-btn.active {
+  background: var(--module-color-strong, var(--bs-primary));
+  border-color: var(--module-color-strong, var(--bs-primary));
+  color: var(--module-color-text, #fff);
+}
+.app-content[data-module-color] .glos-sort-header:hover {
+  color: var(--module-color-strong, var(--bs-primary));
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   9. CARDS DE CONTENU — bordure couleur module subtle
+   Cards rendues par JS (glossaire, anatomie, fiches, cours, etc.)
+   herient automatiquement de la bordure couleur module
+   ══════════════════════════════════════════════════════════ */
+
+.app-content[data-module-color] .glos-card,
+.app-content[data-module-color] .anat-card,
+.app-content[data-module-color] .fiche-card,
+.app-content[data-module-color] .cours-card,
+.app-content[data-module-color] .install-card {
+  border-left: 3px solid var(--module-color, var(--bs-primary));
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   10. PAGINATION — couleur module
+   ══════════════════════════════════════════════════════════ */
+
+.app-content[data-module-color] .app-page-btn:hover,
+.app-content[data-module-color] .app-page-btn.active {
+  background: var(--module-color-strong, var(--bs-primary));
+  border-color: var(--module-color-strong, var(--bs-primary));
+  color: var(--module-color-text, #fff);
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   11. MODALES DBM — pattern uniforme cross-modules
+   - Backdrop overlay opaque + flou
+   - Modal-header bandeau couleur module
+   - Layout coherent
+   ══════════════════════════════════════════════════════════ */
+
+.modal-backdrop.show {
+  opacity: 0.65;
+}
+.modal-backdrop.fade.show {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+body.modal-open .app-content,
+body.modal-open .app-sidebar,
+body.modal-open .app-header {
+  filter: blur(2px);
+  transition: filter .2s ease;
+}
+
+.modal-header.modal-header-module {
+  background: linear-gradient(135deg, var(--module-color, #0d6efd) 0%, var(--module-color-strong, #0a55c4) 100%);
+  color: var(--module-color-text, #fff);
+  border-bottom: none;
+  padding: 1rem 1.25rem;
+}
+.modal-header.modal-header-module .modal-title {
+  font-weight: 700;
+  margin: 0;
+  color: inherit;
+}
+.modal-header.modal-header-module .modal-title i {
+  margin-right: .5rem;
+}
+/* btn-close en couleur module-color-text (esthetique uniforme)
+   Taille reduite session #128 (V7 badge — Manu : "legerement plus petit") */
+.modal-header.modal-header-module .btn-close {
+  filter: none;
+  background-image: none;
+  position: relative;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  opacity: .55;
+  transition: opacity .15s ease;
+}
+.modal-header.modal-header-module .btn-close::before,
+.modal-header.modal-header-module .btn-close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 1.5px;
+  background: var(--module-color-text, #1e293b);
+  border-radius: 1px;
+  transform-origin: center;
+}
+.modal-header.modal-header-module .btn-close::before {
+  transform: translateY(-50%) rotate(45deg);
+}
+.modal-header.modal-header-module .btn-close::after {
+  transform: translateY(-50%) rotate(-45deg);
+}
+.modal-header.modal-header-module .btn-close:hover {
+  opacity: 1;
+}
+
+.modal-content {
+  border: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+.modal-body { padding: 1.25rem; }
+.modal-footer {
+  padding: .75rem 1.25rem;
+  border-top: 1px solid var(--bs-border-color);
+  background: var(--bs-body-bg);
+}
+
+/* CONV-MODAL-09 — Blur modale du dessous quand modale empilée
+   Appliquée par bdb-modal-a11y.js au shown.bs.modal.
+   Fix S128 : filter sur .modal-dialog uniquement (pas .modal full-screen)
+   pour éviter de flouter tout l'écran derrière. */
+.modal.modal--blurred-below .modal-dialog {
+  filter: blur(3px);
+  transition: filter .2s ease;
+}
+.modal.modal--blurred-below {
+  pointer-events: none;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   CONV-MODAL-RICHESSE-01 — 3 niveaux de richesse modale (S128)
+   Source : 00_GOUVERNANCE/PATTERNS/MODALES_RICHESSE_DBM.md
+   Niveau 1 (Light) : confirm/alert — modal-sm + body 1-2 lignes
+   Niveau 2 (Standard) : CRUD basique — form champs simples
+   Niveau 3 (Rich) : sections multiples wrappées en cards bg-light
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Section riche — wrapper interne pour grouper champs liés */
+.modal-rich-section {
+  background: var(--bs-light, #f8f9fa);
+  border: 0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Label de section — uppercase + icône + ton secondaire */
+.modal-rich-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bs-secondary-color);
+  margin-bottom: 0.5rem;
+}
+
+/* Divider visuel entre sections quand pas de card */
+.modal-rich-divider {
+  border-top: 1px solid var(--bs-border-color);
+  margin: 1rem -1.25rem;
+}
+
+/* Row de champs dans section riche (label + valeur ou inputs côte à côte) */
+.modal-rich-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+@media (max-width: 575px) {
+  .modal-rich-row { grid-template-columns: 1fr; }
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   12. FONTS — couleur module sur titres, gras, liens
+   Coherence visuelle : tout texte d emphase sur fond blanc
+   adopte la couleur du module pour signature visuelle forte.
+   ══════════════════════════════════════════════════════════ */
+
+.app-content[data-module-color] h2,
+.app-content[data-module-color] h3,
+.app-content[data-module-color] h4,
+.app-content[data-module-color] .h2,
+.app-content[data-module-color] .h3,
+.app-content[data-module-color] .h4 {
+  color: var(--module-color-text, var(--module-color-strong, var(--bs-emphasis-color)));
+}
+
+.app-content[data-module-color] .text-emphasis,
+.app-content[data-module-color] .text-module {
+  color: var(--module-color-strong, var(--bs-primary)) !important;
+}
+
+/* Liens dans le contenu (hors btn et hors nav-link) */
+.app-content[data-module-color] a:not(.btn):not(.nav-link):not(.dropdown-item):not(.app-breadcrumb a) {
+  color: var(--module-color-strong, var(--bs-primary));
+  text-decoration: none;
+  border-bottom: 1px dotted var(--module-color-strong, var(--bs-primary));
+  transition: opacity .15s ease;
+}
+.app-content[data-module-color] a:not(.btn):not(.nav-link):not(.dropdown-item):not(.app-breadcrumb a):hover {
+  opacity: .75;
+}
+
+/* Strong / b dans le corps de texte (pas dans titres ni boutons) */
+.app-content[data-module-color] p strong,
+.app-content[data-module-color] p b,
+.app-content[data-module-color] .app-card-body strong,
+.app-content[data-module-color] .app-card-body b,
+.app-content[data-module-color] li strong,
+.app-content[data-module-color] li b {
+  color: var(--module-color-strong, var(--bs-emphasis-color));
+}
+
+/* Compteurs et badges neutres dans bandeau ou cards */
+.app-content[data-module-color] .badge.bg-light,
+.app-content[data-module-color] .badge.bg-white {
+  color: var(--module-color-text, var(--bs-emphasis-color));
+}

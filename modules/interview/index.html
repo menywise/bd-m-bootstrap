@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>Interview reflexive (Paxis) - Des Blocs &amp; Moi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="interview-ui.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --module-color: #c4b5fd;
+      --module-color-strong: #a78bfa;
+      --module-color-text: #4c1d95;
+      --module-color-soft: rgba(196, 181, 253, 0.15);
+    }
+  </style>
+</head>
+<body class="sidebar-closed">
+  <div id="wrapper">
+    <div id="bdb-shell"
+         data-module-title="Interview Paxis"
+         data-module-icon="bi-mic"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice"
+         data-shell-theme="dbm">
+    </div>
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="savoir" style="--module-color:#c4b5fd;--module-color-strong:#a78bfa;--module-color-text:#4c1d95;--module-color-soft:rgba(196,181,253,0.15)">
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d Ariane">
+                <a href="../../index.html">Accueil</a>
+                <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+                <span>Interview reflexive</span>
+              </nav>
+            </section>
+            <section class="app-zone" data-zone="Page Title">
+              <div class="p-4 rounded shadow-sm mb-3" style="background:linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%);color:#4c1d95">
+                <h1 class="mb-2 fw-bold"><i class="bi bi-mic me-2"></i>Interview reflexive (Paxis)</h1>
+                <p style="opacity:0.75" class="mb-0">Explorer, documenter et comprendre les pratiques reelles d un bloc operatoire</p>
+              </div>
+            </section>
+            <section class="app-zone" data-zone="Filters">
+              <div style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1rem">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <button class="btn btn-outline-secondary btn-sm" id="btn-header-home" type="button">
+                    <i class="bi bi-house me-1"></i>Accueil
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm" id="btn-header-history" type="button">
+                    <i class="bi bi-clock-history me-1"></i>Historique
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm" id="btn-header-export" type="button">
+                    <i class="bi bi-download me-1"></i>Export
+                  </button>
+                  <a href="admin.html" class="btn btn-outline-secondary btn-sm bdb-admin-only d-none ms-auto">
+                    <i class="bi bi-gear me-1"></i>Administration Paxis
+                  </a>
+                </div>
+              </div>
+            </section>
+            <section class="app-zone" data-zone="Content">
+              <section id="section-home" class="paxis-section active">
+                <div class="paxis-hero">
+                  <h2>Interview reflexive</h2>
+                  <p class="lead">Explorer, documenter et comprendre les pratiques reelles d un bloc operatoire avant toute transformation numerique.</p>
+                  <ul class="paxis-principes-list">
+                    <li>Le terrain precede l outil</li>
+                    <li>Le reel prime sur le prescrit</li>
+                    <li>La contradiction est une information</li>
+                    <li>L absence de reponse est un signal</li>
+                    <li>La numerisation est une consequence, pas un objectif</li>
+                  </ul>
+                  <div class="mt-4">
+                    <button class="btn btn-module btn-lg px-4" id="btn-start-interview">
+                      <i class="bi bi-play-circle me-2"></i>Commencer l interview
+                    </button>
+                  </div>
+                  <div class="mt-4 d-none" id="resume-session">
+                    <p class="text-muted small mb-2">Session en cours detectee</p>
+                    <button class="btn btn-outline-secondary btn-sm" id="btn-resume-interview">
+                      <i class="bi bi-arrow-repeat me-2"></i>Reprendre
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm ms-2" id="btn-reset-session">
+                      Reinitialiser
+                    </button>
+                  </div>
+                </div>
+              </section>
+              <section id="section-role" class="paxis-section">
+                <div class="container py-4">
+                  <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                      <h2 class="mb-3">Quel est votre role ?</h2>
+                      <p class="text-muted mb-4">Cette information permet d adapter les questions a votre perspective terrain.</p>
+                      <div class="row g-3" id="role-grid">
+                        <div class="col-md-6"><div class="card h-100 paxis-role-card" data-role="responsable"><div class="card-body"><h6><i class="bi bi-person-badge me-2"></i>Responsable de bloc</h6><small class="text-muted">Porteur de projet, vision globale</small></div></div></div>
+                        <div class="col-md-6"><div class="card h-100 paxis-role-card" data-role="chirurgien"><div class="card-body"><h6><i class="bi bi-heart-pulse me-2"></i>Chirurgien</h6><small class="text-muted">Pratiques operatoires, cas concrets</small></div></div></div>
+                        <div class="col-md-6"><div class="card h-100 paxis-role-card" data-role="ibode"><div class="card-body"><h6><i class="bi bi-clipboard2-pulse me-2"></i>IBODE</h6><small class="text-muted">Instrumentiste, panseur, controles</small></div></div></div>
+                        <div class="col-md-6"><div class="card h-100 paxis-role-card" data-role="preparateur"><div class="card-body"><h6><i class="bi bi-box-seam me-2"></i>Preparateur materiel</h6><small class="text-muted">Logistique, preparation, flux</small></div></div></div>
+                        <div class="col-md-6"><div class="card h-100 paxis-role-card" data-role="qualite"><div class="card-body"><h6><i class="bi bi-shield-check me-2"></i>Controle / Qualite</h6><small class="text-muted">Conformite, risques, ecarts</small></div></div></div>
+                        <div class="col-md-6"><div class="card h-100 paxis-role-card" data-role="cadre"><div class="card-body"><h6><i class="bi bi-diagram-3 me-2"></i>Cadre de service</h6><small class="text-muted">Organisation, ressources humaines</small></div></div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section id="section-interview" class="paxis-section">
+                <div class="container py-3">
+                  <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">Question <span id="current-index">1</span> / <span id="total-questions">0</span></small>
+                        <small class="text-muted" id="current-role-display"></small>
+                      </div>
+                      <div class="paxis-progress-bar">
+                        <div class="paxis-progress-fill" id="progress-fill"></div>
+                      </div>
+                      <div id="question-container"></div>
+                      <div class="paxis-nav-buttons">
+                        <button class="btn btn-outline-secondary btn-sm" id="btn-prev"><i class="bi bi-chevron-left me-1"></i>Precedent</button>
+                        <div class="d-flex gap-2">
+                          <button class="btn btn-outline-primary btn-sm" id="btn-skip-question"><i class="bi bi-skip-forward me-1"></i>Plus tard</button>
+                          <button class="btn btn-module btn-sm" id="btn-next">Suivant<i class="bi bi-chevron-right ms-1"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section id="section-history" class="paxis-section">
+                <div class="container py-3">
+                  <div class="row justify-content-center">
+                    <div class="col-lg-12">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="h5 mb-0">Historique des reponses</h3>
+                        <button class="btn btn-outline-secondary btn-sm" id="btn-history-back"><i class="bi bi-arrow-left me-1"></i>Retour</button>
+                      </div>
+                      <div class="paxis-stats-grid mb-3" id="stats-container"></div>
+                      <div class="paxis-role-selector mb-3">
+                        <button class="paxis-role-btn active" data-filter="all">Tout</button>
+                        <button class="paxis-role-btn" data-filter="answered">Repondues</button>
+                        <button class="paxis-role-btn" data-filter="skipped">A approfondir</button>
+                        <button class="paxis-role-btn" data-filter="unclear">Je ne sais pas</button>
+                      </div>
+                      <div id="history-list"></div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <section id="section-export" class="paxis-section">
+                <div class="container py-3">
+                  <div class="row justify-content-center">
+                    <div class="col-lg-12">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="h5 mb-0">Export des donnees</h3>
+                        <button class="btn btn-outline-secondary btn-sm" id="btn-export-back"><i class="bi bi-arrow-left me-1"></i>Retour</button>
+                      </div>
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <div class="card h-100">
+                            <div class="card-body">
+                              <h5 class="h6"><i class="bi bi-file-text me-2"></i>Export Markdown</h5>
+                              <p class="text-muted small">Format lisible, structure par sections. Ideal pour documentation humaine.</p>
+                              <button class="btn btn-module btn-sm w-100" id="btn-export-md"><i class="bi bi-download me-1"></i>Telecharger .md</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="card h-100">
+                            <div class="card-body">
+                              <h5 class="h6"><i class="bi bi-braces me-2"></i>Export JSON</h5>
+                              <p class="text-muted small">Format structure, exploitable par IA ou systeme externe.</p>
+                              <button class="btn btn-outline-primary btn-sm w-100" id="btn-export-json"><i class="bi bi-download me-1"></i>Telecharger .json</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-3">
+                        <h5 class="h6 mb-2">Apercu</h5>
+                        <div class="paxis-export-preview" id="paxis-export-preview">Selectionnez un format pour voir l apercu...</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </section>
+          </div>
+          <footer class="app-footer">
+            <small>&copy; 2026 <span class="app-nom"></span> - Paxis Loop</small>
+          </footer>
+        </main>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script>
+    const QUESTION_TYPES = {
+        exploration: { label: 'Exploration', description: 'Decrire le reel', color: 'exploration' },
+        clarification: { label: 'Clarification', description: 'Reduire l ambiguite', color: 'clarification' },
+        tension: { label: 'Tension', description: 'Reveler les contradictions', color: 'tension' },
+        criticite: { label: 'Criticite', description: 'Identifier le risque', color: 'criticite' },
+        informel: { label: 'Informel', description: 'Reveler le non-dit', color: 'informel' }
+    };
+
+    const ROLES = {
+        responsable: 'Responsable de bloc',
+        chirurgien: 'Chirurgien',
+        ibode: 'IBODE',
+        preparateur: 'Preparateur materiel',
+        qualite: 'Controle / Qualite',
+        cadre: 'Cadre de service'
+    };
+
+    const DB = window.bdb;
+
+    async function getActiveCampaign() {
+        const { data, error } = await DB.from('paxis_campaigns')
+            .select('id, title, description')
+            .eq('status', 'active')
+            .limit(1)
+            .single();
+        if (error) {
+            bdbToast('Erreur de chargement de la campagne', 'error');
+            return null;
+        }
+        return data;
+    }
+
+    const ITERATION_RULES = {
+        vagueKeywords: ['parfois', 'souvent', 'en general', 'normalement', 'ca depend', 'plus ou moins'],
+        riskKeywords: ['risque', 'danger', 'erreur', 'oubli', 'probleme', 'incident', 'grave', 'critique'],
+        contradictionKeywords: ['mais', 'cependant', 'pourtant', 'en theorie', 'officiel', 'realite'],
+        informalKeywords: ['entre nous', 'officieusement', 'tout le monde sait', 'jamais ecrit', 'tradition']
+    };
+
+    let state = {
+        sessionId: null,
+        role: null,
+        startedAt: null,
+        currentIndex: 0,
+        questions: [],
+        responses: {},
+        generatedQuestions: [],
+        iteration: 1,
+        campaignId: null,
+        campaignTitle: null
+    };
+
+    async function resetSession() {
+        if (!state.sessionId) return;
+        if (!confirm('Reinitialiser toutes les reponses ? Cette action est irreversible.')) return;
+
+        const { error } = await DB.from('paxis_sessions').delete().eq('id', state.sessionId).select();
+        if (error) { bdbToast('Erreur lors de la suppression de la session', 'error'); return; }
+
+        state = { sessionId: null, role: null, startedAt: null, currentIndex: 0, questions: [], responses: {}, generatedQuestions: [], iteration: 1, campaignId: null, campaignTitle: null };
+        showSection('home');
+        await checkExistingSession();
+    }
+
+    async function getQuestionsForRole(role) {
+        const campaign = await getActiveCampaign();
+        if (!campaign) return { questions: [], campaign: null };
+
+        const { data, error } = await DB.from('paxis_questions')
+            .select('id, code, type, text, roles, depth, position')
+            .eq('is_active', true)
+            .eq('campaign_id', campaign.id)
+            .contains('roles', [role])
+            .order('type')
+            .order('position');
+
+        if (error) { bdbToast('Erreur de chargement des questions', 'error'); return { questions: [], campaign: null }; }
+
+        return {
+            questions: data.map(q => ({ id: q.code, dbId: q.id, type: q.type, text: q.text, roles: q.roles, depth: q.depth })),
+            campaign
+        };
+    }
+
+    function analyzeResponse(responseText, question) {
+        if (!responseText || responseText.length < 10) return null;
+        const textLower = responseText.toLowerCase();
+        for (const keyword of ITERATION_RULES.vagueKeywords)         if (textLower.includes(keyword)) return 'clarification';
+        for (const keyword of ITERATION_RULES.riskKeywords)          if (textLower.includes(keyword)) return 'criticite';
+        for (const keyword of ITERATION_RULES.contradictionKeywords) if (textLower.includes(keyword)) return 'tension';
+        for (const keyword of ITERATION_RULES.informalKeywords)      if (textLower.includes(keyword)) return 'informel';
+        if (responseText.length < 50) return 'exploration';
+        return null;
+    }
+
+    function generateFollowUp(type, originalQuestion, responseText) {
+        const templates = {
+            clarification: [
+                `Vous avez mentionne "${extractKeyPhrase(responseText)}". Pouvez-vous preciser dans quels cas exactement ?`,
+                `Quand vous dites "en general", quelles sont les exceptions notables ?`,
+                `Qui decide concretement dans cette situation ?`
+            ],
+            criticite: [
+                `Vous mentionnez un risque. Qu est-ce qui serait la consequence la plus grave ?`,
+                `Ce probleme a-t-il deja eu des consequences reelles ? Lesquelles ?`,
+                `Que faudrait-il absolument eviter dans cette situation ?`
+            ],
+            tension: [
+                `Vous semblez decrire un ecart entre theorie et pratique. Comment gerez-vous ce decalage ?`,
+                `Qui arbitre quand ces deux logiques s affrontent ?`,
+                `Cette contradiction est-elle connue de tous ? Documentee ?`
+            ],
+            informel: [
+                `Ce que vous decrivez est-il transmis aux nouveaux ? Comment ?`,
+                `Qui d autre connait cette pratique non-ecrite ?`,
+                `Que se passerait-il si cette personne-cle partait ?`
+            ],
+            exploration: [
+                `Pouvez-vous detailler davantage cette etape ?`,
+                `Qu est-ce qui se passe concretement a ce moment-la ?`,
+                `Qui intervient precisement dans ce processus ?`
+            ]
+        };
+        const typeTemplates = templates[type];
+        if (!typeTemplates) return null;
+        const template = typeTemplates[Math.floor(Math.random() * typeTemplates.length)];
+        return { id: `GEN${Date.now()}`, type, text: template, roles: [state.role], depth: originalQuestion.depth + 1, parentId: originalQuestion.id, generated: true };
+    }
+
+    function extractKeyPhrase(text) {
+        const words = text.split(' ').slice(0, 5);
+        return words.join(' ').substring(0, 30) + (text.length > 30 ? '...' : '');
+    }
+
+    function showSection(sectionName) {
+        document.querySelectorAll('.paxis-section').forEach(s => s.classList.remove('active'));
+        const section = document.getElementById(`section-${sectionName}`);
+        if (section) {
+            section.classList.add('active');
+            if (sectionName === 'history') renderHistory();
+            else if (sectionName === 'export') renderExportPreview('md');
+        }
+    }
+
+    async function checkExistingSession() {
+        const userId = window.bdbUser?.id;
+        if (!userId) return;
+        const campaign = await getActiveCampaign();
+        if (!campaign) { document.getElementById('resume-session').classList.add('d-none'); return; }
+
+        const { data, error } = await DB.from('paxis_sessions')
+            .select('id, role, started_at, iteration')
+            .eq('created_by', userId)
+            .eq('campaign_id', campaign.id)
+            .is('completed_at', null)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        if (error || !data || data.length === 0) { document.getElementById('resume-session').classList.add('d-none'); return; }
+
+        const session = data[0];
+        const { questions } = await getQuestionsForRole(session.role);
+        const { data: responses, error: respError } = await DB.from('paxis_responses').select('*').eq('session_id', session.id).order('position');
+        if (respError) { bdbToast('Erreur de chargement des reponses', 'error'); document.getElementById('resume-session').classList.add('d-none'); return; }
+
+        const responsesMap = {};
+        const generatedQuestions = [];
+        let maxPosition = 0;
+        for (const r of responses) {
+            if (r.position > maxPosition) maxPosition = r.position;
+            if (r.is_generated) {
+                generatedQuestions.push({ id: r.id, type: r.question_type, text: r.question_text, roles: [session.role], depth: r.depth, parentId: r.parent_response_id, generated: true });
+            }
+            const matchQ = questions.find(q => q.dbId === r.question_id);
+            const responseKey = r.is_generated ? r.id : (matchQ ? matchQ.id : r.question_id);
+            responsesMap[responseKey] = { text: r.response_text || '', status: r.status, timestamp: r.created_at, questionText: r.question_text, questionType: r.question_type, dbId: r.id };
+        }
+
+        state = { sessionId: session.id, role: session.role, startedAt: session.started_at, currentIndex: maxPosition > 0 ? maxPosition : 0, questions, responses: responsesMap, generatedQuestions, iteration: session.iteration, campaignId: campaign.id, campaignTitle: campaign.title };
+        document.getElementById('resume-session').classList.remove('d-none');
+    }
+
+    function startInterview() { showSection('role'); }
+
+    function resumeInterview() {
+        if (state.sessionId) {
+            document.getElementById('current-role-display').textContent = ROLES[state.role] || '';
+            document.getElementById('total-questions').textContent = state.questions.length;
+            showSection('interview');
+            renderCurrentQuestion();
+        }
+    }
+
+    async function selectRole(role) {
+        const userId = window.bdbUser?.id;
+        if (!userId) return;
+        const { questions, campaign } = await getQuestionsForRole(role);
+        if (!campaign) { alert('Aucune campagne active.'); return; }
+        if (questions.length === 0) { alert('Aucune question disponible pour ce role.'); return; }
+
+        const { data: session, error } = await DB.from('paxis_sessions').insert({ created_by: userId, role, iteration: 1, campaign_id: campaign.id }).select().single();
+        if (error) { bdbToast('Erreur lors de la creation de la session', 'error'); return; }
+
+        state = { sessionId: session.id, role, startedAt: session.started_at, currentIndex: 0, questions, responses: {}, generatedQuestions: [], iteration: 1, campaignId: campaign.id, campaignTitle: campaign.title };
+        document.getElementById('current-role-display').textContent = ROLES[role];
+        document.getElementById('total-questions').textContent = state.questions.length;
+        showSection('interview');
+        renderCurrentQuestion();
+    }
+
+    function renderCurrentQuestion() {
+        const container = document.getElementById('question-container');
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        if (state.currentIndex >= allQuestions.length) {
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="bi bi-check-circle text-success paxis-complete-icon"></i>
+                    <h3 class="mt-3">Interview complete</h3>
+                    <p class="text-muted">Vous avez parcouru toutes les questions disponibles.</p>
+                    <div class="mt-4">
+                        <button class="btn btn-module btn-sm me-2 paxis-goto" data-section="export"><i class="bi bi-download me-1"></i>Exporter les reponses</button>
+                        <button class="btn btn-outline-secondary btn-sm paxis-goto" data-section="history"><i class="bi bi-clock-history me-1"></i>Voir l historique</button>
+                    </div>
+                </div>`;
+            return;
+        }
+        const question = allQuestions[state.currentIndex];
+        const existingResponse = state.responses[question.id] || {};
+        const typeInfo = QUESTION_TYPES[question.type];
+        container.innerHTML = `
+            <div class="paxis-question-card type-${question.type}">
+                <div class="paxis-question-meta">
+                    <span class="paxis-question-badge paxis-badge-${question.type}">${typeInfo.label}</span>
+                    ${question.generated ? '<span class="paxis-question-badge paxis-badge-neutral">Question de suivi</span>' : ''}
+                    <span class="paxis-question-badge paxis-badge-neutral">Profondeur ${question.depth}</span>
+                </div>
+                <p class="paxis-question-text">${escHtml(question.text)}</p>
+                <textarea class="paxis-response-area" id="response-text" placeholder="Votre reponse...">${existingResponse.text || ''}</textarea>
+                <div class="paxis-response-options">
+                    <label><input type="checkbox" id="opt-unclear" ${existingResponse.status === 'unclear' ? 'checked' : ''}> Je ne sais pas</label>
+                    <label><input type="checkbox" id="opt-later" ${existingResponse.status === 'later' ? 'checked' : ''}> A approfondir plus tard</label>
+                </div>
+            </div>`;
+        document.getElementById('current-index').textContent = state.currentIndex + 1;
+        document.getElementById('total-questions').textContent = allQuestions.length;
+        const progress = ((state.currentIndex + 1) / allQuestions.length) * 100;
+        document.getElementById('progress-fill').style.width = `${progress}%`;
+        document.getElementById('btn-prev').style.visibility = state.currentIndex > 0 ? 'visible' : 'hidden';
+    }
+
+    async function saveCurrentResponse() {
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        if (state.currentIndex >= allQuestions.length) return;
+        const question = allQuestions[state.currentIndex];
+        const text = document.getElementById('response-text')?.value || '';
+        const isUnclear = document.getElementById('opt-unclear')?.checked || false;
+        const isLater = document.getElementById('opt-later')?.checked || false;
+        let status = 'answered';
+        if (isUnclear) status = 'unclear';
+        else if (isLater) status = 'later';
+        else if (!text.trim()) status = 'skipped';
+
+        const existing = state.responses[question.id];
+        if (existing && existing.dbId) {
+            const { error } = await DB.from('paxis_responses').update({ response_text: text || null, status }).eq('id', existing.dbId).select();
+            if (error) bdbToast('Erreur de sauvegarde de la reponse', 'error');
+        } else {
+            const insertData = { session_id: state.sessionId, question_id: question.generated ? null : (question.dbId || null), question_text: question.text, question_type: question.type, response_text: text || null, status, is_generated: question.generated || false, parent_response_id: question.parentResponseId || null, depth: question.depth || 1, position: state.currentIndex };
+            const { data, error } = await DB.from('paxis_responses').insert(insertData).select().single();
+            if (error) bdbToast('Erreur lors de l enregistrement de la reponse', 'error');
+            else if (data) {
+                state.responses[question.id] = { text, status, timestamp: new Date().toISOString(), questionText: question.text, questionType: question.type, dbId: data.id };
+            }
+        }
+        if (!state.responses[question.id] || !state.responses[question.id].dbId) {
+            state.responses[question.id] = { ...(state.responses[question.id] || {}), text, status, timestamp: new Date().toISOString(), questionText: question.text, questionType: question.type };
+        } else {
+            state.responses[question.id].text = text;
+            state.responses[question.id].status = status;
+            state.responses[question.id].timestamp = new Date().toISOString();
+        }
+        if (text.trim().length > 10 && status === 'answered') {
+            const suggestedType = analyzeResponse(text, question);
+            if (suggestedType) {
+                const followUp = generateFollowUp(suggestedType, question, text);
+                if (followUp) {
+                    const exists = state.generatedQuestions.some(q => q.parentId === question.id);
+                    if (!exists) {
+                        const { data: genData, error: genError } = await DB.from('paxis_responses').insert({ session_id: state.sessionId, question_id: null, question_text: followUp.text, question_type: followUp.type, response_text: null, status: 'skipped', is_generated: true, parent_response_id: state.responses[question.id]?.dbId || null, depth: followUp.depth, position: allQuestions.length + state.generatedQuestions.length }).select().single();
+                        if (!genError && genData) {
+                            followUp.id = genData.id;
+                            followUp.parentResponseId = state.responses[question.id]?.dbId || null;
+                            state.generatedQuestions.push(followUp);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    async function nextQuestion() {
+        await saveCurrentResponse();
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        if (state.currentIndex < allQuestions.length - 1) state.currentIndex++;
+        renderCurrentQuestion();
+    }
+
+    async function prevQuestion() {
+        await saveCurrentResponse();
+        if (state.currentIndex > 0) state.currentIndex--;
+        renderCurrentQuestion();
+    }
+
+    function skipQuestion() {
+        const opt = document.getElementById('opt-later');
+        if (opt) opt.checked = true;
+        nextQuestion();
+    }
+
+    function renderHistory() {
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        const statsContainer = document.getElementById('stats-container');
+        const historyList = document.getElementById('history-list');
+        const answered = Object.values(state.responses).filter(r => r.status === 'answered').length;
+        const skipped = Object.values(state.responses).filter(r => r.status === 'skipped' || r.status === 'later').length;
+        const unclear = Object.values(state.responses).filter(r => r.status === 'unclear').length;
+        const total = allQuestions.length;
+
+        statsContainer.innerHTML = `
+            <div class="paxis-stat-card"><div class="paxis-stat-value">${total}</div><div class="paxis-stat-label">Total</div></div>
+            <div class="paxis-stat-card"><div class="paxis-stat-value text-success">${answered}</div><div class="paxis-stat-label">Repondues</div></div>
+            <div class="paxis-stat-card"><div class="paxis-stat-value text-warning">${skipped}</div><div class="paxis-stat-label">A approfondir</div></div>
+            <div class="paxis-stat-card"><div class="paxis-stat-value text-muted">${unclear}</div><div class="paxis-stat-label">Incertain</div></div>
+            <div class="paxis-stat-card"><div class="paxis-stat-value">${state.generatedQuestions.length}</div><div class="paxis-stat-label">Generees</div></div>`;
+
+        let html = '';
+        for (const question of allQuestions) {
+            const response = state.responses[question.id];
+            const statusClass = response?.status === 'answered' ? 'answered' : (response?.status === 'skipped' || response?.status === 'later') ? 'skipped' : '';
+            html += `
+                <div class="paxis-history-item ${statusClass}" data-status="${response?.status || 'pending'}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="paxis-history-question">${escHtml(question.text)}</div>
+                        <span class="paxis-question-badge paxis-badge-${question.type} paxis-badge-type">${QUESTION_TYPES[question.type].label}</span>
+                    </div>
+                    ${response?.text ? `<div class="paxis-history-response">${escHtml(response.text)}</div>` : '<div class="paxis-history-response">Pas de reponse</div>'}
+                </div>`;
+        }
+        historyList.innerHTML = html || '<p class="text-muted">Aucune question parcourue.</p>';
+    }
+
+    function filterHistory(filter) {
+        document.querySelectorAll('.paxis-history-item').forEach(item => {
+            const status = item.dataset.status;
+            if (filter === 'all') item.style.display = 'block';
+            else if (filter === 'answered' && status === 'answered') item.style.display = 'block';
+            else if (filter === 'skipped' && (status === 'skipped' || status === 'later')) item.style.display = 'block';
+            else if (filter === 'unclear' && status === 'unclear') item.style.display = 'block';
+            else item.style.display = 'none';
+        });
+    }
+
+    function renderExportPreview(format) {
+        const preview = document.getElementById('paxis-export-preview');
+        if (format === 'md') preview.textContent = generateMarkdown();
+        else preview.textContent = JSON.stringify(generateExportData(), null, 2);
+    }
+
+    function generateExportData() {
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        return {
+            meta: { version: '1.0.0', sessionId: state.sessionId, role: state.role, roleLabel: ROLES[state.role], startedAt: state.startedAt, exportedAt: new Date().toISOString(), iteration: state.iteration, totalQuestions: allQuestions.length, generatedQuestions: state.generatedQuestions.length },
+            responses: allQuestions.map(q => ({ questionId: q.id, questionText: q.text, questionType: q.type, depth: q.depth, generated: q.generated || false, response: state.responses[q.id] || null })),
+            statistics: {
+                answered: Object.values(state.responses).filter(r => r.status === 'answered').length,
+                skipped: Object.values(state.responses).filter(r => r.status === 'skipped' || r.status === 'later').length,
+                unclear: Object.values(state.responses).filter(r => r.status === 'unclear').length
+            }
+        };
+    }
+
+    function generateMarkdown() {
+        const data = generateExportData();
+        const allQuestions = [...state.questions, ...state.generatedQuestions];
+        let md = `# Paxis Loop - Export Interview\n\n---\n\n`;
+        md += `**Session** : ${data.meta.sessionId}\n`;
+        md += `**Role** : ${data.meta.roleLabel}\n`;
+        md += `**Date debut** : ${new Date(data.meta.startedAt).toLocaleString('fr-FR')}\n`;
+        md += `**Date export** : ${new Date(data.meta.exportedAt).toLocaleString('fr-FR')}\n`;
+        md += `**Iteration** : ${data.meta.iteration}\n\n---\n\n`;
+        md += `## Statistiques\n\n`;
+        md += `- Questions totales : ${data.meta.totalQuestions}\n`;
+        md += `- Questions generees : ${data.meta.generatedQuestions}\n`;
+        md += `- Repondues : ${data.statistics.answered}\n`;
+        md += `- A approfondir : ${data.statistics.skipped}\n`;
+        md += `- Incertain : ${data.statistics.unclear}\n\n---\n\n`;
+        md += `## Reponses\n\n`;
+        const byType = {};
+        for (const q of allQuestions) { if (!byType[q.type]) byType[q.type] = []; byType[q.type].push(q); }
+        for (const [type, questions] of Object.entries(byType)) {
+            md += `### ${QUESTION_TYPES[type].label}\n\n`;
+            for (const q of questions) {
+                const response = state.responses[q.id];
+                md += `**Q: ${q.text}**\n\n`;
+                if (response?.text) md += `> ${response.text.replace(/\n/g, '\n> ')}\n\n`;
+                else if (response?.status === 'unclear') md += `_Je ne sais pas_\n\n`;
+                else if (response?.status === 'later') md += `_A approfondir plus tard_\n\n`;
+                else md += `_Pas de reponse_\n\n`;
+            }
+        }
+        md += `---\n\n_Genere par Paxis Loop v1.0.0_\n`;
+        return md;
+    }
+
+    function exportMarkdown() {
+        const content = generateMarkdown();
+        const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+        downloadBlob(blob, `paxis_loop_${state.role}_${new Date().toISOString().split('T')[0]}.md`);
+    }
+
+    function exportJSON() {
+        const content = JSON.stringify(generateExportData(), null, 2);
+        const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
+        downloadBlob(blob, `paxis_loop_${state.role}_${new Date().toISOString().split('T')[0]}.json`);
+    }
+
+    function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function escHtml(str) {
+        if (str == null) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        await window.bdbShellReady;
+
+        if (window.bdbIsDemo && window.bdbIsDemo()) {
+            const { data } = await window.bdb.from('demo_paxis').select('*');
+            showSection('history');
+            const container = document.getElementById('history-list');
+            if (container) {
+                container.innerHTML = (data || []).map(function(item) {
+                    return '<div class="card mb-3 border-0 shadow-sm"><div class="card-body">' +
+                        '<p class="fw-semibold mb-1">' + escHtml(item.question_text) + '</p>' +
+                        '<p class="text-muted small mb-0">' + escHtml(item.response_text || '') + '</p>' +
+                        '</div></div>';
+                }).join('') || '<p class="text-muted text-center py-3">Aucune session demo</p>';
+            }
+            return;
+        }
+
+        checkExistingSession();
+
+        document.getElementById('btn-header-history')?.addEventListener('click', () => showSection('history'));
+        document.getElementById('btn-header-export')?.addEventListener('click', () => showSection('export'));
+        document.getElementById('btn-header-home')?.addEventListener('click', () => showSection('home'));
+
+        document.getElementById('btn-start-interview').addEventListener('click', startInterview);
+        document.getElementById('btn-resume-interview').addEventListener('click', resumeInterview);
+        document.getElementById('btn-reset-session').addEventListener('click', resetSession);
+
+        document.getElementById('role-grid').addEventListener('click', function(e) {
+            const card = e.target.closest('[data-role]');
+            if (card) selectRole(card.dataset.role);
+        });
+
+        document.getElementById('btn-prev').addEventListener('click', prevQuestion);
+        document.getElementById('btn-skip-question').addEventListener('click', skipQuestion);
+        document.getElementById('btn-next').addEventListener('click', nextQuestion);
+
+        document.getElementById('btn-history-back').addEventListener('click', () => showSection('interview'));
+
+        document.querySelector('#section-history .paxis-role-selector').addEventListener('click', function(e) {
+            const btn = e.target.closest('[data-filter]');
+            if (!btn) return;
+            this.querySelectorAll('.paxis-role-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterHistory(btn.dataset.filter);
+        });
+
+        document.getElementById('btn-export-back').addEventListener('click', () => showSection('interview'));
+        document.getElementById('btn-export-md').addEventListener('click', exportMarkdown);
+        document.getElementById('btn-export-json').addEventListener('click', exportJSON);
+
+        document.getElementById('question-container').addEventListener('click', function(e) {
+            const btn = e.target.closest('.paxis-goto[data-section]');
+            if (btn) showSection(btn.dataset.section);
+        });
+    });
+  </script>
+</body>
+</html>

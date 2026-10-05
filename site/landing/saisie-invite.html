@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Saisie préférences chirurgien | BDB</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="../../css/cds-overrides.css" rel="stylesheet"/>
+<style>
+:root { --blue:#0f4c81; --blue-l:#e8f0fe; }
+body { background:#f4f6f9; font-family:'Segoe UI',system-ui,sans-serif; font-size:.9rem; min-height:100vh; }
+.si-form-wrap { max-width:860px; }
+.si-prenom-input { max-width:280px; }
+.si-spacer { height:80px; }
+.si-success-wrap { max-width:560px; }
+.si-success-icon {
+  width:68px;height:68px;border-radius:50%;background:#e8f5e9;color:#2e7d32;
+  font-size:2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;
+}
+.si-sutures-grid {
+  display:grid;grid-template-columns:100px 1fr 58px 1fr 1fr 28px;
+  gap:.3rem;margin-bottom:.2rem;
+}
+.si-fl-xs { font-size:.62rem; }
+
+/* ── Header ── */
+.top-bar {
+  background:var(--blue); color:#fff;
+  padding:.85rem 1.25rem;
+  display:flex; align-items:center; gap:.75rem;
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 2px 8px rgba(15,76,129,.2);
+}
+.top-bar .logo { font-weight:800; font-size:1rem; letter-spacing:.02em; }
+.top-bar .sub  { font-size:.75rem; opacity:.75; }
+.session-badge {
+  margin-left:auto; background:rgba(255,255,255,.15);
+  border-radius:20px; padding:.2rem .7rem;
+  font-size:.72rem; font-weight:600;
+}
+
+/* ── Chirurgien card ── */
+.chir-card {
+  background:#fff; border:2px solid var(--blue);
+  border-radius:12px; padding:1rem 1.25rem;
+  margin-bottom:1rem;
+}
+.chir-card select { font-size:1rem; font-weight:600; }
+
+/* ── Accordion ── */
+.acc-item {
+  background:#fff; border:1px solid #e2e8f0 !important;
+  border-radius:10px !important; margin-bottom:.45rem; overflow:hidden;
+}
+.acc-item .accordion-button {
+  border-radius:10px !important; padding:.7rem 1rem;
+  font-size:.85rem; font-weight:600; color:#1e293b;
+  background:#fff; box-shadow:none;
+}
+.acc-item .accordion-button:not(.collapsed) {
+  background:#f8fafc; border-bottom:1px solid #edf2f7;
+}
+.acc-item .accordion-button::after { filter:opacity(.4); }
+.acc-item .accordion-body { padding:.85rem 1rem; }
+
+/* ── Section icons ── */
+.si {
+  width:24px; height:24px; border-radius:5px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:.78rem; margin-right:.4rem; flex-shrink:0;
+}
+.si-install  { background:#e0f2fe; color:#0369a1; }
+.si-garrot   { background:#fce4ec; color:#c62828; }
+.si-pulsavac { background:#e8eaf6; color:#3949ab; }
+.si-ampli    { background:#f3e5f5; color:#6a1b9a; }
+.si-be       { background:#fff3e0; color:#e65100; }
+.si-ciment   { background:#e8f5e9; color:#2e7d32; }
+.si-equip    { background:#e3f2fd; color:#1565c0; }
+.si-sutures  { background:#fdf2f8; color:#7b1fa2; }
+.si-pansement{ background:#f1f8e9; color:#388e3c; }
+.si-attelle  { background:#e8eaf6; color:#283593; }
+.si-anapath  { background:#fce4ec; color:#880e4f; }
+.si-infiltr  { background:#fffde7; color:#f57f17; }
+.si-notes    { background:#eceff1; color:#455a64; }
+
+/* ── Sub-fields ── */
+.sub {
+  background:#f8fafc; border:1px solid #e8ecf0;
+  border-radius:8px; padding:.7rem; margin-top:.5rem; display:none;
+}
+.sub.on { display:block; }
+
+/* ── Label ── */
+.fl {
+  font-size:.68rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.05em; color:#64748b; margin-bottom:.2rem; display:block;
+}
+
+/* ── BE ── */
+.be-tabs { display:flex; gap:.3rem; margin-bottom:.6rem; }
+.be-tab {
+  flex:1; padding:.3rem; border-radius:6px;
+  border:1.5px solid #e2e8f0; background:#fff;
+  font-size:.72rem; font-weight:600; color:#64748b;
+  cursor:pointer; text-align:center;
+}
+.be-tab.active { background:#fff3e0; border-color:#e65100; color:#e65100; }
+.be-pnl { display:none; }
+.be-pnl.on { display:block; }
+.be-rng { display:flex; align-items:center; gap:.5rem; }
+.be-rng input { flex:1; }
+.be-val {
+  min-width:42px; text-align:center; font-size:.82rem; font-weight:700;
+  background:#fff3e0; color:#e65100; border-radius:5px; padding:.12rem .3rem;
+}
+
+/* ── Pills install ── */
+.ipills { display:flex; flex-wrap:wrap; gap:.3rem; }
+.ipill {
+  cursor:pointer; border:1.5px solid #dee2e6; border-radius:20px;
+  padding:.2rem .6rem; font-size:.75rem; font-weight:500;
+  background:#fff; color:#495057; transition:all .12s; user-select:none;
+}
+.ipill.on { background:#e8f0fe; border-color:#0d6efd; color:#0f4c81; font-weight:600; }
+
+/* ── Appuis ── */
+.appuis { display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:.2rem; }
+.appuis .form-check-label { font-size:.8rem; }
+
+/* ── Sutures ── */
+.sut-row {
+  display:grid; grid-template-columns:100px 1fr 58px 1fr 1fr 28px;
+  gap:.3rem; align-items:end;
+  padding-bottom:.45rem; margin-bottom:.45rem;
+  border-bottom:1px dashed #e2e8f0;
+}
+.sut-row:last-of-type { border-bottom:none; margin-bottom:0; }
+.btn-add-sut {
+  font-size:.75rem; font-weight:600; color:#0d6efd;
+  background:#e8f0fe; border:1.5px dashed #0d6efd;
+  border-radius:7px; padding:.3rem .8rem;
+  cursor:pointer; width:100%; text-align:center; margin-top:.4rem;
+}
+.btn-del-s {
+  width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+  border:1px solid #f5c6cb; background:#fff5f5; color:#dc3545;
+  border-radius:5px; cursor:pointer; font-size:.75rem;
+}
+
+/* ── Scope select ── */
+.scope-wrap {
+  background:#fff; border-radius:10px; border:1px solid #e2e8f0;
+  padding:.75rem 1rem; margin-bottom:.85rem;
+}
+
+/* ── Footer ── */
+.footer-bar {
+  background:#fff; border-top:1px solid #e2e8f0;
+  padding:.85rem 1.25rem; position:sticky; bottom:0;
+  display:flex; gap:.6rem; justify-content:flex-end;
+  box-shadow:0 -2px 8px rgba(0,0,0,.06);
+}
+.btn-save {
+  background:var(--blue); color:#fff; border:none;
+  padding:.55rem 1.75rem; border-radius:8px;
+  font-size:.9rem; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; gap:.4rem;
+  transition:background .12s;
+}
+.btn-save:hover { background:#0c3d6b; }
+.btn-save:disabled { opacity:.6; cursor:not-allowed; }
+
+/* ── Écran succès ── */
+#successScreen {
+  display:none; text-align:center;
+  padding:3rem 1rem;
+}
+#successScreen .check-circle {
+  width:72px; height:72px; border-radius:50%;
+  background:#e8f5e9; color:#2e7d32;
+  font-size:2rem; display:flex; align-items:center;
+  justify-content:center; margin:0 auto 1.25rem;
+}
+
+/* ── Spinner ── */
+.spin { animation:spin .8s linear infinite; display:inline-block; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ════ TOP BAR ═══════════════════════════════════════════ -->
+<div class="top-bar">
+  <i class="bi bi-person-gear fs-5"></i>
+  <div>
+    <div class="logo">Bible de Bloc</div>
+    <div class="sub">Saisie préférences chirurgien</div>
+  </div>
+  <span class="session-badge"><i class="bi bi-people me-1"></i>Session collective</span>
+</div>
+
+<!-- ════ FORMULAIRE ════════════════════════════════════════ -->
+<div class="container-fluid p-3 si-form-wrap" id="formScreen">
+
+  <!-- Saisie par -->
+  <div class="card border-0 shadow-sm p-3 mb-3">
+    <span class="fl">Votre prénom (pour traçabilité) <span class="text-danger">*</span></span>
+    <input type="text" class="form-control form-control-sm si-prenom-input" id="saisieParInput"
+           placeholder="ex. Julie, Sabine…"/>
+  </div>
+
+  <!-- Chirurgien -->
+  <div class="chir-card">
+    <span class="fl">Chirurgien concerné <span class="text-danger">*</span></span>
+    <div id="chirLoadingMsg" class="text-muted small mb-2">
+      <span class="spin"><i class="bi bi-arrow-clockwise"></i></span>
+      Chargement de la liste…
+    </div>
+    <select class="form-select" id="selChirurgien" style="display:none">
+      <option value="">— Sélectionner un chirurgien —</option>
+    </select>
+    <div id="chirError" class="text-danger small mt-1 d-none">
+      <i class="bi bi-exclamation-triangle me-1"></i>
+      Connexion indisponible — réessayez dans un instant.
+    </div>
+  </div>
+
+  <!-- Scope -->
+  <div class="scope-wrap">
+    <span class="fl">Portée de ces préférences</span>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <select class="form-select form-select-sm w-auto" id="selScopeLevel">
+        <option value="global">Globale (toutes interventions)</option>
+        <option value="secteur">Par secteur</option>
+        <option value="type">Par type de chirurgie</option>
+        <option value="protocole">Par protocole</option>
+      </select>
+      <select class="form-select form-select-sm w-auto d-none" id="selScopeSecteur">
+        <option value="">— Secteur —</option>
+        <option>Orthopédie</option><option>Traumatologie</option>
+        <option>Septique</option><option>Neurochirurgie</option>
+      </select>
+      <select class="form-select form-select-sm w-auto d-none" id="selScopeType">
+        <option value="">— Type —</option>
+        <option>Arthroscopie</option><option>Ciel ouvert</option>
+        <option>Prothèse</option><option>Traumatologie urgente</option>
+        <option>Endoscopie</option>
+      </select>
+      <input type="search" class="form-control form-control-sm w-auto d-none"
+             id="inpScopeProto" placeholder="Protocole (ex. PTH voie ant.)"/>
+    </div>
+  </div>
+
+  <!-- Accordion sections -->
+  <div class="accordion" id="mainAcc">
+
+    <!-- ── Installation ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sInstall">
+          <span class="si si-install"><i class="bi bi-person-standing"></i></span>
+          Installation patient
+        </button>
+      </h2>
+      <div id="sInstall" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <span class="fl">Table opératoire</span>
+              <select class="form-select form-select-sm" id="selTable">
+                <option value="">— Choisir —</option>
+                <option>Stryker 4085</option><option>Plateau standard</option>
+                <option>Table voie antérieure</option><option>Table genu-pectorale</option>
+                <option>Table radio-transparente</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <span class="fl">Décubitus</span>
+              <select class="form-select form-select-sm" id="selDecubitus">
+                <option value="">— Choisir —</option>
+                <option>Décubitus dorsal</option><option>Décubitus latéral D</option>
+                <option>Décubitus latéral G</option><option>Décubitus ventral</option>
+                <option>Trendelenburg</option><option>Anti-Trendelenburg</option>
+                <option>Demi-assise</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <span class="fl">Position / Installation</span>
+            <div class="ipills" id="pillsInstall">
+              <span class="ipill">Genou fléchi 90°</span>
+              <span class="ipill">Table orthopédique</span>
+              <span class="ipill">Bras en croix</span>
+              <span class="ipill">Bras le long du corps</span>
+              <span class="ipill">Siège d'arthroscopie</span>
+              <span class="ipill">Botte de traction</span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <span class="fl">Appuis</span>
+            <div class="appuis" id="appuisGroup">
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="aGenou"/>
+                <label class="form-check-label" for="aGenou">Appui genou</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="aEpaule"/>
+                <label class="form-check-label" for="aEpaule">Appui épaule</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="aFlanc"/>
+                <label class="form-check-label" for="aFlanc">Appui de flanc</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="aSacrum"/>
+                <label class="form-check-label" for="aSacrum">Appui sacrum</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="aPied"/>
+                <label class="form-check-label" for="aPied">Botte / pied</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="aTete"/>
+                <label class="form-check-label" for="aTete">Appuie-tête</label></div>
+            </div>
+          </div>
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="togGelose" role="switch"/>
+            <label class="form-check-label" for="togGelose">Gélose</label>
+          </div>
+          <div class="sub" id="geloseSub">
+            <div class="row g-2">
+              <div class="col-6">
+                <span class="fl">Position</span>
+                <select class="form-select form-select-sm">
+                  <option value="">—</option>
+                  <option>Point d'appui</option><option>Sur la table</option>
+                  <option>Sous le membre</option><option>Talon</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <span class="fl">Taille</span>
+                <select class="form-select form-select-sm">
+                  <option value="">—</option>
+                  <option>Petite</option><option>Grande</option><option>Ronde</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Garrot ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sGarrot">
+          <span class="si si-garrot"><i class="bi bi-bandaid"></i></span>
+          Garrot pneumatique
+        </button>
+      </h2>
+      <div id="sGarrot" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="togGarrot" role="switch"/>
+            <label class="form-check-label" for="togGarrot">Présent</label>
+          </div>
+          <div class="sub" id="garrotSub">
+            <div class="row g-2">
+              <div class="col-md-4">
+                <span class="fl">Position sur le membre</span>
+                <select class="form-select form-select-sm" id="selGarrotPos">
+                  <option value="">—</option>
+                  <option>Cuisse</option><option>Jambe</option>
+                  <option>Bras</option><option>Avant-bras</option>
+                  <option>Cheville</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <span class="fl">Pression (mmHg)</span>
+                <input type="number" class="form-control form-control-sm" id="inpGarrotPression"
+                       placeholder="ex. 300" min="100" max="500" step="10"/>
+              </div>
+              <div class="col-md-4">
+                <span class="fl">Durée max (min)</span>
+                <input type="number" class="form-control form-control-sm" id="inpGarrotDuree"
+                       placeholder="ex. 90" min="10" max="240" step="5"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Pulsavac ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sPulsavac">
+          <span class="si si-pulsavac"><i class="bi bi-droplet"></i></span>
+          Pulsavac
+        </button>
+      </h2>
+      <div id="sPulsavac" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="togPulsavac" role="switch"/>
+            <label class="form-check-label" for="togPulsavac">Lavage pulsé utilisé</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Ampli de brillance ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sAmpli">
+          <span class="si si-ampli"><i class="bi bi-camera-reels"></i></span>
+          Amplificateur de brillance
+        </button>
+      </h2>
+      <div id="sAmpli" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="togAmpli" role="switch"/>
+            <label class="form-check-label" for="togAmpli">Présent</label>
+          </div>
+          <div class="sub" id="ampliSub">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <span class="fl">Position dans la salle</span>
+                <select class="form-select form-select-sm">
+                  <option value="">—</option>
+                  <option>Côté opéré</option><option>Côté opposé</option>
+                  <option>À la tête</option><option>Aux pieds</option>
+                </select>
+              </div>
+              <div class="col-md-6 d-flex align-items-end">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="togPedaleAmpli" role="switch"/>
+                  <label class="form-check-label" for="togPedaleAmpli">Pédale</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bistouri électrique ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sBE">
+          <span class="si si-be"><i class="bi bi-lightning-charge"></i></span>
+          Bistouri électrique
+        </button>
+      </h2>
+      <div id="sBE" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="togBE" role="switch"/>
+            <label class="form-check-label" for="togBE">Présent</label>
+          </div>
+          <div class="sub" id="beSub">
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <span class="fl">Modèle</span>
+                <select class="form-select form-select-sm" id="selBEModele">
+                  <option value="">—</option>
+                  <option>Valleylab FT10 (Medtronic)</option>
+                  <option>VIO 3 (ERBE)</option>
+                  <option>Force FX (Covidien)</option>
+                  <option>Autocon III (Karl Storz)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <span class="fl">Position dans la salle</span>
+                <select class="form-select form-select-sm">
+                  <option value="">—</option>
+                  <option>Côté opéré</option><option>Côté opposé</option>
+                  <option>À la tête</option><option>Aux pieds</option>
+                </select>
+              </div>
+            </div>
+            <div class="be-tabs">
+              <div class="be-tab active" data-be="coupe"><i class="bi bi-scissors me-1"></i>Coupe</div>
+              <div class="be-tab" data-be="coag"><i class="bi bi-fire me-1"></i>Coagulation</div>
+              <div class="be-tab" data-be="bipo"><i class="bi bi-lightning me-1"></i>Bipolaire</div>
+            </div>
+            <div class="be-pnl on" id="beCoupe">
+              <div class="row g-2 align-items-end">
+                <div class="col-8">
+                  <span class="fl">Puissance coupe — défaut 80 W</span>
+                  <div class="be-rng">
+                    <input type="range" min="40" max="150" step="5" value="80" id="rCoupe"/>
+                    <div class="be-val" id="vCoupe">80 W</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <span class="fl">Mode coupe</span>
+                  <select class="form-select form-select-sm" id="selCoupeMode">
+                    <option>Pure</option><option selected>Mixte</option><option>Fulgurant</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="be-pnl" id="beCoag">
+              <div class="row g-2 align-items-end">
+                <div class="col-8">
+                  <span class="fl">Puissance coag — défaut 80 W</span>
+                  <div class="be-rng">
+                    <input type="range" min="40" max="150" step="5" value="80" id="rCoag"/>
+                    <div class="be-val" id="vCoag">80 W</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <span class="fl">Mode coag</span>
+                  <select class="form-select form-select-sm" id="selCoagMode">
+                    <option>Soft</option><option>Forced</option>
+                    <option selected>Fulgurant</option><option>Spray</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="be-pnl" id="beBipo">
+              <div class="form-check form-switch mb-1">
+                <input class="form-check-input" type="checkbox" id="togBipo" role="switch"/>
+                <label class="form-check-label" for="togBipo">Bipolaire présent</label>
+              </div>
+              <div class="sub" id="bipoSub">
+                <div class="row g-2 align-items-end">
+                  <div class="col-8">
+                    <span class="fl">Puissance bipolaire — défaut 15 W</span>
+                    <div class="be-rng">
+                      <input type="range" min="15" max="80" step="5" value="15" id="rBipo"/>
+                      <div class="be-val" id="vBipo">15 W</div>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <span class="fl">Mode bipolaire</span>
+                    <select class="form-select form-select-sm" id="selBipoMode">
+                      <option selected>Automatique</option>
+                      <option>Pédale</option><option>Manuel</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Ciment ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sCiment">
+          <span class="si si-ciment"><i class="bi bi-droplet-half"></i></span>
+          Ciment
+        </button>
+      </h2>
+      <div id="sCiment" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="togCiment" role="switch"/>
+            <label class="form-check-label" for="togCiment">Ciment utilisé</label>
+          </div>
+          <div class="sub" id="cimentSub">
+            <div class="row g-2">
+              <div class="col-md-6">
+                <span class="fl">Nom du ciment</span>
+                <select class="form-select form-select-sm" id="selCimentNom">
+                  <option value="">—</option>
+                  <option>Simplex P (Stryker)</option><option>Palacos R (Heraeus)</option>
+                  <option>CMW 1 (DePuy)</option><option>Cemfix (Biomet)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <span class="fl">Mélangeur</span>
+                <select class="form-select form-select-sm" id="selCimentMelangeur">
+                  <option value="">—</option>
+                  <option>Optivac (Stryker)</option><option>Cemvac</option>
+                  <option>Mécanique manuel</option><option>Manuel bol</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Équipement chirurgien ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sEquip">
+          <span class="si si-equip"><i class="bi bi-bag"></i></span>
+          Équipement chirurgien
+        </button>
+      </h2>
+      <div id="sEquip" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="mb-3">
+            <span class="fl">1ère paire de gants</span>
+            <div class="row g-2">
+              <div class="col-4">
+                <select class="form-select form-select-sm" id="selGants1Taille">
+                  <option value="">— Taille —</option>
+                  <option>5.5</option><option>6</option><option>6.5</option>
+                  <option>7</option><option>7.5</option><option>8</option><option>8.5</option>
+                </select>
+              </div>
+              <div class="col-8">
+                <select class="form-select form-select-sm" id="selGants1Modele">
+                  <option value="">— Modèle —</option>
+                  <option>Biogel Indicator (Mölnlycke)</option>
+                  <option>Gammex PF (Ansell)</option>
+                  <option>Dexpure (Hartmann)</option>
+                  <option>ENCORE (Cardinal)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="form-check form-switch mb-1">
+              <input class="form-check-input" type="checkbox" id="togGants2" role="switch"/>
+              <label class="form-check-label" for="togGants2">2ème paire différente</label>
+            </div>
+            <div class="sub" id="gants2Sub">
+              <div class="row g-2">
+                <div class="col-4">
+                  <select class="form-select form-select-sm" id="selGants2Taille">
+                    <option value="">— Taille —</option>
+                    <option>6</option><option>6.5</option>
+                    <option>7</option><option>7.5</option><option>8</option>
+                  </select>
+                </div>
+                <div class="col-8">
+                  <select class="form-select form-select-sm" id="selGants2Modele">
+                    <option value="">— Modèle —</option>
+                    <option>Dexpure (Hartmann)</option><option>ENCORE (Cardinal)</option>
+                    <option>Gammex PF (Ansell)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-6">
+              <span class="fl">Type casaque</span>
+              <select class="form-select form-select-sm" id="selCasaqueType">
+                <option value="">—</option>
+                <option>Standard</option><option>Renforcée</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <span class="fl">Taille casaque</span>
+              <select class="form-select form-select-sm" id="selCasaqueTaille">
+                <option value="">—</option>
+                <option>XS</option><option>S</option><option>M</option>
+                <option>L</option><option>XL</option><option>XXL</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="togCasque" role="switch"/>
+            <label class="form-check-label" for="togCasque">Casque stérile</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sutures & Fermeture ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sSutures">
+          <span class="si si-sutures"><i class="bi bi-scissors"></i></span>
+          Sutures &amp; Fermeture
+        </button>
+      </h2>
+      <div id="sSutures" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <span class="fl mb-2 d-block">Plans de suture</span>
+          <div class="si-sutures-grid">
+            <span class="fl mb-0 si-fl-xs">Plan</span>
+            <span class="fl mb-0 si-fl-xs">Fil</span>
+            <span class="fl mb-0 si-fl-xs">Taille</span>
+            <span class="fl mb-0 si-fl-xs">Mode</span>
+            <span class="fl mb-0 si-fl-xs">Référence</span>
+            <span></span>
+          </div>
+          <div id="suturesList"></div>
+          <div class="btn-add-sut" id="btnAddSuture">
+            <i class="bi bi-plus-lg me-1"></i>Ajouter un plan
+          </div>
+          <hr class="my-3"/>
+          <div class="row g-2">
+            <div class="col-md-5">
+              <div class="form-check form-switch mb-1">
+                <input class="form-check-input" type="checkbox" id="togAgrafe" role="switch"/>
+                <label class="form-check-label" for="togAgrafe">Agrafes cutanées</label>
+              </div>
+              <div class="sub" id="agrafeSub">
+                <span class="fl">Modèle</span>
+                <select class="form-select form-select-sm" id="selAgrafeModele">
+                  <option value="">—</option>
+                  <option>35W</option><option>35R</option><option>55</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-7">
+              <span class="fl">Allergie (latex, nickel…)</span>
+              <input type="text" class="form-control form-control-sm" id="inpAllergie"
+                     placeholder="ex. Allergie latex — gants sans latex obligatoires"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Pansement ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sPansement">
+          <span class="si si-pansement"><i class="bi bi-patch-plus"></i></span>
+          Pansement
+        </button>
+      </h2>
+      <div id="sPansement" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="togPansement" role="switch"/>
+            <label class="form-check-label" for="togPansement">Pansement préféré</label>
+          </div>
+          <div class="sub" id="pansementSub">
+            <span class="fl">Type</span>
+            <select class="form-select form-select-sm w-auto" id="selPansement">
+              <option value="">—</option>
+              <option>Méfix</option><option>Optiskin</option>
+              <option>Leukomed</option><option>Tegaderm</option>
+              <option>Cutifilm</option><option>Primapore</option>
+              <option>Autre (préciser en notes)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Attelle ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sAttelle">
+          <span class="si si-attelle"><i class="bi bi-shield-plus"></i></span>
+          Attelle post-opératoire
+        </button>
+      </h2>
+      <div id="sAttelle" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check form-switch mb-1">
+            <input class="form-check-input" type="checkbox" id="togAttelle" role="switch"/>
+            <label class="form-check-label" for="togAttelle">Attelle nécessaire</label>
+          </div>
+          <div class="sub" id="attelleSub">
+            <span class="fl">Modèle</span>
+            <select class="form-select form-select-sm w-auto" id="selAttelle">
+              <option value="">—</option>
+              <option>Formfit (genou)</option><option>Igloo épaule</option>
+              <option>Igloo genou</option><option>Gilet gris (épaule)</option>
+              <option>Autre (préciser en notes)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Anapath ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sAnapath">
+          <span class="si si-anapath"><i class="bi bi-eyedropper"></i></span>
+          Anatomopathologie
+        </button>
+      </h2>
+      <div id="sAnapath" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="togAnapath" role="switch"/>
+            <label class="form-check-label" for="togAnapath">
+              Prélèvement anapath systématique
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Infiltration ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sInfiltr">
+          <span class="si si-infiltr"><i class="bi bi-capsule"></i></span>
+          Infiltration
+        </button>
+      </h2>
+      <div id="sInfiltr" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="row g-2">
+            <div class="col-md-5">
+              <span class="fl">Molécule</span>
+              <input type="text" class="form-control form-control-sm" id="inpInfiltrMolecule"
+                     placeholder="ex. Ropivacaïne…"/>
+            </div>
+            <div class="col-md-3">
+              <span class="fl">Dose</span>
+              <input type="text" class="form-control form-control-sm" id="inpInfiltrDose"
+                     placeholder="ex. 150 mg"/>
+            </div>
+            <div class="col-md-4">
+              <span class="fl">Timing</span>
+              <select class="form-select form-select-sm" id="selInfiltrTiming">
+                <option value="">—</option>
+                <option>En début d'intervention</option>
+                <option>En fin d'intervention</option>
+                <option>Avant fermeture</option>
+                <option>En salle de réveil</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Notes libres ── -->
+    <div class="acc-item accordion-item border-0">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button"
+                data-bs-toggle="collapse" data-bs-target="#sNotes">
+          <span class="si si-notes"><i class="bi bi-pencil-square"></i></span>
+          Notes libres
+        </button>
+      </h2>
+      <div id="sNotes" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <textarea class="form-control" rows="3" id="taNotesLibres"
+            placeholder="Points d'attention, habitudes, particularités, allergies non listées…"></textarea>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /accordion -->
+
+  <!-- Erreur save -->
+  <div class="alert alert-danger mt-3 d-none" id="saveError"></div>
+
+  <div class="si-spacer"></div>
+</div>
+
+<!-- ════ ÉCRAN SUCCÈS ══════════════════════════════════════ -->
+<div id="successScreen" class="container-fluid p-4 si-success-wrap" style="display:none">
+  <div class="card border-0 shadow-sm text-center p-4">
+    <div class="si-success-icon">
+      <i class="bi bi-check-lg"></i>
+    </div>
+    <h5 class="fw-bold mb-1">Enregistré !</h5>
+    <p class="text-muted small mb-0" id="successMsg">Préférences sauvegardées en brouillon.</p>
+    <p class="text-muted small mb-3">Un administrateur les validera avant publication.</p>
+    <button class="btn btn-primary" id="btnAnother">
+      <i class="bi bi-plus-lg me-1"></i>Saisir un autre chirurgien
+    </button>
+  </div>
+</div>
+
+<!-- ════ FOOTER ════════════════════════════════════════════ -->
+<div class="footer-bar" id="footerBar">
+  <button class="btn-save" id="btnSave">
+    <i class="bi bi-check-lg"></i>Enregistrer
+  </button>
+</div>
+
+<!-- ════ JS ════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script>
+/* ── Attendre window.bdb + forcer mode anon ── */
+async function initPage() {
+  let tries = 0;
+  while (!window.bdb && tries < 50) {
+    await new Promise(r => setTimeout(r, 100));
+    tries++;
+  }
+  if (!window.bdb) { showChirError(); return; }
+
+  /* Signer out pour vider toute session résiduelle → mode anon garanti */
+  try { await window.bdb.auth.signOut(); } catch { /* ignoré */ }
+
+  loadChirurgiens();
+}
+
+/* ── Chirurgiens ── */
+async function loadChirurgiens() {
+  try {
+    const { data, error } = await window.bdb
+      .from('profiles_directory')
+      .select('user_id, nom, prenom')
+      .eq('fonction', 'medecin')
+      .eq('approved', true)
+      .order('nom');
+    if (error) throw error;
+    const sel = document.getElementById('selChirurgien');
+    (data || []).forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.user_id;
+      opt.textContent = 'Dr ' + (d.nom || '') + ' ' + (d.prenom || '');
+      sel.appendChild(opt);
+    });
+    document.getElementById('chirLoadingMsg').style.display = 'none';
+    sel.style.display = '';
+  } catch {
+    showChirError();
+  }
+}
+
+function showChirError() {
+  document.getElementById('chirLoadingMsg').style.display = 'none';
+  document.getElementById('chirError').classList.remove('d-none');
+}
+
+/* ── Scope ── */
+document.getElementById('selScopeLevel').addEventListener('change', function() {
+  document.getElementById('selScopeSecteur').classList.toggle('d-none', !['secteur','type','protocole'].includes(this.value));
+  document.getElementById('selScopeType').classList.toggle('d-none', !['type','protocole'].includes(this.value));
+  document.getElementById('inpScopeProto').classList.toggle('d-none', this.value !== 'protocole');
+});
+
+/* ── Toggles → sub ── */
+const toggleMap = {
+  togGarrot:'garrotSub', togAmpli:'ampliSub', togBE:'beSub',
+  togCiment:'cimentSub', togGants2:'gants2Sub', togBipo:'bipoSub',
+  togPansement:'pansementSub', togAttelle:'attelleSub',
+  togAgrafe:'agrafeSub', togGelose:'geloseSub',
+};
+Object.entries(toggleMap).forEach(([id, subId]) => {
+  const t = document.getElementById(id);
+  const s = document.getElementById(subId);
+  if (t && s) t.addEventListener('change', () => s.classList.toggle('on', t.checked));
+});
+
+/* ── BE tabs ── */
+document.querySelectorAll('.be-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.be-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.be-pnl').forEach(x => x.classList.remove('on'));
+    tab.classList.add('active');
+    const m = { coupe:'beCoupe', coag:'beCoag', bipo:'beBipo' }[tab.dataset.be];
+    document.getElementById(m)?.classList.add('on');
+  });
+});
+
+/* ── Ranges ── */
+[['rCoupe','vCoupe'],['rCoag','vCoag'],['rBipo','vBipo']].forEach(([r,v]) => {
+  const ri = document.getElementById(r), vi = document.getElementById(v);
+  if (ri && vi) ri.addEventListener('input', () => vi.textContent = ri.value + ' W');
+});
+
+/* ── Install pills ── */
+document.querySelectorAll('.ipill').forEach(p => {
+  p.addEventListener('click', () => p.classList.toggle('on'));
+});
+
+/* ── Sutures ── */
+function makeSutureRow() {
+  const row = document.createElement('div');
+  row.className = 'sut-row';
+  row.innerHTML = `
+    <select class="form-select form-select-sm">
+      <option value="">—</option>
+      <option>Profond</option><option>Aponévrose</option>
+      <option>Sous-peau</option><option>Peau</option>
+      <option>Ligature</option><option>Capsule</option>
+    </select>
+    <select class="form-select form-select-sm">
+      <option value="">—</option>
+      <option>Vicryl</option><option>PDS</option>
+      <option>Monocryl</option><option>Prolène</option><option>Nylon</option>
+    </select>
+    <select class="form-select form-select-sm">
+      <option value="">—</option>
+      <option>5-0</option><option>4-0</option><option>3-0</option>
+      <option>2-0</option><option>1-0</option><option>1</option><option>0</option>
+    </select>
+    <select class="form-select form-select-sm">
+      <option value="">—</option>
+      <option>Points séparés</option>
+      <option>Surjet</option><option>Surjet intradermique</option>
+    </select>
+    <input type="text" class="form-control form-control-sm" placeholder="Réf…"/>
+    <div class="btn-del-s"><i class="bi bi-x"></i></div>`;
+  row.querySelector('.btn-del-s').addEventListener('click', () => row.remove());
+  return row;
+}
+document.getElementById('btnAddSuture').addEventListener('click', () => {
+  document.getElementById('suturesList').appendChild(makeSutureRow());
+});
+
+/* ── Collecte sutures ── */
+function collectSutures() {
+  return [...document.querySelectorAll('#suturesList .sut-row')].map(row => {
+    const sel = row.querySelectorAll('select');
+    const inp = row.querySelector('input');
+    return {
+      plan:  sel[0]?.value || '',
+      type:  sel[1]?.value || '',
+      taille:sel[2]?.value || '',
+      mode:  sel[3]?.value || '',
+      ref:   inp?.value    || '',
+    };
+  }).filter(s => s.plan || s.type);
+}
+
+/* ── Collecte JSONB ── */
+function collectPreferences() {
+  const installPills = [...document.querySelectorAll('.ipill.on')].map(p => p.textContent.trim());
+  const appuis = ['aGenou','aEpaule','aFlanc','aSacrum','aPied','aTete']
+    .filter(id => document.getElementById(id)?.checked)
+    .map(id => document.querySelector('[for="' + id + '"]')?.textContent?.trim() || id);
+
+  const scopeLevel = document.getElementById('selScopeLevel').value;
+
+  return {
+    v: 2,
+    scope: {
+      level:    scopeLevel,
+      secteur:  document.getElementById('selScopeSecteur').value,
+      type:     document.getElementById('selScopeType').value,
+      protocole:document.getElementById('inpScopeProto').value,
+    },
+    installation: {
+      table:     document.getElementById('selTable').value,
+      decubitus: document.getElementById('selDecubitus').value,
+      position:  installPills,
+      appuis,
+      gelose:    document.getElementById('togGelose').checked,
+    },
+    garrot: {
+      present:      document.getElementById('togGarrot').checked,
+      position:     document.getElementById('selGarrotPos')?.value || '',
+      pression_mmhg:document.getElementById('inpGarrotPression')?.value || '',
+      duree_min:    document.getElementById('inpGarrotDuree')?.value || '',
+    },
+    pulsavac: document.getElementById('togPulsavac').checked,
+    ampli_brillance: {
+      present: document.getElementById('togAmpli').checked,
+    },
+    bistouri_electrique: {
+      present:   document.getElementById('togBE').checked,
+      modele:    document.getElementById('selBEModele').value,
+      coupe_w:   parseInt(document.getElementById('rCoupe').value, 10),
+      coupe_mode:document.getElementById('selCoupeMode').value,
+      coag_w:    parseInt(document.getElementById('rCoag').value, 10),
+      coag_mode: document.getElementById('selCoagMode').value,
+      bipolaire_present: document.getElementById('togBipo').checked,
+      bipolaire_w:   parseInt(document.getElementById('rBipo').value, 10),
+      bipolaire_mode:document.getElementById('selBipoMode').value,
+    },
+    ciment: {
+      present:   document.getElementById('togCiment').checked,
+      nom:       document.getElementById('selCimentNom').value,
+      melangeur: document.getElementById('selCimentMelangeur').value,
+    },
+    equipement_chirurgien: {
+      gants_1_taille: document.getElementById('selGants1Taille').value,
+      gants_1_modele: document.getElementById('selGants1Modele').value,
+      gants_2_present:document.getElementById('togGants2').checked,
+      gants_2_taille: document.getElementById('selGants2Taille')?.value || '',
+      gants_2_modele: document.getElementById('selGants2Modele')?.value || '',
+      casaque_type:   document.getElementById('selCasaqueType').value,
+      casaque_taille: document.getElementById('selCasaqueTaille').value,
+      casque:         document.getElementById('togCasque').checked,
+    },
+    fermeture: {
+      sutures:  collectSutures(),
+      agrafe:   document.getElementById('togAgrafe').checked,
+      agrafe_modele: document.getElementById('selAgrafeModele').value,
+      allergie: document.getElementById('inpAllergie').value.trim(),
+    },
+    pansement: {
+      present: document.getElementById('togPansement').checked,
+      type:    document.getElementById('selPansement').value,
+    },
+    attelle: {
+      present: document.getElementById('togAttelle').checked,
+      modele:  document.getElementById('selAttelle').value,
+    },
+    anapath:     document.getElementById('togAnapath').checked,
+    infiltration:{
+      molecule:document.getElementById('inpInfiltrMolecule').value.trim(),
+      dose:    document.getElementById('inpInfiltrDose').value.trim(),
+      timing:  document.getElementById('selInfiltrTiming').value,
+    },
+    notes:       document.getElementById('taNotesLibres').value.trim(),
+    saisie_par:  document.getElementById('saisieParInput').value.trim(),
+  };
+}
+
+/* ── Réinitialiser le formulaire ── */
+function resetForm() {
+  document.getElementById('selChirurgien').value = '';
+  document.getElementById('selScopeLevel').value = 'global';
+  document.getElementById('selScopeSecteur').classList.add('d-none');
+  document.getElementById('selScopeType').classList.add('d-none');
+  document.getElementById('inpScopeProto').classList.add('d-none');
+  document.getElementById('suturesList').innerHTML = '';
+  /* Toggles */
+  Object.keys(toggleMap).forEach(id => {
+    const t = document.getElementById(id);
+    if (t) { t.checked = false; }
+    const s = document.getElementById(toggleMap[id]);
+    if (s) s.classList.remove('on');
+  });
+  /* Ranges */
+  document.getElementById('rCoupe').value = 80;  document.getElementById('vCoupe').textContent = '80 W';
+  document.getElementById('rCoag').value  = 80;  document.getElementById('vCoag').textContent  = '80 W';
+  document.getElementById('rBipo').value  = 15;  document.getElementById('vBipo').textContent  = '15 W';
+  /* Pills */
+  document.querySelectorAll('.ipill.on').forEach(p => p.classList.remove('on'));
+  /* Checkboxes appuis */
+  ['aGenou','aEpaule','aFlanc','aSacrum','aPied','aTete'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+  /* Selects & inputs */
+  ['selTable','selDecubitus','selGarrotPos','selBEModele','selCoupeMode',
+   'selCoagMode','selBipoMode','selCimentNom','selCimentMelangeur',
+   'selGants1Taille','selGants1Modele','selGants2Taille','selGants2Modele',
+   'selCasaqueType','selCasaqueTaille','selAgrafeModele','selPansement','selAttelle',
+   'selInfiltrTiming'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['inpGarrotPression','inpGarrotDuree','inpAllergie',
+   'inpInfiltrMolecule','inpInfiltrDose','taNotesLibres'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  /* Fermer tous les accordions */
+  document.querySelectorAll('.accordion-collapse.show').forEach(el => {
+    bootstrap.Collapse.getOrCreateInstance(el).hide();
+  });
+  /* BE tab reset */
+  document.querySelectorAll('.be-tab').forEach((t,i) => {
+    t.classList.toggle('active', i === 0);
+  });
+  document.querySelectorAll('.be-pnl').forEach((p,i) => {
+    p.classList.toggle('on', i === 0);
+  });
+  document.getElementById('saveError').classList.add('d-none');
+  window.scrollTo(0, 0);
+}
+
+/* ── SAVE ── */
+document.getElementById('btnSave').addEventListener('click', async () => {
+  const chirId   = document.getElementById('selChirurgien').value;
+  const saisiePar = document.getElementById('saisieParInput').value.trim();
+  const errEl    = document.getElementById('saveError');
+  errEl.classList.add('d-none');
+
+  if (!saisiePar) {
+    errEl.textContent = 'Votre prénom est nécessaire pour la traçabilité.';
+    errEl.classList.remove('d-none');
+    window.scrollTo(0, 0); return;
+  }
+  if (!chirId) {
+    errEl.textContent = 'Sélectionnez un chirurgien avant d\'enregistrer.';
+    errEl.classList.remove('d-none');
+    window.scrollTo(0, 0); return;
+  }
+
+  const btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"><i class="bi bi-arrow-clockwise"></i></span>&nbsp;Enregistrement…';
+
+  const scopeLevel = document.getElementById('selScopeLevel').value;
+  const chirName   = document.getElementById('selChirurgien')
+    .options[document.getElementById('selChirurgien').selectedIndex]?.text || '';
+  const scopeLabel = scopeLevel === 'global' ? 'Globales' :
+    scopeLevel === 'secteur' ? document.getElementById('selScopeSecteur').value || 'Secteur' :
+    scopeLevel === 'type'    ? document.getElementById('selScopeType').value    || 'Type'    :
+    document.getElementById('inpScopeProto').value || 'Protocole';
+
+  const titre      = 'Préférences ' + scopeLabel + ' — ' + chirName;
+  const preferences = collectPreferences();
+  const notes_txt  = (preferences.notes || '') + (saisiePar ? '\n[Saisie par : ' + saisiePar + ']' : '');
+
+  try {
+    const { error } = await window.bdb
+      .from('preferences_chirurgien')
+      .insert({
+        chirurgien_id:    chirId,
+        titre,
+        description:      preferences.notes || '',
+        preferences,
+        is_global:        scopeLevel === 'global',
+        protocole_id:     null,
+        is_dev:           true,   /* BROUILLON — validation admin requise */
+        updated_at:       new Date().toISOString(),
+      });
+    if (error) throw error;
+
+    /* Succès */
+    document.getElementById('formScreen').style.display  = 'none';
+    document.getElementById('footerBar').style.display   = 'none';
+    document.getElementById('successScreen').style.display = '';
+    document.getElementById('successMsg').textContent =
+      '"' + titre + '" sauvegardé en brouillon.';
+
+  } catch (err) {
+    errEl.textContent = 'Erreur lors de l\'enregistrement — ' + (err.message || 'réessayez dans un instant.');
+    errEl.classList.remove('d-none');
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg"></i>Enregistrer';
+  }
+});
+
+/* ── Saisir un autre ── */
+document.getElementById('btnAnother').addEventListener('click', () => {
+  resetForm();
+  document.getElementById('successScreen').style.display = 'none';
+  document.getElementById('formScreen').style.display    = '';
+  document.getElementById('footerBar').style.display     = '';
+});
+
+/* ── Init ── */
+initPage();
+</script>
+</body>
+</html>

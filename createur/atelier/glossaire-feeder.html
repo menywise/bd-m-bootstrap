@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Glossaire Feeder — Atelier</title>
+
+  <!-- CHAÎNE CSS CDS — ORDRE STRICT (CONV-CHAIN-E) · zéro CSS module (§9.2 T-02 Option B) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+</head>
+
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <div id="bdb-shell"
+         data-module-title="Glossaire Feeder"
+         data-module-icon="bi-book-half"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+        <div class="container-fluid p-3 p-md-4 p-lg-5">
+
+          <!-- MARQUEUR NAV -->
+          <div id="atelier-top" data-page="glossaire-feeder" class="d-none"></div>
+
+          <!-- STATE : LOADING -->
+          <div id="gf-loading">
+            <div class="card bo-card mb-4">
+              <div class="card-body text-center py-4">
+                <div class="spinner-border text-secondary" role="status">
+                  <span class="visually-hidden">Chargement…</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : ACCESS DENIED -->
+          <div id="gf-denied" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-danger-subtle text-danger">
+                  <i class="bi bi-shield-lock"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Accès réservé</h2>
+                <p class="text-muted mb-3">Accès réservé aux administrateurs.</p>
+                <a href="index.html" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-arrow-left me-1"></i>Retour atelier
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : CONTENT (44 IDs neutres préservés — exception assumée S#95) -->
+          <div id="gf-content" class="d-none">
+
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <i class="bi bi-book-half fs-3 text-primary"></i>
+        <div>
+          <h5 class="mb-0 fw-bold">Glossaire Feeder</h5>
+          <small class="text-muted">Delta · Génération IA · Export SQL · Audit complétude</small>
+        </div>
+        <div class="ms-auto">
+          <button class="btn btn-sm btn-outline-secondary" id="btn-apikey">
+            <i class="bi bi-key me-1"></i>Clé API
+            <span id="key-indicator"></span>
+          </button>
+        </div>
+      </div>
+
+      <ul class="nav nav-tabs mb-3" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-delta" type="button">
+            <i class="bi bi-arrow-left-right me-1"></i>Analyse delta
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-gen" type="button" id="tab-gen-btn">
+            <i class="bi bi-robot me-1"></i>Génération IA
+            <span id="missing-badge" class="badge bg-danger ms-1 d-none">0</span>
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-sql" type="button">
+            <i class="bi bi-file-code me-1"></i>Export SQL
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-audit" type="button" id="tab-audit-btn">
+            <i class="bi bi-clipboard-data me-1"></i>Audit
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+
+        <!-- ═══ DELTA ═══ -->
+        <div class="tab-pane fade show active" id="tab-delta">
+          <div class="row g-3">
+            <div class="col-md-5">
+              <div class="card h-100">
+                <div class="card-header d-flex align-items-center">
+                  <strong>Termes source</strong>
+                  <small class="text-muted ms-auto">Un terme par ligne</small>
+                </div>
+                <div class="card-body d-flex flex-column gap-2">
+                  <textarea id="source-terms" class="form-control font-monospace flex-grow-1"
+                    rows="18" placeholder="Allogreffe&#10;Arthrodèse&#10;Broche&#10;…"></textarea>
+                  <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-primary" id="btn-analyze">
+                      <i class="bi bi-search me-1"></i>Analyser
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="btn-load-sofcot">
+                      Charger liste Sofcot
+                    </button>
+                    <div id="delta-spinner" class="d-none d-flex align-items-center gap-1 text-muted">
+                      <div class="spinner-border spinner-border-sm"></div>
+                      <small>Analyse…</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-7">
+              <div id="delta-empty" class="text-center text-muted py-5">
+                <i class="bi bi-search fs-1"></i>
+                <p class="mt-2">Saisir des termes puis cliquer Analyser</p>
+              </div>
+              <div id="delta-error" class="d-none alert alert-danger"></div>
+              <div id="delta-results" class="d-none">
+                <div class="row g-2 text-center mb-3">
+                  <div class="col"><div class="card py-2">
+                    <div class="fs-3 fw-bold text-secondary" id="res-total">–</div>
+                    <small class="text-muted">Analysés</small>
+                  </div></div>
+                  <div class="col"><div class="card py-2">
+                    <div class="fs-3 fw-bold text-success" id="res-found">–</div>
+                    <small class="text-muted">Présents</small>
+                  </div></div>
+                  <div class="col"><div class="card py-2">
+                    <div class="fs-3 fw-bold text-danger" id="res-missing">–</div>
+                    <small class="text-muted">Manquants</small>
+                  </div></div>
+                </div>
+                <div id="delta-list" class="mb-3"></div>
+                <button class="btn btn-primary w-100 d-none" id="btn-to-gen">
+                  <i class="bi bi-robot me-1"></i>Générer les définitions manquantes →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ GÉNÉRATION ═══ -->
+        <div class="tab-pane fade" id="tab-gen">
+          <div id="gen-empty" class="text-center text-muted py-5">
+            <i class="bi bi-arrow-left-circle fs-1"></i>
+            <p class="mt-2">Lancer d'abord l'analyse delta (onglet 1)</p>
+          </div>
+          <div id="gen-content" class="d-none">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <span><strong id="gen-count">0</strong> termes à générer</span>
+              <button class="btn btn-success btn-sm" id="btn-gen-all">
+                <i class="bi bi-robot me-1"></i>Tout générer
+              </button>
+              <div class="flex-grow-1">
+                <div class="progress" class="bo-progress-thin">
+                  <div id="gen-bar" class="progress-bar bg-success" style="width:0%"></div>
+                </div>
+              </div>
+              <small id="gen-txt" class="text-muted"></small>
+            </div>
+            <div id="term-cards"></div>
+          </div>
+        </div>
+
+        <!-- ═══ SQL ═══ -->
+        <div class="tab-pane fade" id="tab-sql">
+          <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+              <strong>SQL INSERT — Supabase SQL Editor</strong>
+              <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="btn-copy-sql">
+                  <i class="bi bi-clipboard me-1"></i>Copier
+                </button>
+                <button class="btn btn-sm btn-primary" id="btn-gen-sql">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Générer
+                </button>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <pre class="bg-dark text-light font-monospace small rounded p-3 m-0" class="bo-scroll-md" id="sql-output">-- Cliquer "Générer" après production des définitions</pre>
+            </div>
+          </div>
+          <div class="alert alert-warning mt-3 mb-0">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            <strong>INTERDIT-SQL-01 :</strong> Sauvegarder dans
+            <code>C:\DEV\BIBLE_DE_BLOC\migrations\</code> AVANT exécution.
+          </div>
+        </div>
+
+        <!-- ═══ AUDIT ═══ -->
+        <div class="tab-pane fade" id="tab-audit">
+          <div id="audit-loading" class="text-center text-muted py-5">
+            <div class="spinner-border text-secondary" role="status"></div>
+          </div>
+          <div id="audit-error" class="d-none alert alert-danger"></div>
+          <div id="audit-content" class="d-none">
+            <div class="row g-3 mb-4" id="audit-kpis"></div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold">
+                Sans définition <span id="cnt-no-def" class="badge bg-danger ms-1"></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                  <thead class="table-light"><tr><th>Terme</th><th>Catégorie</th><th>Source</th><th>Pertinence</th></tr></thead>
+                  <tbody id="tbody-no-def"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold">
+                Sans pertinence_bloc <span id="cnt-no-pert" class="badge bg-warning text-dark ms-1"></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                  <thead class="table-light"><tr><th>Terme</th><th>Catégorie</th><th>Source</th></tr></thead>
+                  <tbody id="tbody-no-pert"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold">Incohérences show_in_module / pertinence_bloc</div>
+              <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                  <thead class="table-light"><tr><th>Terme</th><th>Pertinence</th><th>show_in_module</th><th>Correctif SQL</th></tr></thead>
+                  <tbody id="tbody-incoher"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /tab-content -->
+
+          </div><!-- /gf-content -->
+
+        </div><!-- /container-fluid -->
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom fw-semibold"></span> — Atelier L3 · Glossaire Feeder
+        <span class="badge bg-light text-dark border ms-2">CDS Compliant</span>
+      </small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+<!-- Modal clé API -->
+<div class="modal fade" id="apiKeyModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-key me-2"></i>Clé API Anthropic</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small">Stockée en sessionStorage. Effacée à la fermeture de l'onglet.</p>
+        <div class="mb-3">
+          <label class="form-label">Clé API <code>sk-ant-…</code></label>
+          <input type="password" id="api-key-input" class="form-control font-monospace"
+                 placeholder="sk-ant-api03-…" autocomplete="off"/>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Modèle</label>
+          <select id="model-select" class="form-select">
+            <option value="claude-sonnet-4-20250514">claude-sonnet-4-20250514 (recommandé)</option>
+            <option value="claude-haiku-4-5-20251001">claude-haiku-4-5-20251001 (rapide)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary" id="btn-save-apikey">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal édition -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="edit-modal-title">Éditer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="edit-modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button class="btn btn-primary" id="btn-save-edit">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+<script src="atelier-nav.js"></script>
+<script src="glossaire-feeder-app.js"></script>
+</body>
+</html>

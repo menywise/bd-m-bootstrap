@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Glossaire chirurgical IBODE — Termes du bloc opératoire — DBM</title>
+
+  <!-- BLOC E CSS — Chaîne V5.1 (CONV-CHAIN-E mise à jour 2026-05-08, FAB chaîne CSS) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="glossaire-ui.css" rel="stylesheet"/>
+
+  <!-- Variables couleur module sur :root (cascade aux modales hors wrapper) — CONV-MODULE-COLOR-02 -->
+  <style>
+    :root {
+      --module-color: #c4b5fd;
+      --module-color-strong: #a78bfa;
+      --module-color-text: #1e1b4b;
+      --module-color-soft: rgba(196,181,253,0.15);
+    }
+  </style>
+  <meta name="description" content="Glossaire chirurgical pour IBODE : abréviations, éponymes et termes du bloc opératoire. Consultable en mode découverte."/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/modules/glossaire/"/>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Glossaire chirurgical pour soignants du bloc"/>
+  <meta property="og:description" content="Plus de 1000 termes, abréviations et éponymes du bloc opératoire ortho-trauma. Pour IBODE, IADE, infirmières et internes."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/modules/glossaire/"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <!-- Twitter card -->
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Glossaire chirurgical pour soignants du bloc"/>
+  <meta name="twitter:description" content="Plus de 1000 termes, abréviations et éponymes du bloc opératoire ortho-trauma. Pour IBODE, IADE, infirmières et internes."/>
+</head>
+
+<body class="sidebar-closed">
+
+  <div id="wrapper">
+
+    <!-- INTERDIT-E1 : #bdb-shell premier enfant de #wrapper -->
+    <div id="bdb-shell"
+         data-module-title="Glossaire Chirurgical"
+         data-module-icon="bi-book"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-theme="dbm">
+    </div>
+
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="savoir" style="--module-color:#c4b5fd;--module-color-strong:#a78bfa;--module-color-text:#1e1b4b;--module-color-soft:rgba(196,181,253,0.15)">
+
+            <!-- Breadcrumb -->
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d'Ariane">
+                <a href="../../index.html">Accueil</a>
+                <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+                <span>Glossaire</span>
+              </nav>
+            </section>
+
+            <!-- Page Title (bandeau couleur module = savoir indigo pastel) -->
+            <section class="app-zone" data-zone="Page Title">
+              <div class="p-4 rounded shadow-sm mb-2 glos-page-banner">
+                <h1 class="mb-2 fw-bold"><i class="bi bi-book me-2"></i>Glossaire chirurgical</h1>
+                <p class="mb-0 glos-page-subtitle">Abréviations, éponymes et termes métier du bloc</p>
+              </div>
+            </section>
+
+            <!-- Filters : barre de recherche GLOBALE + N selects + 1 CTA
+                 Pattern uniforme cross-modules :
+                 - INPUT recherche : flex-grow (prend l'espace restant)
+                 - SELECTs : largeur fixe (.toolbar-select 180px)
+                 - CTA unique : largeur fixe a droite (.toolbar-cta 180px)
+                 -->
+            <section class="app-zone" data-zone="Filters">
+              <div class="toolbar-bar glos-toolbar-bar">
+                <div class="d-flex flex-wrap gap-2 align-items-end">
+
+                  <!-- INPUT recherche : prend tout l'espace restant -->
+                  <div class="toolbar-search flex-grow-1" style="min-width:240px">
+                    <label class="form-label form-label-sm fw-semibold text-muted mb-1">
+                      <i class="bi bi-search me-1"></i>Recherche
+                    </label>
+                    <div class="input-group input-group-sm">
+                      <input type="search" class="form-control" id="glossSearch"
+                             placeholder="Terme, abréviation, éponyme, définition…"
+                             autocomplete="off" spellcheck="false"/>
+                      <button class="btn btn-outline-secondary" type="button" id="glossBtnReset" aria-label="Effacer la recherche">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- SELECT Categorie : largeur fixe (180px) -->
+                  <div class="toolbar-select" style="width:180px;flex-shrink:0">
+                    <label class="form-label form-label-sm fw-semibold text-muted mb-1">Catégorie</label>
+                    <select class="form-select form-select-sm" id="glossFilterCategorie">
+                      <option value="">— Toutes —</option>
+                      <option value="ABREVIATION">Abréviation</option>
+                      <option value="EPONYME">Éponyme</option>
+                      <option value="PATHOLOGIE">Pathologie</option>
+                      <option value="MATERIEL">Matériel</option>
+                      <option value="TECHNIQUE">Technique</option>
+                      <option value="ANATOMIE">Anatomie</option>
+                      <option value="CONVENTION">Convention</option>
+                    </select>
+                  </div>
+
+                  <!-- CTA UNIQUE : Ajouter un terme — largeur fixe (180px), bascule role par JS
+                       admin   : ouvre modalGlosEdit (creation directe publié)
+                       membre  : ouvre modalProposerTerme (proposition draft) -->
+                  <div class="toolbar-cta" style="width:180px;flex-shrink:0">
+                    <button class="btn btn-module btn-sm w-100" id="adminBtnNew" type="button">
+                      <i class="bi bi-plus-lg me-1"></i>Ajouter un terme
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </section>
+
+            <!-- Content : onglets + alphabet + cards + pagination -->
+            <section class="app-zone" data-zone="Content">
+              <div class="app-card" data-accent="module">
+
+                <!-- Nav tabs (3 onglets : Glossaire / Decouverte / Administration) -->
+                <div class="app-card-header glos-tabs-header">
+                  <ul class="nav bdb-tabs mb-0 glos-tabs-list" id="glossTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                      <button class="nav-link active" id="tab-glossaire-btn"
+                              data-bs-toggle="tab" data-bs-target="#tab-glossaire"
+                              type="button" role="tab" aria-selected="true">
+                        <i class="bi bi-book me-1"></i>Glossaire
+                      </button>
+                    </li>
+                    <li class="nav-item bdb-admin-only d-none" role="presentation">
+                      <button class="nav-link" id="tab-decouverte-btn"
+                              data-bs-toggle="tab" data-bs-target="#tab-decouverte"
+                              type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-search-heart me-1"></i>Découverte
+                      </button>
+                    </li>
+                    <li class="nav-item bdb-admin-only d-none" role="presentation">
+                      <button class="nav-link" id="tab-admin-glos-btn"
+                              data-bs-toggle="tab" data-bs-target="#tab-admin-glos"
+                              type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-gear me-1"></i>Administration
+                        <span class="badge bg-warning text-dark ms-1 d-none" id="glossSuggBadge">0</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="app-card-body glos-tabs-body">
+                  <div class="tab-content" id="glossTabContent">
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         TAB 1 — GLOSSAIRE (Face A — consultation tous membres)
+                         alphabet + cards + 3 etats async
+                         ═══════════════════════════════════════════════════════ -->
+                    <div class="tab-pane fade show active" id="tab-glossaire" role="tabpanel">
+
+                      <!-- Alphabet contextuel -->
+                      <div class="px-3 pt-3 pb-2 border-bottom">
+                        <div id="glossAlphaIndex" class="glos-alpha-index" role="navigation" aria-label="Index alphabétique"></div>
+                      </div>
+
+                      <!-- 3 etats async -->
+                      <div id="glossLoading" class="text-center py-5 text-muted">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement du glossaire…
+                      </div>
+                      <div id="glossEmpty" class="text-center py-5 text-muted d-none">
+                        <i class="bi bi-book d-block fs-1 mb-2 opacity-25" id="glossEmptyIcon"></i>
+                        <p id="glossEmptyMsg">Aucun terme trouvé.</p>
+                        <p><small>Essayez un autre mot-clé ou utilisez le bouton <strong>Proposer</strong> ci-dessus.</small></p>
+                      </div>
+                      <div id="glossError" class="text-center py-5 d-none">
+                        <i class="bi bi-exclamation-triangle d-block fs-1 mb-2 text-danger"></i>
+                        <p class="text-danger" id="glossErrorMsg"></p>
+                      </div>
+
+                      <!-- Contenu : cards termes -->
+                      <div id="glossContent" class="d-none px-3 py-3">
+                        <div id="glossCards" class="row g-3"></div>
+                      </div>
+
+                      <!-- Pagination (visible des qu'il y a du contenu — JS controle via classList) -->
+                      <div class="app-card-footer" id="glossPaginationWrapper">
+                        <small class="text-muted" id="glossCountLabel"><span id="glossCount">0</span> terme(s)</small>
+                        <div id="glossPagination" class="app-pagination"></div>
+                      </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         TAB 2 — DÉCOUVERTE (Face B — admin only)
+                         ═══════════════════════════════════════════════════════ -->
+                    <div class="tab-pane fade" id="tab-decouverte" role="tabpanel">
+
+                      <!-- Toolbar scan -->
+                      <div class="px-3 pt-3 pb-2">
+                        <div class="row g-2 align-items-end mb-2">
+                          <div class="col-auto">
+                            <label for="decoSeuil" class="form-label form-label-sm fw-semibold mb-1">Seuil minimum</label>
+                            <div class="input-group input-group-sm glos-seuil-input">
+                              <input type="number" class="form-control" id="decoSeuil" value="10" min="1" max="9999"/>
+                              <span class="input-group-text">occ.</span>
+                            </div>
+                          </div>
+                          <div class="col-auto">
+                            <div class="btn-group btn-group-sm glos-scan-group" role="group" aria-label="Sources de scan">
+                              <button class="btn btn-module btn-sm" id="decoBtnSynonymes" type="button">
+                                <i class="bi bi-stars me-1"></i>Synonymes
+                              </button>
+                              <button class="btn btn-module-outline btn-sm" id="decoBtnCCAM" type="button">
+                                <i class="bi bi-journal-medical me-1"></i>CCAM
+                              </button>
+                              <button class="btn btn-module-outline btn-sm" id="decoBtnNotes" type="button">
+                                <i class="bi bi-file-text me-1"></i>Notes
+                              </button>
+                              <button class="btn btn-module-outline btn-sm" id="decoBtnBigrammes" type="button">
+                                <i class="bi bi-type me-1"></i>Bigrammes
+                              </button>
+                            </div>
+                          </div>
+                          <div class="col">
+                            <small class="text-muted" id="decoStats"></small>
+                          </div>
+                        </div>
+                        <div id="decoSourceLabel" class="glos-source-label d-none">
+                          <i class="bi bi-funnel me-1"></i><span></span>
+                        </div>
+                      </div>
+
+                      <!-- Panier candidats (collapsible) -->
+                      <div class="px-3 mb-2">
+                        <button class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-2"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#decoCollapsePanier"
+                                aria-expanded="false" aria-controls="decoCollapsePanier">
+                          <i class="bi bi-basket"></i>Panier candidats
+                          <span class="badge bg-warning text-dark" id="panierCount">0</span>
+                        </button>
+                        <div class="collapse mt-2" id="decoCollapsePanier">
+                          <div class="app-card" data-accent="module">
+                            <div class="app-card-body py-2 px-3">
+                              <div id="panierLoading" class="text-center py-3 text-muted d-none">
+                                <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+                              </div>
+                              <div id="panierEmpty" class="text-center py-3 text-muted">
+                                <i class="bi bi-basket d-block fs-2 mb-1 opacity-25"></i>
+                                <small>Panier vide — utilisez "Retenir" sur un terme.</small>
+                              </div>
+                              <div id="panierError" class="text-center py-2 d-none">
+                                <small class="text-danger" id="panierErrorMsg"></small>
+                              </div>
+                              <div id="panierContent" class="d-none">
+                                <div class="table-responsive">
+                                  <table class="table table-sm table-hover align-middle mb-2">
+                                    <thead class="table-light">
+                                      <tr>
+                                        <th>Terme</th>
+                                        <th class="text-end">Fréq.</th>
+                                        <th>Source</th>
+                                        <th class="text-center glos-col-check">Retirer</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody id="panierTableBody"></tbody>
+                                  </table>
+                                </div>
+                                <div class="d-flex gap-2 justify-content-end">
+                                  <button class="btn btn-sm btn-outline-secondary" id="decoBtnExporter" type="button">
+                                    <i class="bi bi-clipboard me-1"></i>Exporter prompt
+                                  </button>
+                                  <button class="btn btn-sm btn-outline-danger" id="decoBtnViderPanier" type="button">
+                                    <i class="bi bi-trash me-1"></i>Vider panier
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Barre actions batch -->
+                      <div id="decoBatchBar" class="d-none glos-batch-bar alert alert-info py-2 px-3 mx-3 mb-3 d-flex align-items-center flex-wrap gap-2">
+                        <span class="fw-semibold"><span id="decoBatchCount">0</span> sélectionné(s)</span>
+                        <div class="vr"></div>
+                        <button class="btn btn-sm btn-outline-secondary" id="decoBtnCheckAll" type="button">
+                          <i class="bi bi-check2-square me-1"></i>Tout cocher
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="decoBtnUncheckAll" type="button">
+                          <i class="bi bi-square me-1"></i>Tout décocher
+                        </button>
+                        <div class="vr"></div>
+                        <button class="btn btn-sm btn-outline-warning" id="decoBtnRetainBatch" type="button">
+                          <i class="bi bi-bookmark-plus me-1"></i>Retenir sélection
+                        </button>
+                        <button class="btn btn-sm btn-outline-dark" id="decoBtnCopySelection" type="button">
+                          <i class="bi bi-clipboard me-1"></i>Copier
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" id="decoBtnExcludeBatch" type="button">
+                          <i class="bi bi-slash-circle me-1"></i>Exclure sélection
+                        </button>
+                      </div>
+
+                      <!-- 3 etats async -->
+                      <div id="decoLoading" class="text-center py-5 text-muted d-none">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>Scan en cours…
+                      </div>
+                      <div id="decoEmpty" class="text-center py-5 text-muted d-none">
+                        <i class="bi bi-check2-circle d-block fs-1 mb-2 text-success opacity-75"></i>
+                        <p>Aucun terme détecté avec ce seuil.<br>
+                        <small>Réduire le seuil ou changer de source.</small></p>
+                      </div>
+                      <div id="decoError" class="text-center py-5 d-none">
+                        <i class="bi bi-exclamation-triangle d-block fs-1 mb-2 text-danger"></i>
+                        <p class="text-danger" id="decoErrorMsg"></p>
+                      </div>
+
+                      <!-- Resultats -->
+                      <div id="decoContent" class="d-none px-3 pb-3">
+                        <div class="table-responsive">
+                          <table class="table table-sm table-hover align-middle">
+                            <thead class="table-light">
+                              <tr>
+                                <th class="glos-col-check"></th>
+                                <th>Terme</th>
+                                <th class="text-end">Fréquence</th>
+                                <th class="text-center">Dans glossaire</th>
+                                <th class="text-center">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody id="decoTableBody"></tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <!-- Detail expand -->
+                      <div id="decoMatchPanel" class="d-none mx-3 mb-3">
+                        <div class="app-card" data-accent="module">
+                          <div class="app-card-header">
+                            <h6 class="mb-0">
+                              <i class="bi bi-eye me-2"></i>Notes pour : <span class="font-monospace fw-bold" id="decoMatchTerm"></span>
+                            </h6>
+                            <button class="btn btn-sm btn-outline-secondary" id="decoBtnCloseMatch" type="button">
+                              <i class="bi bi-x-lg"></i>
+                            </button>
+                          </div>
+                          <div class="app-card-body p-0">
+                            <div id="decoMatchLoading" class="text-center py-3 text-muted">
+                              <div class="spinner-border spinner-border-sm me-2" role="status"></div>Recherche…
+                            </div>
+                            <div id="decoMatchContent" class="d-none">
+                              <div id="decoMatchList"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════════════════════
+                         TAB 3 — ADMINISTRATION (Face C+D — admin)
+                         ═══════════════════════════════════════════════════════ -->
+                    <div class="tab-pane fade" id="tab-admin-glos" role="tabpanel">
+
+                      <ul class="nav nav-pills glos-admin-pills mt-3 mx-3 mb-3" id="glossAdminPills" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active" id="pill-gestion-btn"
+                                  data-bs-toggle="pill" data-bs-target="#pill-gestion"
+                                  type="button" role="tab">
+                            <i class="bi bi-list-ul me-1"></i>Gestion glossaire
+                          </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="pill-suggestions-btn"
+                                  data-bs-toggle="pill" data-bs-target="#pill-suggestions"
+                                  type="button" role="tab">
+                            <i class="bi bi-inbox me-1"></i>Suggestions
+                            <span class="badge bg-warning text-dark ms-1 d-none" id="pillSuggBadge">0</span>
+                          </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link" id="pill-propagation-btn"
+                                  data-bs-toggle="pill" data-bs-target="#pill-propagation"
+                                  type="button" role="tab">
+                            <i class="bi bi-diagram-2 me-1"></i>Propagation
+                          </button>
+                        </li>
+                      </ul>
+
+                      <div class="tab-content px-3 pb-3">
+
+                        <!-- Pill Gestion -->
+                        <div class="tab-pane fade show active" id="pill-gestion" role="tabpanel">
+                          <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted"><span id="adminGlosCount">0</span> entrées</small>
+                          </div>
+                          <div id="adminGlosLoading" class="text-center py-4 text-muted">
+                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+                          </div>
+                          <div id="adminGlosEmpty" class="text-center py-4 text-muted d-none">
+                            <i class="bi bi-book d-block fs-2 mb-2 opacity-25"></i>
+                            <small>Aucune entrée dans le glossaire.</small>
+                          </div>
+                          <div id="adminGlosError" class="text-center py-4 d-none">
+                            <small class="text-danger" id="adminGlosErrorMsg"></small>
+                          </div>
+                          <div id="adminGlosContent" class="d-none">
+                            <div class="table-responsive">
+                              <table class="table table-sm table-hover align-middle">
+                                <thead class="table-light">
+                                  <tr>
+                                    <th class="glos-sort-header active" data-sort-col="abbreviation">Terme <span class="glos-sort-arrow bi bi-caret-up-fill"></span></th>
+                                    <th>Définition</th>
+                                    <th class="glos-sort-header" data-sort-col="categorie">Catégorie <span class="glos-sort-arrow bi bi-caret-up-fill"></span></th>
+                                    <th>Variantes</th>
+                                    <th class="glos-sort-header text-center" data-sort-col="is_propagated">Propagé <span class="glos-sort-arrow bi bi-caret-up-fill"></span></th>
+                                    <th class="text-center">Actions</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="adminGlosTableBody"></tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Pill Suggestions -->
+                        <div class="tab-pane fade" id="pill-suggestions" role="tabpanel">
+                          <div id="suggLoading" class="text-center py-4 text-muted">
+                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+                          </div>
+                          <div id="suggEmpty" class="text-center py-4 text-muted d-none">
+                            <i class="bi bi-check2-all d-block fs-2 mb-2 text-success opacity-75"></i>
+                            <small>Aucune suggestion en attente.</small>
+                          </div>
+                          <div id="suggError" class="text-center py-4 d-none">
+                            <small class="text-danger" id="suggErrorMsg"></small>
+                          </div>
+                          <div id="suggContent" class="d-none">
+                            <div id="suggList"></div>
+                          </div>
+                        </div>
+
+                        <!-- Pill Propagation -->
+                        <div class="tab-pane fade" id="pill-propagation" role="tabpanel">
+                          <div id="propLoading" class="text-center py-4 text-muted">
+                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+                          </div>
+                          <div id="propEmpty" class="text-center py-4 text-muted d-none">
+                            <i class="bi bi-diagram-2 d-block fs-2 mb-2 opacity-25"></i>
+                            <small>Toutes les entrées ont été propagées.</small>
+                          </div>
+                          <div id="propError" class="text-center py-4 d-none">
+                            <small class="text-danger" id="propErrorMsg"></small>
+                          </div>
+                          <div id="propContent" class="d-none">
+                            <h6 class="fw-semibold mb-2">À propager</h6>
+                            <div id="propListAPropager" class="mb-4"></div>
+                            <h6 class="fw-semibold mb-2 text-muted">Déjà propagées</h6>
+                            <div id="propListDejas"></div>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div><!-- /app-content -->
+
+          <footer class="app-footer">
+            <span>&copy; 2026 <span class="app-nom"></span></span>
+          </footer>
+
+        </main>
+      </div><!-- /app-layout -->
+    </div><!-- /wrapper_content -->
+
+  </div><!-- /wrapper -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODALE — PROPOSER UN TERME (membre/redacteur)
+       Remplace l'ancien onglet "Proposer"
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="modalProposerTerme" tabindex="-1" aria-labelledby="modalProposerLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalProposerLabel">
+            <i class="bi bi-lightbulb me-2"></i>Proposer un terme
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-4">
+            <!-- Formulaire -->
+            <div class="col-12 col-md-6">
+              <h6 class="fw-semibold mb-3"><i class="bi bi-pencil-square me-1"></i>Nouvelle proposition</h6>
+              <div class="mb-3">
+                <label for="propTerm" class="form-label form-label-sm fw-semibold">Terme / Abréviation <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm" id="propTerm"
+                       placeholder="ex. FESF, PTH, Matti-Russe…" required/>
+              </div>
+              <div class="mb-3">
+                <label for="propDef" class="form-label form-label-sm fw-semibold">Définition <span class="text-danger">*</span></label>
+                <textarea class="form-control form-control-sm" id="propDef" rows="3"
+                          placeholder="Expliquez ce terme en langage clair…" required></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="propNotes" class="form-label form-label-sm fw-semibold">Notes d'usage <small class="text-muted fw-normal">(facultatif)</small></label>
+                <textarea class="form-control form-control-sm" id="propNotes" rows="2"
+                          placeholder="Contexte d'utilisation, préparation IBODE, variantes connues…"></textarea>
+              </div>
+              <button class="btn btn-module btn-sm w-100" id="propBtnSubmit" type="button">
+                <i class="bi bi-send me-1"></i>Envoyer la suggestion
+              </button>
+            </div>
+
+            <!-- Mes suggestions -->
+            <div class="col-12 col-md-6">
+              <h6 class="fw-semibold mb-3"><i class="bi bi-clock-history me-1"></i>Mes suggestions</h6>
+              <div id="myPropsLoading" class="text-center py-4 text-muted">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+              </div>
+              <div id="myPropsEmpty" class="text-center py-4 text-muted d-none">
+                <i class="bi bi-inbox d-block fs-2 mb-2 opacity-25"></i>
+                <small>Aucune suggestion envoyée.</small>
+              </div>
+              <div id="myPropsError" class="text-center py-4 d-none">
+                <small class="text-danger" id="myPropsErrorMsg"></small>
+              </div>
+              <div id="myPropsContent" class="d-none">
+                <ul class="list-group list-group-flush" id="myPropsList"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODALE — SIGNALER UN PROBLEME SUR UN TERME (tous membres)
+       Reporter bug, defaut, definition incorrecte sur un terme existant
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="modalSignalerTerme" tabindex="-1" aria-labelledby="modalSignalerLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalSignalerLabel">
+            <i class="bi bi-flag me-2"></i>Signaler un problème
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="signalTermId"/>
+          <div class="mb-3">
+            <label for="signalTerm" class="form-label form-label-sm fw-semibold">Terme concerné</label>
+            <input type="text" class="form-control form-control-sm" id="signalTerm" readonly/>
+          </div>
+          <div class="mb-3">
+            <label for="signalType" class="form-label form-label-sm fw-semibold">Type de signalement <span class="text-danger">*</span></label>
+            <select class="form-select form-select-sm" id="signalType">
+              <option value="">— Sélectionner —</option>
+              <option value="definition_erronee">Définition erronée</option>
+              <option value="orthographe">Orthographe / typo</option>
+              <option value="categorie">Catégorie incorrecte</option>
+              <option value="doublon">Doublon avec un autre terme</option>
+              <option value="hors_perimetre">Hors périmètre métier</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="signalMessage" class="form-label form-label-sm fw-semibold">Description <span class="text-danger">*</span></label>
+            <textarea class="form-control form-control-sm" id="signalMessage" rows="3"
+                      placeholder="Décrivez le problème en quelques mots…" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="signalSuggestion" class="form-label form-label-sm fw-semibold">Suggestion de correction <small class="text-muted fw-normal">(facultatif)</small></label>
+            <textarea class="form-control form-control-sm" id="signalSuggestion" rows="2"
+                      placeholder="Texte ou définition que vous proposez à la place…"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module btn-sm" id="signalBtnSubmit">
+            <i class="bi bi-send me-1"></i>Envoyer le signalement
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODALE — AJOUT / MODIFICATION ENTRÉE GLOSSAIRE (admin)
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="modalGlosEdit" tabindex="-1" aria-labelledby="modalGlosEditLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalGlosEditLabel">Entrée glossaire</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editGlosId"/>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="editGlosTerm" class="form-label form-label-sm fw-semibold">Terme / Abréviation <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-sm" id="editGlosTerm"
+                     placeholder="ex. PTH, FESF, Matti-Russe"/>
+            </div>
+            <div class="col-md-6">
+              <label for="editGlosCategorie" class="form-label form-label-sm fw-semibold">Catégorie</label>
+              <select class="form-select form-select-sm" id="editGlosCategorie">
+                <option value="">— Sélectionner —</option>
+                <option value="ABREVIATION">Abréviation</option>
+                <option value="EPONYME">Éponyme</option>
+                <option value="PATHOLOGIE">Pathologie</option>
+                <option value="MATERIEL">Matériel</option>
+                <option value="TECHNIQUE">Technique</option>
+                <option value="ANATOMIE">Anatomie</option>
+                <option value="CONVENTION">Convention</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label for="editGlosDef" class="form-label form-label-sm fw-semibold">Définition <span class="text-danger">*</span></label>
+              <textarea class="form-control form-control-sm" id="editGlosDef" rows="3"
+                        placeholder="Définition complète…"></textarea>
+            </div>
+            <div class="col-12">
+              <label for="editGlosNotes" class="form-label form-label-sm fw-semibold">Notes d'usage</label>
+              <textarea class="form-control form-control-sm" id="editGlosNotes" rows="2"
+                        placeholder="Contexte d'usage, préparation IBODE…"></textarea>
+            </div>
+            <div class="col-12">
+              <label for="editGlosVariantes" class="form-label form-label-sm fw-semibold">Variantes
+                <small class="text-muted fw-normal">— séparées par | (pipe)</small>
+              </label>
+              <input type="text" class="form-control form-control-sm" id="editGlosVariantes"
+                     placeholder="ex. fracture col fémur|fracture col femur"/>
+              <div class="form-text">Ces variantes sont utilisées pour la recherche et les tooltips.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger me-auto d-none" id="editGlosBtnDelete">
+            <i class="bi bi-trash me-1"></i>Supprimer
+          </button>
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module" id="editGlosBtnSave">
+            <i class="bi bi-check-lg me-1"></i>Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODALE — CONFIRMATION SUPPRESSION
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="modalGlosDelete" tabindex="-1" aria-labelledby="modalGlosDeleteLabel">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Supprimer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small mb-1">Supprimer définitivement :</p>
+          <p class="fw-semibold font-monospace" id="deleteGlosTerm">—</p>
+          <p class="text-danger small mb-0">Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger btn-sm" id="deleteGlosBtnConfirm">
+            <i class="bi bi-trash me-1"></i>Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODALE — REJETER SUGGESTION (admin)
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="modalRejectSugg" tabindex="-1" aria-labelledby="modalRejectSuggLabel">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title"><i class="bi bi-x-circle me-2"></i>Rejeter la suggestion</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="rejectSuggId"/>
+          <label for="rejectNote" class="form-label form-label-sm">Note explicative (optionnel)</label>
+          <textarea class="form-control form-control-sm" id="rejectNote" rows="2"
+                    placeholder="Terme déjà existant, hors périmètre…"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module btn-sm" id="rejectSuggBtnConfirm">
+            <i class="bi bi-x-lg me-1"></i>Rejeter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════
+       MODALE — VIDER PANIER (admin)
+       ═══════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="modalViderPanier" tabindex="-1" aria-labelledby="modalViderPanierLabel">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Vider le panier</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small mb-1">Supprimer définitivement tous les candidats du panier ?</p>
+          <p class="text-danger small mb-0">Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger btn-sm" id="viderPanierBtnConfirm">
+            <i class="bi bi-trash me-1"></i>Vider
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- TOAST — pattern bdbToast (bdb-ui.js) — un seul toast pour tous les types -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastMsg" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastText">Message</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SCRIPTS — Chaîne JS V5 (CONV-CHAIN-E) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="../../js/bdb-search.js"></script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script src="../../js/bdb-glossaire-tooltip.js"></script>
+  <script src="glossaire-app.js"></script>
+  <!-- PWA en fin de chaîne (CONV-CHAIN-E V5) -->
+  <script src="../../js/bdb-pwa.js"></script>
+
+</body>
+</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               

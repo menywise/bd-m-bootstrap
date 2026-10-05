@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mémo — Atelier</title>
+
+  <!-- CHAÎNE CSS CDS — ORDRE STRICT (CONV-CHAIN-E) · zéro CSS module (§9.2 T-02 Option B) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+</head>
+
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <div id="bdb-shell"
+         data-module-title="Mémo"
+         data-module-icon="bi-journal-bookmark-fill"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-kind="backoffice">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+        <div class="container-fluid p-3 p-md-4 p-lg-5">
+
+          <!-- HEADER DE PAGE -->
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+              <h1 class="h3 fw-bold mb-1 d-flex align-items-center gap-2">
+                <i class="bi bi-journal-bookmark-fill text-primary"></i>Mémo
+              </h1>
+              <p class="text-muted mb-0">Antisèche gouvernance + penses-bêtes persistants.</p>
+            </div>
+          </div>
+
+          <!-- MARQUEUR NAV -->
+          <div id="atelier-top" data-page="memo" class="d-none"></div>
+
+
+          <!-- STATE : LOADING -->
+          <div id="memo-loading">
+            <div class="card bo-card mb-4">
+              <div class="card-body text-center py-4">
+                <div class="spinner-border text-secondary" role="status">
+                  <span class="visually-hidden">Chargement…</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : ACCESS DENIED -->
+          <div id="memo-denied" class="d-none">
+            <div class="card bo-card bo-accent-danger">
+              <div class="card-body text-center py-5">
+                <div class="bo-state-icon bg-danger-subtle text-danger">
+                  <i class="bi bi-shield-lock"></i>
+                </div>
+                <h2 class="h5 fw-bold mb-2">Accès réservé</h2>
+                <p class="text-muted mb-3">Cet espace est réservé à l'administrateur.</p>
+                <a href="index.html" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-arrow-left me-1"></i>Retour atelier
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- STATE : CONTENT -->
+          <div id="memo-content" class="d-none">
+
+            <!-- Onglets -->
+            <ul class="nav nav-tabs mb-3" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-antisech-btn"
+                  data-bs-toggle="tab" data-bs-target="#tab-antisech"
+                  type="button" role="tab" aria-selected="true">
+            <i class="bi bi-journal-text me-1"></i>Antisèche
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-memos-btn"
+                  data-bs-toggle="tab" data-bs-target="#tab-memos"
+                  type="button" role="tab" aria-selected="false">
+            <i class="bi bi-sticky me-1"></i>Mémos
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-vocab-btn"
+                  data-bs-toggle="tab" data-bs-target="#tab-vocab"
+                  type="button" role="tab" aria-selected="false">
+            <i class="bi bi-ui-checks me-1"></i>Vocabulaire UI/UX
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-sql-btn"
+                  data-bs-toggle="tab" data-bs-target="#tab-sql"
+                  type="button" role="tab" aria-selected="false">
+            <i class="bi bi-database me-1"></i>SQL / Supabase
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-ia-btn"
+                  data-bs-toggle="tab" data-bs-target="#tab-ia"
+                  type="button" role="tab" aria-selected="false">
+            <i class="bi bi-robot me-1"></i>Commandes IA
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-archi-btn"
+                  data-bs-toggle="tab" data-bs-target="#tab-archi"
+                  type="button" role="tab" aria-selected="false">
+            <i class="bi bi-diagram-3 me-1"></i>Architecture BDB
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+
+        <!-- ═══ ONGLET 1 — ANTISÈCHE ═══ -->
+        <div class="tab-pane fade show active" id="tab-antisech" role="tabpanel">
+          <div class="mt-3">
+
+            <!-- SECTION 1 — URLs -->
+            <section class="mb-4" aria-labelledby="sec-urls">
+              <h2 class="h6 fw-bold border-bottom pb-2 mb-3 d-flex align-items-center gap-2" id="sec-urls">
+                <i class="bi bi-link-45deg fs-5 text-primary"></i>URLs importantes
+              </h2>
+              <div class="d-flex flex-wrap gap-3">
+
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2 text-warning"><i class="bi bi-hdd me-1"></i>Local (dev)</div>
+                  <div class="d-flex flex-column gap-1">
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">App BDB</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">http://localhost:5500</code>
+                      <a href="http://localhost:5500" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Supabase Studio local</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">127.0.0.1:54323</code>
+                      <a href="http://127.0.0.1:54323" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">SQL Editor local</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">127.0.0.1:54323/project/default/sql</code>
+                      <a href="http://127.0.0.1:54323/project/default/sql" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Auth local</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">127.0.0.1:54323/project/default/auth/users</code>
+                      <a href="http://127.0.0.1:54323/project/default/auth/users" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Conteneur DB</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">supabase_db_ohccnwyziljqtyrtepel</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="supabase_db_ohccnwyziljqtyrtepel" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2 text-primary"><i class="bi bi-cloud me-1"></i>Cloud (prod)</div>
+                  <div class="d-flex flex-column gap-1">
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Supabase Dashboard</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">supabase.com/dashboard</code>
+                      <a href="https://supabase.com/dashboard/project/ecpzrygzdugwwkqbsajn" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">SQL Editor cloud</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">dashboard › SQL Editor</code>
+                      <a href="https://supabase.com/dashboard/project/ecpzrygzdugwwkqbsajn/sql" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Auth cloud</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">dashboard › Authentication</code>
+                      <a href="https://supabase.com/dashboard/project/ecpzrygzdugwwkqbsajn/auth/users" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">RLS Policies</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">dashboard › Auth › Policies</code>
+                      <a href="https://supabase.com/dashboard/project/ecpzrygzdugwwkqbsajn/auth/policies" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Repo GitHub BDB</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">github.com/menywise/BDB</code>
+                      <a href="https://github.com/menywise/BDB" target="_blank" rel="noopener" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2 text-danger"><i class="bi bi-folder2-open me-1"></i>Chemins Windows</div>
+                  <div class="d-flex flex-column gap-1">
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Racine BDB</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">C:\DEV\BIBLE_DE_BLOC\</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="C:\DEV\BIBLE_DE_BLOC\" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Migrations SQL</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">C:\DEV\BIBLE_DE_BLOC\migrations\</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="C:\DEV\BIBLE_DE_BLOC\migrations\" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Atelier L3</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">C:\DEV\BIBLE_DE_BLOC\atelier\</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="C:\DEV\BIBLE_DE_BLOC\atelier\" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Skills Claude</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">C:\DEV\SKILL_Claude\</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="C:\DEV\SKILL_Claude\" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Démarrage BDB</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">start-bdb.ps1</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="powershell -ExecutionPolicy Bypass -File C:\DEV\BIBLE_DE_BLOC\start-bdb.ps1" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Diagnostic atelier</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">diagnostic.html</code>
+                      <a href="diagnostic.html" class="btn btn-sm btn-link p-0 text-muted" aria-label="Ouvrir"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+            <!-- SECTION 2 — GOUVERNANCE -->
+            <section class="mb-4" aria-labelledby="sec-docs">
+              <h2 class="h6 fw-bold border-bottom pb-2 mb-3 d-flex align-items-center gap-2" id="sec-docs">
+                <i class="bi bi-files fs-5 text-primary"></i>Fichiers de gouvernance actifs
+              </h2>
+              <div class="d-flex flex-wrap gap-3">
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2"><i class="bi bi-star-fill text-warning me-1"></i>Sources de vérité</div>
+                  <div class="d-flex flex-column gap-1">
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Manifeste BDB</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">000_MANIFESTE_BDB_V1_2_0.md</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="000_MANIFESTE_BDB_V1_2_0.md" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Data Model</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">02_SUPABASE_DATA_MODEL_V1_17_0.md</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="02_SUPABASE_DATA_MODEL_V1_17_0.md" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Chantier technique</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">10_CHANTIER_TECHNIQUE_V1_0_9.md</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="10_CHANTIER_TECHNIQUE_V1_0_9.md" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Conventions nommage</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">32_CONVENTIONS_NOMMAGE_THESAURUS_V2_5_0.md</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="32_CONVENTIONS_NOMMAGE_THESAURUS_V2_5_0.md" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">CDS Reference</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">11_CDS_REFERENCE_V1_0_0.md</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="11_CDS_REFERENCE_V1_0_0.md" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Personas BDB</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">31_PERSONAS_BDB_V1_4_0.md</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="31_PERSONAS_BDB_V1_4_0.md" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2"><i class="bi bi-cpu me-1"></i>RPC atelier (DB-first)</div>
+                  <div class="d-flex flex-column gap-1">
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Reprise session</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">SELECT atelier_prompt_reprise();</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="SELECT atelier_prompt_reprise();" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Ouvrir session N</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">SELECT atelier_ouvrir_session(N);</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="SELECT atelier_ouvrir_session(N);" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Décisions récentes</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">SELECT ref, titre, date FROM atelier_decisions ORDER BY date DESC LIMIT 10;</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="SELECT ref, titre, date FROM atelier_decisions ORDER BY date DESC LIMIT 10;" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap">
+                      <span class="text-muted flex-shrink-0 bo-label-col">Dernier ACT thésaurus</span>
+                      <code class="bg-light px-2 py-1 rounded small flex-fill text-break">SELECT libelle_cible FROM thesaurus_protocoles WHERE libelle_cible LIKE 'ACT-%' ORDER BY libelle_cible DESC LIMIT 3;</code>
+                      <button class="btn btn-sm btn-link p-0 text-muted" data-copy="SELECT libelle_cible FROM thesaurus_protocoles WHERE libelle_cible LIKE 'ACT-%' ORDER BY libelle_cible DESC LIMIT 3;" aria-label="Copier"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- SECTION 3 — TERMINOLOGIE IA -->
+            <section class="mb-4" aria-labelledby="sec-termes">
+              <h2 class="h6 fw-bold border-bottom pb-2 mb-3 d-flex align-items-center gap-2" id="sec-termes">
+                <i class="bi bi-chat-square-text fs-5 text-success"></i>Terminologie — Communiquer avec l'IA
+              </h2>
+              <div class="d-flex flex-wrap gap-3">
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2"><i class="bi bi-translate me-1"></i>Vocabulaire précis</div>
+                  <div class="d-flex flex-column gap-1">
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">Fichier complet</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">≠ extrait / delta / patch</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">Migration SQL</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">fichier .sql avant exécution</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">Terrain</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">source à décoder, pas source de vérité</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">Skill</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">garde-fou déclenchable par trigger</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">L1/L2/L3</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">couche produit / instance / créateur</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">CDS</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">framework de développement BDB</code></div>
+                  </div>
+                </div>
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2"><i class="bi bi-shield-check me-1"></i>Interdits actifs</div>
+                  <div class="d-flex flex-column gap-1">
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">INTERDIT-A3</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">window.bdb = seul client Supabase</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">INTERDIT-B1/B2/B3</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">pas d'auth locale dans modules</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">INTERDIT-C2</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">pas de style= statique en HTML</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">INTERDIT-C6</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">escHtml() sur tout innerHTML DB</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">INTERDIT-D6</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">zéro console.log</code></div>
+                    <div class="d-flex align-items-center gap-2 small flex-wrap"><span class="text-muted flex-shrink-0 bo-label-col">ERREUR-13</span><code class="bg-light px-2 py-1 rounded small flex-fill text-break">jamais UPDATE protocole_operatoire si protocole_id mappé</code></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- SECTION 4 — PROTOCOLE SESSION -->
+            <section class="mb-4" aria-labelledby="sec-proto">
+              <h2 class="h6 fw-bold border-bottom pb-2 mb-3 d-flex align-items-center gap-2" id="sec-proto">
+                <i class="bi bi-list-check fs-5 text-warning"></i>Protocole session IA
+              </h2>
+              <div class="d-flex flex-wrap gap-3">
+                <div class="card bo-card p-3 small w-100">
+                  <div class="small fw-bold text-uppercase text-muted mb-2"><i class="bi bi-play-circle me-1"></i>Ouverture (obligatoire)</div>
+                  <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-start gap-2 bg-light rounded p-2 small">
+                      <div class="badge bg-primary rounded-circle bo-step-badge">1</div>
+                      <div><strong>session-ia.html → Ouvrir la session</strong> — clic sur la session dans le backlog</div>
+                    </div>
+                    <div class="d-flex align-items-start gap-2 bg-light rounded p-2 small">
+                      <div class="badge bg-primary rounded-circle bo-step-badge">2</div>
+                      <div><strong>Copier le prompt d'ouverture</strong> — contient le JSON live de atelier_prompt_reprise()</div>
+                    </div>
+                    <div class="d-flex align-items-start gap-2 bg-light rounded p-2 small">
+                      <div class="badge bg-primary rounded-circle bo-step-badge">3</div>
+                      <div><strong>Coller dans Claude.ai</strong> — nouvelle conversation, skill atelier-session-bdb actif</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card bo-card p-3 small w-100">
+                  <div class="small fw-bold text-uppercase text-muted mb-2"><i class="bi bi-stop-circle me-1"></i>Clôture (obligatoire)</div>
+                  <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-start gap-2 bg-light rounded p-2 small">
+                      <div class="badge bg-primary rounded-circle bo-step-badge">A</div>
+                      <div><strong>session-ia.html → Copier le prompt de clôture</strong> — template contraint (colonnes, format, dollar-quoting)</div>
+                    </div>
+                    <div class="d-flex align-items-start gap-2 bg-light rounded p-2 small">
+                      <div class="badge bg-primary rounded-circle bo-step-badge">B</div>
+                      <div><strong>Coller dans Claude.ai</strong> — Claude génère INSERT décisions + atelier_cloture_session()</div>
+                    </div>
+                    <div class="d-flex align-items-start gap-2 bg-light rounded p-2 small">
+                      <div class="badge bg-primary rounded-circle bo-step-badge">C</div>
+                      <div><strong>Copier le SQL → SQL Editor Supabase</strong> — exécuter, vérifier</div>
+                    </div>
+                    <div class="d-flex align-items-start gap-2 bg-danger-subtle rounded p-2 small">
+                      <div class="badge bg-primary rounded-circle bo-step-badge">!</div>
+                      <div><strong>Aucune règle de session ne survit</strong> — Ce qui n'est pas dans atelier_decisions est perdu.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- SECTION 5 — MATRICE ACCÈS -->
+            <section class="mb-4" aria-labelledby="sec-acces">
+              <h2 class="h6 fw-bold border-bottom pb-2 mb-3 d-flex align-items-center gap-2" id="sec-acces">
+                <i class="bi bi-person-lock fs-5 text-danger"></i>Matrice des accès
+              </h2>
+              <div class="card bo-card p-3 small flex-fill bo-card-min">
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Profil</th><th>Modules membres</th><th>Module admin</th><th>Écriture</th><th>Approuver membres</th>
+                      </tr>
+                    </thead>
+                    <tbody class="small">
+                      <tr>
+                        <td><span class="badge bg-secondary">Non inscrit / démo</span></td>
+                        <td><i class="bi bi-eye text-muted"></i> published uniquement (RLS anon)</td>
+                        <td><i class="bi bi-x text-danger"></i></td>
+                        <td><i class="bi bi-x text-danger"></i></td>
+                        <td><i class="bi bi-x text-danger"></i></td>
+                      </tr>
+                      <tr>
+                        <td><span class="badge bg-warning text-dark">En attente</span></td>
+                        <td><i class="bi bi-eye text-muted"></i> published uniquement</td>
+                        <td><i class="bi bi-x text-danger"></i></td>
+                        <td><i class="bi bi-x text-danger"></i></td>
+                        <td><i class="bi bi-x text-danger"></i></td>
+                      </tr>
+                      <tr>
+                        <td><span class="badge bg-success">Membre approuvé</span></td>
+                        <td><i class="bi bi-check text-success"></i> published</td>
+                        <td><i class="bi bi-x text-danger"></i></td>
+                        <td>Transmissions uniquement</td>
+                        <td><i class="bi bi-x text-danger"></i></td>
+                      </tr>
+                      <tr class="table-warning">
+                        <td><span class="badge bg-danger">Admin</span></td>
+                        <td><i class="bi bi-check text-success"></i> CRUD complet</td>
+                        <td><i class="bi bi-check text-success"></i> CRUD complet</td>
+                        <td><i class="bi bi-check text-success"></i> tout</td>
+                        <td><i class="bi bi-check text-success"></i></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="mt-2 small text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Approbation : <code>profiles_directory.approved</code> — pas <code>user_roles</code>.
+                  Rôle : <code>user_roles.role</code> — valeurs : <code>'admin'</code> | <code>'membre'</code> | <code>'invite'</code>.
+                </div>
+              </div>
+            </section>
+
+            <!-- SECTION 6 — RAPPELS CRITIQUES -->
+            <section class="mb-4" aria-labelledby="sec-rappels">
+              <h2 class="h6 fw-bold border-bottom pb-2 mb-3 d-flex align-items-center gap-2" id="sec-rappels">
+                <i class="bi bi-exclamation-triangle fs-5 text-danger"></i>Rappels critiques
+              </h2>
+              <div class="d-flex flex-wrap gap-3">
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2 text-danger"><i class="bi bi-ban me-1"></i>Ne jamais faire</div>
+                  <ul class="list-unstyled small d-flex flex-column gap-1">
+                    <li>Supprimer un fichier sans validation Manu</li>
+                    <li>CSS inline <code>style</code> statique dans les HTML</li>
+                    <li>Attribut <code>onclick</code> dans les boutons — addEventListener uniquement</li>
+                    <li><code>@latest</code> sur les CDN en prod — tag fixe obligatoire</li>
+                    <li>Dupliquer le bloc auth — bdb-shell.js gère tout</li>
+                    <li>Inventer un schéma DB ou une colonne sans vérification</li>
+                    <li>UPDATE protocole_operatoire si protocole_id mappé (ERREUR-13)</li>
+                    <li>Exécuter du SQL sans fichier .sql local (INTERDIT-SQL-01)</li>
+                    <li>Commandes Mac/Linux — Windows uniquement</li>
+                    <li>psql docker sans <code>-e PGCLIENTENCODING=UTF8</code></li>
+                  </ul>
+                </div>
+                <div class="card bo-card p-3 small flex-fill bo-card-min">
+                  <div class="small fw-bold text-uppercase text-muted mb-2 text-success"><i class="bi bi-check2-all me-1"></i>Bonnes pratiques</div>
+                  <ul class="list-unstyled small d-flex flex-column gap-1">
+                    <li>session-ia.html pour ouvrir et clôturer chaque session Claude</li>
+                    <li>Une session = un module = un objectif clair</li>
+                    <li>Nouveau module → partir de TEMPLATE_MODULE_BDB (3 fichiers)</li>
+                    <li>Hiérarchie de preuve : fichier > conversation > mémoire</li>
+                    <li>Bootstrap Icons uniquement (pas Font Awesome)</li>
+                    <li>Recettage diagnostic.html avant toute livraison</li>
+                    <li>GFC-01 : vérifier le terrain (SELECT) avant toute migration</li>
+                    <li>Skill atelier-session-bdb en début et fin de session</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+          </div><!-- /memo-body -->
+        </div><!-- /tab-antisech -->
+
+        <!-- ═══ ONGLET 2 — MÉMOS CRUD ═══ -->
+        <div class="tab-pane fade" id="tab-memos" role="tabpanel">
+          <div class="p-3">
+
+            <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+              <div class="position-relative flex-grow-1">
+                <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                <input type="text" class="form-control cds-search-input ps-5"
+                       id="memo-search" placeholder="Rechercher…" aria-label="Rechercher"/>
+              </div>
+              <select class="form-select form-select form-select-sm" id="memo-filtre-cat" aria-label="Filtrer">
+                <option value="">Toutes catégories</option>
+              </select>
+              <button class="btn btn-primary btn-sm" id="memo-btn-new">
+                <i class="bi bi-plus-lg me-1"></i>Nouveau mémo
+              </button>
+            </div>
+
+            <div id="memo-epingles-section" class="mb-3">
+              <div class="small fw-bold text-uppercase text-muted d-flex align-items-center mb-2"><i class="bi bi-pin-fill me-1"></i>Épinglés</div>
+              <div id="memo-epingles-loading" class="d-flex align-items-center justify-content-center py-3">
+                <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+              </div>
+              <div id="memo-epingles-list" class="d-flex flex-wrap gap-2 d-none"></div>
+              <div id="memo-epingles-empty" class="d-none text-muted small text-muted py-2">Aucun mémo épinglé.</div>
+            </div>
+
+            <div class="small fw-bold text-uppercase text-muted d-flex align-items-center mb-2"><i class="bi bi-grid me-1"></i>Tous les mémos</div>
+            <div id="memo-loading-list" class="d-flex align-items-center justify-content-center py-3">
+              <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+            </div>
+            <div id="memo-list" class="d-flex flex-wrap gap-2 d-none"></div>
+            <div id="memo-empty" class="d-none text-center text-muted py-5">
+              <i class="bi bi-sticky d-block mb-2 fs-1"></i>
+              Aucun mémo.<br>
+              <button class="btn btn-sm btn-outline-primary mt-3" id="memo-btn-new-empty">
+                <i class="bi bi-plus-lg me-1"></i>Créer le premier mémo
+              </button>
+            </div>
+            <div id="memo-error" class="d-none alert alert-danger small"></div>
+
+          </div>
+        </div><!-- /tab-memos -->
+
+        <!-- ═══ ONGLET 3 — VOCABULAIRE UI/UX ═══ -->
+        <div class="tab-pane fade" id="tab-vocab" role="tabpanel">
+          <div class="p-4">
+            <h6 class="fw-semibold mb-3"><i class="bi bi-ui-checks me-2 text-primary"></i>Vocabulaire UI/UX</h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th class="bo-th-lg">Terme</th>
+                    <th>Définition</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Picker</strong></td><td>Champ de recherche permettant de sélectionner un ou plusieurs éléments depuis une liste. Résultat affiché sous forme de token.</td></tr>
+                  <tr><td><strong>Token</strong></td><td>Badge cliquable représentant un élément sélectionné (avec × pour délier).</td></tr>
+                  <tr><td><strong>Liaison N:N</strong></td><td>Relation many-to-many entre deux entités. Stockée dans une table pivot. Exemples : anatomie ↔ protocoles, fiches ↔ tags.</td></tr>
+                  <tr><td><strong>Lier / Délier</strong></td><td>Créer ou supprimer une liaison N:N entre deux entités (INSERT / DELETE dans la table pivot).</td></tr>
+                  <tr><td><strong>Skeleton loader</strong></td><td>Placeholder animé qui simule le contenu pendant le chargement. Classes Bootstrap : <code>.placeholder</code> <code>.placeholder-glow</code>.</td></tr>
+                  <tr><td><strong>Toast</strong></td><td>Notification temporaire non-bloquante (succès, erreur, info). Disparaît après quelques secondes.</td></tr>
+                  <tr><td><strong>Offcanvas</strong></td><td>Panneau glissant latéral Bootstrap. Utilisé pour la navigation BDB (<code>bdb-shell.js</code>).</td></tr>
+                  <tr><td><strong>Slot admin</strong></td><td>Section HTML masquée par défaut, visible uniquement pour <code>window.bdbUser.isAdmin</code>. Pattern BDB standard.</td></tr>
+                  <tr><td><strong>3 états UI</strong></td><td>loading / empty / error — obligatoires sur toute opération async qui affiche des données.</td></tr>
+                  <tr><td><strong>Délégation d'événements</strong></td><td>Pattern JS : <code>addEventListener</code> sur le conteneur parent + <code>e.target.closest('[data-action]')</code>. Évite de rebinder sur chaque render.</td></tr>
+                  <tr><td><strong>data-action</strong></td><td>Attribut HTML custom pour identifier l'action d'un bouton sans handler inline. Ex : <code>data-action="edit"</code>.</td></tr>
+                  <tr><td><strong>Modal CRUD</strong></td><td>Fenêtre modale réutilisée pour créer ET modifier un élément (champ <code>id</code> hidden basculé selon le contexte).</td></tr>
+                  <tr><td><strong>Empty state</strong></td><td>Affichage quand une liste est vide. Toujours avec icône + texte explicatif.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- /tab-vocab -->
+
+        <!-- ═══ ONGLET 4 — SQL / SUPABASE ═══ -->
+        <div class="tab-pane fade" id="tab-sql" role="tabpanel">
+          <div class="p-4">
+            <h6 class="fw-semibold mb-3"><i class="bi bi-database me-2 text-primary"></i>SQL / Supabase</h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th class="bo-th-xl">Terme / Commande</th>
+                    <th>Définition</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>RLS (Row Level Security)</strong></td><td>Politique de sécurité Supabase : chaque ligne de table a des règles d'accès par rôle. Si la policy bloque, la requête retourne 200 OK avec 0 résultat (silencieux).</td></tr>
+                  <tr><td><strong>RPC</strong></td><td>Remote Procedure Call — fonction SQL exécutée côté serveur via <code>window.bdb.rpc('nom_fonction', params)</code>.</td></tr>
+                  <tr><td><strong>SECURITY DEFINER</strong></td><td>Clause d'une fonction SQL qui l'exécute avec les droits du créateur (contourne RLS). Utilisé pour les agrégats admin.</td></tr>
+                  <tr><td><strong>FK (Foreign Key)</strong></td><td>Clé étrangère — référence vers l'id d'une autre table. Garantit l'intégrité référentielle.</td></tr>
+                  <tr><td><strong>Table pivot</strong></td><td>Table de liaison N:N. Contient 2 FK (ex : <code>anatomie_id + protocole_id</code>). Aucune donnée propre.</td></tr>
+                  <tr><td><strong>ON CONFLICT</strong></td><td>Clause SQL pour gérer les doublons sur INSERT. Ex : <code>ON CONFLICT (anatomie_id, protocole_id) DO NOTHING</code>.</td></tr>
+                  <tr><td><strong>UPSERT</strong></td><td>INSERT + UPDATE combinés. Insère si absent, met à jour si présent. Méthode Supabase : <code>.upsert()</code>.</td></tr>
+                  <tr><td><strong>CASCADE</strong></td><td>Comportement FK : si l'entité parent est supprimée, les enfants sont supprimés automatiquement.</td></tr>
+                  <tr><td><strong>JOIN</strong></td><td>Croisement de deux tables sur une colonne commune. Ex : anatomie JOIN thesaurus_protocoles via bdb_liaisons.</td></tr>
+                  <tr><td><strong>information_schema</strong></td><td>Schéma PostgreSQL qui décrit la structure de toutes les tables. <code>SELECT * FROM information_schema.columns WHERE table_name='anatomie'</code>.</td></tr>
+                  <tr><td><strong>.select() obligatoire</strong></td><td>Toujours chaîner <code>.select()</code> sur <code>.update()</code> et <code>.delete()</code> Supabase — sinon RLS bloque silencieusement.</td></tr>
+                  <tr><td><strong>INTERDIT-SQL-01</strong></td><td>Règle BDB : tout SQL cloud doit être sauvegardé localement dans <code>migrations/</code> AVANT exécution.</td></tr>
+                  <tr><td><strong>Migration N°xxx</strong></td><td>Fichier SQL versionné dans <code>migrations/</code>. Numéroté séquentiellement. Jamais modifié après exécution.</td></tr>
+                  <tr><td><strong>UUID</strong></td><td>Identifiant unique universel (format <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</code>). Clé primaire de toutes les tables BDB.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- /tab-sql -->
+
+        <!-- ═══ ONGLET 5 — COMMANDES IA ═══ -->
+        <div class="tab-pane fade" id="tab-ia" role="tabpanel">
+          <div class="p-4">
+            <h6 class="fw-semibold mb-3"><i class="bi bi-robot me-2 text-primary"></i>Commandes IA</h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th class="bo-th-xxl">Formulation</th>
+                    <th>Effet</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>"Phase 0 read-only d'abord"</strong></td><td>Claude Code audite sans modifier. Produit un rapport avant d'agir.</td></tr>
+                  <tr><td><strong>"Fichier complet"</strong></td><td>Interdit les deltas/extraits — Claude livre le fichier entier.</td></tr>
+                  <tr><td><strong>"Terrain avant code"</strong></td><td>Claude vérifie le schéma DB réel avant d'inventer des colonnes.</td></tr>
+                  <tr><td><strong>"FAB(3R)"</strong></td><td>Format de décision : Réalité → Fonction → Avantage → Bénéfice → Risque → Résultat → Recommandation.</td></tr>
+                  <tr><td><strong>"ELI15"</strong></td><td>Explain Like I'm 15 — vulgarisation des conséquences métier sans jargon technique.</td></tr>
+                  <tr><td><strong>"Arbitrage Manu requis"</strong></td><td>Signal que Claude ne peut pas décider seul — attend une décision humaine.</td></tr>
+                  <tr><td><strong>"Stopper et rapporter"</strong></td><td>Claude s'arrête, produit un bilan, attend validation avant de continuer.</td></tr>
+                  <tr><td><strong>"Session N° + clôture"</strong></td><td>Ouvre/ferme une session DB-first dans <code>atelier_sessions</code>.</td></tr>
+                  <tr><td><strong>"--dangerously-skip-permissions"</strong></td><td>Flag Claude Code pour opérations batch sans confirmation à chaque fichier. À utiliser avec prudence.</td></tr>
+                  <tr><td><strong>"grep violations"</strong></td><td>Audit CDS : recherche des handlers inline, console.log et CDN @latest dans les fichiers HTML.</td></tr>
+                  <tr><td><strong>"Lire la doc d'abord"</strong></td><td>Claude doit consulter le skill ou le CTX avant de produire du code.</td></tr>
+                  <tr><td><strong>"Zéro hallucination colonne"</strong></td><td>Claude ne peut pas inventer une colonne — doit vérifier <code>information_schema</code> ou DATA_MODEL.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- /tab-ia -->
+
+        <!-- ═══ ONGLET 6 — ARCHITECTURE BDB ═══ -->
+        <div class="tab-pane fade" id="tab-archi" role="tabpanel">
+          <div class="p-4">
+            <h6 class="fw-semibold mb-3"><i class="bi bi-diagram-3 me-2 text-primary"></i>Architecture BDB</h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th class="bo-th-lg">Terme</th>
+                    <th>Définition</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>L1 / L2 / L3</strong></td><td>3 couches produit. L1 = universel (tous établissements). L2 = instance spécifique. L3 = atelier Manu×Claude (ne ship jamais).</td></tr>
+                  <tr><td><strong>CDS (Consensus Design System)</strong></td><td>Framework UI/technique BDB. Règles CSS, JS, chaîne de chargement. Distinct de BDB l'application.</td></tr>
+                  <tr><td><strong>bdb-shell.js</strong></td><td>Script universel : auth + navigation + header. Obligatoire sur tous les modules. Injecte <code>window.bdbUser</code>.</td></tr>
+                  <tr><td><strong>window.bdb</strong></td><td>Client Supabase unique. Défini dans <code>supabase-client.js</code>. INTERDIT de dupliquer.</td></tr>
+                  <tr><td><strong>window.bdbUser</strong></td><td>Objet utilisateur courant : <code>{ id, email, prenom, role, isAdmin }</code>. Fourni par bdb-shell.js.</td></tr>
+                  <tr><td><strong>bdb-invite-guard.js</strong></td><td>Intercepte toutes les mutations Supabase si <code>role='invite'</code>. Doit être chargé AVANT bdb-shell.js.</td></tr>
+                  <tr><td><strong>Chaîne JS</strong></td><td>Ordre obligatoire : <code>supabase-client.js → bdb-invite-guard.js → bdb-shell.js → [module].js</code></td></tr>
+                  <tr><td><strong>INTERDIT-Exx</strong></td><td>Règle d'architecture numérotée dans CHANTIER_TECHNIQUE. Ex : INTERDIT-E1 = <code>#bdb-shell</code> premier enfant de <code>main</code>.</td></tr>
+                  <tr><td><strong>Module embryonnaire</strong></td><td>Module existant en dossier, contenu vide ou partiel. Ne pas supprimer sans accord Manu.</td></tr>
+                  <tr><td><strong>atelier_decisions</strong></td><td>Table Supabase L3 — log permanent de toutes les décisions architecturales. 313+ entrées.</td></tr>
+                  <tr><td><strong>atelier_sessions</strong></td><td>Table Supabase L3 — sessions de travail numérotées. Source de vérité du backlog.</td></tr>
+                  <tr><td><strong>Source de vérité</strong></td><td>Document ou table qui prime en cas de conflit. Hiérarchie : MANIFESTE → JOURNAL_DECISIONS → CTX_ARCHITECTURE → CTX_MODULE.</td></tr>
+                  <tr><td><strong>Persona</strong></td><td>Profil utilisateur typé (Julie novice, Olivia cadre, Le Chirurgien chirurgien…). Guide les décisions UX.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- /tab-archi -->
+
+      </div><!-- /tab-content -->
+
+  <!-- ═══ MODAL MÉMO ═══ -->
+  <div class="modal fade" id="memoModal" tabindex="-1"
+       aria-labelledby="memoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="memoModalLabel"><i class="bi bi-sticky me-2"></i>Mémo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="memo-modal-id"/>
+
+          <!-- Titre -->
+          <div class="mb-3">
+            <label class="form-label small fw-semibold mb-1" for="memo-modal-titre">Titre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-sm" id="memo-modal-titre" placeholder="Titre court"/>
+          </div>
+
+          <!-- Catégorie + Épingler -->
+          <div class="row g-2 mb-3">
+            <div class="col-9">
+              <label class="form-label small fw-semibold mb-1">Catégorie</label>
+              <!-- Dropdown custom — pastille colorée + libellé -->
+              <div class="dropdown dropdown" id="dropdown">
+                <button class="btn btn-outline-secondary btn-sm w-100 d-flex align-items-center gap-2 dropdown-toggle text-start"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                        id="memo-cat-btn" aria-label="Choisir une catégorie">
+                  <span class="d-inline-block rounded-circle border border-secondary border-dashed" id="memo-cat-swatch" class="bo-swatch-sm"></span>
+                  <span class="flex-grow-1" id="memo-cat-btn-label">Choisir une catégorie…</span>
+                </button>
+                <ul class="dropdown-menu w-100" id="memo-cat-menu"
+                    aria-labelledby="memo-cat-btn">
+                  <!-- Peuplé par JS via MEMO_CATS -->
+                </ul>
+              </div>
+              <!-- Valeurs cachées — lues par memo-app.js existant -->
+              <input type="hidden" id="memo-modal-cat" value=""/>
+              <input type="hidden" id="memo-modal-couleur" value=""/>
+            </div>
+            <div class="col-3 d-flex align-items-end">
+              <div class="form-check mb-1">
+                <input type="checkbox" class="form-check-input" id="memo-modal-epingle"/>
+                <label class="form-check-label small fw-semibold mb-1" for="memo-modal-epingle">
+                  <i class="bi bi-pin me-1"></i>Épingler
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenu -->
+          <div class="mb-1">
+            <label class="form-label small fw-semibold mb-1" for="memo-modal-contenu">Contenu</label>
+            <textarea class="form-control form-control-sm" id="memo-modal-contenu"
+                      rows="6" placeholder="Texte, commande, URL, note…"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-sm btn-outline-danger d-none" id="memo-btn-delete">
+            <i class="bi bi-trash me-1"></i>Supprimer
+          </button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-sm btn-primary" id="memo-btn-save">
+              <i class="bi bi-floppy me-1"></i>Enregistrer
+            </button>
+          </div>
+        </div>
+        <div id="memo-modal-feedback" class="d-none alert small mx-3 mb-3 py-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast copie -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastCopied" class="toast align-items-center text-bg-dark border-0"
+         role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body"><i class="bi bi-clipboard-check me-2"></i>Copié !</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                data-bs-dismiss="toast" aria-label="Fermer"></button>
+      </div>
+    </div>
+  </div>
+
+          </div><!-- /memo-content -->
+
+        </div><!-- /container-fluid -->
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+      <small>&copy; 2026 <span class="app-nom fw-semibold"></span> — Atelier L3 · Mémo
+        <span class="badge bg-light text-dark border ms-2">CDS Compliant</span>
+        <button class="btn btn-link btn-sm text-muted p-0 ms-2" id="memo-btn-print" type="button">
+          <i class="bi bi-printer me-1"></i>Imprimer
+        </button>
+      </small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+<script src="atelier-nav.js"></script>
+<script src="memo-app.js"></script>
+</body>
+</html>

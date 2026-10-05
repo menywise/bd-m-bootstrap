@@ -1,0 +1,330 @@
+<!--
+  PROJECT  : Des Blocs & Moi (DB&M)
+  FILE     : accessibilite.html v1.0.0
+  MODULE   : site/
+  DATE     : 2026-04-05
+  AUTEUR   : Manu + Claude
+  NOTE     : Declaration d'accessibilite RGAA / WCAG 2.1 AA.
+             Page institutionnelle. Registre neutre/formel.
+             Persona primaire : P6 (Brigitte — direction/DSI).
+             Persona secondaire : tous.
+-->
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="../js/bdb-pwa.js"></script>
+  <title>Accessibilité DBM — RGAA et WCAG 2.1 AA</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="../css/dbm-theme.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../css/dbm-module-color.css" rel="stylesheet"/>
+  <link href="site-ui.css" rel="stylesheet"/>
+  <meta name="description" content="Accessibilité Des Blocs & Moi : conformité RGAA, WCAG 2.1 AA, contraste, navigation clavier, lecteur d écran."/>
+  <meta name="keywords" content="accessibilité DBM, RGAA, WCAG 2.1 AA, contraste"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/site/accessibilite.html"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Accessibilité DBM"/>
+  <meta property="og:description" content="Conformité RGAA, WCAG 2.1 AA, contraste, navigation clavier, lecteur d écran."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/site/accessibilite.html"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Accessibilité DBM"/>
+  <meta name="twitter:description" content="Conformité RGAA, WCAG 2.1 AA, contraste, navigation clavier, lecteur d écran."/>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","name":"Des Blocs & Moi","url":"https://lebloc.fr/dbm/site/accessibilite.html","inLanguage":"fr-FR","publisher":{"@type":"Organization","name":"Des Blocs & Moi"}}
+</script>
+</head>
+<body>
+
+
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+  <header class="sticky-top px-4 py-3 d-flex align-items-center justify-content-between header-sticky">
+    <div class="d-flex align-items-center gap-3">
+      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#mainMenu" aria-controls="mainMenu" aria-label="Ouvrir le menu"><i class="bi bi-list"></i></button>
+      <span class="fw-semibold">Accessibilité</span>
+    </div>
+    <a href="../login.html" class="btn btn-sm btn-outline-primary d-none d-md-inline-flex align-items-center gap-1"><i class="bi bi-grid-3x3-gap me-1"></i>Mon espace</a>
+  </header>
+
+  <div class="flex-grow-1">
+
+    <!-- EN-TETE -->
+    <div class="container py-4">
+      <div class="bg-primary bg-gradient text-white doc-header-primary">
+        <h1 class="mb-2"><i class="bi bi-universal-access me-2"></i>Accessibilité</h1>
+        <p class="mb-0 opacity-75">Déclaration de conformité — WCAG 2.1 niveau AA</p>
+      </div>
+    </div>
+
+    <!-- ENGAGEMENT -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">Notre engagement</h2>
+            <p class="lead">
+              Des Blocs & Moi s'engage à rendre son application accessible
+              au plus grand nombre, conformément aux critères
+              WCAG 2.1 niveau AA.
+            </p>
+            <p>
+              L'application est utilisée par des équipes hospitalières
+              aux profils variés — soignants, cadres, chirurgiens, direction.
+              Elle doit fonctionner sur smartphone, tablette et ordinateur,
+              dans des contextes d'usage quotidiens : bureau, salle de pause, domicile.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ETAT DE CONFORMITE -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">État de conformité</h2>
+
+            <div class="panel panel-accent-primary mb-4">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <span class="badge bg-success fs-6 px-3 py-2">AA</span>
+                <div>
+                  <h5 class="fw-bold mb-0">Partiellement conforme</h5>
+                  <small class="text-muted">WCAG 2.1 niveau AA — auto-évaluation</small>
+                </div>
+              </div>
+              <p class="mb-0 small text-muted">
+                Cette déclaration repose sur une auto-évaluation interne.
+                Un audit externe par un organisme certifié n'a pas encore été réalisé.
+              </p>
+            </div>
+
+            <h5 class="fw-bold mb-3">Résultats de l'audit interne</h5>
+            <p class="mb-3">
+              L'audit porte sur 32 règles UX réparties en 9 catégories,
+              couvrant les critères WCAG A et les critères AA les plus
+              pertinents pour notre contexte d'usage.
+            </p>
+
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Catégorie</th>
+                    <th class="text-center">Règles</th>
+                    <th class="text-center">Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><i class="bi bi-cursor me-2 text-primary"></i>Interaction</td>
+                    <td class="text-center">6</td>
+                    <td class="text-center"><span class="badge bg-success">Conforme</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-hourglass-split me-2 text-primary"></i>Chargement et états</td>
+                    <td class="text-center">3</td>
+                    <td class="text-center"><span class="badge bg-success">Conforme</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-search me-2 text-primary"></i>Recherche et filtres</td>
+                    <td class="text-center">3</td>
+                    <td class="text-center"><span class="badge bg-success">Conforme</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-input-cursor-text me-2 text-primary"></i>Formulaires</td>
+                    <td class="text-center">3</td>
+                    <td class="text-center"><span class="badge bg-success">Conforme</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-phone me-2 text-primary"></i>Mobile et tactile</td>
+                    <td class="text-center">4</td>
+                    <td class="text-center"><span class="badge bg-success">Conforme</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-universal-access me-2 text-primary"></i>Accessibilité WCAG A</td>
+                    <td class="text-center">7</td>
+                    <td class="text-center"><span class="badge bg-success">Conforme</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-award me-2 text-primary"></i>Accessibilité WCAG AA</td>
+                    <td class="text-center">4</td>
+                    <td class="text-center"><span class="badge bg-warning text-dark">Partiel</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-signpost-split me-2 text-primary"></i>Navigation</td>
+                    <td class="text-center">1</td>
+                    <td class="text-center"><span class="badge bg-success">Conforme</span></td>
+                  </tr>
+                  <tr>
+                    <td><i class="bi bi-speedometer me-2 text-primary"></i>Performance</td>
+                    <td class="text-center">1</td>
+                    <td class="text-center"><span class="badge bg-success">Conforme</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NON-CONFORMITES CONNUES -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">Non-conformités connues</h2>
+            <p class="mb-4">
+              Les points suivants sont identifiés et feront l'objet
+              de corrections progressives.
+            </p>
+
+            <div class="panel mb-3">
+              <h6 class="fw-bold"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Contraste des bordures (WCAG 1.4.11)</h6>
+              <p class="small mb-0 text-muted">
+                Certaines bordures de champs de saisie n'atteignent pas
+                le ratio de contraste 3:1 requis.
+                Une mise à jour du système de couleurs est planifiée.
+              </p>
+            </div>
+
+            <div class="panel mb-3">
+              <h6 class="fw-bold"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Reflow à 320px (WCAG 1.4.10)</h6>
+              <p class="small mb-0 text-muted">
+                Certains écrans d'administration ne sont pas optimisés
+                pour un affichage à 320px de large.
+                Les écrans membres sont conformes à partir de 375px.
+              </p>
+            </div>
+
+            <div class="panel mb-0">
+              <h6 class="fw-bold"><i class="bi bi-info-circle text-primary me-2"></i>Audit des 22 règles manuelles</h6>
+              <p class="small mb-0 text-muted">
+                10 règles sur 32 ont été auditées par un outil automatisé.
+                Les 22 règles restantes nécessitent une inspection manuelle
+                qui sera réalisée progressivement.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENVIRONNEMENT TECHNIQUE -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">Environnement technique</h2>
+
+            <h5 class="fw-bold mb-3">Technologies utilisées</h5>
+            <p class="mb-4">
+              HTML5, CSS3, JavaScript (vanilla), Bootstrap 5.3.2.
+              Aucun framework JavaScript.
+              Rendu côté client, données hébergées sur serveur sécurisé.
+            </p>
+
+            <h5 class="fw-bold mb-3">Compatibilité testée</h5>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Navigateur</th>
+                    <th>Version minimum</th>
+                    <th>Appareils</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Chrome</td><td>90+</td><td>Desktop, Android, iOS</td></tr>
+                  <tr><td>Safari</td><td>15+</td><td>iOS (iPhone 13+), macOS</td></tr>
+                  <tr><td>Firefox</td><td>90+</td><td>Desktop</td></tr>
+                  <tr><td>Edge</td><td>90+</td><td>Desktop</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="py-5 section-white">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">Signaler un problème</h2>
+            <p>
+              Si vous rencontrez une difficulté d'accès à un contenu
+              ou une fonctionnalité de l'application,
+              vous pouvez contacter l'équipe responsable.
+            </p>
+            <div class="panel panel-accent-primary">
+              <p class="mb-1"><strong>Contact accessibilité</strong></p>
+              <p class="mb-0 small text-muted">
+                Adressez-vous au cadre de bloc de votre service
+                ou à l'administrateur de l'application.
+                Chaque signalement sera pris en compte dans les
+                prochaines mises à jour.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METADONNEES -->
+    <section class="py-5 section-soft">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">Informations complémentaires</h2>
+            <div class="table-responsive">
+              <table class="table">
+                <tbody>
+                  <tr><td class="fw-bold text-nowrap">Référentiel</td><td>WCAG 2.1 niveau AA (Web Content Accessibility Guidelines)</td></tr>
+                  <tr><td class="fw-bold text-nowrap">Méthode d'évaluation</td><td>Auto-évaluation interne — audit automatisé (10 règles) + inspection manuelle (en cours)</td></tr>
+                  <tr><td class="fw-bold text-nowrap">Date de la déclaration</td><td>5 avril 2026</td></tr>
+                  <tr><td class="fw-bold text-nowrap">Dernière mise à jour</td><td>5 avril 2026</td></tr>
+                  <tr><td class="fw-bold text-nowrap">Périmètre</td><td>Application Des Blocs & Moi — tous les modules actifs</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NAV FOOTER -->
+    <section class="py-4 site-nav-footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-6"><a href="glossaire.html" class="text-primary text-decoration-none fw-semibold"><i class="bi bi-arrow-left me-2"></i>Lexique</a></div>
+          <div class="col-6 text-end"><a href="index.html" class="text-primary text-decoration-none fw-semibold">Accueil<i class="bi bi-arrow-right ms-2"></i></a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="py-3 text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System — <a href="accessibilite.html" class="text-muted text-decoration-none">Accessibilité : WCAG AA</a></small>
+  </footer>
+
+  </div><!-- /wrapper -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="site-nav.js"></script>
+  <!-- Hydratation app-nom (sans bdb-shell) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/bdb-site-hydrate.js"></script>
+</body>
+</html>

@@ -352,16 +352,13 @@
 }
 
 /* -- ETAT CHARGEMENT -- */
+/* keyframe cds-shimmer centralisé dans cds-overrides.css */
 .bdb-skeleton {
   background: linear-gradient(90deg, #e8edf2 25%, #f0f4f8 50%, #e8edf2 75%);
   background-size: 200% 100%;
-  animation: bdb-shimmer 1.4s infinite;
+  animation: cds-shimmer 1.4s infinite;
   border-radius: 4px;
   display: inline-block;
-}
-@keyframes bdb-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }
 
 /* -- ANIMATION ENTREE -- */
@@ -387,4 +384,91 @@
   .bdb-stat-pill { min-width: 0; }
   .bdb-modules-grid { grid-template-columns: 1fr 1fr; }
   .bdb-logo-sub { display: none; }
+}
+
+/* ─── Dropdown user (portail) ────────────────────────────────────── */
+.bdb-user-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: .5rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  z-index: 1050;
+  overflow: hidden;
+}
+.bdb-user-menu.open { display: block; }
+
+.bdb-user-menu-header {
+  padding: .75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.bdb-user-menu-name {
+  font-size: .875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: .125rem;
+}
+.bdb-user-menu-email {
+  font-size: .75rem;
+  color: #64748b;
+}
+
+.bdb-user-menu-item {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  padding: .625rem 1rem;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  text-decoration: none;
+  color: #334155;
+  font-size: .875rem;
+  transition: background .15s;
+  cursor: pointer;
+}
+.bdb-user-menu-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  text-decoration: none;
+}
+.bdb-user-menu-item.danger { color: #dc2626; }
+.bdb-user-menu-item.danger:hover { background: #fef2f2; }
+
+.bdb-menu-sep {
+  height: 1px;
+  background: #e2e8f0;
+  margin: .25rem 0;
+}
+
+/* Admin badge */
+.badge-admin {
+  display: inline-flex;
+  align-items: center;
+  padding: .2rem .5rem;
+  font-size: .7rem;
+  font-weight: 600;
+  background: #3b82f6;
+  color: #fff;
+  border-radius: .25rem;
+  letter-spacing: .03em;
+}
+
+/* Preview submenu */
+.bdb-preview-submenu {
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.bdb-submenu-chevron { font-size: .65rem; }
+
+/* Keyframe shimmer (bdb-skeleton) */
+@keyframes cds-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

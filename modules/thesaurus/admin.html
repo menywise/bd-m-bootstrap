@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thésaurus — Administration</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <!-- DBM Theme — remplace theme-base.css + cds-overrides.css -->
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="thesaurus-ui.css" rel="stylesheet"/>
+
+  <!-- PWA -->
+</head>
+<body>
+
+<!-- ── MAIN ───────────────────────────────────────────────────── -->
+
+  <div id="wrapper">
+
+  <!-- SHELL bdb-shell.js (INTERDIT-E1 : premier enfant de #wrapper) -->
+  <div id="bdb-shell"
+       data-module-title="Thésaurus — Administration"
+       data-module-icon="bi-journal-medical"
+       data-root-path="../../"
+       data-login-mode="modal"
+       data-shell-kind="backoffice"
+       data-shell-theme="dbm">
+  </div>
+
+    <div id="wrapper_content">
+      <main id="middle" class="app-main">
+      <!-- CONTAINER PRINCIPAL -->
+  <div class="app-container p-0">
+
+    <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+      <a href="../admin/index.html" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Administration
+      </a>
+      <span class="text-muted">›</span>
+      <span class="small fw-medium">
+        <i class="bi bi-journal-medical me-1 text-primary"></i>Thésaurus
+      </span>
+    </div>
+
+    <!-- ── NAV TABS ──────────────────────────────────────────── -->
+    <ul class="nav nav-tabs thes-nav-tabs thes-hide-scrollbar px-3 pt-2" id="thesaurusTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-consultation-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-consultation"
+                type="button" role="tab" aria-selected="true">
+          <i class="bi bi-search me-1"></i>Consultation
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-dashboard-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-dashboard"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-bar-chart-line me-1"></i>Dashboards
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-chirurgiens-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-chirurgiens"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-person-badge me-1"></i>Chirurgiens
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-analyse-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-analyse"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-grid-3x3-gap me-1"></i>Analyse
+        </button>
+      </li>
+      <li class="nav-item ms-auto" role="presentation">
+        <button class="nav-link thes-tab-btn active" id="tab-admin-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-admin"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-pencil-square me-1"></i>Admin
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-recat-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-recat"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-arrow-repeat me-1"></i>Recatégorisation
+          <span class="badge bg-warning text-dark ms-1" id="recatBadgeCount"></span>
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-rappr-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-rappr"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-file-earmark-check me-1"></i>Fiches papier
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link thes-tab-btn" id="tab-ccam-btn"
+                data-bs-toggle="tab" data-bs-target="#tab-ccam"
+                type="button" role="tab" aria-selected="false">
+          <i class="bi bi-diagram-3 me-1"></i>CCAM OT
+        </button>
+      </li>
+    </ul>
+
+    <!-- ── TAB CONTENT ──────────────────────────────────────── -->
+    <div class="tab-content thes-tab-content px-3 pt-3" id="thesaurusTabContent">
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 1 — CONSULTATION
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-consultation" role="tabpanel">
+
+        <!-- Filtres -->
+        <div class="thes-search-bar px-3 py-3 mb-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-5">
+              <label for="searchInput" class="form-label small fw-semibold text-muted mb-1">
+                <i class="bi bi-search me-1"></i>Recherche
+              </label>
+              <div class="input-group input-group-sm">
+                <input type="search" id="searchInput" class="form-control"
+                       placeholder="Libellé, synonyme, pathologie, code CCAM, définition…"
+                       autocomplete="off" spellcheck="false"/>
+                <button class="btn btn-outline-secondary" id="btnClearSearch" type="button" aria-label="Effacer">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="chkSearchNotes">
+                <label class="form-check-label small text-muted" for="chkSearchNotes">
+                  Explorer aussi les notes d'interventions
+                  <span id="searchNotesIndicator" class="badge bg-secondary ms-1 d-none">Étendue</span>
+                </label>
+              </div>
+              <span id="notesSearchStatus" class="small text-muted d-none"></span>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="filterType" class="form-label small fw-semibold text-muted mb-1">Type</label>
+              <select id="filterType" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                <option value="SEPTIQUE">SEPTIQUE</option>
+                <option value="TRAUMATO">TRAUMATO</option>
+                <option value="NEURO">NEURO</option>
+                <option value="ORTHO">ORTHO</option>
+                <option value="EXCLUS">EXCLUS</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="filterZone" class="form-label small fw-semibold text-muted mb-1">Zone</label>
+              <select id="filterZone" class="form-select form-select-sm">
+                <option value="">Toutes</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="filterPareto" class="form-label small fw-semibold text-muted mb-1">Pareto</label>
+              <select id="filterPareto" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                <option value="Critique">Critique ≥1000</option>
+                <option value="Standard">Standard 300-999</option>
+                <option value="Secondaire">Secondaire 50-299</option>
+                <option value="Rare">Rare &lt;50</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="filterFiche" class="form-label small fw-semibold text-muted mb-1">Fiche</label>
+              <select id="filterFiche" class="form-select form-select-sm">
+                <option value="">Toutes</option>
+                <option value="avec">Avec fiche</option>
+                <option value="sans">Sans fiche</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-1 d-flex align-items-end">
+              <button class="btn btn-outline-secondary btn-sm w-100" id="btnResetFilters" type="button" title="Réinitialiser les filtres">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+            </div>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
+            <small class="text-muted">
+              <span id="resultCount" class="fw-semibold text-dark">—</span> résultat(s)
+            </small>
+            <div class="d-flex gap-1">
+              <button class="btn btn-xs btn-outline-secondary" id="btnExportCSV" type="button" title="Exporter en CSV">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau -->
+        <div class="thes-table-wrapper">
+          <div class="table-responsive">
+          <table class="table table-sm table-hover mb-0" id="tableProtocoles">
+            <thead class="table-light sticky-table-head">
+              <tr>
+                <th class="thes-col-type">
+                  <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-sort-btn" data-col="type">
+                    Type <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                  </button>
+                </th>
+                <th class="thes-col-libelle">
+                  <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-sort-btn" data-col="libelle_cible">
+                    Libellé cible <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                  </button>
+                </th>
+                <th class="thes-col-zone">Zone anat.</th>
+                <th class="thes-col-pareto">
+                  <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-sort-btn" data-col="pareto">
+                    Pareto <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                  </button>
+                </th>
+                <th class="thes-col-freq text-end">
+                  <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-sort-btn" data-col="frequence">
+                    Fréq. <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                  </button>
+                </th>
+                <th class="thes-col-actions text-end">Détail</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td colspan="6" class="text-center text-muted py-4">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+              </td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex align-items-center justify-content-between mt-2 px-1">
+          <small class="text-muted">Page <span id="currentPage">1</span> / <span id="totalPages">—</span></small>
+          <nav aria-label="Pagination">
+            <ul class="pagination pagination-sm mb-0" id="paginationContainer"></ul>
+          </nav>
+          <div class="d-flex align-items-center gap-2">
+            <label for="pageSizeSelect" class="form-label small text-muted mb-0">Lignes</label>
+            <select id="pageSizeSelect" class="form-select form-select-sm thes-pagesize-select">
+              <option value="25">25</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 2 — DASHBOARDS
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-dashboard" role="tabpanel">
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-primary" id="kpiTotalProto">—</div>
+                <div class="kpi-label">Protocoles</div>
+                <div class="kpi-sub" id="kpiProtoSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-success" id="kpiClassifies">—</div>
+                <div class="kpi-label">Classifiés (type)</div>
+                <div class="kpi-sub text-muted" id="kpiClassifiesSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-warning" id="kpiAvecDef">—</div>
+                <div class="kpi-label">Avec définition</div>
+                <div class="kpi-sub text-muted" id="kpiAvecDefSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-info" id="kpiCritiques">—</div>
+                <div class="kpi-label">Critique (Pareto)</div>
+                <div class="kpi-sub text-muted">≥ 1 000 interventions</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- A1 — KPI Bloc (async — rempli après chargement interventions) -->
+        <div class="row g-3 mb-3" id="dashBlocKpis">
+          <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-3">
+                <div class="kpi-value text-primary" id="kpiBlocInterv">—</div>
+                <div class="kpi-label">Interventions bloc</div>
+                <div class="kpi-sub text-muted" id="kpiBlocIntervSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-3">
+                <div class="kpi-value text-success" id="kpiBlocChirActifs">—</div>
+                <div class="kpi-label">Chirurgiens actifs</div>
+                <div class="kpi-sub text-muted" id="kpiBlocChirSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-3">
+                <div class="kpi-value text-danger" id="kpiBlocPI">—</div>
+                <div class="kpi-label">PI résiduel</div>
+                <div class="kpi-sub text-muted" id="kpiBlocPISub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-3">
+                <div class="kpi-value thes-kpi-cyan" id="kpiBlocFiches">—</div>
+                <div class="kpi-label">Fiches rapprochées</div>
+                <div class="kpi-sub text-muted" id="kpiBlocFichesSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-3">
+                <div class="kpi-value thes-kpi-purple" id="kpiBlocProtoActifs">—</div>
+                <div class="kpi-label">Protos pratiqués</div>
+                <div class="kpi-sub text-muted" id="kpiBlocProtoActifsSub"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-2">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-3">
+                <div class="kpi-value text-warning" id="kpiBlocProtoVides">—</div>
+                <div class="kpi-label">Protos à 0 interv.</div>
+                <div class="kpi-sub text-muted" id="kpiBlocProtoVidesSub"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- A2 — Tableau comparatif chirurgiens -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+            <h6 class="mb-0 fw-semibold"><i class="bi bi-people me-2 text-primary"></i>Tableau comparatif chirurgiens</h6>
+            <span class="badge bg-primary-subtle text-primary" id="dashChirTableBadge"></span>
+          </div>
+          <div class="card-body p-0">
+            <div id="dashChirTableWrap" class="table-responsive">
+              <div class="text-center text-muted py-4">
+                <div class="spinner-border spinner-border-sm me-2"></div>Chargement des données chirurgiens…
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-bar-chart me-2 text-primary"></i>Distribution par type</h6>
+              </div>
+              <div class="card-body p-3"><canvas id="chartTypeDistrib" height="220"></canvas></div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-layers me-2 text-warning"></i>Répartition Pareto</h6>
+              </div>
+              <div class="card-body p-3">
+                <canvas id="chartPareto" height="180"></canvas>
+                <div class="d-flex flex-wrap gap-1 mt-2">
+                  <span class="badge thes-pareto-critique">Critique ≥1000</span>
+                  <span class="badge thes-pareto-standard">Standard 300-999</span>
+                  <span class="badge thes-pareto-secondaire">Secondaire 50-299</span>
+                  <span class="badge thes-pareto-rare">Rare &lt;50</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-graph-up me-2 text-danger"></i>Courbe Pareto cumulative</h6>
+              </div>
+              <div class="card-body p-3"><canvas id="chartCumulPareto" height="220"></canvas></div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-body-text me-2 text-info"></i>Top zones anatomiques</h6>
+              </div>
+              <div class="card-body p-3" id="dashZonesRanking"></div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-header bg-white border-bottom">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-shield-check me-2 text-success"></i>Qualité des données</h6>
+              </div>
+              <div class="card-body p-4" id="dashQualite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 3 — CHIRURGIENS
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-chirurgiens" role="tabpanel">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="btn-group" role="group" aria-label="Mode analyse chirurgien" id="chirModeGroup">
+            <button type="button" class="btn btn-sm btn-outline-primary active thes-chir-mode-btn" id="btnModeAnalyse" data-mode="analyse">
+              <i class="bi bi-person-lines-fill me-1"></i>Analyse solo
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary thes-chir-mode-btn" id="btnModeComparer" data-mode="comparer">
+              <i class="bi bi-people me-1"></i>Comparer
+            </button>
+          </div>
+        </div>
+        <div id="chirModeAnalyse">
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-md-5">
+              <label for="selectChirurgien" class="form-label small fw-semibold text-muted mb-1">Praticien</label>
+              <select id="selectChirurgien" class="form-select form-select-sm">
+                <option value="">— Sélectionnez un chirurgien —</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="selectAnnee" class="form-label small fw-semibold text-muted mb-1">Année</label>
+              <select id="selectAnnee" class="form-select form-select-sm">
+                <option value="">Toutes</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2 d-flex align-items-end">
+              <button class="btn btn-primary btn-sm w-100" id="btnAnalyseChir" type="button">
+                <i class="bi bi-bar-chart-line me-1"></i>Analyser
+              </button>
+            </div>
+          </div>
+          <div id="chirResults" class="thes-section-placeholder">
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-person-badge fs-1 d-block mb-3 opacity-25"></i>
+              <p class="mb-0">Sélectionnez un chirurgien pour afficher son analyse.</p>
+            </div>
+          </div>
+        </div>
+        <div id="chirModeComparer" class="d-none">
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-md-4">
+              <label for="selectChirA" class="form-label small fw-semibold thes-compare-col-a mb-1">
+                <i class="bi bi-person-badge me-1"></i>Chirurgien A
+              </label>
+              <select id="selectChirA" class="form-select form-select-sm">
+                <option value="">— Chirurgien A —</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label for="selectChirB" class="form-label small fw-semibold thes-compare-col-b mb-1">
+                <i class="bi bi-person-badge me-1"></i>Chirurgien B
+              </label>
+              <select id="selectChirB" class="form-select form-select-sm">
+                <option value="">— Chirurgien B —</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-2 d-flex align-items-end">
+              <button class="btn btn-primary btn-sm w-100" id="btnComparer" type="button">
+                <i class="bi bi-people me-1"></i>Comparer
+              </button>
+            </div>
+          </div>
+          <div id="comparerResults" class="thes-section-placeholder">
+            <div class="text-center py-5 text-muted">
+              <i class="bi bi-people fs-1 d-block mb-3 opacity-25"></i>
+              <p class="mb-0">Sélectionnez deux chirurgiens pour lancer la comparaison.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 4 — ANALYSE
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-analyse" role="tabpanel">
+        <ul class="nav nav-pills thes-analyse-pills mb-3" id="analysePills" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pill-heatmap-btn" data-bs-toggle="pill" data-bs-target="#pill-heatmap" type="button">
+              <i class="bi bi-grid-3x3-gap me-1"></i>Heatmap type × zone
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pill-croisement-btn" data-bs-toggle="pill" data-bs-target="#pill-croisement" type="button">
+              <i class="bi bi-arrows-angle-contract me-1"></i>Croisements
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="pill-temporal-btn" data-bs-toggle="pill" data-bs-target="#pill-temporal" type="button">
+              <i class="bi bi-calendar3 me-1"></i>Temporel
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="analyseContent">
+          <div class="tab-pane fade show active" id="pill-heatmap" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-grid-3x3-gap me-2 text-primary"></i>Fréquence par type et zone anatomique</h6>
+                <select id="heatmapMetric" class="form-select form-select-sm thes-select-sm">
+                  <option value="frequence">Fréquence totale</option>
+                  <option value="count">Nb protocoles</option>
+                </select>
+              </div>
+              <div class="card-body p-3 overflow-auto">
+                <div id="heatmapContainer" class="thes-heatmap-wrapper">
+                  <div class="text-center py-4 text-muted">
+                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>Calcul…
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="pill-croisement" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-arrows-angle-contract me-2 text-success"></i>Croisements dynamiques</h6>
+                <div class="d-flex gap-2">
+                  <select id="croisementX" class="form-select form-select-sm thes-select-sm">
+                    <option value="cat_parent">Catégorie parent</option>
+                    <option value="type">Type</option>
+                    <option value="zone_anat">Zone anatomique</option>
+                  </select>
+                  <span class="text-muted align-self-center small fw-bold">×</span>
+                  <select id="croisementY" class="form-select form-select-sm thes-select-sm">
+                    <option value="type">Type</option>
+                    <option value="pareto">Pareto</option>
+                    <option value="cat_parent">Catégorie parent</option>
+                  </select>
+                  <button class="btn btn-sm btn-primary" id="btnRunCroisement" type="button">
+                    <i class="bi bi-play-fill"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-3"><canvas id="chartCroisement" height="280"></canvas></div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="pill-temporal" role="tabpanel">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-semibold"><i class="bi bi-calendar3 me-2 text-warning"></i>Activité mensuelle</h6>
+                <div class="d-flex gap-2">
+                  <select id="temporalType" class="form-select form-select-sm thes-select-sm">
+                    <option value="">Tous types</option>
+                    <option value="ORTHO">ORTHO</option>
+                    <option value="TRAUMATO">TRAUMATO</option>
+                    <option value="NEURO">NEURO</option>
+                    <option value="SEPTIQUE">SEPTIQUE</option>
+                  </select>
+                  <select id="temporalGranularity" class="form-select form-select-sm thes-select-sm">
+                    <option value="month">Mensuel</option>
+                    <option value="quarter">Trimestriel</option>
+                    <option value="year">Annuel</option>
+                  </select>
+                  <button class="btn btn-sm btn-primary" id="btnRunTemporal" type="button">
+                    <i class="bi bi-play-fill"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-3"><canvas id="chartTemporal" height="260"></canvas></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 5 — ADMIN (admin uniquement)
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade show active" id="tab-admin" role="tabpanel">
+
+        <!-- U1 — KPIs synthèse admin -->
+        <div class="row g-3 mb-3" id="adminKpiRow">
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-primary" id="adminKpiTotal">—</div>
+                <div class="kpi-label">Protocoles</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-success" id="adminKpiActive">—</div>
+                <div class="kpi-label">&gt; 5 interventions</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-warning" id="adminKpiNoDef">—</div>
+                <div class="kpi-label">Sans définition</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm thes-kpi-card">
+              <div class="card-body py-3 px-4">
+                <div class="kpi-value text-danger" id="adminKpiNoCcam">—</div>
+                <div class="kpi-label">Sans code CCAM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- U6 — Toolbar filtres (même wrapper que Consultation) -->
+        <div class="thes-search-bar px-3 py-3 mb-3">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+              <label for="adminSearchInput" class="form-label small fw-semibold text-muted mb-1">
+                <i class="bi bi-search me-1"></i>Recherche
+              </label>
+              <input type="search" id="adminSearchInput" class="form-control form-control-sm"
+                     placeholder="Libellé, synonyme, pathologie…" autocomplete="off" spellcheck="false"/>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="adminFilterType" class="form-label small fw-semibold text-muted mb-1">Type</label>
+              <select id="adminFilterType" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                <option value="SEPTIQUE">SEPTIQUE</option>
+                <option value="TRAUMATO">TRAUMATO</option>
+                <option value="NEURO">NEURO</option>
+                <option value="ORTHO">ORTHO</option>
+                <option value="EXCLUS">EXCLUS</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="adminFilterZone" class="form-label small fw-semibold text-muted mb-1">Zone</label>
+              <select id="adminFilterZone" class="form-select form-select-sm">
+                <option value="">Toutes</option>
+              </select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label for="adminFilterPareto" class="form-label small fw-semibold text-muted mb-1">Pareto</label>
+              <select id="adminFilterPareto" class="form-select form-select-sm">
+                <option value="">Tous</option>
+                <option value="Critique">Critique</option>
+                <option value="Standard">Standard</option>
+                <option value="Secondaire">Secondaire</option>
+                <option value="Rare">Rare</option>
+              </select>
+            </div>
+            <div class="col-3 col-md-1 d-flex align-items-end">
+              <button class="btn btn-outline-secondary btn-sm w-100" id="btnAdminResetFilters" type="button" title="Réinitialiser">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+            </div>
+            <div class="col-3 col-md-1 d-flex align-items-end">
+              <button class="btn btn-primary btn-sm w-100" id="btnAdminNew" type="button" title="Nouveau protocole">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+            </div>
+          </div>
+          <!-- U12 — Compteur unifié (même pattern que Consultation) -->
+          <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
+            <small class="text-muted">
+              <span id="adminCountBadge" class="fw-semibold text-dark">—</span> résultat(s) sur <span id="adminTotalBadge">—</span>
+            </small>
+            <div class="d-flex gap-1">
+              <button class="btn btn-xs btn-outline-info" id="btnAdminFamilies" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#adminFamiliesPanel" aria-expanded="false">
+                <i class="bi bi-collection me-1"></i>Familles
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- U8 — Panneau familles (card harmonisée) -->
+        <div class="collapse mb-3" id="adminFamiliesPanel">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between py-2">
+              <span class="small fw-semibold"><i class="bi bi-collection me-2 text-info"></i>Familles &gt; 5 protocoles — cliquer pour filtrer</span>
+              <span class="badge bg-info-subtle text-info" id="adminFamiliesCount">—</span>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive" id="adminFamiliesTableWrap">
+                <table class="table table-sm table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="small">Famille (1er mot)</th>
+                      <th class="small text-end">Protocoles</th>
+                      <th class="small text-end">Total interventions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminFamiliesBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau principal -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+            <table class="table table-sm table-hover mb-0" id="adminTable">
+              <!-- U13 — thead sticky -->
+              <thead class="thes-thead-sticky">
+                <tr>
+                  <th class="thes-col-libelle">
+                    <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-admin-sort-btn" data-col="libelle_cible">
+                      Libellé cible <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                    </button>
+                    <span class="thes-badge-sacred ms-1">SACRÉ</span>
+                  </th>
+                  <th class="thes-col-type">
+                    <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-admin-sort-btn" data-col="type">
+                      Type <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                    </button>
+                  </th>
+                  <th class="thes-col-zone">
+                    <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-admin-sort-btn" data-col="zone_anat">
+                      Zone <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                    </button>
+                  </th>
+                  <th class="thes-col-freq text-end">
+                    <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-admin-sort-btn" data-col="frequence">
+                      Fréq. <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                    </button>
+                    <span class="thes-badge-sacred ms-1">SACRÉ</span>
+                  </th>
+                  <th class="thes-col-pareto">
+                    <button class="btn btn-link btn-sm p-0 text-dark fw-semibold text-decoration-none thes-admin-sort-btn" data-col="pareto">
+                      Pareto <i class="bi bi-arrow-down-up ms-1 thes-sort-icon"></i>
+                    </button>
+                  </th>
+                  <th class="thes-col-actions text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody">
+                <tr><td colspan="6" class="text-center text-muted py-4">
+                  <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+                </td></tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- U12 — Pagination en bas uniquement -->
+        <div class="d-flex align-items-center justify-content-between mt-2 px-1">
+          <small class="text-muted">Page <span id="adminCurrentPage">1</span> / <span id="adminTotalPages">—</span></small>
+          <nav aria-label="Pagination admin">
+            <ul class="pagination pagination-sm mb-0" id="adminPagination"></ul>
+          </nav>
+        </div>
+
+        <div class="alert alert-warning border-0 mt-3 thes-admin-alert" role="alert">
+          <i class="bi bi-shield-exclamation me-2"></i>
+          <strong>Règles immuables :</strong>
+          LIBELLE_CIBLE et FREQUENCE sont <strong>sacrés</strong> — non modifiables après création.
+          Hiérarchie TYPE : SEPTIQUE &gt; TRAUMATO &gt; NEURO &gt; ORTHO.
+          Les nerfs périphériques = ORTHO (pas NEURO).
+        </div>
+      </div>
+
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 6 — RECATÉGORISATION (admin only)
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-recat" role="tabpanel">
+
+        <!-- KPI row -->
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center py-2">
+              <div class="kpi-value text-warning" id="recatTotal">—</div>
+              <div class="kpi-label">Total PI</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center py-2">
+              <div class="kpi-value text-success" id="recatSuggested">—</div>
+              <div class="kpi-label">Suggestions auto</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center py-2">
+              <div class="kpi-value text-primary" id="recatValidated">—</div>
+              <div class="kpi-label">Validées session</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm text-center py-2">
+              <div class="kpi-value text-danger" id="recatRemaining">—</div>
+              <div class="kpi-label">Restantes</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="row g-2 mb-3 align-items-end">
+          <div class="col-12 col-md">
+            <div class="position-relative">
+              <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+              <input type="search" class="form-control ps-5" id="recatSearch" placeholder="Rechercher dans les notes…"/>
+            </div>
+          </div>
+          <div class="col-6 col-md-auto">
+            <select class="form-select form-select-sm" id="recatFilterCat">
+              <option value="">Toutes catégories</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-auto">
+            <select class="form-select form-select-sm" id="recatFilterChir">
+              <option value="">Tous chirurgiens</option>
+            </select>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm btn-outline-primary" id="btnRecatLoad" type="button">
+              <i class="bi bi-arrow-clockwise me-1"></i>Charger
+            </button>
+          </div>
+        </div>
+
+        <!-- Batch bar -->
+        <div class="d-flex align-items-center gap-2 mb-2 d-none" id="recatBatchBar">
+          <span class="small fw-semibold text-primary" id="recatBatchCount">0 sélectionnées</span>
+          <input type="text" class="form-control form-control-sm thes-recat-batch-select"
+                 id="recatBatchProto" list="recatProtoListOrtho" placeholder="Taper ACT ou libellé…"/>
+          <button class="btn btn-sm btn-success" id="btnRecatBatchApply" type="button" disabled>
+            <i class="bi bi-check-all me-1"></i>Appliquer
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" id="btnRecatBatchCancel" type="button">
+            Annuler
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div id="recatLoading" class="text-center py-5 text-muted d-none">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement des interventions…
+        </div>
+
+        <!-- Empty -->
+        <div id="recatEmpty" class="text-center py-5 text-muted d-none">
+          <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+          <p>Aucune intervention PETITE INTERVENTION restante.</p>
+        </div>
+
+        <!-- Datalist protocoles filtrés par spécialité -->
+        <datalist id="recatProtoListOrtho"></datalist>
+        <datalist id="recatProtoListNeuro"></datalist>
+
+        <!-- Table -->
+        <div class="table-responsive d-none" id="recatTableWrap">
+          <table class="table table-sm table-hover align-middle" id="recatTable">
+            <thead class="thes-thead-sticky">
+              <tr>
+                <th class="thes-col-40"><input type="checkbox" class="form-check-input" id="recatCheckAll" title="Tout sélectionner"/></th>
+                <th class="thes-col-libelle">Note</th>
+                <th>Chirurgien</th>
+                <th class="thes-col-freq">Année</th>
+                <th>Suggestion</th>
+                <th class="thes-recat-col-proto">Protocole cible</th>
+                <th class="thes-recat-col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recatTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="d-flex justify-content-between align-items-center mt-2" id="recatPaginationWrap">
+          <small class="text-muted" id="recatPageInfo"></small>
+          <ul class="pagination pagination-sm mb-0" id="recatPagination"></ul>
+        </nav>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 7 — RAPPROCHEMENT FICHES PAPIER (admin only)
+           Interface de décision humaine — pas de score, pas d'algo
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-rappr" role="tabpanel">
+
+        <!-- Toolbar -->
+        <div class="row g-2 mb-3 mt-2 align-items-end">
+          <div class="col-6 col-md-auto">
+            <select class="form-select form-select-sm" id="rapprSelChir">
+              <option value="">— Tous chirurgiens —</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-auto">
+            <select class="form-select form-select-sm" id="rapprSelStatut">
+              <option value="">— Tous statuts —</option>
+              <option>A valider (fort)</option>
+              <option>A valider (faible)</option>
+              <option>Rapproche</option>
+              <option>Sans correspondance</option>
+              <option>Hors scope</option>
+            </select>
+          </div>
+          <div class="col-12 col-md">
+            <input type="search" class="form-control form-control-sm" id="rapprTxtSearch"
+                   placeholder="Recherche sur nom nettoyé, libellé protocole…" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-sm btn-outline-secondary" id="rapprBtnReset" type="button">
+              <i class="bi bi-x-circle me-1"></i>Réinitialiser
+            </button>
+          </div>
+          <div class="col-auto ms-auto">
+            <button class="btn btn-sm btn-outline-secondary" id="rapprBtnExport" type="button">
+              <i class="bi bi-download me-1"></i>Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Compteurs -->
+        <div id="rapprCounters" class="d-flex gap-3 py-1 text-muted small mb-2"></div>
+
+        <!-- 3 états DOM -->
+        <div id="rapprLoading" class="text-center py-5 text-muted d-none">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement des fiches…
+        </div>
+        <div id="rapprEmpty" class="text-center py-5 text-muted d-none">
+          <i class="bi bi-folder2-open d-block fs-1 mb-2 opacity-25"></i>
+          <p>Aucune fiche trouvée dans <code>thesaurus_fiches_papier</code>.</p>
+        </div>
+        <div id="rapprError" class="text-center py-5 d-none">
+          <i class="bi bi-exclamation-triangle d-block fs-1 mb-2 text-danger"></i>
+          <p class="text-danger" id="rapprErrorMsg"></p>
+        </div>
+
+        <!-- Contenu principal -->
+        <div id="rapprContent" class="d-none">
+
+          <!-- Résumé par chirurgien -->
+          <h6 class="mb-1">Synthèse par chirurgien</h6>
+          <div class="thes-rappr-summary-wrap mb-3">
+            <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover" id="rapprSummaryTable">
+              <thead class="thes-thead-sticky">
+                <tr>
+                  <th>Chirurgien</th>
+                  <th class="text-end">Fiches</th>
+                  <th class="text-end">Rapprochées</th>
+                  <th class="text-end">Sans corresp.</th>
+                  <th class="text-end">À valider</th>
+                  <th class="text-end">Hors scope</th>
+                  <th class="text-end">% couverture</th>
+                </tr>
+              </thead>
+              <tbody id="rapprSummaryBody"></tbody>
+            </table>
+            </div>
+          </div>
+
+          <!-- Tableau principal -->
+          <div class="thes-rappr-main-wrap">
+            <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover" id="rapprMainTable">
+              <thead class="thes-thead-sticky">
+                <tr>
+                  <th data-col="chirurgien">Chirurgien <span class="thes-rappr-sort-icon"></span></th>
+                  <th data-col="nom_nettoye">Nom nettoyé <span class="thes-rappr-sort-icon"></span></th>
+                  <th data-col="statut">Statut <span class="thes-rappr-sort-icon"></span></th>
+                  <th data-col="libelle_cible">Protocole lié <span class="thes-rappr-sort-icon"></span></th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rapprMainBody"></tbody>
+            </table>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 8 — CCAM OT — Rapprochement référentiel (admin only)
+           ═══════════════════════════════════════════════════════ -->
+      <!-- ═══════════════════════════════════════════════════════
+           TAB — CCAM OT (3 sous-vues pills + slide-over)
+           ═══════════════════════════════════════════════════════ -->
+      <div class="tab-pane fade" id="tab-ccam" role="tabpanel">
+
+        <!-- 3 états DOM -->
+        <div id="ccamLoading" class="text-center py-5 text-muted d-none">
+          <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement du référentiel CCAM OT…
+        </div>
+        <div id="ccamEmpty" class="text-center py-5 text-muted d-none">
+          <i class="bi bi-database-x d-block fs-1 mb-2 opacity-25"></i>
+          <p>Référentiel CCAM OT non disponible.<br>
+          <small>Table referentiel_ccam vide ou inaccessible.</small></p>
+        </div>
+        <div id="ccamError" class="text-center py-5 d-none">
+          <i class="bi bi-exclamation-triangle d-block fs-1 mb-2 text-danger"></i>
+          <p class="text-danger" id="ccamErrorMsg"></p>
+        </div>
+
+        <!-- Contenu principal -->
+        <div id="ccamContent" class="d-none">
+
+          <!-- Pills internes A/B/C -->
+          <ul class="nav nav-pills thes-ccam-pills mb-3" id="ccamPills">
+            <li class="nav-item">
+              <button class="nav-link active" id="ccamPillProto" data-view="ccamViewProto" type="button">
+                <i class="bi bi-list-check me-1"></i>Protocoles
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" id="ccamPillClasseurs" data-view="ccamViewClasseurs" type="button">
+                <i class="bi bi-book me-1"></i>Référentiel CCAM OT
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" id="ccamPillAudit" data-view="ccamViewAudit" type="button">
+                <i class="bi bi-clipboard-data me-1"></i>Couverture
+              </button>
+            </li>
+          </ul>
+
+          <!-- ── VIEW A — Protocoles ───────────────────── -->
+          <div id="ccamViewProto">
+
+            <div class="row g-2 mb-3 align-items-end">
+              <div class="col-12 col-md">
+                <div class="position-relative">
+                  <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                  <input type="search" class="form-control form-control-sm ps-5" id="ccamSearch"
+                         placeholder="Rechercher (libellé, ACT, CCAM, synonyme)…" autocomplete="off"/>
+                </div>
+              </div>
+              <div class="col-6 col-md-auto">
+                <select class="form-select form-select-sm" id="ccamFilterStatut">
+                  <option value="">Tous statuts</option>
+                  <option value="lie">Liés CCAM</option>
+                  <option value="alier">À lier</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-auto">
+                <select class="form-select form-select-sm" id="ccamFilterChapitre">
+                  <option value="">Tous chapitres</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" id="ccamBtnReset" type="button" title="Reset">
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <small class="text-muted"><span class="fw-semibold" id="ccamResultCount">0</span> protocoles</small>
+              <small class="text-muted" id="ccamPageInfo"></small>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle thes-ccam-table">
+                <thead class="thes-thead-sticky">
+                  <tr>
+                    <th class="thes-col-50"><button class="btn btn-sm p-0 ccam-sort-btn" data-col="id_protocole" type="button">ACT</button></th>
+                    <th><button class="btn btn-sm p-0 ccam-sort-btn" data-col="libelle_cible" type="button">Libellé protocole</button></th>
+                    <th class="text-end thes-col-freq"><button class="btn btn-sm p-0 ccam-sort-btn" data-col="frequence" type="button">Fréq.</button></th>
+                    <th class="text-center thes-ccam-col-liens">Liens CCAM</th>
+                    <th class="text-center thes-col-actions">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="ccamTableBody"></tbody>
+              </table>
+            </div>
+
+            <nav class="d-flex justify-content-center mt-2">
+              <ul class="pagination pagination-sm mb-0" id="ccamPagination"></ul>
+            </nav>
+          </div>
+
+          <!-- ── VIEW B — Référentiel CCAM OT ─────────────── -->
+          <div id="ccamViewClasseurs" class="d-none">
+            <div class="row g-2 mb-3 align-items-end">
+              <div class="col-12 col-md">
+                <div class="position-relative">
+                  <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                  <input type="search" class="form-control form-control-sm ps-5" id="ccamRefSearch"
+                         placeholder="Rechercher dans 2 813 actes CCAM OT (code ou libellé)…" autocomplete="off"/>
+                </div>
+              </div>
+              <div class="col-6 col-md-auto">
+                <select class="form-select form-select-sm" id="ccamRefChapitre">
+                  <option value="">Tous chapitres</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-auto">
+                <select class="form-select form-select-sm" id="ccamRefSection">
+                  <option value="">Toutes sections</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-sm btn-outline-secondary" id="ccamRefReset" type="button" title="Reset">
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <small class="text-muted"><span class="fw-semibold" id="ccamRefResultCount">0</span> actes CCAM OT</small>
+              <small class="text-muted" id="ccamRefPageInfo"></small>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle thes-ccam-table">
+                <thead class="thes-thead-sticky">
+                  <tr>
+                    <th class="thes-col-80">Code</th>
+                    <th>Libellé CCAM</th>
+                    <th class="text-center thes-ccam-col-liens">Protocole lié</th>
+                    <th class="text-center thes-col-50">Chap.</th>
+                  </tr>
+                </thead>
+                <tbody id="ccamRefTableBody"></tbody>
+              </table>
+            </div>
+            <nav class="d-flex justify-content-center mt-2">
+              <ul class="pagination pagination-sm mb-0" id="ccamRefPagination"></ul>
+            </nav>
+          </div>
+
+          <!-- ── VIEW C — Couverture & Audit ───────────────── -->
+          <div id="ccamViewAudit" class="d-none">
+
+            <div class="row g-3 mb-4">
+              <div class="col-6 col-md">
+                <div class="card border-0 shadow-sm text-center py-2">
+                  <div class="fs-4 fw-bold text-primary" id="ccamKpiTotal">—</div>
+                  <div class="small text-muted">Protocoles</div>
+                </div>
+              </div>
+              <div class="col-6 col-md">
+                <div class="card border-0 shadow-sm text-center py-2">
+                  <div class="fs-4 fw-bold text-success" id="ccamKpiLies">—</div>
+                  <div class="small text-muted">Liés CCAM</div>
+                </div>
+              </div>
+              <div class="col-6 col-md">
+                <div class="card border-0 shadow-sm text-center py-2">
+                  <div class="fs-4 fw-bold text-warning" id="ccamKpiALier">—</div>
+                  <div class="small text-muted">À lier</div>
+                </div>
+              </div>
+              <div class="col-6 col-md">
+                <div class="card border-0 shadow-sm text-center py-2">
+                  <div class="fs-4 fw-bold" id="ccamKpiPct">—</div>
+                  <div class="small text-muted">Couverture</div>
+                </div>
+              </div>
+              <div class="col-6 col-md">
+                <div class="card border-0 shadow-sm text-center py-2">
+                  <div class="fs-4 fw-bold" id="ccamKpiActes">—</div>
+                  <div class="small text-muted">Actes CCAM OT</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <h6 class="thes-detail-section-title">
+                <i class="bi bi-exclamation-circle me-1"></i>Protocoles sans lien CCAM (top fréquence)
+              </h6>
+              <div class="table-responsive thes-ccam-scroll-300">
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead><tr><th>ACT</th><th>Libellé</th><th class="text-end">Fréq.</th><th></th></tr></thead>
+                  <tbody id="ccamGapProtoBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div>
+              <h6 class="thes-detail-section-title">
+                <i class="bi bi-diagram-3 me-1"></i>Actes CCAM OT non utilisés (<span id="ccamOrphanCount">0</span>)
+              </h6>
+              <p class="small text-muted mb-2">Actes CCAM OT disponibles mais non liés à un protocole.</p>
+              <div class="table-responsive thes-ccam-scroll-300">
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead><tr><th>Code</th><th>Libellé CCAM</th><th>Chapitre</th></tr></thead>
+                  <tbody id="ccamOrphanBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODALE — DÉTAIL INTERVENTION (recatégorisation) -->
+  <div class="modal fade" id="modalRecatDetail" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title"><i class="bi bi-journal-text me-2"></i>Détail intervention</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+
+          <!-- Note — section principale -->
+          <div class="thes-detail-section mb-3">
+            <div class="thes-detail-section-title"><i class="bi bi-chat-left-text me-1"></i>Note opératoire</div>
+            <div class="thes-detail-value thes-recat-note-full" id="recatDetailNote"></div>
+          </div>
+
+          <!-- Contexte intervention -->
+          <div class="thes-detail-section mb-3">
+            <div class="thes-detail-section-title"><i class="bi bi-clipboard2-pulse me-1"></i>Contexte intervention</div>
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="thes-detail-label">Date</div>
+                <div class="thes-detail-value font-monospace" id="recatDetailDate">—</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="thes-detail-label">Latéralité</div>
+                <div class="thes-detail-value" id="recatDetailLat">—</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="thes-detail-label">Protocole actuel</div>
+                <div class="thes-detail-value" id="recatDetailProto">—</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="thes-detail-label">Suggestion auto</div>
+                <div id="recatDetailSugg">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Équipe -->
+          <div class="thes-detail-section mb-3">
+            <div class="thes-detail-section-title"><i class="bi bi-people me-1"></i>Équipe</div>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="thes-detail-label">Chirurgien</div>
+                <div class="thes-detail-value" id="recatDetailChir">—</div>
+                <div class="small text-muted" id="recatDetailChirSpec"></div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="thes-detail-label">Panseuse</div>
+                <div class="thes-detail-value" id="recatDetailPans">—</div>
+                <div class="small text-muted" id="recatDetailPansRole"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Données OPTIM (staging) -->
+          <div class="thes-detail-section mb-3" id="recatDetailStagingSection">
+            <div class="thes-detail-section-title"><i class="bi bi-database me-1"></i>Données OPTIM (staging)</div>
+            <div id="recatDetailStagingLoading" class="text-center py-2 text-muted small">
+              <span class="spinner-border spinner-border-sm me-1"></span>Recherche dans le staging…
+            </div>
+            <div id="recatDetailStagingContent" class="d-none">
+              <div class="row g-3">
+                <div class="col-12">
+                  <div class="thes-detail-label">Protocole OPTIM original</div>
+                  <div class="thes-detail-value fw-semibold text-primary" id="recatDetailOptim">—</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="thes-detail-label">Anesthésie</div>
+                  <div class="thes-detail-value" id="recatDetailAnesth">—</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="thes-detail-label">Durée (min)</div>
+                  <div class="thes-detail-value font-monospace" id="recatDetailDuree">—</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="thes-detail-label">Spécialité</div>
+                  <div class="thes-detail-value" id="recatDetailSpec">—</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="thes-detail-label">Sexe</div>
+                  <div class="thes-detail-value" id="recatDetailSexe">—</div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="thes-detail-label">Prothèses</div>
+                  <div class="thes-detail-value" id="recatDetailProtheses">—</div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="thes-detail-label">Notes mapping</div>
+                  <div class="thes-detail-value small text-muted" id="recatDetailMapNotes">—</div>
+                </div>
+              </div>
+            </div>
+            <div id="recatDetailStagingEmpty" class="d-none text-muted small fst-italic">
+              Aucune correspondance dans le staging.
+            </div>
+          </div>
+
+          <!-- Technique -->
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="thes-detail-label">ID intervention</div>
+              <div class="small text-muted font-monospace" id="recatDetailId">—</div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer flex-column align-items-stretch gap-2">
+          <!-- Protocole cible : searchable input -->
+          <div class="d-flex align-items-center gap-2">
+            <label class="small fw-semibold text-nowrap" for="recatDetailProtoInput">Protocole cible :</label>
+            <span class="badge" id="recatDetailSpecBadge"></span>
+            <input type="text" class="form-control form-control-sm flex-grow-1"
+                   id="recatDetailProtoInput" placeholder="Taper ACT ou libellé…"/>
+          </div>
+          <!-- Boutons actions -->
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-sm btn-outline-danger" id="btnRecatDetailDelete">
+              <i class="bi bi-trash me-1"></i>Supprimer
+            </button>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+              <button type="button" class="btn btn-sm btn-info" id="btnRecatDetailAcceptSugg" disabled>
+                <i class="bi bi-lightning me-1"></i>Valider suggestion
+              </button>
+              <button type="button" class="btn btn-sm btn-success" id="btnRecatDetailValidate" disabled>
+                <i class="bi bi-check-lg me-1"></i>Valider protocole
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODALE — CONFIRMATION SUPPRESSION INTERVENTION -->
+  <div class="modal fade" id="modalRecatDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header bg-danger bg-opacity-10">
+          <h6 class="modal-title text-danger"><i class="bi bi-trash me-2"></i>Supprimer</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small mb-1">Supprimer définitivement cette intervention ?</p>
+          <div class="fw-semibold small text-danger" id="recatDeleteNote"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-sm btn-danger" id="btnRecatConfirmDelete">
+            <i class="bi bi-trash me-1"></i>Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE — LIER FICHE PAPIER À UN PROTOCOLE -->
+  <div class="modal fade" id="modalRapprLier" tabindex="-1" aria-labelledby="modalRapprLierLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="modalRapprLierLabel">
+            <i class="bi bi-link-45deg me-2"></i>Lier à un protocole
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small mb-2">Fiche : <strong id="rapprModalFicheNom"></strong></p>
+          <input type="search" class="form-control mb-3" id="rapprModalSearch"
+                 placeholder="Recherche libellé protocole (PTH, GENOU, ARTHRO, LCA…)"
+                 autocomplete="off" spellcheck="false">
+          <div id="rapprModalLoading" class="text-center text-muted py-3 d-none">
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>Recherche…
+          </div>
+          <div id="rapprModalEmpty" class="text-center text-muted py-3 d-none">
+            <i class="bi bi-search me-1"></i>Aucun protocole trouvé.
+          </div>
+          <div id="rapprModalResults" class="list-group list-group-flush"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER — UX premium : indicateur cache + purge admin -->
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <footer class="app-footer">
+      <small class="text-muted">&copy; 2026 <span class="app-nom"></span></small>
+      <span id="thes-cache-indicator" class="badge bg-primary-subtle text-primary border-0" title="Source des données"></span>
+      <button id="btnPurgeCache" class="btn btn-xs btn-outline-warning bdb-admin-only d-none" type="button"
+              title="Vider le cache session et recharger depuis Supabase">
+        <i class="bi bi-arrow-repeat me-1"></i>Purge cache
+      </button>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALE — DÉTAIL / ÉDITION PROTOCOLE (UX Premium)
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalDetail" tabindex="-1" aria-labelledby="modalDetailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="flex-grow-1">
+          <h6 class="modal-title mb-0" id="modalDetailLabel">Protocole</h6>
+          <div class="d-flex align-items-center gap-2 mt-1">
+            <small class="text-muted font-monospace" id="modalProtoId"></small>
+            <span id="modalTypeBadge" class="badge thes-type-badge">—</span>
+            <span id="modalParetoBadge" class="badge thes-pareto-badge">—</span>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="nav nav-tabs mb-3" id="modalTabs" role="tablist">
+          <li class="nav-item"><button class="nav-link active" id="mInfo-btn" data-bs-toggle="tab" data-bs-target="#mInfo" type="button"><i class="bi bi-info-circle me-1"></i>Fiche</button></li>
+          <li class="nav-item"><button class="nav-link" id="mExpert-btn" data-bs-toggle="tab" data-bs-target="#mExpert" type="button"><i class="bi bi-journal-text me-1"></i>Définition expert</button></li>
+        </ul>
+        <div class="tab-content">
+
+          <!-- ── Onglet Fiche — restructuré en sections ── -->
+          <div class="tab-pane fade show active" id="mInfo">
+
+            <!-- Section 1 — Identification -->
+            <div class="thes-detail-section mb-3">
+              <div class="thes-detail-section-title"><i class="bi bi-bookmark-star me-1"></i>Identification</div>
+              <div id="mInfoProposition" class="thes-proposition mb-2 d-none"></div>
+              <div class="row g-2">
+                <div class="col-12 col-md-6">
+                  <div class="thes-detail-label">Pathologie</div>
+                  <div id="mInfoPath" class="thes-detail-value">—</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="thes-detail-label">Fréquence <span class="thes-badge-sacred-inline">SACRÉ</span></div>
+                  <div id="mInfoFreq" class="thes-detail-value fw-bold text-primary fs-5">—</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="thes-detail-label">Alertes</div>
+                  <div id="mInfoAlertes" class="thes-detail-value">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2 — Classification -->
+            <div class="thes-detail-section mb-3">
+              <div class="thes-detail-section-title"><i class="bi bi-diagram-3 me-1"></i>Classification</div>
+              <div class="row g-2">
+                <div class="col-6 col-md-4">
+                  <div class="thes-detail-label">Zone anatomique</div>
+                  <div id="mInfoZone" class="thes-detail-value">—</div>
+                </div>
+                <div class="col-6 col-md-4">
+                  <div class="thes-detail-label">Catégorie parent</div>
+                  <div id="mInfoCat" class="thes-detail-value">—</div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="thes-detail-label">Codes CCAM</div>
+                  <div id="mInfoCCAM" class="thes-tag-list thes-detail-value">—</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3 — Recherche & synonymes -->
+            <div class="thes-detail-section mb-3">
+              <div class="thes-detail-section-title"><i class="bi bi-search me-1"></i>Recherche &amp; synonymes</div>
+              <div id="mInfoSyn" class="thes-tag-list">—</div>
+            </div>
+
+            <!-- Section 4 — Sources liées -->
+            <div class="thes-detail-section">
+              <div class="thes-detail-section-title"><i class="bi bi-link-45deg me-1"></i>Libellés sources liés</div>
+              <div id="mInfoSources">—</div>
+            </div>
+          </div>
+
+          <!-- ── Onglet Définition expert — typographie améliorée ── -->
+          <div class="tab-pane fade" id="mExpert">
+            <div class="thes-expert-wrapper">
+              <div class="thes-expert-header mb-3">
+                <span id="mExpertTypeBadge" class="badge me-2">—</span>
+                <span id="mExpertTitle" class="fw-semibold">—</span>
+              </div>
+              <div id="mExpertContent" class="thes-expert-content">Aucune définition expert disponible.</div>
+              <div id="mExpertCcam" class="mt-3 d-none">
+                <div class="thes-detail-label mb-1">Référence CCAM</div>
+                <div id="mExpertCcamValue" class="font-monospace small text-primary"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALE — ADMIN : CRÉATION / ÉDITION COMPLÈTE
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalAdminEdit" tabindex="-1" aria-labelledby="modalAdminEditLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title" id="modalAdminEditLabel">Nouveau protocole</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning small mb-3" role="alert">
+          <i class="bi bi-shield-exclamation me-2"></i>
+          LIBELLE_CIBLE et FREQUENCE sont <strong>sacrés</strong> — modifiables uniquement à la création, jamais en édition.
+        </div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label for="adminLibelle" class="form-label small fw-semibold">
+              Libellé cible <span class="text-danger">*</span> <span class="thes-badge-sacred-inline" id="adminLibelleSacredBadge">SACRÉ</span>
+            </label>
+            <input type="text" id="adminLibelle" class="form-control form-control-sm" placeholder="Libellé normalisé" required/>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="adminType" class="form-label small fw-semibold">Type <span class="text-danger">*</span></label>
+            <select id="adminType" class="form-select form-select-sm" required>
+              <option value="">—</option>
+              <option value="SEPTIQUE">SEPTIQUE</option>
+              <option value="TRAUMATO">TRAUMATO</option>
+              <option value="NEURO">NEURO</option>
+              <option value="ORTHO">ORTHO</option>
+              <option value="EXCLUS">EXCLUS</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="adminZone" class="form-label small fw-semibold">Zone anatomique</label>
+            <select id="adminZone" class="form-select form-select-sm"></select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="adminCat" class="form-label small fw-semibold">Catégorie parent</label>
+            <select id="adminCat" class="form-select form-select-sm">
+              <option value="">—</option>
+              <option value="MEMBRE SUP">MEMBRE SUP</option>
+              <option value="MEMBRE INF">MEMBRE INF</option>
+              <option value="RACHIS">RACHIS</option>
+              <option value="AUTRE">AUTRE</option>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="adminFrequence" class="form-label small fw-semibold">
+              Fréquence <span class="thes-badge-sacred-inline" id="adminFreqSacredBadge">SACRÉ</span>
+            </label>
+            <input type="number" id="adminFrequence" class="form-control form-control-sm" min="0" value="0"/>
+          </div>
+          <div class="col-12 col-md-6">
+            <label for="adminPath" class="form-label small fw-semibold">Pathologie</label>
+            <input type="text" id="adminPath" class="form-control form-control-sm"/>
+          </div>
+          <div class="col-12 col-md-6">
+            <label for="adminAlertes" class="form-label small fw-semibold">Alertes</label>
+            <input type="text" id="adminAlertes" class="form-control form-control-sm"/>
+          </div>
+          <div class="col-12">
+            <label for="adminSyn" class="form-label small fw-semibold">Synonymes de recherche</label>
+            <input type="text" id="adminSyn" class="form-control form-control-sm" placeholder="Séparés par | ou ,"/>
+          </div>
+          <div class="col-12">
+            <label for="adminCCAM" class="form-label small fw-semibold">Codes CCAM</label>
+            <input type="text" id="adminCCAM" class="form-control form-control-sm"/>
+          </div>
+          <div class="col-12">
+            <label for="adminDef" class="form-label small fw-semibold">Définition expert</label>
+            <textarea id="adminDef" class="form-control form-control-sm" rows="4"></textarea>
+          </div>
+          <div class="col-12">
+            <label for="adminSources" class="form-label small fw-semibold">Libellés sources liés</label>
+            <textarea id="adminSources" class="form-control form-control-sm" rows="3" placeholder="Un libellé source par ligne"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger me-auto d-none" id="btnAdminDelete">
+          <i class="bi bi-trash me-1"></i>Supprimer
+        </button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary" id="btnAdminSave">
+          <i class="bi bi-check-lg me-1"></i>Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALE — CONFIRMATION SUPPRESSION
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalConfirmDelete" tabindex="-1" aria-labelledby="modalConfirmDeleteLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title text-danger" id="modalConfirmDeleteLabel">
+          <i class="bi bi-exclamation-triangle me-2"></i>Supprimer le protocole
+        </h6>
+      </div>
+      <div class="modal-body">
+        <p class="mb-1 small">Vous allez supprimer :</p>
+        <p class="fw-semibold small" id="deleteProtoName">—</p>
+        <p class="text-danger small mb-0">Cette action est irréversible.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-danger btn-sm" id="btnConfirmDelete">
+          <i class="bi bi-trash me-1"></i>Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TOASTS -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toastSuccess" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastSuccessBody">OK</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+  <div id="toastError" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastErrorBody">Erreur</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+  <div id="toastInfo" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="toastInfoBody">Info</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ SLIDE-OVER — POSTE DE TRAVAIL PROTOCOLE ═══════════════ -->
+<div id="ccamSlideBackdrop" class="thes-ccam-backdrop"></div>
+<div id="ccamSlideOver" class="thes-ccam-slideover">
+  <div class="thes-ccam-slideover-header">
+    <div class="flex-grow-1 min-width-0">
+      <h6 class="mb-0"><i class="bi bi-clipboard2-pulse me-2"></i>Protocole</h6>
+      <div class="small mt-1 text-truncate">
+        <span class="fw-semibold" id="ccamSlideProtoLabel"></span>
+        <span class="ms-2 opacity-75 font-monospace" id="ccamSlideProtoId"></span>
+        <span class="ms-2 badge bg-light text-dark border" id="ccamSlideProtoFreq"></span>
+      </div>
+    </div>
+    <button class="btn-close flex-shrink-0" id="ccamSlideClose" type="button" aria-label="Fermer"></button>
+  </div>
+  <div class="thes-ccam-slideover-body">
+
+    <!-- ── SECTION 1 — Identité protocole ──────────── -->
+    <div class="thes-ccam-slide-section mb-3">
+      <button class="thes-ccam-slide-section-toggle" type="button"
+              data-bs-toggle="collapse" data-bs-target="#ccamSecIdentity" aria-expanded="true">
+        <i class="bi bi-card-heading me-1"></i>Identité protocole
+        <i class="bi bi-chevron-down ms-auto thes-ccam-chevron"></i>
+      </button>
+      <div id="ccamSecIdentity" class="collapse show">
+        <div class="thes-ccam-slide-section-body">
+
+          <!-- Libellé éditable -->
+          <div class="mb-3">
+            <label class="form-label small fw-semibold mb-1">Libellé protocole</label>
+            <div class="input-group input-group-sm">
+              <input type="text" class="form-control text-uppercase" id="ccamSlideLibelle" autocomplete="off"/>
+              <button class="btn btn-outline-success" id="ccamSlideSaveLibelle" type="button" title="Sauvegarder">
+                <i class="bi bi-check-lg"></i>
+              </button>
+            </div>
+            <div id="ccamSlideLibelleMsg" class="small mt-1"></div>
+          </div>
+
+          <!-- Infos protocole -->
+          <div class="row g-2 mb-3">
+            <div class="col-4">
+              <div class="small text-muted">Spécialité</div>
+              <div class="small fw-medium" id="ccamSlideSpec"></div>
+            </div>
+            <div class="col-4">
+              <div class="small text-muted">Zone anat.</div>
+              <div class="small fw-medium" id="ccamSlideZone"></div>
+            </div>
+            <div class="col-4">
+              <div class="small text-muted">Type</div>
+              <div class="small fw-medium" id="ccamSlideType"></div>
+            </div>
+          </div>
+
+          <!-- Codes CCAM existants avec intitulés -->
+          <div id="ccamSlideCcamPreview" class="d-none mb-3">
+            <div class="small fw-semibold text-muted mb-1">
+              <i class="bi bi-code-square me-1"></i>Codes CCAM existants (champ texte)
+            </div>
+            <div id="ccamSlideCcamPreviewBody"></div>
+          </div>
+
+          <!-- Doublons potentiels -->
+          <div>
+            <button class="btn btn-xs btn-outline-warning" id="ccamSlideBtnDoublons" type="button">
+              <i class="bi bi-intersect me-1"></i>Doublons potentiels
+            </button>
+            <div id="ccamSlideDoublons" class="d-none mt-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2 — Liens CCAM OT ──────────────── -->
+    <div class="thes-ccam-slide-section mb-3">
+      <button class="thes-ccam-slide-section-toggle" type="button"
+              data-bs-toggle="collapse" data-bs-target="#ccamSecLinks" aria-expanded="true">
+        <i class="bi bi-link-45deg me-1"></i>Liens CCAM OT
+        <span class="badge bg-light text-dark border ms-2" id="ccamSlideLinkCount">0</span>
+        <i class="bi bi-chevron-down ms-auto thes-ccam-chevron"></i>
+      </button>
+      <div id="ccamSecLinks" class="collapse show">
+        <div class="thes-ccam-slide-section-body">
+          <div id="ccamSlideLinks" class="mb-3"></div>
+          <hr class="my-2"/>
+          <!-- Keyword chips from synonymes/pathologie -->
+          <div id="ccamSlideKeywords" class="d-none mb-2">
+            <div class="small fw-semibold text-muted mb-1">
+              <i class="bi bi-tags me-1"></i>Mots-clés — cliquer pour rechercher
+            </div>
+          </div>
+          <div class="mb-2">
+            <div class="small fw-semibold text-muted mb-1">
+              <i class="bi bi-search me-1"></i>Rechercher un acte CCAM OT
+            </div>
+            <input type="search" class="form-control form-control-sm" id="ccamSlideSearch"
+                   placeholder="Code ou mots-clés (ex: prothèse hanche, NFKA…)" autocomplete="off"/>
+          </div>
+          <div class="thes-ccam-slide-results">
+            <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+              <thead><tr><th>Code</th><th>Libellé</th><th></th></tr></thead>
+              <tbody id="ccamSlideResultsBody"></tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4 — Fiches papier ───────────────── -->
+    <div class="mb-3">
+      <h6 class="thes-detail-section-title d-flex align-items-center">
+        <i class="bi bi-file-earmark-text me-1"></i>Fiches papier
+        <span class="badge bg-light text-dark border ms-2" id="ccamSlideFichesCount">0</span>
+      </h6>
+      <div id="ccamSlideFichesBody"></div>
+    </div>
+
+    <!-- ── SECTION 3 — Interventions ──────────────── -->
+    <div class="thes-ccam-slide-section">
+      <button class="thes-ccam-slide-section-toggle" type="button"
+              data-bs-toggle="collapse" data-bs-target="#ccamSecInterv" aria-expanded="false">
+        <i class="bi bi-journal-text me-1"></i>Interventions
+        <span class="badge bg-light text-dark border ms-2" id="ccamSlideIntervCount">—</span>
+        <i class="bi bi-chevron-down ms-auto thes-ccam-chevron"></i>
+      </button>
+      <div id="ccamSecInterv" class="collapse">
+        <div class="thes-ccam-slide-section-body">
+          <div id="ccamSlideIntervLoading" class="text-center py-3 text-muted d-none">
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement…
+          </div>
+          <div class="mb-2 d-flex gap-2">
+            <input type="search" class="form-control form-control-sm flex-grow-1" id="ccamSlideIntervSearch"
+                   placeholder="Filtrer les notes…" autocomplete="off"/>
+            <button class="btn btn-sm btn-outline-info flex-shrink-0" id="ccamGlossaireOpen" type="button"
+                    title="Ajouter un terme au glossaire">
+              <i class="bi bi-book me-1"></i>Glossaire
+            </button>
+          </div>
+
+          <!-- Panneau glossaire inline -->
+          <div id="ccamGlossairePanel" class="d-none thes-ccam-glossaire-panel mb-2">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-book text-info"></i>
+              <span class="small fw-semibold">Ajouter au glossaire</span>
+              <button class="btn-close btn-close-sm ms-auto" id="ccamGlossaireClose" type="button"></button>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-4">
+                <label class="form-label small mb-0">Terme / abréviation</label>
+                <input type="text" class="form-control form-control-sm text-uppercase" id="ccamGlossaireTerm"
+                       placeholder="Ex: FESF" autocomplete="off"/>
+              </div>
+              <div class="col-4">
+                <label class="form-label small mb-0">Définition</label>
+                <input type="text" class="form-control form-control-sm" id="ccamGlossaireDef"
+                       placeholder="Ex: Fracture de l'Extrémité…" autocomplete="off"/>
+              </div>
+              <div class="col-4">
+                <label class="form-label small mb-0">Catégorie</label>
+                <select class="form-select form-select-sm" id="ccamGlossaireCat">
+                  <option value="ABREVIATION">Abréviation</option>
+                  <option value="EPONYME">Éponyme</option>
+                  <option value="PATHOLOGIE">Pathologie</option>
+                  <option value="MATERIEL">Matériel</option>
+                  <option value="TECHNIQUE">Technique</option>
+                  <option value="ANATOMIE">Anatomie</option>
+                  <option value="CONVENTION">Convention</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-0">Notes d'usage <small class="text-muted">(optionnel)</small></label>
+              <input type="text" class="form-control form-control-sm" id="ccamGlossaireNotes"
+                     placeholder="Contexte clinique, source…" autocomplete="off"/>
+            </div>
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="form-check form-check-sm">
+                <input class="form-check-input" type="checkbox" id="ccamGlossairePropag" checked/>
+                <label class="form-check-label small" for="ccamGlossairePropag">
+                  Ajouter aux synonymes du protocole courant
+                </label>
+              </div>
+              <button class="btn btn-sm btn-info" id="ccamGlossaireSave" type="button">
+                <i class="bi bi-check-lg me-1"></i>Enregistrer
+              </button>
+            </div>
+            <div id="ccamGlossaireMsg" class="small mt-1"></div>
+          </div>
+          <div class="thes-ccam-slide-interv-wrap">
+            <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+              <thead><tr><th>Date</th><th>Note</th><th>Qualité</th><th></th></tr></thead>
+              <tbody id="ccamSlideIntervBody"></tbody>
+            </table>
+            </div>
+          </div>
+          <!-- Panneau réassignement inline -->
+          <div id="ccamReassignPanel" class="d-none thes-ccam-reassign-panel mt-2">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-arrow-right-circle text-primary"></i>
+              <span class="small fw-semibold">Réassigner vers un autre protocole</span>
+              <button class="btn-close btn-close-sm ms-auto" id="ccamReassignClose" type="button"></button>
+            </div>
+            <input type="search" class="form-control form-control-sm mb-2" id="ccamReassignSearch"
+                   placeholder="Rechercher protocole (libellé ou ACT-xxxx)…" autocomplete="off"/>
+            <div id="ccamReassignList" class="thes-ccam-reassign-list"></div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mt-2">
+            <small class="text-muted" id="ccamSlideIntervPageInfo"></small>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary" id="ccamSlideIntervPrev" type="button" disabled><i class="bi bi-chevron-left"></i></button>
+              <button class="btn btn-outline-secondary" id="ccamSlideIntervNext" type="button"><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Mini-modale confirmation fusion -->
+<div class="modal fade" id="modalMergeConfirm" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title text-warning"><i class="bi bi-exclamation-triangle me-2"></i>Fusion protocoles</h6>
+      </div>
+      <div class="modal-body small" id="mergeConfirmBody"></div>
+      <div class="modal-footer py-1">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-warning btn-sm" id="btnMergeConfirm">
+          <i class="bi bi-intersect me-1"></i>Fusionner
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── SCRIPTS ─────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="../../js/supabase-client.js"></script>
+<script src="../../js/bdb-ui.js"></script>
+<script src="../../js/bdb-invite-guard.js"></script>
+<script src="../../js/bdb-shell.js"></script>
+<script src="../../js/bdb-search.js"></script>
+
+<script src="thesaurus-app.js"></script>
+<script src="thesaurus-analytics.js"></script>
+<script src="thesaurus-admin.js"></script>
+<script src="thesaurus-recat.js"></script>
+<script src="thesaurus-rapprochement-data.js"></script>
+<script src="thesaurus-rapprochement.js"></script>
+<script src="thesaurus-ccam.js"></script>
+<script>
+/* Guard admin — dernier script exécuté, après tous les modules thesaurus */
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  if (!window.bdbUser?.isAdmin) {
+    location.href = '../../index.html';
+  }
+});
+</script>
+</body>
+</html>

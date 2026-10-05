@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../../js/bdb-pwa.js"></script>
+    <title>Prompt Factory v4.3</title>
+    
+    <!-- Bootstrap 5.3.2 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6.4.0 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Theme Base (Shared) -->
+    <link href="../../_SHARED/css/theme-base.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid py-3">
+    <!-- Header -->
+    <div class="row mb-3">
+        <div class="col">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <h1 class="h4 mb-0">
+                        <i class="fas fa-magic text-primary me-2"></i>Prompt Factory 
+                        <span class="badge bg-primary">v4.3</span>
+                    </h1>
+                    <small class="text-muted">Transforme tes intentions en prompts professionnels</small>
+                </div>
+                <div class="d-flex gap-2">
+                    <div class="btn-group mode-selector">
+                        <button type="button" class="btn btn-outline-secondary active" data-mode="auto">
+                            <i class="fas fa-bolt me-1"></i>Auto
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-mode="guided">
+                            <i class="fas fa-route me-1"></i>Guidé
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-mode="expert">
+                            <i class="fas fa-sliders-h me-1"></i>Expert
+                        </button>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-terminal me-1"></i>Ordres
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end orders-dropdown" id="orders-dropdown" style="min-width: 300px;">
+                            <div class="px-3 py-2 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>Mini-Ordres</strong>
+                                    <button class="btn btn-sm btn-outline-primary" id="btn-manage-orders">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="orders-list" style="max-height: 300px; overflow-y: auto;">
+                                <!-- Rempli dynamiquement -->
+                            </div>
+                        </div>
+                    </div>
+                    <button id="btn-toggle-history" class="btn btn-outline-secondary" title="Historique">
+                        <i class="fas fa-history"></i>
+                    </button>
+                    <button id="btn-settings" class="btn btn-outline-secondary" title="Référentiels">
+                        <i class="fas fa-database"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-3">
+        <!-- LEFT COLUMN -->
+        <div class="col-lg-5">
+            <!-- Intention -->
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <i class="fas fa-pen-fancy me-2"></i>Intention
+                </div>
+                <div class="card-body py-2">
+                    <textarea id="intention" class="form-control" rows="2" 
+                        placeholder="Ex: Créer un module de formation sur l'instrumentation..."></textarea>
+                    <div id="detections" class="mt-2">
+                        <span class="text-muted small">Saisir une intention...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MODE AUTO -->
+            <div id="panel-auto">
+                <!-- Presets -->
+                <div class="card mb-3">
+                    <div class="card-header py-2">
+                        <i class="fas fa-bookmark me-2"></i>Presets métier <small class="text-muted">(raccourcis)</small>
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="preset-grid" id="presets-container">
+                            <!-- Rempli dynamiquement depuis presets.js + CRUD -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DISC Cible rapide -->
+                <div class="card mb-3">
+                    <div class="card-header py-2">
+                        <i class="fas fa-users me-2"></i>Public cible
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="d-flex gap-2">
+                            <button class="btn disc-btn btn-option" data-disc-cible="D" title="Dominant - Direct, résultat">D</button>
+                            <button class="btn disc-btn btn-option" data-disc-cible="I" title="Influent - Enthousiaste">I</button>
+                            <button class="btn disc-btn btn-option" data-disc-cible="S" title="Stable - Méthodique">S</button>
+                            <button class="btn disc-btn btn-option" data-disc-cible="C" title="Conforme - Précis">C</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- IA + Options rapides -->
+                <div class="card mb-3">
+                    <div class="card-header py-2">
+                        <i class="fas fa-robot me-2"></i>IA cible
+                    </div>
+                    <div class="card-body py-2">
+                        <select id="ia-select" class="form-select form-select-sm">
+                            <option value="chatgpt">ChatGPT</option>
+                            <option value="claude">Claude</option>
+                            <option value="gemini">Gemini</option>
+                            <option value="perplexity">Perplexity</option>
+                            <option value="mistral">Mistral</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MODE GUIDÉ -->
+            <div id="panel-guided" style="display:none;">
+                <div class="card">
+                    <div class="card-body" id="guided-wizard">
+                        <!-- Wizard rendu par guided.js -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MODE EXPERT -->
+            <div id="panel-expert" style="display:none;">
+                <!-- Presets (aussi en mode expert) -->
+                <div class="card mb-3">
+                    <div class="card-header py-2">
+                        <i class="fas fa-bookmark me-2"></i>Presets
+                    </div>
+                    <div class="card-body py-2">
+                        <div class="preset-grid" id="presets-container-expert">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Type tâche -->
+                <div class="card mb-3">
+                    <div class="card-header py-2"><i class="fas fa-tag me-2"></i>Type tâche</div>
+                    <div class="card-body py-2">
+                        <div class="d-flex flex-wrap gap-1" id="task-types-container">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DISC -->
+                <div class="card mb-3">
+                    <div class="card-header py-2"><i class="fas fa-user-circle me-2"></i>DISC</div>
+                    <div class="card-body py-2">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="section-title">Rédacteur</div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn disc-btn btn-option btn-sm" data-disc-redacteur="D">D</button>
+                                    <button class="btn disc-btn btn-option btn-sm" data-disc-redacteur="I">I</button>
+                                    <button class="btn disc-btn btn-option btn-sm" data-disc-redacteur="S">S</button>
+                                    <button class="btn disc-btn btn-option btn-sm" data-disc-redacteur="C">C</button>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="section-title">Cible(s)</div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn disc-btn btn-option btn-sm" data-disc-cible="D">D</button>
+                                    <button class="btn disc-btn btn-option btn-sm" data-disc-cible="I">I</button>
+                                    <button class="btn disc-btn btn-option btn-sm" data-disc-cible="S">S</button>
+                                    <button class="btn disc-btn btn-option btn-sm" data-disc-cible="C">C</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Experts -->
+                <div class="card mb-3">
+                    <div class="card-header py-2"><i class="fas fa-user-tie me-2"></i>Experts</div>
+                    <div class="card-body py-2">
+                        <div class="expert-grid" id="experts-container">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pédagogie -->
+                <div class="card mb-3">
+                    <div class="card-header py-2"><i class="fas fa-brain me-2"></i>Pédagogie</div>
+                    <div class="card-body py-2">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="section-title">Kolb</div>
+                                <div class="pedagogy-grid">
+                                    <button class="btn btn-option btn-sm" data-kolb="divergent">Divergent</button>
+                                    <button class="btn btn-option btn-sm" data-kolb="assimilateur">Assimilateur</button>
+                                    <button class="btn btn-option btn-sm" data-kolb="convergent">Convergent</button>
+                                    <button class="btn btn-option btn-sm" data-kolb="accommodateur">Accommodateur</button>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="section-title">Boudreault</div>
+                                <div class="pedagogy-grid">
+                                    <button class="btn btn-option btn-sm" data-boudreault="exploration">Exploration</button>
+                                    <button class="btn btn-option btn-sm" data-boudreault="apprentissage">Apprentissage</button>
+                                    <button class="btn btn-option btn-sm" data-boudreault="application">Application</button>
+                                    <button class="btn btn-option btn-sm" data-boudreault="transfert">Transfert</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="pedagogy-accent" class="mt-1"></div>
+                    </div>
+                </div>
+                
+                <!-- Options avancées -->
+                <div class="card mb-3">
+                    <div class="card-header py-2"><i class="fas fa-cog me-2"></i>Options</div>
+                    <div class="card-body py-2">
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Contexte</label>
+                            <input type="text" id="context" class="form-control form-control-sm" placeholder="Public cible, durée, ressources...">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Format</label>
+                            <input type="text" id="format" class="form-control form-control-sm" placeholder="Livrable structuré...">
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" id="ask-questions" class="form-check-input" checked>
+                            <label class="form-check-label small" for="ask-questions">Questions de clarification</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" id="show-audit" class="form-check-input">
+                            <label class="form-check-label small" for="show-audit">Afficher audit</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- IA -->
+                <div class="card mb-3">
+                    <div class="card-header py-2"><i class="fas fa-robot me-2"></i>IA</div>
+                    <div class="card-body py-2">
+                        <select id="ia-select-expert" class="form-select form-select-sm">
+                            <option value="chatgpt">ChatGPT</option>
+                            <option value="claude">Claude</option>
+                            <option value="gemini">Gemini</option>
+                            <option value="perplexity">Perplexity</option>
+                            <option value="mistral">Mistral</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- RIGHT COLUMN -->
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-terminal me-2"></i>Prompt enrichi</span>
+                    <div class="d-flex gap-2 align-items-center">
+                        <span id="quality-badge" class="badge bg-secondary">Qualité: ?/6</span>
+                        <button id="btn-save-history" class="btn btn-sm btn-outline-secondary" title="Sauvegarder dans l'historique">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body py-2 d-flex flex-column">
+                    <div id="preview" class="preview-console flex-grow-1 empty">// Saisir une intention...</div>
+                    
+                    <div class="mt-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div id="stats"><small class="text-muted">0 car. · 0 mots</small> <small class="text-muted">~0 tokens</small></div>
+                        <div class="btn-group">
+                            <button id="btn-copy" class="btn btn-primary btn-sm">
+                                <i class="fas fa-copy me-1"></i>Copier
+                            </button>
+                            <button id="btn-download" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-download me-1"></i>.md
+                            </button>
+                            <button id="btn-reset" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash me-1"></i>Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center text-muted mt-3 pt-2 border-top">
+        <small>Prompt Factory v4.3 – Consensus Framework</small>
+    </footer>
+</div>
+
+<!-- History Panel -->
+<div id="history-panel" class="history-panel">
+    <div class="history-panel-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="fas fa-history me-2"></i>Historique (25 derniers)</h6>
+        <div>
+            <button id="btn-clear-history" class="btn btn-sm btn-outline-danger me-1" title="Vider">
+                <i class="fas fa-trash"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('history-panel').classList.remove('show')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <div id="history-list" class="history-panel-body">
+        <!-- Rempli dynamiquement -->
+    </div>
+</div>
+
+<!-- Settings Modal (CRUD Référentiels) -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-database me-2"></i>Référentiels</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-presets">
+                            <i class="fas fa-bookmark me-1"></i>Presets
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-experts">
+                            <i class="fas fa-user-tie me-1"></i>Experts
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tasks">
+                            <i class="fas fa-tag me-1"></i>Types tâche
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-disc">
+                            <i class="fas fa-user-circle me-1"></i>DISC Keywords
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-import-export">
+                            <i class="fas fa-exchange-alt me-1"></i>Import/Export
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-presets">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Presets métier</h6>
+                            <button class="btn btn-sm btn-primary" id="btn-add-preset">
+                                <i class="fas fa-plus me-1"></i>Nouveau
+                            </button>
+                        </div>
+                        <div id="presets-crud-list">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="tab-experts">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Rôles experts</h6>
+                            <button class="btn btn-sm btn-primary" id="btn-add-expert">
+                                <i class="fas fa-plus me-1"></i>Nouveau
+                            </button>
+                        </div>
+                        <div id="experts-crud-list">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="tab-tasks">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Types de tâche</h6>
+                            <button class="btn btn-sm btn-primary" id="btn-add-task">
+                                <i class="fas fa-plus me-1"></i>Nouveau
+                            </button>
+                        </div>
+                        <div id="tasks-crud-list">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="tab-disc">
+                        <h6>Mots-clés DISC</h6>
+                        <p class="text-muted small">Modifie les keywords pour affiner la détection automatique</p>
+                        <div id="disc-keywords-editor">
+                            <!-- Rempli dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="tab-import-export">
+                        <h6>Sauvegarde / Restauration</h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <button class="btn btn-success w-100" id="btn-export-config">
+                                    <i class="fas fa-download me-2"></i>Exporter la configuration
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="file" id="input-import-config" accept=".json" style="display:none">
+                                <button class="btn btn-warning w-100" id="btn-import-config">
+                                    <i class="fas fa-upload me-2"></i>Importer une configuration
+                                </button>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-outline-danger w-100" id="btn-reset-defaults">
+                                    <i class="fas fa-undo me-2"></i>Réinitialiser aux valeurs par défaut
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Manager Modal -->
+<div class="modal fade" id="ordersModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-terminal me-2"></i>Gestion Mini-Ordres</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <button class="btn btn-sm btn-primary" id="btn-add-order">
+                            <i class="fas fa-plus me-1"></i>Nouvel ordre
+                        </button>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-success" id="btn-export-orders">
+                            <i class="fas fa-download me-1"></i>Exporter
+                        </button>
+                        <button class="btn btn-sm btn-warning" id="btn-import-orders">
+                            <i class="fas fa-upload me-1"></i>Importer
+                        </button>
+                    </div>
+                </div>
+                <div id="orders-manager-list">
+                    <!-- Rempli dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS - NE PAS DUPLIQUER, NE PAS RÉORDONNER                       -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+
+<!-- Bootstrap JS (requis pour modals) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core Modules (ordre important) -->
+<script src="../assets/js/utils.js"></script>
+<script src="../assets/js/detector.js"></script>
+<script src="../assets/js/disc.js"></script>
+<script src="../assets/js/experts.js"></script>
+<script src="../assets/js/pedagogy.js"></script>
+<script src="../assets/js/orchestrator.js"></script>
+<script src="../assets/js/enricher.js"></script>
+<script src="../assets/js/adapters.js"></script>
+<script src="../assets/js/presets.js"></script>
+<script src="../assets/js/history.js"></script>
+
+<!-- CRUD Layer (v4.3) -->
+<script src="../assets/js/crud.js"></script>
+<script src="../assets/js/crud_ui_helpers.js"></script>
+
+<!-- Features (v4.3) -->
+<script src="../assets/js/orders.js"></script>
+<script src="../assets/js/guided.js"></script>
+
+<!-- Main Application (TOUJOURS EN DERNIER) -->
+<script src="../assets/js/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+/*
+ * boite-a-idees-ui.css — Module CollabKit — Bible de Bloc
+ * CDS Compliant — toutes règles scopées à #collabMain
+ * Reconstruit Option B — migration 091 — 2026-04-05
+ * Remplace : inline <style> + ancien boite-a-idees-ui.css
+ */
+
+/* ── Toast container (hors #collabMain — positionnement global) ── */
+.boite-a-idees-toast-container {
+  z-index: 1090;
+}
+
+/* ── Colonnes tableau rapport ───────────────────────────────────── */
+#collabMain .boite-a-idees-col-rank     { width: 40px; }
+#collabMain .boite-a-idees-col-cat      { width: 90px; }
+#collabMain .boite-a-idees-col-votes    { width: 70px; }
+#collabMain .boite-a-idees-col-pct      { width: 80px; }
+#collabMain .boite-a-idees-col-note     { width: 150px; }
+#collabMain .boite-a-idees-col-quadrant { width: 140px; }
+
+/* ── Drag & drop — curseur ──────────────────────────────────────── */
+#collabMain .boite-a-idees-drag-card {
+  cursor: grab;
+}
+#collabMain .boite-a-idees-drag-card:active {
+  cursor: grabbing;
+}
+#collabMain .boite-a-idees-dragging {
+  opacity: 0.45;
+}
+
+/* ── Quadrant drop zones ────────────────────────────────────────── */
+#collabMain .boite-a-idees-quadrant-zone {
+  min-height: 280px;
+  background: #fff;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+#collabMain .boite-a-idees-quadrant-zone.boite-a-idees-drag-hover {
+  background-color: #e9ecef;
+  border-color: var(--bs-primary);
+}
+
+/* Accents couleur par quadrant */
+#collabMain [data-quadrant="high-easy"] { border-top: 4px solid #198754; }
+#collabMain [data-quadrant="high-hard"] { border-top: 4px solid #0d6efd; }
+#collabMain [data-quadrant="low-easy"]  { border-top: 4px solid #ffc107; }
+#collabMain [data-quadrant="low-hard"]  { border-top: 4px solid #dc3545; }
+
+/* ── Deck zone ──────────────────────────────────────────────────── */
+#collabMain .boite-a-idees-deck-zone {
+  background: #eef0ff;
+  border: 1px solid #c7c9e0;
+  min-height: 180px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+#collabMain .boite-a-idees-deck-zone.boite-a-idees-drag-hover {
+  background-color: #dde0f5;
+  border-color: var(--bs-primary);
+}
+
+/* ── Idée cards ─────────────────────────────────────────────────── */
+#collabMain .boite-a-idees-idea-card {
+  border: 1px solid #dee2e6;
+  transition: box-shadow 0.15s ease;
+}
+#collabMain .boite-a-idees-idea-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+#collabMain .boite-a-idees-card-pending {
+  border-color: #ffc107;
+  border-left: 4px solid #ffc107;
+  background-color: #fffdf0;
+}
+
+/* ── Drag cards (matrix) ────────────────────────────────────────── */
+#collabMain .boite-a-idees-drag-card.card {
+  border: 1px solid #dee2e6;
+  transition: opacity 0.15s ease;
+}
+#collabMain .boite-a-idees-drag-card.card:hover {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+/* ── Texte petit ────────────────────────────────────────────────── */
+#collabMain .boite-a-idees-text-sm {
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/* ── Rapport — stat cards ───────────────────────────────────────── */
+#collabMain .boite-a-idees-stat-card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+#collabMain .boite-a-idees-stat-badge {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--bs-primary);
+  line-height: 1.1;
+}
+
+/* ── Vote count badge ───────────────────────────────────────────── */
+#collabMain .boite-a-idees-vote-count {
+  font-size: 0.85rem;
+  color: var(--bs-secondary);
+}
+
+/* ── Animation pulse (feedback) ────────────────────────────────── */
+@keyframes collab-pulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+#collabMain .boite-a-idees-pulse {
+  animation: collab-pulse 1.5s ease-in-out;
+}
+
+/* ── Admin (collab-admin-* scopés — INTERDIT-17) ── */
+.boite-a-idees-admin-kpi {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}

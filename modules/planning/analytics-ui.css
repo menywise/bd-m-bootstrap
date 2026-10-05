@@ -1,0 +1,64 @@
+/* ============================================================
+   PLANNING — ANALYTICS UI CSS
+   Règle : scopage sous #analyticsApp ou classes préfixées analytics-*
+   Zéro !important non justifié
+   ============================================================ */
+
+/* ── KPI ── */
+.kpi-value { font-size: 2.2rem; font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+.kpi-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; }
+.kpi-sub   { font-size: .65rem; margin-top: 2px; }
+.kpi-card  { transition: transform .12s ease, box-shadow .12s ease; }
+.kpi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,.10) !important; } /* BS override légitime */
+
+/* ── Barres custom ── */
+.cs-bar-track { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+.cs-bar-fill  { height: 100%; border-radius: 5px; }
+.progress-xs  { height: 5px; }
+.progress-sm  { height: 7px; }
+
+/* ── Dot légende ── */
+.cs-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.analytics-dot-stable   { background: #16a34a; }
+.analytics-dot-fragile  { background: #ca8a04; }
+.analytics-dot-critique { background: #dc2626; }
+.analytics-dot-ferme    { background: #9ca3af; }
+
+/* ── Chart évolution ── */
+.evo-week     { min-width: 48px; }
+.evo-label    { font-size: .62rem; color: #94a3b8; text-align: center; margin-top: 3px; }
+.evo-bar-wrap { height: 64px; width: 100%; display: flex; flex-direction: column-reverse; }
+.evo-bar-seg  { width: 100%; border-radius: 2px 2px 0 0; }
+
+/* ── Tri ── */
+.sort-th { cursor: pointer; user-select: none; white-space: nowrap; }
+.sort-th:hover { background: #f1f5f9 !important; } /* BS override légitime */
+.sort-arrow { font-size: .6rem; color: #94a3b8; vertical-align: middle; margin-left: 2px; }
+.sort-th.sort-active { color: #0d6efd; }
+.sort-th.sort-active .sort-arrow { color: #0d6efd; }
+
+/* ── Paire item ── */
+.pair-item { border-bottom: 1px solid #f1f5f9; padding: 7px 0; }
+.pair-item:last-child { border-bottom: none; }
+
+/* ── Sous-texte ── */
+.analytics-sub { font-size: .65rem; color: #9ca3af; }
+
+/* ── Modale avatar ── */
+.analytics-modal-avatar { width: 32px; height: 32px; font-size: .8rem; }
+
+/* ── Filtres ── */
+.analytics-filter-input  { width: 140px; }
+.analytics-filter-select { width: 120px; }
+
+/* ── Colonne rang ── */
+.analytics-rank-col { width: 36px; }
+
+/* ── Séparateur vertical ── */
+.analytics-vr { height: 40px; }
+
+/* ── Print ── */
+@media print {
+  .no-print, .offcanvas, header, footer { display: none !important; }
+  .container-fluid { padding: 0 !important; }
+}

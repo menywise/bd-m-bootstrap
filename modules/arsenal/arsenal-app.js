@@ -1,17 +1,19 @@
 /* =========================================================
-   MODULE ARSENAL — BDB v2.2.1
+   MODULE ARSENAL — BDB v2.3.0
    CTX     : CTX_ARSENAL_V2_2_1.md
-   CHANTIER: CHANTIER_TECHNIQUE_V1_0_5
+   CHANTIER: CHANTIER_TECHNIQUE_V1_0_6
    Tables  : materiel · gants · casaques
              materiel_types · zones_anatomiques · zones_stockage · etageres
              content_types · content_images
    Bucket  : content-images (tiret — bug Lovable hérité, ne pas corriger)
    Auth    : window.bdbUser (source unique — INTERDIT-B2)
+   Images  : window.BdbMedia (js/bdb-media.js — JS-02 zéro duplication)
    ========================================================= */
 
 'use strict';
 
 const DB = window.bdb;
+
 
 /* ── Familles 4D ─────────────────────────────────────────── */
 const FAMILLE_4D_LABELS = {
@@ -78,10 +80,12 @@ const state = {
   activeTab: 'materiel',
   materiels: [], gants: [], casaques: [],
   materielTypes: [], zonesAnat: [], zonesStock: [], etageres: [],
-  contentTypeIds: {},
   editingId: null,
-  formImages: [],
+  /* formImages et contentTypeIds supprimés — migrés vers BdbMedia (JS-02) */
 };
+
+/* ── BdbMedia instance (js/bdb-media.js) ─────────────────── */
+let media; // initialisé dans DOMContentLoaded après showToast disponible
 
 let modalMateriel, modalGant, modalCasaque, modalLightbox;
 
@@ -116,12 +120,6 @@ function updateAdminSlots() {
   document.getElementById('arsenalAdminSlotMateriel').classList.toggle('d-none', state.activeTab !== 'materiel');
   document.getElementById('arsenalAdminSlotGants').classList.toggle('d-none',    state.activeTab !== 'gants');
   document.getElementById('arsenalAdminSlotCasaques').classList.toggle('d-none', state.activeTab !== 'casaques');
-}
-
-/* ── Content type IDs ────────────────────────────────────── */
-async function loadContentTypeIds() {
-  const { data } = await DB.from('content_types').select('id, code');
-  (data || []).forEach(ct => { state.contentTypeIds[ct.code] = ct.id; });
 }
 
 /* ── Classification ──────────────────────────────────────── */
@@ -163,122 +161,6 @@ function updateEtagereSelect(zoneStockId) {
   filtered.forEach(e => sel.add(new Option(e.label, e.id)));
 }
 
-/* ── Signed URL ──────────────────────────────────────────── */
-async function getSignedUrl(path) {
-  if (!path) return null;
-  /* Bucket content-images avec tiret — bug Lovable hérité (CTX §8) */
-  const { data } = await DB.storage.from('content-images').createSignedUrl(path, 900);
-  return data?.signedUrl || null;
-}
-
-/* ── Upload image ────────────────────────────────────────── */
-async function uploadImage(file, folder) {
-  if (state.formImages.length >= 3) { showToast('Max 3 images', 'error'); return null; }
-  if (!file.type.startsWith('image/')) { showToast('Seules les images sont acceptées', 'error'); return null; }
-  if (file.size > 5 * 1024 * 1024)    { showToast('Image trop lourde (max 5 Mo)', 'error'); return null; }
-  const ext  = file.name.split('.').pop().toLowerCase();
-  const path = `${folder}/${window.bdbUser.id}/${Date.now()}.${ext}`;
-  const { error } = await DB.storage.from('content-images').upload(path, file, {
-    contentType: file.type, upsert: false,
-  });
-  if (error) { showToast('Erreur upload : ' + error.message, 'error'); return null; }
-  return path;
-}
-
-async function renderImagePreviews(containerId) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = '';
-  for (const img of state.formImages) {
-    let url = img.url;
-    if (!url) { url = await getSignedUrl(img.storage_path); img.url = url; }
-    const div = document.createElement('div');
-    div.className = 'position-relative';
-    div.innerHTML = `
-      <img src="${url || ''}" alt="Aperçu image" class="cds-thumbnail rounded">
-      <button type="button"
-              class="btn btn-danger btn-sm position-absolute top-0 end-0 cds-img-remove-btn"
-              data-path="${img.storage_path}" aria-label="Supprimer cette image">
-        <i class="bi bi-x cds-text-xxs"></i>
-      </button>`;
-    container.appendChild(div);
-  }
-  container.querySelectorAll('[data-path]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.formImages = state.formImages.filter(i => i.storage_path !== btn.dataset.path);
-      renderImagePreviews(containerId);
-    });
-  });
-}
-
-async function saveImages(recordId, contentTypeCode) {
-  const contentTypeId = state.contentTypeIds[contentTypeCode];
-  if (!contentTypeId || state.formImages.length === 0) return;
-  await DB.from('content_images').insert(
-    state.formImages.map(img => ({
-      content_type_id: contentTypeId,
-      content_id:      recordId,
-      storage_path:    img.storage_path,
-      position:        img.position,
-    }))
-  );
-}
-
-async function syncImages(recordId, contentTypeCode) {
-  const contentTypeId = state.contentTypeIds[contentTypeCode];
-  if (!contentTypeId) return;
-  const { data: existing } = await DB.from('content_images').select('*')
-    .eq('content_type_id', contentTypeId).eq('content_id', recordId);
-  const existingPaths = new Set((existing || []).map(i => i.storage_path));
-  const newPaths      = new Set(state.formImages.map(i => i.storage_path));
-  const toDelete      = (existing || []).filter(i => !newPaths.has(i.storage_path));
-  if (toDelete.length) {
-    await DB.from('content_images').delete().in('id', toDelete.map(i => i.id));
-    await DB.storage.from('content-images').remove(toDelete.map(i => i.storage_path));
-  }
-  const toInsert = state.formImages.filter(i => !existingPaths.has(i.storage_path));
-  if (toInsert.length) {
-    await DB.from('content_images').insert(toInsert.map(img => ({
-      content_type_id: contentTypeId, content_id: recordId,
-      storage_path: img.storage_path, position: img.position,
-    })));
-  }
-}
-
-async function loadImagesForRecord(recordId, contentTypeCode) {
-  const contentTypeId = state.contentTypeIds[contentTypeCode];
-  if (!contentTypeId) return [];
-  const { data } = await DB.from('content_images').select('*')
-    .eq('content_type_id', contentTypeId).eq('content_id', recordId);
-  return (data || []).map(img => ({
-    id: img.id, storage_path: img.storage_path, position: img.position,
-  }));
-}
-
-function setupUpload(areaId, inputId, btnId, previewId, folder) {
-  const area  = document.getElementById(areaId);
-  const input = document.getElementById(inputId);
-  const btn   = document.getElementById(btnId);
-  btn.addEventListener('click', () => input.click());
-  input.addEventListener('change', async e => {
-    for (const file of Array.from(e.target.files || [])) {
-      const path = await uploadImage(file, folder);
-      if (path) state.formImages.push({ storage_path: path, position: state.formImages.length });
-    }
-    renderImagePreviews(previewId);
-    e.target.value = '';
-  });
-  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('ars-upload-active'); });
-  area.addEventListener('dragleave', () => area.classList.remove('ars-upload-active'));
-  area.addEventListener('drop', async e => {
-    e.preventDefault(); area.classList.remove('ars-upload-active');
-    for (const file of Array.from(e.dataTransfer.files)) {
-      const path = await uploadImage(file, folder);
-      if (path) state.formImages.push({ storage_path: path, position: state.formImages.length });
-    }
-    renderImagePreviews(previewId);
-  });
-}
-
 /* ── Statut badge ────────────────────────────────────────── */
 const STATUT_CLASSES = {
   disponible:    'bg-success',
@@ -297,6 +179,34 @@ const STATUT_LABELS = {
    MATÉRIEL
    ═══════════════════════════════════════════════════════════ */
 async function loadMateriels() {
+  if (window.bdbIsDemo && window.bdbIsDemo()) {
+    const { data } = await window.bdb.from('demo_arsenal').select('*');
+    const items = data || [];
+    state.materiels = items;
+    const grid = document.getElementById('materielGrid');
+    const countEl = document.getElementById('countMateriel');
+    if (countEl) countEl.textContent = items.length;
+    if (!items.length) {
+      grid.innerHTML = '<div class="col-12 text-center py-5 text-muted">Aucun matériel démo</div>';
+      return;
+    }
+    grid.innerHTML = items.map(m => {
+      const statutClass = STATUT_CLASSES[m.statut] || 'bg-secondary';
+      const statutLabel = STATUT_LABELS[m.statut] || m.statut;
+      return `<div class="col-md-6 col-lg-4"><div class="card shadow-sm h-100 ars-card border-0"><div class="card-body">
+        <div class="d-flex align-items-start gap-2 mb-2">
+          <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center p-2"><i class="bi bi-tools"></i></div>
+          <div class="flex-grow-1 min-width-0">
+            <h6 class="mb-0 fw-semibold">${escHtml(m.nom)}</h6>
+            ${m.reference ? `<small class="text-muted">Réf: ${escHtml(m.reference)}</small>` : ''}
+          </div>
+          <span class="badge ${statutClass}">${escHtml(statutLabel)}</span>
+        </div>
+        ${m.description ? `<p class="small text-muted mb-1">${escHtml(m.description.slice(0,100))}${m.description.length>100?'...':''}</p>` : ''}
+      </div></div></div>`;
+    }).join('');
+    return;
+  }
   const grid = document.getElementById('materielGrid');
   /* Skeleton inline grille pendant le fetch */
   grid.innerHTML = `
@@ -364,10 +274,10 @@ async function loadMateriels() {
     const f4dLabel     = m.famille_4d ? (FAMILLE_4D_LABELS[m.famille_4d]  || m.famille_4d)   : null;
     const adminActions = state.isAdmin ? `
       <div class="d-flex gap-1 mt-2">
-        <button class="btn btn-sm btn-outline-primary" type="button" data-edit-m="${m.id}"
-                aria-label="Modifier ${m.nom}"><i class="bi bi-pencil"></i></button>
-        <button class="btn btn-sm btn-outline-danger" type="button" data-del-m="${m.id}"
-                aria-label="Supprimer ${m.nom}"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-sm btn-outline-primary" type="button" data-edit-m="${escHtml(m.id)}"
+                aria-label="Modifier ${escHtml(m.nom)}"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" type="button" data-del-m="${escHtml(m.id)}"
+                aria-label="Supprimer ${escHtml(m.nom)}"><i class="bi bi-trash"></i></button>
       </div>` : '';
 
     return `<div class="col-md-6 col-lg-4">
@@ -378,19 +288,19 @@ async function loadMateriels() {
               <i class="bi bi-tools"></i>
             </div>
             <div class="flex-grow-1 min-width-0">
-              <h6 class="mb-0 fw-semibold">${m.nom}</h6>
-              ${m.reference   ? `<small class="text-muted">Réf: ${m.reference}</small>` : ''}
-              ${m.code_optimopm ? `<small class="text-muted d-block"><i class="bi bi-upc me-1"></i>${m.code_optimopm}</small>` : ''}
+              <h6 class="mb-0 fw-semibold">${escHtml(m.nom)}</h6>
+              ${m.reference   ? `<small class="text-muted">Réf: ${escHtml(m.reference)}</small>` : ''}
+              ${m.code_optimopm ? `<small class="text-muted d-block"><i class="bi bi-upc me-1"></i>${escHtml(m.code_optimopm)}</small>` : ''}
             </div>
-            <span class="badge ${statutClass}">${statutLabel}</span>
+            <span class="badge ${statutClass}">${escHtml(statutLabel)}</span>
           </div>
           <div class="d-flex flex-wrap gap-1 mb-2">
-            ${f4dLabel   ? `<span class="badge ${f4dClass}">${f4dLabel}</span>` : ''}
-            ${typeLabel  ? `<span class="badge bg-light text-dark border">${typeLabel}</span>` : ''}
-            ${zaLabel    ? `<span class="badge bg-light text-dark border"><i class="bi bi-crosshair me-1"></i>${zaLabel}</span>` : ''}
+            ${f4dLabel   ? `<span class="badge ${f4dClass}">${escHtml(f4dLabel)}</span>` : ''}
+            ${typeLabel  ? `<span class="badge bg-light text-dark border">${escHtml(typeLabel)}</span>` : ''}
+            ${zaLabel    ? `<span class="badge bg-light text-dark border"><i class="bi bi-crosshair me-1"></i>${escHtml(zaLabel)}</span>` : ''}
           </div>
-          ${(zsLabel || etLabel) ? `<div class="text-muted small mb-2"><i class="bi bi-geo-alt me-1"></i>${[zsLabel, etLabel ? 'Ét. ' + etLabel : null].filter(Boolean).join(' — ')}</div>` : ''}
-          ${m.description ? `<p class="small text-muted mb-1">${m.description.replace(/<[^>]*>/g,'').slice(0,100)}${m.description.length>100?'...':''}</p>` : ''}
+          ${(zsLabel || etLabel) ? `<div class="text-muted small mb-2"><i class="bi bi-geo-alt me-1"></i>${[escHtml(zsLabel), etLabel ? 'Ét. ' + escHtml(etLabel) : null].filter(Boolean).join(' — ')}</div>` : ''}
+          ${m.description ? `<p class="small text-muted mb-1">${escHtml(m.description.replace(/<[^>]*>/g,'').slice(0,100))}${m.description.length>100?'...':''}</p>` : ''}
           ${adminActions}
         </div>
       </div>
@@ -404,8 +314,8 @@ async function loadMateriels() {
 }
 
 async function openMaterielModal(id = null) {
-  state.editingId  = id;
-  state.formImages = [];
+  state.editingId = id;
+  media.reset();
   hideZoneSuggestion();
   document.getElementById('mFormError').classList.add('d-none');
   document.getElementById('mImagePreviews').innerHTML = '';
@@ -434,8 +344,8 @@ async function openMaterielModal(id = null) {
       document.getElementById('mPriority').checked    = m.priority          || false;
       if (m.zone_stockage_id) updateEtagereSelect(m.zone_stockage_id);
       document.getElementById('mFormEtagere').value   = m.etagere_id        || '';
-      state.formImages = await loadImagesForRecord(id, 'materiel');
-      renderImagePreviews('mImagePreviews');
+      await media.loadForRecord(id, 'materiel');
+      media.renderPreviews('mImagePreviews');
     }
     document.getElementById('mBtnSave').disabled = false;
   } else {
@@ -480,13 +390,13 @@ async function saveMateriel() {
         .eq('id', state.editingId).select().single();
       if (error) throw error;
       recordId = data.id;
-      await syncImages(recordId, 'materiel');
+      await media.sync(recordId, 'materiel');
     } else {
       const { data, error } = await DB.from('materiel')
         .insert([{ ...payload, user_id: window.bdbUser.id }]).select().single();
       if (error) throw error;
       recordId = data.id;
-      await saveImages(recordId, 'materiel');
+      await media.save(recordId, 'materiel');
     }
     modalMateriel.hide();
     showToast(state.editingId ? 'Matériel mis à jour.' : 'Matériel créé.', 'success');
@@ -503,8 +413,8 @@ async function saveMateriel() {
 
 async function deleteMateriel(id) {
   /* INTERDIT-C5 : confirm + await serveur, pas d'Optimistic Update */
-  if (!confirm('Supprimer ce matériel ? (action irréversible)')) return;
-  const { error } = await DB.from('materiel').delete().eq('id', id);
+  if (!confirm("Retirer ce matériel définitivement ? Cette action ne peut pas être annulée.")) return;
+  const { error } = await DB.from('materiel').delete().eq('id', id).select();
   if (error) { showToast(error.message, 'error'); return; }
   showToast('Matériel supprimé.', 'success');
   loadMateriels();
@@ -552,10 +462,10 @@ async function loadGants() {
   grid.innerHTML = items.map(g => {
     const adminActions = state.isAdmin ? `
       <div class="d-flex gap-1 mt-2">
-        <button class="btn btn-sm btn-outline-primary" type="button" data-edit-g="${g.id}"
-                aria-label="Modifier ${g.titre}"><i class="bi bi-pencil"></i></button>
-        <button class="btn btn-sm btn-outline-danger" type="button" data-del-g="${g.id}"
-                aria-label="Supprimer ${g.titre}"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-sm btn-outline-primary" type="button" data-edit-g="${escHtml(g.id)}"
+                aria-label="Modifier ${escHtml(g.titre)}"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" type="button" data-del-g="${escHtml(g.id)}"
+                aria-label="Supprimer ${escHtml(g.titre)}"><i class="bi bi-trash"></i></button>
       </div>` : '';
     return `<div class="col-md-6 col-lg-4">
       <div class="card shadow-sm h-100 ars-card border-0">
@@ -565,17 +475,17 @@ async function loadGants() {
               <i class="bi bi-hand-index-thumb"></i>
             </div>
             <div class="flex-grow-1">
-              <h6 class="mb-0 fw-semibold">${g.titre}</h6>
-              <small class="text-muted">${[g.marque, g.modele].filter(Boolean).join(' · ')}</small>
+              <h6 class="mb-0 fw-semibold">${escHtml(g.titre)}</h6>
+              <small class="text-muted">${[g.marque, g.modele].filter(Boolean).map(escHtml).join(' · ')}</small>
             </div>
             ${g.sans_latex ? '<span class="badge bg-success">Sans latex</span>' : ''}
           </div>
           <div class="small text-muted mb-1">
-            ${g.matiere             ? `<span class="me-2"><i class="bi bi-layers me-1"></i>${g.matiere}</span>` : ''}
-            ${g.tailles_disponibles ? `<span class="me-2"><i class="bi bi-rulers me-1"></i>${g.tailles_disponibles}</span>` : ''}
+            ${g.matiere             ? `<span class="me-2"><i class="bi bi-layers me-1"></i>${escHtml(g.matiere)}</span>` : ''}
+            ${g.tailles_disponibles ? `<span class="me-2"><i class="bi bi-rulers me-1"></i>${escHtml(g.tailles_disponibles)}</span>` : ''}
           </div>
-          ${g.localisation    ? `<div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>${g.localisation}</div>` : ''}
-          ${g.remarques_usage ? `<p class="small text-muted mb-1">${g.remarques_usage.slice(0,100)}${g.remarques_usage.length>100?'...':''}</p>` : ''}
+          ${g.localisation    ? `<div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>${escHtml(g.localisation)}</div>` : ''}
+          ${g.remarques_usage ? `<p class="small text-muted mb-1">${escHtml(g.remarques_usage.slice(0,100))}${g.remarques_usage.length>100?'...':''}</p>` : ''}
           ${adminActions}
         </div>
       </div>
@@ -590,15 +500,17 @@ async function loadGants() {
 
 async function openGantModal(id = null) {
   state.editingId  = id;
-  state.formImages = [];
+  media.reset();
   document.getElementById('gFormError').classList.add('d-none');
   document.getElementById('gImagePreviews').innerHTML = '';
   ['gTitre','gMarque','gModele','gMatiere','gTailles','gCouleurs','gLocalisation','gDescription','gRemarques']
     .forEach(fid => document.getElementById(fid).value = '');
-  document.getElementById('gSansLatex').checked = false;
+  document.getElementById('gSansLatex').checked  = false;
+  document.getElementById('gPriority').checked   = false;
 
   if (id) {
     document.getElementById('modalGantLabel').textContent = 'Modifier le gant';
+    document.getElementById('gBtnSave').disabled = true;
     const { data: g } = await DB.from('gants').select('*').eq('id', id).maybeSingle();
     if (g) {
       document.getElementById('gTitre').value       = g.titre               || '';
@@ -608,12 +520,14 @@ async function openGantModal(id = null) {
       document.getElementById('gTailles').value     = g.tailles_disponibles || '';
       document.getElementById('gCouleurs').value    = g.couleurs_disponibles|| '';
       document.getElementById('gLocalisation').value= g.localisation        || '';
-      document.getElementById('gDescription').value = g.description         || '';
+      document.getElementById('gDescription').value = g.description ? g.description.replace(/<[^>]*>/g,'') : '';
       document.getElementById('gRemarques').value   = g.remarques_usage     || '';
       document.getElementById('gSansLatex').checked = g.sans_latex          || false;
-      state.formImages = await loadImagesForRecord(id, 'gants');
-      renderImagePreviews('gImagePreviews');
+      document.getElementById('gPriority').checked  = g.priority            || false;
+      await media.loadForRecord(id, 'gants');
+      media.renderPreviews('gImagePreviews');
     }
+    document.getElementById('gBtnSave').disabled = false;
   } else {
     document.getElementById('modalGantLabel').textContent = 'Nouveau gant';
   }
@@ -624,7 +538,7 @@ async function saveGant() {
   const titre = document.getElementById('gTitre').value.trim();
   if (!titre) {
     const el = document.getElementById('gFormError');
-    el.textContent = 'Le titre est obligatoire.';
+    el.textContent = 'Un titre est nécessaire pour continuer.';
     el.classList.remove('d-none');
     return;
   }
@@ -634,15 +548,16 @@ async function saveGant() {
 
   const payload = {
     titre,
-    marque:               document.getElementById('gMarque').value.trim()    || null,
-    modele:               document.getElementById('gModele').value.trim()    || null,
+    marque:               document.getElementById('gMarque').value.trim()   || null,
+    modele:               document.getElementById('gModele').value.trim()   || null,
     matiere:              document.getElementById('gMatiere').value.trim()   || null,
-    tailles_disponibles:  document.getElementById('gTailles').value.trim()   || null,
-    couleurs_disponibles: document.getElementById('gCouleurs').value.trim()  || null,
-    localisation:         document.getElementById('gLocalisation').value.trim()|| null,
-    description:          document.getElementById('gDescription').value.trim()|| null,
-    remarques_usage:      document.getElementById('gRemarques').value.trim() || null,
+    tailles_disponibles:  document.getElementById('gTailles').value.trim()  || null,
+    couleurs_disponibles: document.getElementById('gCouleurs').value.trim() || null,
+    localisation:         document.getElementById('gLocalisation').value.trim() || null,
+    description:          document.getElementById('gDescription').value.trim()  || null,
+    remarques_usage:      document.getElementById('gRemarques').value.trim()    || null,
     sans_latex:           document.getElementById('gSansLatex').checked,
+    priority:             document.getElementById('gPriority').checked,
     last_modified_by:     window.bdbUser.id,
   };
 
@@ -653,13 +568,13 @@ async function saveGant() {
         .eq('id', state.editingId).select().single();
       if (error) throw error;
       recordId = data.id;
-      await syncImages(recordId, 'gants');
+      await media.sync(recordId, 'gants');
     } else {
       const { data, error } = await DB.from('gants')
         .insert([{ ...payload, user_id: window.bdbUser.id }]).select().single();
       if (error) throw error;
       recordId = data.id;
-      await saveImages(recordId, 'gants');
+      await media.save(recordId, 'gants');
     }
     modalGant.hide();
     showToast(state.editingId ? 'Gant mis à jour.' : 'Gant créé.', 'success');
@@ -675,8 +590,8 @@ async function saveGant() {
 }
 
 async function deleteGant(id) {
-  if (!confirm('Supprimer ce gant ?')) return;
-  const { error } = await DB.from('gants').delete().eq('id', id);
+  if (!confirm("Retirer ce gant définitivement ?")) return;
+  const { error } = await DB.from('gants').delete().eq('id', id).select();
   if (error) { showToast(error.message, 'error'); return; }
   showToast('Gant supprimé.', 'success');
   loadGants();
@@ -690,12 +605,12 @@ async function loadCasaques() {
   grid.innerHTML = `
     <div class="col-12 placeholder-glow">
       <div class="row g-3">
-        ${Array(4).fill(`
+        ${Array(3).fill(`
           <div class="col-md-6 col-lg-4">
             <div class="card border-0 shadow-sm">
               <div class="card-body p-3">
                 <span class="placeholder col-6 rounded mb-2 d-block" style="height:20px"></span>
-                <span class="placeholder col-4 rounded" style="height:14px"></span>
+                <span class="placeholder col-3 rounded" style="height:14px"></span>
               </div>
             </div>
           </div>`).join('')}
@@ -704,8 +619,8 @@ async function loadCasaques() {
 
   let q = DB.from('casaques').select('*').order('titre').limit(200);
   const search    = document.getElementById('cSearch').value.trim();
-  const renforcee = document.getElementById('cRenforcee').value; /* filtre toolbar */
-  if (search)               q = q.or(`titre.ilike.%${search}%,specialite.ilike.%${search}%`);
+  const renforcee = document.getElementById('cRenforcee').value;
+  if (search)              q = q.or(`titre.ilike.%${search}%,description.ilike.%${search}%`);
   if (renforcee === 'true')  q = q.eq('renforcee', true);
   if (renforcee === 'false') q = q.eq('renforcee', false);
 
@@ -717,37 +632,36 @@ async function loadCasaques() {
   document.getElementById('countCasaques').textContent = items.length;
 
   if (!items.length) {
-    grid.innerHTML = `<div class="col-12"><div class="card border-0 shadow-sm"><div class="card-body text-center py-5 text-muted"><i class="bi bi-person-badge fs-1 d-block mb-3"></i>Aucune casaque trouvée</div></div></div>`;
+    grid.innerHTML = `<div class="col-12"><div class="card border-0 shadow-sm"><div class="card-body text-center py-5 text-muted"><i class="bi bi-shield-check fs-1 d-block mb-3"></i>Aucune casaque trouvée</div></div></div>`;
     return;
   }
 
   grid.innerHTML = items.map(c => {
     const adminActions = state.isAdmin ? `
       <div class="d-flex gap-1 mt-2">
-        <button class="btn btn-sm btn-outline-primary" type="button" data-edit-c="${c.id}"
-                aria-label="Modifier ${c.titre}"><i class="bi bi-pencil"></i></button>
-        <button class="btn btn-sm btn-outline-danger" type="button" data-del-c="${c.id}"
-                aria-label="Supprimer ${c.titre}"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-sm btn-outline-primary" type="button" data-edit-c="${escHtml(c.id)}"
+                aria-label="Modifier ${escHtml(c.titre)}"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-outline-danger" type="button" data-del-c="${escHtml(c.id)}"
+                aria-label="Supprimer ${escHtml(c.titre)}"><i class="bi bi-trash"></i></button>
       </div>` : '';
     return `<div class="col-md-6 col-lg-4">
       <div class="card shadow-sm h-100 ars-card border-0">
         <div class="card-body">
           <div class="d-flex align-items-center gap-2 mb-2">
-            <div class="rounded-3 bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center p-2">
-              <i class="bi bi-person-badge"></i>
+            <div class="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center p-2">
+              <i class="bi bi-shield-check"></i>
             </div>
             <div class="flex-grow-1">
-              <h6 class="mb-0 fw-semibold">${c.titre}</h6>
-              ${c.specialite ? `<small class="text-muted">${c.specialite}</small>` : ''}
+              <h6 class="mb-0 fw-semibold">${escHtml(c.titre)}</h6>
             </div>
-            ${c.renforcee ? '<span class="badge bg-primary">Renforcée</span>' : ''}
+            ${c.renforcee ? '<span class="badge bg-warning text-dark">Renforcée</span>' : ''}
           </div>
           <div class="small text-muted mb-1">
-            ${c.categorie         ? `<span class="me-2"><i class="bi bi-tag me-1"></i>${c.categorie}</span>` : ''}
-            ${c.taille_disponible ? `<span><i class="bi bi-rulers me-1"></i>${c.taille_disponible}</span>` : ''}
+            ${c.taille_disponible ? `<span class="me-2"><i class="bi bi-rulers me-1"></i>${escHtml(c.taille_disponible)}</span>` : ''}
+            ${c.specialite        ? `<span class="me-2"><i class="bi bi-bookmark me-1"></i>${escHtml(c.specialite)}</span>` : ''}
           </div>
-          ${c.localisation    ? `<div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>${c.localisation}</div>` : ''}
-          ${c.remarques_usage ? `<p class="small text-muted mb-1">${c.remarques_usage.slice(0,100)}${c.remarques_usage.length>100?'...':''}</p>` : ''}
+          ${c.localisation    ? `<div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>${escHtml(c.localisation)}</div>` : ''}
+          ${c.remarques_usage ? `<p class="small text-muted mb-1">${escHtml(c.remarques_usage.slice(0,100))}${c.remarques_usage.length>100?'...':''}</p>` : ''}
           ${adminActions}
         </div>
       </div>
@@ -762,28 +676,32 @@ async function loadCasaques() {
 
 async function openCasaqueModal(id = null) {
   state.editingId  = id;
-  state.formImages = [];
+  media.reset();
   document.getElementById('cFormError').classList.add('d-none');
   document.getElementById('cImagePreviews').innerHTML = '';
-  ['cTitre','cCategorie','cSpecialite','cTaille','cLocalisation','cDescription','cRemarques']
+  ['cTitre','cDescription','cCategorie','cTailleDisp','cSpecialite','cLocalisation','cRemarques']
     .forEach(fid => document.getElementById(fid).value = '');
-  document.getElementById('cFormRenforcee').checked = false; /* form modale */
+  document.getElementById('cRenforceeForm').checked = false;
+  document.getElementById('cPriority').checked      = false;
 
   if (id) {
     document.getElementById('modalCasaqueLabel').textContent = 'Modifier la casaque';
+    document.getElementById('cBtnSave').disabled = true;
     const { data: c } = await DB.from('casaques').select('*').eq('id', id).maybeSingle();
     if (c) {
       document.getElementById('cTitre').value       = c.titre             || '';
+      document.getElementById('cDescription').value = c.description ? c.description.replace(/<[^>]*>/g,'') : '';
       document.getElementById('cCategorie').value   = c.categorie         || '';
+      document.getElementById('cTailleDisp').value  = c.taille_disponible || '';
       document.getElementById('cSpecialite').value  = c.specialite        || '';
-      document.getElementById('cTaille').value      = c.taille_disponible || '';
       document.getElementById('cLocalisation').value= c.localisation      || '';
-      document.getElementById('cDescription').value = c.description       || '';
       document.getElementById('cRemarques').value   = c.remarques_usage   || '';
-      document.getElementById('cFormRenforcee').checked = c.renforcee     || false;
-      state.formImages = await loadImagesForRecord(id, 'casaques');
-      renderImagePreviews('cImagePreviews');
+      document.getElementById('cRenforceeForm').checked = c.renforcee     || false;
+      document.getElementById('cPriority').checked  = c.priority          || false;
+      await media.loadForRecord(id, 'casaques');
+      media.renderPreviews('cImagePreviews');
     }
+    document.getElementById('cBtnSave').disabled = false;
   } else {
     document.getElementById('modalCasaqueLabel').textContent = 'Nouvelle casaque';
   }
@@ -794,7 +712,7 @@ async function saveCasaque() {
   const titre = document.getElementById('cTitre').value.trim();
   if (!titre) {
     const el = document.getElementById('cFormError');
-    el.textContent = 'Le titre est obligatoire.';
+    el.textContent = 'Un titre est nécessaire pour continuer.';
     el.classList.remove('d-none');
     return;
   }
@@ -804,13 +722,14 @@ async function saveCasaque() {
 
   const payload = {
     titre,
-    categorie:         document.getElementById('cCategorie').value.trim()  || null,
-    specialite:        document.getElementById('cSpecialite').value.trim() || null,
-    taille_disponible: document.getElementById('cTaille').value.trim()     || null,
-    localisation:      document.getElementById('cLocalisation').value.trim()|| null,
-    description:       document.getElementById('cDescription').value.trim()|| null,
-    remarques_usage:   document.getElementById('cRemarques').value.trim()  || null,
-    renforcee:         document.getElementById('cFormRenforcee').checked,
+    description:       document.getElementById('cDescription').value.trim()  || null,
+    categorie:         document.getElementById('cCategorie').value.trim()    || null,
+    taille_disponible: document.getElementById('cTailleDisp').value.trim()   || null,
+    specialite:        document.getElementById('cSpecialite').value.trim()   || null,
+    localisation:      document.getElementById('cLocalisation').value.trim() || null,
+    remarques_usage:   document.getElementById('cRemarques').value.trim()    || null,
+    renforcee:         document.getElementById('cRenforceeForm').checked,
+    priority:          document.getElementById('cPriority').checked,
     last_modified_by:  window.bdbUser.id,
   };
 
@@ -821,13 +740,13 @@ async function saveCasaque() {
         .eq('id', state.editingId).select().single();
       if (error) throw error;
       recordId = data.id;
-      await syncImages(recordId, 'casaques');
+      await media.sync(recordId, 'casaques');
     } else {
       const { data, error } = await DB.from('casaques')
         .insert([{ ...payload, user_id: window.bdbUser.id }]).select().single();
       if (error) throw error;
       recordId = data.id;
-      await saveImages(recordId, 'casaques');
+      await media.save(recordId, 'casaques');
     }
     modalCasaque.hide();
     showToast(state.editingId ? 'Casaque mise à jour.' : 'Casaque créée.', 'success');
@@ -843,8 +762,8 @@ async function saveCasaque() {
 }
 
 async function deleteCasaque(id) {
-  if (!confirm('Supprimer cette casaque ?')) return;
-  const { error } = await DB.from('casaques').delete().eq('id', id);
+  if (!confirm("Retirer cette casaque définitivement ?")) return;
+  const { error } = await DB.from('casaques').delete().eq('id', id).select();
   if (error) { showToast(error.message, 'error'); return; }
   showToast('Casaque supprimée.', 'success');
   loadCasaques();
@@ -869,41 +788,6 @@ function switchTab(tab) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   CDS RESILIENCE HELPERS
-   ═══════════════════════════════════════════════════════════ */
-function cdsShowGridError(el, msg, retryFn) {
-  if (!el) return;
-  const retryBtn = retryFn
-    ? `<button class="btn btn-sm btn-outline-danger cds-error-retry" type="button" id="cdsRetryBtn">
-         <i class="bi bi-arrow-clockwise me-1"></i>Réessayer
-       </button>`
-    : '';
-  el.innerHTML = `<div class="cds-error-state col-12">
-    <i class="bi bi-wifi-off cds-error-icon"></i>
-    <div class="cds-error-title">Données non chargées</div>
-    <div class="cds-error-msg">${msg || 'Impossible de contacter le serveur.'}</div>
-    ${retryBtn}
-  </div>`;
-  if (retryFn) {
-    const btn = el.querySelector('#cdsRetryBtn');
-    if (btn) btn.addEventListener('click', retryFn);
-  }
-}
-
-function cdsShowOfflineBanner(msg) {
-  let banner = document.getElementById('cdsOfflineBanner');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.id        = 'cdsOfflineBanner';
-    banner.className = 'cds-offline-banner';
-    banner.setAttribute('role', 'alert');
-    document.body.prepend(banner);
-  }
-  banner.textContent = msg || 'Service indisponible — vérifiez votre connexion.';
-  banner.classList.add('show');
-}
-
-/* ═══════════════════════════════════════════════════════════
    INIT
    ═══════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -912,6 +796,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   await window.bdbShellReady;
 
   state.isAdmin = window.bdbUser?.isAdmin ?? false;
+
+  /* BdbMedia — instance unique module avec callback toast (JS-02) */
+  media = new window.BdbMedia({ notify: showToast });
 
   modalMateriel = new bootstrap.Modal(document.getElementById('modalMateriel'));
   modalGant     = new bootstrap.Modal(document.getElementById('modalGant'));
@@ -923,7 +810,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   initAdminSlots();
 
-  await Promise.all([loadContentTypeIds(), loadClassification()]);
+  await Promise.all([media.loadContentTypeIds(), loadClassification()]);
   await loadMateriels();
 
   /* ── Tabs ── */
@@ -990,15 +877,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('gBtnSave').addEventListener('click', saveGant);
   document.getElementById('cBtnSave').addEventListener('click', saveCasaque);
 
-  /* ── Upload setups ── */
-  setupUpload('mUploadArea', 'mFileInput', 'mBtnImages', 'mImagePreviews', 'materiel');
-  setupUpload('gUploadArea', 'gFileInput', 'gBtnImages', 'gImagePreviews', 'gants');
-  setupUpload('cUploadArea', 'cFileInput', 'cBtnImages', 'cImagePreviews', 'casaques');
+  /* ── Upload setups (BdbMedia) ── */
+  media.setupUpload('mUploadArea', 'mFileInput', 'mBtnImages', 'mImagePreviews', 'materiel', 'ars-upload-active');
+  media.setupUpload('gUploadArea', 'gFileInput', 'gBtnImages', 'gImagePreviews', 'gants', 'ars-upload-active');
+  media.setupUpload('cUploadArea', 'cFileInput', 'cBtnImages', 'cImagePreviews', 'casaques', 'ars-upload-active');
 
   /* ── Reset form images on modal close ── */
   ['modalMateriel','modalGant','modalCasaque'].forEach(id => {
     document.getElementById(id).addEventListener('hidden.bs.modal', () => {
-      state.formImages = [];
+      media.reset();
       hideZoneSuggestion();
     });
   });

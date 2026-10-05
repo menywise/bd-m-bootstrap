@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: MODULE | Auth: bdb-shell.js | Shell: oui -->
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organisateur — Administration</title>
+
+    <!-- Bootstrap 5.3.2 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <!-- Theme BDB -->
+    <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet">
+  <!-- Bootstrap Icons 1.11.1 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href="../../css/cds-overrides.css" rel="stylesheet">
+    <link href="organisateur-ui.css" rel="stylesheet">
+    <style>
+        .btn-xs { padding: .15rem .4rem; font-size: .75rem; }
+    </style>
+</head>
+<body>
+
+  <div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+    <!-- SHELL : premier enfant de <main> — INTERDIT-E1 -->
+    <div id="bdb-shell"
+         data-module-title="Organisateur — Administration"
+         data-module-icon="bi-diagram-3"
+       data-root-path="../../"
+       data-shell-kind="backoffice"
+       data-login-mode="modal">
+    </div>
+
+    <div id="wrapper_content" class="d-flex flex-fill">
+      <main id="middle" class="flex-fill">
+    <div class="container-fluid flex-grow-1 p-0">
+
+        <div class="d-flex align-items-center gap-2 px-3 py-2 border-bottom">
+          <a href="../admin/index.html" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Administration
+          </a>
+          <span class="text-muted">›</span>
+          <span class="small fw-medium">
+            <i class="bi bi-diagram-3 me-1 text-primary"></i>Organisateur
+          </span>
+        </div>
+
+        <!-- Onglets -->
+        <ul class="nav nav-tabs px-3 pt-2" id="org-admin-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-org-parcours"
+                        data-bs-toggle="tab" data-bs-target="#panel-org-parcours"
+                        type="button" role="tab">
+                    <i class="bi bi-map me-1"></i>Parcours
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-org-sessions"
+                        data-bs-toggle="tab" data-bs-target="#panel-org-sessions"
+                        type="button" role="tab">
+                    <i class="bi bi-people me-1"></i>Sessions brainstorm
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-org-stats"
+                        data-bs-toggle="tab" data-bs-target="#panel-org-stats"
+                        type="button" role="tab">
+                    <i class="bi bi-bar-chart me-1"></i>Stats
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content px-3 pt-3">
+
+            <!-- ═══ ONGLET 1 — PARCOURS ═══ -->
+            <div class="tab-pane fade show active" id="panel-org-parcours" role="tabpanel">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Parcours</h5>
+                    <button class="btn btn-primary btn-sm" id="btn-org-new-parcours">
+                        <i class="bi bi-plus-lg me-1"></i>Nouveau parcours
+                    </button>
+                </div>
+
+                <!-- États liste parcours -->
+                <div id="org-parcours-loading" class="text-center py-4">
+                    <div class="placeholder-glow">
+                        <span class="placeholder col-8 mb-2 d-block"></span>
+                        <span class="placeholder col-6 d-block"></span>
+                    </div>
+                </div>
+                <div id="org-parcours-empty" class="text-center py-5 d-none">
+                    <i class="bi bi-map text-muted fs-1 d-block mb-2 opacity-50"></i>
+                    <p class="text-muted">Aucun parcours créé</p>
+                </div>
+                <div id="org-parcours-error" class="alert alert-danger d-none">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span id="org-parcours-error-msg"></span>
+                    <button class="btn btn-sm btn-outline-danger ms-2" id="btn-org-parcours-retry">Réessayer</button>
+                </div>
+                <div class="table-responsive d-none" id="org-parcours-table">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Titre</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="org-parcours-tbody">
+                            <!-- Dynamique -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sous-panel étapes (d-none par défaut, affiché au clic) -->
+                <div id="org-etapes-panel" class="d-none mt-4 border-top pt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-0">
+                                <i class="bi bi-list-ul me-1 text-primary"></i>Phases du parcours :
+                                <span id="org-etapes-parcours-label" class="fw-normal text-muted"></span>
+                            </h6>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="btn-org-new-etape">
+                            <i class="bi bi-plus-lg me-1"></i>Nouvelle phase
+                        </button>
+                    </div>
+
+                    <!-- États liste étapes -->
+                    <div id="org-etapes-loading" class="text-center py-3">
+                        <div class="placeholder-glow">
+                            <span class="placeholder col-10 mb-1 d-block"></span>
+                            <span class="placeholder col-8 d-block"></span>
+                        </div>
+                    </div>
+                    <div id="org-etapes-empty" class="text-center py-4 d-none">
+                        <i class="bi bi-list-ul text-muted fs-2 d-block mb-2 opacity-50"></i>
+                        <p class="text-muted small">Aucune phase dans ce parcours</p>
+                    </div>
+                    <div id="org-etapes-error" class="alert alert-danger d-none">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <span id="org-etapes-error-msg"></span>
+                    </div>
+                    <div class="table-responsive d-none" id="org-etapes-table">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="bo-th-xs">Ordre</th>
+                                    <th>Titre</th>
+                                    <th>Timing</th>
+                                    <th class="text-center bo-th-xs">Visible</th>
+                                    <th class="bo-th-md">Type</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="org-etapes-tbody">
+                                <!-- Dynamique -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div><!-- /#org-etapes-panel -->
+
+            </div><!-- /#panel-org-parcours -->
+
+            <!-- ═══ ONGLET 2 — SESSIONS BRAINSTORM ═══ -->
+            <div class="tab-pane fade" id="panel-org-sessions" role="tabpanel">
+
+                <h5 class="mb-3">Sessions brainstorm</h5>
+
+                <!-- États -->
+                <div id="org-sessions-loading" class="text-center py-4">
+                    <div class="placeholder-glow">
+                        <span class="placeholder col-8 mb-2 d-block"></span>
+                        <span class="placeholder col-6 d-block"></span>
+                    </div>
+                </div>
+                <div id="org-sessions-empty" class="text-center py-5 d-none">
+                    <i class="bi bi-people text-muted fs-1 d-block mb-2 opacity-50"></i>
+                    <p class="text-muted">Aucune session brainstorm</p>
+                </div>
+                <div id="org-sessions-error" class="alert alert-danger d-none">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span id="org-sessions-error-msg"></span>
+                </div>
+                <!-- Cible renderSessions ET cible showAdminState('org-sessions','table') -->
+                <div id="org-sessions-table" class="d-none">
+                    <!-- Dynamique : cartes de sessions -->
+                </div>
+
+            </div><!-- /#panel-org-sessions -->
+
+            <!-- ═══ ONGLET 3 — STATS ═══ -->
+            <div class="tab-pane fade" id="panel-org-stats" role="tabpanel">
+
+                <h5 class="mb-3">Statistiques</h5>
+
+                <!-- États -->
+                <div id="org-stats-loading" class="text-center py-4">
+                    <div class="placeholder-glow">
+                        <span class="placeholder col-3 me-2"></span>
+                        <span class="placeholder col-3 me-2"></span>
+                        <span class="placeholder col-3"></span>
+                    </div>
+                </div>
+                <div id="org-stats-error" class="alert alert-danger d-none">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <span id="org-stats-error-msg"></span>
+                </div>
+                <div id="org-stats-content" class="d-none">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div class="card text-center border-0 shadow-sm">
+                                <div class="card-body py-3">
+                                    <div class="fs-2 fw-bold text-primary" id="kpi-org-parcours">—</div>
+                                    <div class="small text-muted">Parcours</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div class="card text-center border-0 shadow-sm">
+                                <div class="card-body py-3">
+                                    <div class="fs-2 fw-bold text-primary" id="kpi-org-etapes">—</div>
+                                    <div class="small text-muted">Phases totales</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div class="card text-center border-0 shadow-sm">
+                                <div class="card-body py-3">
+                                    <div class="fs-2 fw-bold text-warning" id="kpi-org-etapes-delta">—</div>
+                                    <div class="small text-muted">Phases membres</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div class="card text-center border-0 shadow-sm">
+                                <div class="card-body py-3">
+                                    <div class="fs-2 fw-bold text-secondary" id="kpi-org-sessions">—</div>
+                                    <div class="small text-muted">Sessions brainstorm</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div class="card text-center border-0 shadow-sm">
+                                <div class="card-body py-3">
+                                    <div class="fs-2 fw-bold text-success" id="kpi-org-sessions-open">—</div>
+                                    <div class="small text-muted">Sessions ouvertes</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- /#org-stats-content -->
+
+            </div><!-- /#panel-org-stats -->
+
+        </div><!-- /.tab-content -->
+
+    </div><!-- /.container-fluid -->
+
+      </main>
+    </div><!-- /wrapper_content -->
+
+    <!-- ═══ MODALE : Créer / Modifier Parcours ═══ -->
+    <div class="modal fade" id="modal-org-parcours" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-org-parcours-title">Nouveau parcours</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="org-parcours-id">
+                    <div class="mb-3">
+                        <label class="form-label">Titre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="org-parcours-titre"
+                               maxlength="200" placeholder="Ex : Arthroplastie Genou J0">
+                        <div class="invalid-feedback">Le titre est requis.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="org-parcours-description" rows="3"
+                                  placeholder="Description du parcours..."></textarea>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="org-parcours-type">
+                                <option value="base">Base</option>
+                                <option value="variante">Variante</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Statut</label>
+                            <select class="form-select" id="org-parcours-statut">
+                                <option value="draft">Brouillon</option>
+                                <option value="published">Publié</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="btn-org-save-parcours">
+                        <i class="bi bi-check-lg me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODALE : Créer / Modifier Étape ═══ -->
+    <div class="modal fade" id="modal-org-etape" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-org-etape-title">Nouvelle phase partagée</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="org-etape-id">
+                    <div class="mb-3">
+                        <label class="form-label">Titre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="org-etape-titre"
+                               maxlength="200" placeholder="Ex : Vérification du matériel stérile">
+                        <div class="invalid-feedback">Le titre est requis.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" id="org-etape-description"
+                               maxlength="400" placeholder="Détail optionnel...">
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Timing</label>
+                            <input type="text" class="form-control" id="org-etape-timing"
+                                   maxlength="20" placeholder="Ex : H-30min, J-1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ordre</label>
+                            <input type="number" class="form-control" id="org-etape-ordre"
+                                   min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="org-etape-visible" checked>
+                            <label class="form-check-label" for="org-etape-visible">
+                                Visible par les membres
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="btn-org-save-etape">
+                        <i class="bi bi-check-lg me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+        <small>&copy; 2026 <span class="app-nom"></span> — Consensus Design System —
+        <span class="badge bg-light text-dark border">CDS Compliant</span></small>
+    </footer>
+
+  </div><!-- /wrapper -->
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="../../js/supabase-client.js"></script>
+    <script src="../../js/bdb-ui.js"></script>
+    <script src="../../js/bdb-invite-guard.js"></script>
+    <script src="../../js/bdb-shell.js"></script>
+    <script src="organisateur-admin.js"></script>
+</body>
+</html>

@@ -1,221 +1,311 @@
-﻿<!DOCTYPE html>
-<html lang="fr" data-bs-theme="light">
+<!DOCTYPE html>
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui | Theme: DBM -->
+<html lang="fr">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Anatomie | BDB</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>Anatomie chirurgicale IBODE — Fiches par région — DBM</title>
+
+  <!-- BLOC E CSS : Bootstrap + DBM theme (pas theme-base, pas cds-overrides) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
-  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
   <link href="anatomie-ui.css" rel="stylesheet"/>
+
+  <!-- CONV-MODAL-08 : cascade variables couleur module sur :root pour modales -->
+  <style>
+    :root {
+      --module-color: #c4b5fd;
+      --module-color-strong: #a78bfa;
+      --module-color-text: #4c1d95;
+      --module-color-soft: rgba(196, 181, 253, 0.15);
+    }
+  </style>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet"/>
+  <meta name="description" content="Fiches anatomiques par région pour IBODE et soignants du bloc opératoire. Repères et zones d intervention chirurgicale."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://lebloc.fr/dbm/modules/anatomie/"/>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Fiches anatomiques par région"/>
+  <meta property="og:description" content="Repères anatomiques et zones d intervention chirurgicale pour soignants du bloc opératoire."/>
+  <meta property="og:url" content="https://lebloc.fr/dbm/modules/anatomie/"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <meta property="og:site_name" content="Des Blocs & Moi"/>
+  <!-- Twitter card -->
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="Fiches anatomiques par région"/>
+  <meta name="twitter:description" content="Repères anatomiques et zones d intervention chirurgicale pour soignants du bloc opératoire."/>
 </head>
-<body class="d-flex min-vh-100">
+
+<body class="sidebar-closed">
+
+  <div id="wrapper">
+
+    <!-- INTERDIT-E1 : #bdb-shell premier enfant de #wrapper -->
+    <div id="bdb-shell"
+         data-module-title="Anatomie"
+         data-module-icon="bi-activity"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-theme="dbm">
+    </div>
+
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="savoir" style="--module-color:#c4b5fd;--module-color-strong:#a78bfa;--module-color-text:#4c1d95;--module-color-soft:rgba(196,181,253,0.15)">
+
+            <!-- Breadcrumb -->
 
 
-<main class="d-flex flex-column flex-grow-1 main-content">
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d'Ariane">
+              <a href="../../index.html">Accueil</a>
+              <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+              <span>Anatomie</span>
+            </nav>
 
-  <!-- SHELL : premier enfant de <main> — INTERDIT-E1 -->
-  <div id="bdb-shell"
-       data-module-title="Anatomie"
-       data-module-icon="bi-activity">
-  </div>
 
-  <div class="container-fluid p-4 bg-light flex-grow-1">
+            </section>
 
-    <!-- Toolbar : filtres + action admin -->
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body p-3">
-        <div class="row g-2 align-items-center">
-          <div class="col-12 col-md">
-            <div class="input-group">
-              <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-              <input type="text" class="form-control border-start-0" id="aSearch" placeholder="Titre, description..."/>
+                        <section class="app-zone" data-zone="Page Title">
+
+
+                          <!-- Bandeau colore module —  couleur = group_color -->
+            <div class="p-4 rounded shadow-sm mb-4"
+                 style="background:linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%);color:#4c1d95">
+              <h1 class="mb-2 fw-bold"><i class="bi bi-activity me-2"></i>Anatomie</h1>
+              <p style="opacity:0.75" class="mb-0">Fiches anatomiques par région</p>
             </div>
+
+
+                        </section>
+            <section class="app-zone" data-zone="Filters">
+
+              <!-- Toolbar (filtres + slot admin) -->
+            <div style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1rem">
+              <div class="row g-2 align-items-center">
+                <div class="col-12 col-md">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="search" class="form-control border-start-0" id="aSearch" placeholder="Titre, description..."/>
+                  </div>
+                </div>
+                <div class="col-auto" style="width:180px"><select class="form-select form-select-sm" id="aRegion">
+                    <option value="">Toutes régions</option>
+                    <option>Tête et cou</option>
+                    <option>Thorax</option>
+                    <option>Abdomen</option>
+                    <option>Bassin</option>
+                    <option>Membre supérieur</option>
+                    <option>Membre inférieur</option>
+                    <option>Rachis</option>
+                    <option>Autre</option>
+                  </select>
+                </div>
+                <div class="col-auto" style="width:180px"><select class="form-select form-select-sm" id="aCategory"><option value="">Toutes catégories</option></select>
+                </div>
+                <!-- Bouton admin — masque par defaut, affiche par initFromShell() -->
+                <div class="col-12 col-md-auto d-none" id="aToolbarAdminSlot">
+                  <button class="btn btn-module btn-sm w-100" id="btnNew">
+                    <i class="bi bi-plus-lg me-1"></i>Nouvelle fiche
+                  </button>
+                </div>
+                <!-- Lien admin — REGLE-ISO-01 -->
+</div>
+            </div>
+
+            </section>
+            <section class="app-zone" data-zone="Content">
+
+              <!-- Content (grille resultats) -->
+              <div class="app-card" data-accent="module">
+                <div class="app-card-body">
+                  <div id="anatomieLoading" class="d-none">
+                    <div class="placeholder-glow"><div class="placeholder col-6 rounded mb-2"></div></div>
+                  </div>
+                  <div id="anatomieEmpty" class="app-empty d-none">
+                    <i class="bi bi-search"></i>
+                    <p style="font-size:.95rem;font-weight:500">Aucune fiche anatomie trouvée</p>
+                  </div>
+                  <div id="anatomieError" class="app-empty d-none">
+                    <i class="bi bi-wifi-off"></i>
+                    <p style="font-size:.95rem;font-weight:500">Erreur de chargement</p>
+                  </div>
+                  <div id="anatomieGrid" class="row g-3"></div>
+                </div>
+              </div>
+
+            </section>
+
+          </div><!-- /app-content -->
+
+          <footer class="app-footer">
+            <small>&copy; 2026 <span class="app-nom"></span></small>
+          </footer>
+
+        </main>
+      </div><!-- /app-layout -->
+    </div><!-- /wrapper_content -->
+
+  </div><!-- /wrapper -->
+
+  <!-- ═══════ MODALES (hors #wrapper) ═══════ -->
+
+  <!-- ===================== MODAL FORM ===================== -->
+  <div class="modal fade" id="modalAnat" tabindex="-1" aria-labelledby="modalAnatLabel">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalAnatLabel"><i class="bi bi-diagram-3 me-2"></i>Nouvelle fiche anatomie</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div id="aFormError" class="alert alert-danger d-none"></div>
+          <div class="row g-3">
+
+            <!-- Titre -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">Titre <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="aTitre" placeholder="Ex: Anatomie du genou"/>
+            </div>
+
+            <!-- Description courte -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">Description courte</label>
+              <input type="text" class="form-control" id="aDesc" placeholder="Résumé en une ligne"/>
+            </div>
+
+            <!-- Images -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">Images / Schémas <span class="text-muted fw-normal">(max 3)</span></label>
+              <div id="aImageUploadZone" class="anat-upload-zone">
+                <i class="bi bi-image fs-2 text-muted d-block mb-2"></i>
+                <p class="text-muted mb-1">Glissez des images ou <strong>cliquez pour parcourir</strong></p>
+                <small class="text-muted">JPG, PNG, WebP — max 5 Mo</small>
+                <input type="file" id="aFileInput" accept="image/*" multiple class="d-none"/>
+              </div>
+              <div id="aImagePreviews" class="d-flex flex-wrap gap-2 mt-2"></div>
+            </div>
+
+            <!-- Region + Categorie -->
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold">Région anatomique</label>
+              <select class="form-select" id="aFormRegion">
+                <option value="">— Choisir —</option>
+                <option>Tête et cou</option>
+                <option>Thorax</option>
+                <option>Abdomen</option>
+                <option>Bassin</option>
+                <option>Membre supérieur</option>
+                <option>Membre inférieur</option>
+                <option>Rachis</option>
+                <option>Autre</option>
+              </select>
+            </div>
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold">Catégorie</label>
+              <select class="form-select" id="aFormCategory"><option value="">— Choisir —</option></select>
+            </div>
+
+            <!-- Contenu Quill -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">Contenu détaillé</label>
+              <div id="aQuill" class="anat-quill-editor"></div>
+            </div>
+
+            <!-- Tags -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">Tags <span class="text-muted fw-normal">(anatomie, acronyme, libre — max 5)</span></label>
+              <input type="search" class="form-control mb-2" id="aTagSearch" placeholder="Rechercher un tag..."/>
+              <div id="aTagResults" class="d-flex flex-wrap gap-1 mb-2"></div>
+              <div id="aSelectedTags" class="d-flex flex-wrap gap-1"><span class="text-muted small">Aucun tag</span></div>
+            </div>
+
           </div>
-          <div class="col-6 col-md-auto">
-            <select class="form-select" id="aRegion">
-              <option value="">Toutes régions</option>
-              <option>Tête et cou</option>
-              <option>Thorax</option>
-              <option>Abdomen</option>
-              <option>Bassin</option>
-              <option>Membre supérieur</option>
-              <option>Membre inférieur</option>
-              <option>Rachis</option>
-              <option>Autre</option>
-            </select>
-          </div>
-          <div class="col-6 col-md-auto">
-            <select class="form-select" id="aCategory"><option value="">Toutes catégories</option></select>
-          </div>
-          <!-- Bouton admin — masqué par défaut, affiché par initFromShell() -->
-          <div class="col-12 col-md-auto d-none" id="aToolbarAdminSlot">
-            <button class="btn btn-danger w-100" id="btnNew">
-              <i class="bi bi-plus-lg me-1"></i>Nouvelle fiche
-            </button>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module" id="aBtnSave"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
         </div>
       </div>
     </div>
-
-    <!-- Grille -->
-    <div id="anatomieGrid" class="row g-3"></div>
-
   </div>
 
-  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
-    <small>&copy; 2026 Bible de Bloc — CDS Compliant</small>
-  </footer>
-</main>
-
-<!-- ===================== MODAL FORM ===================== -->
-<div class="modal fade" id="modalAnat" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalAnatLabel">Nouvelle fiche anatomie</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <!-- ===================== MODAL VIEW ===================== -->
+  <div class="modal fade" id="modalAnatView" tabindex="-1" aria-labelledby="modalViewLabel">
+    <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalViewLabel"><i class="bi bi-diagram-3 me-2"></i>Fiche anatomie</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body" id="modalViewBody">
+          <div class="text-center py-5"><div class="spinner-border text-secondary"></div></div>
+        </div>
+        <div class="modal-footer" id="modalViewFooter"></div>
       </div>
-      <div class="modal-body">
-        <div id="aFormError" class="alert alert-danger d-none"></div>
-        <div class="row g-3">
+    </div>
+  </div>
 
-          <!-- Titre -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Titre <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="aTitre" placeholder="Ex: Anatomie du genou"/>
-          </div>
-
-          <!-- Description courte -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Description courte</label>
-            <input type="text" class="form-control" id="aDesc" placeholder="Résumé en une ligne"/>
-          </div>
-
-          <!-- Images -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Images / Schémas <span class="text-muted fw-normal">(max 3)</span></label>
-            <div id="aImageUploadZone" class="anat-upload-zone">
-              <i class="bi bi-image fs-2 text-muted d-block mb-2"></i>
-              <p class="text-muted mb-1">Glissez des images ou <strong>cliquez pour parcourir</strong></p>
-              <small class="text-muted">JPG, PNG, WebP — max 5 Mo</small>
-              <input type="file" id="aFileInput" accept="image/*" multiple class="d-none"/>
-            </div>
-            <div id="aImagePreviews" class="d-flex flex-wrap gap-2 mt-2"></div>
-          </div>
-
-          <!-- Région + Catégorie -->
-          <div class="col-12 col-sm-6">
-            <label class="form-label fw-semibold">Région anatomique</label>
-            <select class="form-select" id="aFormRegion">
-              <option value="">— Choisir —</option>
-              <option>Tête et cou</option>
-              <option>Thorax</option>
-              <option>Abdomen</option>
-              <option>Bassin</option>
-              <option>Membre supérieur</option>
-              <option>Membre inférieur</option>
-              <option>Rachis</option>
-              <option>Autre</option>
-            </select>
-          </div>
-          <div class="col-12 col-sm-6">
-            <label class="form-label fw-semibold">Catégorie</label>
-            <select class="form-select" id="aFormCategory"><option value="">— Choisir —</option></select>
-          </div>
-
-          <!-- Contenu Quill -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Contenu détaillé</label>
-            <div id="aQuill" class="anat-quill-editor"></div>
-          </div>
-
-          <!-- Tags -->
-          <div class="col-12">
-            <label class="form-label fw-semibold">Tags <span class="text-muted fw-normal">(anatomie, acronyme, libre — max 5)</span></label>
-            <input type="text" class="form-control mb-2" id="aTagSearch" placeholder="Rechercher un tag..."/>
-            <div id="aTagResults" class="d-flex flex-wrap gap-1 mb-2"></div>
-            <div id="aSelectedTags" class="d-flex flex-wrap gap-1"><span class="text-muted small">Aucun tag</span></div>
-          </div>
-
+  <!-- Modale confirmation suppression -->
+  <div class="modal fade" id="modalConfirmAnat" tabindex="-1" aria-labelledby="modalConfirmAnatLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down">
+      <div class="modal-content">
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalConfirmAnatLabel"><i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body small text-muted" id="confirmAnatMsg">Cette action est irréversible.</div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-danger btn-sm" id="btnConfirmAnat">Supprimer</button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-danger" id="aBtnSave"><i class="bi bi-check-lg me-1"></i>Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="modal fade" id="modalLightbox" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-md-down">
+      <div class="modal-content bg-dark border-0">
+        <div class="modal-header border-0">
+          <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body text-center p-2">
+          <img id="lightboxImg" src="" alt="" class="img-fluid rounded anat-lightbox-img"/>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ===================== MODAL VIEW ===================== -->
-<div class="modal fade" id="modalAnatView" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalViewLabel"><i class="bi bi-diagram-3 me-2 text-danger"></i>Fiche anatomie</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <!-- TOASTS -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <i class="bi me-2" id="toastIcon"></i>
+        <strong class="me-auto" id="toastTitle">Info</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
       </div>
-      <div class="modal-body" id="modalViewBody">
-        <div class="text-center py-5"><div class="spinner-border text-danger"></div></div>
-      </div>
-      <div class="modal-footer" id="modalViewFooter"></div>
+      <div class="toast-body" id="toastMsg">—</div>
     </div>
   </div>
-</div>
 
-<!-- Modale confirmation suppression -->
-<div class="modal fade" id="modalConfirmAnat" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-sm">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Supprimer ?</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body small text-muted" id="confirmAnatMsg">Cette action est irréversible.</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
-        <button type="button" class="btn btn-danger btn-sm" id="btnConfirmAnat">Supprimer</button>
-      </div>
-    </div>
-  </div>
-</div>
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
+  <script src="../../js/bdb-shell.js"></script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script src="anatomie-app.js"></script>
 
-<!-- Lightbox -->
-<div class="modal fade" id="modalLightbox" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content bg-dark border-0">
-      <div class="modal-header border-0">
-        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body text-center p-2">
-        <img id="lightboxImg" src="" alt="" class="img-fluid rounded cds-lightbox-img-80"/>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- TOASTS -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="toastInfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header">
-      <i class="bi me-2" id="toastIcon"></i>
-      <strong class="me-auto" id="toastTitle">Info</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-    </div>
-    <div class="toast-body" id="toastMsg">—</div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
-<script src="../../js/supabase-client.js"></script>
-<script src="../../js/bdb-shell.js"></script>
-
-<script src="anatomie-app.js"></script>
 </body>
 </html>

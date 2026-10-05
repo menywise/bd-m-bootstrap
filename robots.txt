@@ -1,0 +1,8 @@
+﻿User-agent: *
+Disallow: /bdb/00_GOUVERNANCE/
+Disallow: /bdb/migrations/
+Disallow: /bdb/scripts/
+Disallow: /bdb/atelier/
+Disallow: /bdb/conseil/
+Allow: /bdb/site/
+Allow: /bdb/

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!-- BDB | Surface: L3-CREATEUR | Auth: isCreator | Shell: non -->
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Doctrine · Admin</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="../../../css/cds-overrides.css" rel="stylesheet"/>
+<link href="doctrine-ui.css" rel="stylesheet"/>
+</head>
+
+<body>
+
+<div id="wrapper" class="d-flex align-items-stretch flex-column min-vh-100">
+
+  <div id="bdb-shell"
+       data-module-title="Doctrine · Admin"
+       data-module-icon="bi-gear"
+       data-root-path="../../../"
+       data-login-mode="modal"
+       data-shell-kind="backoffice">
+  </div>
+
+  <div id="wrapper_content" class="d-flex flex-fill">
+    <main id="middle" class="flex-fill">
+      <div class="container-fluid py-3 py-md-4">
+
+        <!-- GUARD -->
+        <div id="guardDenied" class="d-none">
+          <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+              <i class="bi bi-shield-lock text-danger fs-1"></i>
+              <h5 class="mt-3">Accès administrateur requis</h5>
+              <p class="text-muted mb-0">Cette page est réservée au créateur (isCreator).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENU -->
+        <div id="adminContent" class="d-none">
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h5 mb-0">
+              <i class="bi bi-gear text-primary me-1"></i>
+              Doctrine · Administration
+            </h1>
+            <a href="index.html" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-arrow-left"></i> Retour à la doctrine
+            </a>
+          </div>
+
+          <!-- KPIs -->
+          <div class="row g-3 mb-3">
+            <div class="col-6 col-md-3">
+              <div class="card shadow-sm">
+                <div class="card-body text-center">
+                  <div class="text-muted small">Nœuds en base</div>
+                  <div class="h3 mb-0" id="kpiNodes">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card shadow-sm">
+                <div class="card-body text-center">
+                  <div class="text-muted small">Principes nommés</div>
+                  <div class="h3 mb-0" id="kpiPrincipes">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card shadow-sm">
+                <div class="card-body text-center">
+                  <div class="text-muted small">Bibliographie</div>
+                  <div class="h3 mb-0" id="kpiBiblio">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="card shadow-sm">
+                <div class="card-body text-center">
+                  <div class="text-muted small">À vérifier</div>
+                  <div class="h3 mb-0 text-warning" id="kpiAVerifier">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nœuds à vérifier -->
+          <div class="card shadow-sm mb-3">
+            <div class="card-body">
+              <h6 class="card-title mb-3">
+                <i class="bi bi-exclamation-triangle text-warning"></i>
+                Nœuds en statut « à vérifier » ou « à définir »
+              </h6>
+              <div id="listAVerifier" class="small">
+                <div class="text-muted">Chargement…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h6 class="card-title mb-3">
+                <i class="bi bi-tools"></i>
+                Outils administrateur
+              </h6>
+              <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="btnRefreshStats">
+                  <i class="bi bi-arrow-clockwise"></i> Rafraîchir les statistiques
+                </button>
+                <a href="index.html" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-pencil-square"></i> Éditer la doctrine
+                </a>
+              </div>
+              <div class="form-text mt-3">
+                Le CRUD détaillé nœud-par-nœud reste volontairement dans la vue arbre (<code>index.html</code>).
+                Cette page n'expose que les indicateurs et les actions globales.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
+    <small>&copy; 2026 <span class="app-nom"></span> —
+    <span class="badge bg-light text-dark border">CDS · Admin</span></small>
+  </footer>
+
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="../../../js/supabase-client.js"></script>
+<script src="../../../js/bdb-ui.js"></script>
+<script src="../../../js/bdb-invite-guard.js"></script>
+<script src="../../../js/bdb-shell.js"></script>
+<script src="admin-app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<!-- DBM | Surface: SITE-PUBLIC | Auth: aucune | Shell: non -->
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../js/bdb-pwa.js"></script>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Des IBODE de Limoges construisent leur propre outil de bloc. Aide-nous à ne rien oublier.">
+  <title>Des Blocs & Moi — parce qu'on n'ose pas toujours demander</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@63905396c73b061f336f8f5178d738627bca601c/theme-base.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="../css/cds-overrides.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy:  #0d2137;
+      --mid:   #1a3a5c;
+      --blue:  #2196f3;
+      --bluel: #90caf9;
+      --text:  #1a2e42;
+      --muted: #4a6a85;
+      --bord:  #cddae6;
+      --bg:    #f0f5fa;
+      --ok:    #2e7d32;
+      --err:   #c62828;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); background: var(--bg); margin: 0; }
+    .wrap { max-width: 680px; margin: 0 auto; padding: 0 1.1rem; }
+
+    /* ── TOAST ─────────────────────────────────────────── */
+    #toast-stack {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem;
+      pointer-events: none; width: min(92vw, 420px);
+    }
+    .toast-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.85rem 1.1rem; border-radius: 10px;
+      font-size: 0.9rem; font-weight: 500;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+      pointer-events: auto;
+      animation: toast-in 0.3s ease;
+    }
+    .toast-item.t-err     { background: #fff; border-left: 4px solid var(--err); color: var(--err); }
+    .toast-item.t-ok      { background: #fff; border-left: 4px solid var(--ok);  color: var(--ok);  }
+    .toast-item.t-info    { background: #fff; border-left: 4px solid var(--blue); color: var(--blue); }
+    .toast-item i         { font-size: 1.15rem; flex-shrink: 0; }
+    @keyframes toast-in   { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes toast-out  { from { opacity:1; } to { opacity:0; transform:translateY(10px); } }
+
+    /* ── HERO ──────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(140deg, var(--navy) 0%, var(--mid) 55%, #0e4d6e 100%);
+      color: #fff; padding: 3rem 0 4.5rem; position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content:''; position:absolute; top:-55%; right:-18%;
+      width:440px; height:440px; border-radius:50%;
+      background:rgba(33,150,243,0.07); pointer-events:none;
+    }
+    .hero-badge {
+      display:inline-block; background:rgba(33,150,243,0.18);
+      border:1px solid rgba(33,150,243,0.38); color:var(--bluel);
+      font-size:0.72rem; font-weight:700; letter-spacing:0.07em;
+      padding:0.28rem 0.75rem; border-radius:20px;
+      text-transform:uppercase; margin-bottom:1rem;
+    }
+    .hero-name {
+      font-size:clamp(1.9rem,6vw,2.8rem); font-weight:900;
+      line-height:1.05; margin-bottom:0.5rem; letter-spacing:-0.01em;
+    }
+
+    /* ── SLOGANS — tous absolute, wrap hauteur fixe ─────── */
+    .slogan-wrap { position:relative; height:3.8rem; margin-bottom:1.4rem; }
+    .slogan {
+      position:absolute; top:0; left:0; width:100%;
+      font-size:clamp(0.88rem,2.6vw,1rem); color:rgba(255,255,255,0.78);
+      line-height:1.6; opacity:0;
+      transition:opacity 0.7s ease;
+    }
+    .slogan.active { opacity:1; }
+    .slogan em { font-style:italic; color:var(--bluel); }
+
+    /* ── CTAs — tous absolute, wrap hauteur fixe ─────────── */
+    .cta-zone { position:relative; height:3.2rem; margin-bottom:0.5rem; }
+    .hero-btn {
+      position:absolute; top:0; left:0;
+      display:inline-flex; align-items:center; gap:0.5rem;
+      background:var(--blue); color:#fff; border:none;
+      padding:0.82rem 1.7rem; border-radius:8px;
+      font-weight:700; font-size:0.94rem; text-decoration:none;
+      opacity:0; transition:opacity 0.7s ease, background 0.2s, transform 0.15s;
+      white-space:nowrap; cursor:pointer;
+    }
+    .hero-btn.active { opacity:1; }
+    .hero-btn:hover  { background:#1565c0; transform:translateY(-2px); color:#fff; }
+
+    /* ── STORY ─────────────────────────────────────────── */
+    .story { background:#fff; border-bottom:1px solid #dce8f3; }
+    .blk {
+      border-left:3px solid var(--blue); padding:0.65rem 1rem;
+      margin-bottom:1rem; background:#f7fafd; border-radius:0 6px 6px 0;
+    }
+    .blk p  { margin:0; line-height:1.68; font-size:0.96rem; }
+    .blk-w  { border-left-color:#f39c21 !important; background:#fffbf0 !important; }
+    .blk-k  { border-left-color:var(--blue) !important; background:#f0f7ff !important; }
+
+    /* ── ISABELLE ─────────────────────────────────────── */
+    .isabelle { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
+    .isabelle img {
+      width:64px; height:64px; border-radius:50%;
+      object-fit:cover; border:3px solid var(--bluel); flex-shrink:0;
+    }
+    .i-name  { font-weight:700; font-size:0.9rem; color:var(--navy); }
+    .i-title { font-size:0.8rem; color:var(--muted); }
+
+    /* ── MODULES ──────────────────────────────────────── */
+    .modules { background:var(--bg); }
+    .mcard {
+      background:#fff; border:1px solid var(--bord); border-radius:12px;
+      padding:1.1rem; height:100%;
+      transition:box-shadow 0.2s, transform 0.15s;
+    }
+    .mcard:hover { box-shadow:0 4px 18px rgba(0,0,0,0.07); transform:translateY(-2px); }
+    .micon {
+      width:42px; height:42px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.2rem; margin-bottom:0.65rem;
+    }
+    .mname { font-weight:700; font-size:0.88rem; color:var(--navy); }
+    .mdesc { font-size:0.78rem; color:var(--muted); margin-top:0.15rem; }
+
+    /* ── SURVEY ───────────────────────────────────────── */
+    .survey { background:#fff; }
+    .s-intro {
+      background:linear-gradient(135deg,#e3f2fd,#f0f5fa);
+      border:1px solid #b3d4f0; border-radius:12px;
+      padding:1.25rem 1.3rem; margin-bottom:2rem;
+    }
+    .qlabel { font-weight:700; font-size:0.94rem; color:var(--navy); display:block; margin-bottom:0.25rem; }
+    .qhint  { font-size:0.8rem; color:var(--muted); display:block; margin-bottom:0.45rem; line-height:1.45; }
+
+    textarea.form-control {
+      resize:vertical; min-height:72px; border-color:var(--bord);
+      border-radius:8px; font-size:0.93rem; line-height:1.55;
+      transition:border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea.form-control:focus {
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(33,150,243,0.13);
+    }
+    textarea.form-control.is-invalid { border-color:var(--err); }
+
+    .pbtn {
+      display:flex; align-items:center; gap:0.5rem;
+      padding:0.55rem 0.9rem; border:1.5px solid var(--bord);
+      border-radius:8px; cursor:pointer; font-size:0.88rem;
+      background:#fff; transition:border-color 0.15s, background 0.15s; user-select:none;
+    }
+    .pbtn input { display:none; }
+    .pbtn:has(input:checked) { border-color:var(--blue); background:#e8f4fd; color:#1565c0; font-weight:600; }
+
+    /* ── SUBMIT BUTTON ────────────────────────────────── */
+    .sbtn {
+      width:100%; background:var(--navy); color:#fff; border:none;
+      padding:0.95rem; border-radius:8px; font-weight:700; font-size:1rem;
+      cursor:pointer; transition:background 0.2s, transform 0.15s;
+      display:flex; align-items:center; justify-content:center; gap:0.5rem;
+    }
+    .sbtn:hover:not(:disabled) { background:var(--mid); transform:translateY(-1px); }
+    .sbtn:active:not(:disabled){ transform:translateY(0); }
+    .sbtn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+    .pnote { font-size:0.78rem; color:var(--muted); text-align:center; margin-top:0.85rem; }
+
+    /* ── SUCCESS ──────────────────────────────────────── */
+    #success-state { display:none; text-align:center; padding:2.5rem 1rem; }
+    .sicon { font-size:3.5rem; color:var(--blue); margin-bottom:0.8rem; }
+    @keyframes pop { 0%{transform:scale(0.5);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    .sicon.animated { animation:pop 0.5s ease forwards; }
+
+    /* ── TITRES ───────────────────────────────────────── */
+    .stitle { color:var(--navy); font-size:1.2rem; font-weight:800; margin-bottom:0.25rem; }
+    .ssub   { color:var(--muted); font-size:0.88rem; margin-bottom:1.4rem; }
+
+    /* ── FOOTER ───────────────────────────────────────── */
+    footer {
+      background:var(--navy); color:rgba(255,255,255,0.5);
+      font-size:0.8rem; padding:1.5rem 1rem; text-align:center; line-height:1.9;
+    }
+
+    /* ── ANTI-BOT ─────────────────────────────────────── */
+    .hp { position:absolute; left:-9999px; opacity:0; pointer-events:none; }
+    hr.sep { border:none; border-top:1px solid #dce8f3; margin:0; }
+
+    @media (max-width:480px) {
+      .hero { padding:2rem 0 3rem; }
+      .hero-name { font-size:1.7rem; }
+      .slogan-wrap { height:5rem; }
+      .cta-zone { height:3.6rem; }
+    }
+
+    /* ── Inline migrés vers classes scopees ──────────────── */
+    .s-intro-h2 { color:var(--navy); font-size:1.2rem; }
+    .s-intro-p  { color:var(--muted); font-size:0.93rem; line-height:1.6; }
+    .succ-h3    { color:var(--navy); }
+    .succ-p     { color:var(--muted); max-width:440px; margin:0 auto 1.2rem; line-height:1.65; }
+    .succ-share { font-size:0.9rem; color:var(--mid); max-width:440px; margin:0 auto; }
+  </style>
+</head>
+<body>
+
+<!-- ── TOAST CONTAINER ──────────────────────────────────── -->
+<div id="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ══ HERO ════════════════════════════════════════════════ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-badge">Projet IBODE · Limoges, Haute-Vienne</div>
+    <h1 class="hero-name">Des Blocs &amp; Moi</h1>
+
+    <div class="slogan-wrap">
+      <span class="slogan active" id="s0"><em>parce que les bonnes réponses finissent toujours par trouver celles qui en ont besoin</em></span>
+      <span class="slogan"        id="s1"><em>parce qu'à partir du moment où tu sais exactement quoi préparer, tout le reste devient simple</em></span>
+      <span class="slogan"        id="s2"><em>parce que les meilleures prises de poste commencent la veille au soir</em></span>
+    </div>
+
+    <div class="cta-zone">
+      <a href="#sondage" class="hero-btn active" id="c0"><i class="bi bi-chat-heart-fill"></i> Je reconnais cette situation →</a>
+      <a href="#sondage" class="hero-btn"        id="c1"><i class="bi bi-search"></i> Je veux voir ce que ça documente →</a>
+      <a href="#sondage" class="hero-btn"        id="c2"><i class="bi bi-lightning-charge-fill"></i> Je veux être prête avant d'entrer →</a>
+    </div>
+  </div>
+</header>
+
+<!-- ══ STORY ═══════════════════════════════════════════════ -->
+<section class="story py-5">
+  <div class="wrap">
+
+    <div class="isabelle">
+      <img src="../assets/icons/icon-192.png" alt="Isabelle P., IBODE Limoges" onerror="this.style.display='none'">
+      <div>
+        <div class="i-name">Isabelle P.</div>
+        <div class="i-title">IBODE · Bloc opératoire · Limoges</div>
+      </div>
+    </div>
+
+    <div class="blk blk-w"><p>Rassurez-vous : ce n'est pas un Google Forms pour un mémoire IBODE.&nbsp;😄<br>Vous avez déjà donné. On le sait.</p></div>
+
+    <h2 class="stitle mt-2 mb-3">Ce dont je me souviens encore</h2>
+    <div class="blk"><p>Si vous êtes comme moi, il vous est peut-être déjà arrivé de rentrer aux vestiaires en vous disant que c'était l'une des pires journées de votre carrière.</p></div>
+    <div class="blk"><p>Pas à cause d'un vrai problème. Pas une urgence. Juste… vous n'étiez pas préparée.</p></div>
+    <div class="blk"><p>Ça devait être un mardi matin — je ne me souviens plus du jour exact, mais de ce que j'ai ressenti, oui. Parfaitement. Le programme affichait : <strong>"Petite intervention — DI3DT gche"</strong><br>C'est tout. Voilà l'information.</p></div>
+    <div class="blk"><p>J'ai fouillé dans le classeur poussiéreux du placard de notre salle de pause. J'ai fini par trouver une fiche manuscrite. Datée de 2014. On était en 2025.</p></div>
+    <div class="blk"><p>En salle, le chirurgien a opéré comme si j'étais transparente. Il n'a pas ralenti d'une seconde. Il s'attendait à ce que je sache. J'étais complètement larguée — et lui ne l'ignorait pas.</p></div>
+    <div class="blk"><p>Non seulement je m'en souviens encore, mais <strong>j'appréhende comme une folle de revivre ce calvaire.</strong><br>J'avais pourtant presque 10 ans de bloc derrière moi ce jour-là.</p></div>
+
+    <h2 class="stitle mt-4 mb-3">Ce qu'on fait toutes</h2>
+    <div class="blk"><p>Face à ça, on fait toutes pareil. On s'accroche aux transmissions orales des collègues. On recopie dans un carnet personnel. On fait tourner un fichier Word dans les vestiaires. On demande à <em>"celle qui sait"</em> — et on prie pour qu'elle soit là le jour où on en a besoin.</p></div>
+    <div class="blk"><p>Malheureusement, ce savoir-là reste dans les têtes. Il part à la retraite avec les anciennes. Il disparaît quand une collègue change de service. Et les nouvelles — les étudiantes, les remplaçantes, les intérimaires — repartent toutes des mêmes cases départ.<br>On recommence à zéro à chaque fois.</p></div>
+    <div class="blk blk-k"><p>Voilà en gros ce qu'on vit dans nos blocs depuis des années. Et si vous vous y reconnaissez un peu, ce que je m'apprête à vous dire va peut-être vous intéresser.<br><br>Depuis 2 ans, avec quelques collègues de Limoges, on construit quelque chose. Quelque chose qu'on aurait voulu avoir ce mardi matin-là. Laissez-moi vous raconter comment ça a commencé.</p></div>
+
+    <h2 class="stitle mt-4 mb-3">Une IBODE ordinaire</h2>
+    <div class="blk"><p>Diplômée en 2013, j'ai passé mes premières années à apprendre sur le tas, comme tout le monde. Un bloc ici, un remplacement là. Chaque secteur avait ses codes, ses chirurgiens, ses habitudes. Et à chaque fois : repartir de zéro.</p></div>
+    <div class="blk"><p>Ce qui m'a le plus frappée avec les années, ce n'est pas la difficulté des actes. C'est la quantité de savoir invisible qui circule dans un bloc — et qui ne s'écrit nulle part.</p></div>
+
+    <h2 class="stitle mt-4 mb-3">La nuit où l'idée est née</h2>
+    <div class="blk"><p>L'idée est venue d'une discussion banale dans le vestiaire, après une journée chargée. On venait d'accueillir Maëlle — IBODE fraîchement diplômée, mais pas novice pour autant : 2 ans de formation, et 2 ans de bloc avant ça. Elle avait tout préparé, relu ses notes de cours, bossé son anatomie.</p></div>
+    <div class="blk"><p>Et pourtant. <strong>Le premier mois, elle était perdue.</strong></p></div>
+    <div class="blk"><p>Un mois — pour quelqu'un de solide, avec du vécu, c'est déjà beaucoup trop. Pour une remplaçante qui débarque un lundi matin, pour une intérimaire envoyée là par une agence : elles ont parfois une journée. <strong>Au pire : une heure.</strong></p></div>
+    <div class="blk"><p>Le problème n'était pas elle. C'était ce savoir invisible — propre à chaque bloc, à chaque chirurgien, à chaque habitude non écrite — qui ne se transmettait qu'à voix basse, entre deux portes.</p></div>
+    <div class="blk"><p>Ce soir-là, on s'est regardées, dépitées. Et dans un soupir collectif, une d'entre nous a lâché :<br><em>"On devrait quand même pouvoir faire quelque chose, non&nbsp;?"</em></p></div>
+    <div class="blk"><p>Pas question de réécrire la médecine. Juste… ne plus jamais tomber sur une fiche de 2014, raturée, griffonnée, cachée au fond d'un placard — et se demander si elle est encore valable.</p></div>
+    <div class="blk"><p>Quelque chose de vivant. De terrain. Construit par des IBODE, pour des IBODE. Pas par un éditeur de logiciel qui n'a jamais mis les pieds dans un bloc opératoire. Enrichi au fil de l'eau — parce que de toute façon, <em>ça ne pourrait pas être pire que ce qu'on avait déjà.</em></p></div>
+    <div class="blk blk-k"><p>On a appelé ça <strong>Des Blocs &amp; Moi.</strong></p></div>
+
+    <h2 class="stitle mt-4 mb-3">Ce que ça a changé</h2>
+    <div class="blk"><p>Les premières collègues qui l'ont utilisé nous ont dit une chose simple : <em>"J'aurais voulu avoir ça dès le premier jour."</em></p></div>
+    <div class="blk"><p>Une remplaçante a préparé sa semaine chez nous sans jamais avoir mis les pieds dans notre bloc. Une jeune diplômée nous a dit qu'elle avait enfin eu l'impression de comprendre <em>pourquoi</em> on faisait les choses — pas juste <em>comment.</em></p></div>
+    <div class="blk"><p>Ça, ça nous a convaincues de continuer.</p></div>
+
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ══ MODULES ══════════════════════════════════════════════ -->
+<section class="modules py-5">
+  <div class="wrap">
+    <h2 class="stitle">Ce que Des Blocs &amp; Moi couvre aujourd'hui</h2>
+    <p class="ssub">En construction active. C'est là que ton témoignage intervient.</p>
+    <div class="row g-3">
+      <div class="col-6"><div class="mcard">
+        <div class="micon" style="background:#e3f2fd;color:#1565c0"><i class="bi bi-calendar-check"></i></div>
+        <div class="mname">Le programme du lendemain</div>
+        <div class="mdesc">Ce que l'intervention veut vraiment dire</div>
+      </div></div>
+      <div class="col-6"><div class="mcard">
+        <div class="micon" style="background:#e8f5e9;color:#2e7d32"><i class="bi bi-box-seam"></i></div>
+        <div class="mname">Le matériel à préparer</div>
+        <div class="mdesc">Ce qu'il faut avoir en salle avant d'y entrer</div>
+      </div></div>
+      <div class="col-6"><div class="mcard">
+        <div class="micon" style="background:#fff3e0;color:#e65100"><i class="bi bi-person-badge"></i></div>
+        <div class="mname">Les habitudes du chirurgien</div>
+        <div class="mdesc">Ce qu'il aime, ce qu'il déteste — sans avoir à demander</div>
+      </div></div>
+      <div class="col-6"><div class="mcard">
+        <div class="micon" style="background:#e8eaf6;color:#283593"><i class="bi bi-body-text"></i></div>
+        <div class="mname">L'installation du patient</div>
+        <div class="mdesc">La position exacte, les points d'attention</div>
+      </div></div>
+      <div class="col-6"><div class="mcard">
+        <div class="micon" style="background:#fce4ec;color:#880e4f"><i class="bi bi-chat-quote"></i></div>
+        <div class="mname">Le jargon du bloc</div>
+        <div class="mdesc">Les termes qu'on utilise sans jamais expliquer</div>
+      </div></div>
+      <div class="col-6"><div class="mcard">
+        <div class="micon" style="background:#f3e5f5;color:#6a1b9a"><i class="bi bi-book-half"></i></div>
+        <div class="mname">L'anatomie qui sert vraiment</div>
+        <div class="mdesc">Les rappels utiles en salle, pas pour un concours</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ══ SONDAGE ══════════════════════════════════════════════ -->
+<section class="survey py-5" id="sondage">
+  <div class="wrap">
+
+    <div class="s-intro">
+      <h2 class="fw-bold mb-1 s-intro-h2">Des Blocs &amp; Moi a certainement des zones d'ombre.</h2>
+      <p class="mb-0 s-intro-p">Et toi, tu sais ce qui manque — même sans le savoir encore. On a les mains dans le cambouis. Tu as les réponses qu'on cherche.<br>5 questions, 3 minutes. Anonyme.</p>
+    </div>
+
+    <form id="sondage-form" novalidate>
+      <div class="hp" aria-hidden="true">
+        <input type="text" id="hp-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <!-- Profil -->
+      <div class="mb-4">
+        <span class="qlabel">Tu es…</span>
+        <div class="d-flex flex-wrap gap-2" id="profil-group">
+          <label class="pbtn"><input type="radio" name="profil" value="etudiant_ibode" required><i class="bi bi-mortarboard"></i> Étudiant·e IBODE</label>
+          <label class="pbtn"><input type="radio" name="profil" value="ibode_diplome"><i class="bi bi-patch-check"></i> IBODE diplômé·e</label>
+          <label class="pbtn"><input type="radio" name="profil" value="autre_bloc"><i class="bi bi-hospital"></i> Autre pro de bloc</label>
+        </div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="mb-4">
+        <label class="qlabel" for="q1">Ce qui t'a manqué quand tu as démarré — une intervention, une situation, un contexte ?</label>
+        <span class="qhint">Un nom d'acte que tu ne comprenais pas, une spécialité dans laquelle tu t'es retrouvée sans repères, un chirurgien dont tu ne connaissais pas les habitudes…</span>
+        <textarea id="q1" class="form-control" placeholder="ex : PTG cimentée chez le Dr X, arthroscopie de cheville, urgence traumato de nuit…" maxlength="800"></textarea>
+      </div>
+
+      <!-- Q2 -->
+      <div class="mb-4">
+        <label class="qlabel" for="q2">Ce que tu as ressenti à cause de ça — et ce que tu aurais aimé avoir à ce moment-là ?</label>
+        <span class="qhint">Pas de filtre. Ce n'est pas un entretien de recrutement.</span>
+        <textarea id="q2" class="form-control" placeholder="ex : je me suis sentie complètement larguée, j'aurais voulu une fiche claire sur les habitudes du chirurgien…" maxlength="1000"></textarea>
+      </div>
+
+      <!-- Q3 -->
+      <div class="mb-4">
+        <label class="qlabel" for="q3">Un terme, une abréviation, un mot de jargon que tu as mis du temps à comprendre ?</label>
+        <span class="qhint">Les acronymes non expliqués, les éponymes, les "expressions maison" de bloc…</span>
+        <textarea id="q3" class="form-control" placeholder="ex : MPFL, Bankart, col de cygne, Matti-Russe, DI3DT…" maxlength="800"></textarea>
+      </div>
+
+      <!-- Q4 -->
+      <div class="mb-4">
+        <label class="qlabel" for="q4">Ce qu'un·e senior t'a appris oralement et que tu aurais voulu trouver écrit quelque part ?</label>
+        <span class="qhint">Le savoir tacite du bloc — ces détails qu'on ne trouve dans aucun cours, aucun manuel.</span>
+        <textarea id="q4" class="form-control" placeholder="ex : avec ce chirurgien on n'ouvre jamais le ciment avant qu'il le demande…" maxlength="1000"></textarea>
+      </div>
+
+      <!-- Q5 -->
+      <div class="mb-4">
+        <label class="qlabel" for="q5">Si Des Blocs &amp; Moi existait sur ton téléphone avant chaque prise de poste — à quoi voudrais-tu vraiment qu'il serve ? Qu'est-ce que tu ressentirais de l'avoir avec toi ?</label>
+        <span class="qhint">Tu imagines librement. On écoute vraiment.</span>
+        <textarea id="q5" class="form-control" placeholder="ex : retrouver en 30 secondes les habitudes d'un chirurgien, comprendre un programme sans appeler quelqu'un…" maxlength="1000"></textarea>
+      </div>
+
+      <button type="submit" class="sbtn" id="submit-btn">
+        <i class="bi bi-send-fill"></i> Aide-nous à ne rien oublier →
+      </button>
+
+      <p class="pnote mt-3">
+        <i class="bi bi-shield-check me-1"></i>
+        Anonyme · Aucun compte requis · Données utilisées uniquement pour améliorer Des Blocs &amp; Moi
+      </p>
+    </form>
+
+    <div id="success-state">
+      <div class="sicon"><i class="bi bi-check-circle-fill"></i></div>
+      <h3 class="fw-bold mb-2 succ-h3">Merci. Vraiment.</h3>
+      <p class="succ-p">Chaque réponse est lue. Tu viens de participer à un brainstorming collectif entre IBODE — la seule façon qu'on a d'identifier ensemble ce qui manque encore.</p>
+      <p class="succ-share">
+        <i class="bi bi-people-fill me-1"></i>
+        Si tu penses à une collègue qui a vécu la même chose — <strong>partage-lui ce lien.</strong> Plus on est nombreuses, plus Des Blocs &amp; Moi sera complet.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ FOOTER ═══════════════════════════════════════════════ -->
+<footer>
+  <div>Des Blocs &amp; Moi &nbsp;·&nbsp; Projet IBODE indépendant &nbsp;·&nbsp; Limoges, 2024–2026</div>
+  <div>Tes données ne sont pas vendues, partagées ni utilisées à d'autres fins.</div>
+</footer>
+
+<!-- ══ JS ═══════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ── TOAST ──────────────────────────────────────────────── */
+  var toastStack = document.getElementById('toast-stack');
+
+  function toast(msg, type, duration) {
+    type     = type     || 'info';
+    duration = duration || 4000;
+    var icons = { err:'bi-x-circle-fill', ok:'bi-check-circle-fill', info:'bi-info-circle-fill' };
+    var el = document.createElement('div');
+    el.className = 'toast-item t-' + type;
+    el.innerHTML = '<i class="bi ' + icons[type] + '"></i><span>' + msg + '</span>';
+    toastStack.appendChild(el);
+    setTimeout(function() {
+      el.style.animation = 'toast-out 0.3s ease forwards';
+      setTimeout(function() { el.remove(); }, 300);
+    }, duration);
+  }
+
+  /* ── SLIDESHOW ──────────────────────────────────────────── */
+  var slogans  = [document.getElementById('s0'), document.getElementById('s1'), document.getElementById('s2')];
+  var ctaBtns  = [document.getElementById('c0'), document.getElementById('c1'), document.getElementById('c2')];
+  var cur      = 0;
+
+  setInterval(function() {
+    slogans[cur].classList.remove('active');
+    ctaBtns[cur].classList.remove('active');
+    cur = (cur + 1) % 3;
+    slogans[cur].classList.add('active');
+    ctaBtns[cur].classList.add('active');
+  }, 4500);
+
+  /* ── SCROLL SMOOTH ──────────────────────────────────────── */
+  document.querySelectorAll('a[href="#sondage"]').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      document.getElementById('sondage').scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+
+  /* ── SUPABASE INIT (guard si config.js absent en dev local) */
+  var db = null;
+  try {
+    var _url = (typeof SUPABASE_URL !== 'undefined') ? SUPABASE_URL : null;
+    var _key = (typeof SUPABASE_ANON_KEY !== 'undefined') ? SUPABASE_ANON_KEY : null;
+    if (_url && _key) {
+      db = supabase.createClient(_url, _key);
+    } else {
+      console.warn('[DBM] config.js absent ou incomplet — mode démo, envoi désactivé.');
+    }
+  } catch(e) {
+    console.error('[DBM] Supabase init error', e);
+  }
+
+  /* ── FORMULAIRE ─────────────────────────────────────────── */
+  var form     = document.getElementById('sondage-form');
+  var btn      = document.getElementById('submit-btn');
+  var success  = document.getElementById('success-state');
+  var loadTime = Date.now();
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Honeypot
+    if (document.getElementById('hp-website').value) return;
+
+    // Délai anti-bot 3s
+    if (Date.now() - loadTime < 3000) {
+      toast('Trop rapide… réessaie dans un instant.', 'info');
+      return;
+    }
+
+    // Profil obligatoire
+    var profil = form.querySelector('input[name="profil"]:checked');
+    if (!profil) {
+      toast('Merci d\'indiquer ton profil avant d\'envoyer.', 'err');
+      document.getElementById('profil-group').scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+
+    // Au moins une réponse
+    var q1 = document.getElementById('q1').value.trim();
+    var q2 = document.getElementById('q2').value.trim();
+    var q3 = document.getElementById('q3').value.trim();
+    var q4 = document.getElementById('q4').value.trim();
+    var q5 = document.getElementById('q5').value.trim();
+    if (!q1 && !q2 && !q3 && !q4 && !q5) {
+      toast('Réponds à au moins une question pour envoyer.', 'err');
+      return;
+    }
+
+    // Mode démo (config.js absent)
+    if (!db) {
+      toast('Mode local — envoi désactivé. Déploie sur OVH pour activer.', 'info', 5000);
+      return;
+    }
+
+    // Envoi
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Envoi en cours…';
+
+    try {
+      var res = await db.from('sondage_reponses').insert({
+        profil:           profil.value,
+        q_intervention:   q1 || null,
+        q_terme:          q2 || null,
+        q_specialite:     q3 || null,
+        q_oral:           q4 || null,
+        q_fonctionnalite: q5 || null,
+        honeypot:         document.getElementById('hp-website').value || null
+      });
+
+      if (res.error) throw res.error;
+
+      // Succès
+      form.style.display = 'none';
+      success.style.display = 'block';
+      success.querySelector('.sicon').classList.add('animated');
+      document.getElementById('sondage').scrollIntoView({ behavior:'smooth', block:'start' });
+
+    } catch(err) {
+      console.error('[DBM] Insert error', err);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-send-fill"></i> Aide-nous à ne rien oublier →';
+      toast('Une erreur est survenue. Réessaie dans quelques instants.', 'err', 6000);
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>

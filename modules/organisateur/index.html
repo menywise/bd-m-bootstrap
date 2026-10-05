@@ -1,137 +1,257 @@
-<!--
-  ============================================================
-  PROJECT  : Bible de Bloc
-  FILE     : organisateur/index.html v2.0.0
-  MODULE   : ORGANISATEUR ENGINE — Parcours Patient
-  UPDATE   : 2026-03-15
-  MIGRATION: v1.2.0 → v2.0.0 — bdb-shell.js (Palier 1)
-  CHANGES  :
-    - Offcanvas HTML supprimé → délégué à bdb-shell.js
-    - Header HTML supprimé → délégué à bdb-shell.js
-    - Bloc auth JS supprimé (INTERDIT-B1/B2) → délégué à bdb-shell.js
-    - Ordre scripts corrigé (CHANTIER BLOC E)
-    - badgeModifs.style.display → classList.add('d-none')
-  ============================================================
--->
 <!DOCTYPE html>
-<html lang="fr" data-bs-theme="light">
+<!-- DBM | Surface: MODULE | Auth: bdb-shell.js | Shell: oui | Theme: DBM -->
+<html lang="fr">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Organisateur Phases | Bible de Bloc</title>
+  <script src="../../js/bdb-pwa.js"></script>
+  <title>Organisateur Phases — Des Blocs &amp; Moi</title>
 
-  <!-- ── CHAÎNE CSS — ordre immuable (CHANTIER BLOC E) ─────────── -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- BLOC E CSS : Bootstrap + DBM theme -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-print.css" rel="stylesheet" media="print"/>
-  <link href="../../css/cds-overrides.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <link href="../../css/bdb-ui-kit.css" rel="stylesheet"/>
+  <link href="../../css/dbm-module-color.css" rel="stylesheet"/>
   <link href="organisateur-ui.css" rel="stylesheet"/>
+
+  <!-- CONV-MODAL-08 : cascade variables couleur module sur :root pour modales -->
+  <style>
+    :root {
+      --module-color: #86efac;
+      --module-color-strong: #4ade80;
+      --module-color-text: #14532d;
+      --module-color-soft: rgba(134, 239, 172, 0.15);
+    }
+  </style>
 </head>
-<body class="d-flex min-vh-100">
 
-  <main class="d-flex flex-column flex-grow-1 main-content">
+<body class="sidebar-closed">
 
-  <!-- ── SHELL BDB — offcanvas + header + auth (bdb-shell.js v1.3.1) ── -->
-  <div id="bdb-shell"
-       data-module-title="Organisateur"
-       data-module-icon="bi-diagram-3">
-  </div>
-    <div class="container-fluid p-4 bg-light flex-grow-1">
+  <div id="wrapper">
 
-      <!-- BARRE D'ACTIONS MODULE -->
-      <div class="d-flex align-items-center gap-2 flex-wrap mb-4">
-        <span class="badge bg-light text-dark border" id="badgeTotal">13 phases</span>
-        <span class="badge bg-warning text-dark d-none" id="badgeModifs">0 modif.</span>
-        <button class="btn btn-outline-secondary btn-sm" id="btnToggleAdd">
-          <i class="bi bi-plus-lg me-1"></i>Ajouter
-        </button>
-        <button class="btn btn-outline-danger btn-sm" id="btnReset">
-          <i class="bi bi-arrow-counterclockwise me-1"></i>Réinitialiser
-        </button>
-        <div class="btn-group">
-          <button class="btn btn-outline-success btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-            <i class="bi bi-download me-1"></i>Exporter
-          </button>
-          <ul class="dropdown-menu">
-            <li><button class="dropdown-item" id="btnExportJSON"><i class="bi bi-filetype-json me-2"></i>JSON</button></li>
-            <li><button class="dropdown-item" id="btnExportMD"><i class="bi bi-markdown me-2"></i>Markdown</button></li>
-          </ul>
-        </div>
-        <label class="btn btn-outline-primary btn-sm mb-0">
-          <i class="bi bi-upload me-1"></i>Importer
-          <input type="file" id="fileImport" accept=".json" class="d-none">
-        </label>
-      </div>
-
-      <!-- DOC HEADER -->
-      <div class="doc-header-primary p-4 rounded shadow-sm text-white mb-4">
-        <h1 class="mb-2"><i class="bi bi-diagram-3 me-2"></i>Parcours Patient</h1>
-        <p class="mb-0 opacity-75">Glisser-déposer pour réorganiser · Modifier, ajouter, supprimer selon l'établissement</p>
-      </div>
-
-      <!-- FORMULAIRE AJOUT -->
-      <div class="add-phase-form card shadow-sm mb-4" id="addForm">
-        <div class="card-header d-flex align-items-center gap-2">
-          <i class="bi bi-plus-circle text-primary"></i>
-          <strong>Ajouter une phase</strong>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-5">
-              <label class="form-label fw-semibold">Titre phase *</label>
-              <input type="text" id="newPhaseTitle" class="form-control" placeholder="Ex: Vérification matériel">
-            </div>
-            <div class="col-md-5">
-              <label class="form-label fw-semibold">Description courte</label>
-              <input type="text" id="newPhaseDesc" class="form-control" placeholder="Ex: H+10min | Contrôle instruments">
-            </div>
-            <div class="col-md-2 d-flex align-items-end gap-2">
-              <button class="btn btn-success" id="btnAddPhase"><i class="bi bi-check-lg me-1"></i>Ajouter</button>
-              <button class="btn btn-outline-secondary" id="btnCancelAdd"><i class="bi bi-x-lg"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- LISTE PHASES -->
-      <div id="phasesList" class="d-flex flex-column gap-2 mb-4"></div>
-
-      <!-- EXPORT BOX -->
-      <div class="export-box card shadow-sm" id="exportBox">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <span><i class="bi bi-code-slash me-2 text-primary"></i><strong>Export</strong></span>
-          <button class="btn btn-sm btn-outline-secondary" id="btnCloseExport"><i class="bi bi-x-lg"></i></button>
-        </div>
-        <div class="card-body">
-          <textarea id="exportContent" class="form-control font-monospace" rows="12" readonly></textarea>
-          <div class="mt-2">
-            <button class="btn btn-outline-secondary btn-sm" id="btnCopyExport">
-              <i class="bi bi-clipboard me-1"></i>Copier
-            </button>
-          </div>
-        </div>
-      </div>
-
+    <!-- INTERDIT-E1 : #bdb-shell premier enfant de #wrapper -->
+    <div id="bdb-shell"
+         data-module-title="Organisateur"
+         data-module-icon="bi-diagram-3"
+         data-root-path="../../"
+         data-login-mode="modal"
+         data-shell-theme="dbm">
     </div>
 
-    <!-- FOOTER -->
-    <footer class="mt-auto py-3 border-top text-center text-muted bg-white">
-      <small>&copy; 2026 Bible de Bloc — Consensus Design System — <span class="badge bg-light text-dark border">CDS Compliant</span></small>
-    </footer>
+    <div id="wrapper_content">
+      <div class="app-layout">
+        <main class="app-main" id="main-content">
+          <div class="app-content" data-module-color="espace_perso" style="--module-color:#fdba74;--module-color-strong:#fb923c;--module-color-text:#7c2d12;--module-color-soft:rgba(253,186,116,0.15)">
 
-  </main>
+            <!-- Breadcrumb -->
 
-  <!-- MODAL ÉDITION -->
-  <div class="modal fade" id="modalEdit" tabindex="-1">
-    <div class="modal-dialog">
+
+            <section class="app-zone" data-zone="Breadcrumb">
+              <nav class="app-breadcrumb" aria-label="Fil d'Ariane">
+              <a href="../../index.html">Accueil</a>
+              <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+              <span>Organisateur</span>
+            </nav>
+
+
+            </section>
+            <section class="app-zone" data-zone="Page Title">
+
+              <!-- Bandeau colore module —  couleur = group_color -->
+            <div class="p-4 rounded shadow-sm mb-4"
+                 style="background:linear-gradient(135deg, #fdba74 0%, #fb923c 100%);color:#7c2d12">
+              <h1 class="mb-2 fw-bold"><i class="bi bi-diagram-3 me-2"></i>Organisateur</h1>
+              <p style="opacity:0.75" class="mb-0">Parcours patient — étapes du J-1 au bio-nettoyage</p>
+            </div>
+
+            </section>
+            <!-- Toolbar (pilotage : selecteur parcours + actions) -->
+            <section class="app-zone" data-zone="Toolbar">
+              <div style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1rem">
+
+                <!-- Selecteur de parcours + badge type -->
+                <div id="parcoursSelectorWrapper" class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                  <div class="btn-group">
+                    <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center gap-2"
+                            data-bs-toggle="dropdown" aria-expanded="false" id="parcoursDropdownBtn">
+                      <i class="bi bi-diagram-3"></i>
+                      <span id="parcoursBtnLabel">Chargement…</span>
+                    </button>
+                    <ul class="dropdown-menu" id="parcoursDropdownMenu"></ul>
+                  </div>
+                  <span id="parcoursBadgeType" class="badge bg-primary">Base</span>
+                </div>
+
+                <!-- Barre d'actions (badges + boutons memoriser/exporter/importer) -->
+                <div class="d-flex align-items-center gap-2 flex-wrap pt-2 border-top">
+                  <span class="badge bg-light text-dark border" id="badgeTotal">— étapes</span>
+                  <span class="badge bg-warning text-dark d-none" id="badgeModifs">0 modif.</span>
+
+                  <button class="btn btn-outline-secondary btn-sm" id="btnMemoriser">
+                    <i class="bi bi-shuffle me-1"></i>Mémoriser l'ordre
+                  </button>
+
+                  <button class="btn btn-module btn-sm d-none" id="btnVoirSolution">
+                    <i class="bi bi-check2-all me-1"></i>Voir la solution
+                  </button>
+
+                  <button class="btn btn-outline-secondary btn-sm" id="btnToggleAdd">
+                    <i class="bi bi-plus-lg me-1"></i>Ajouter
+                  </button>
+
+                  <div class="btn-group">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                      <i class="bi bi-download me-1"></i>Exporter
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><button class="dropdown-item" id="btnExportJSON"><i class="bi bi-filetype-json me-2"></i>JSON</button></li>
+                      <li><button class="dropdown-item" id="btnExportMD"><i class="bi bi-markdown me-2"></i>Markdown</button></li>
+                    </ul>
+                  </div>
+
+                  <label class="btn btn-outline-secondary btn-sm mb-0 btn-admin-only d-none">
+                    <i class="bi bi-upload me-1"></i>Importer
+                    <input type="file" id="fileImport" accept=".json" class="d-none">
+                  </label>
+                </div>
+              </div>
+            </section>
+
+            
+            <section class="app-zone" data-zone="Filters">
+              <div style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;padding:.75rem 1rem;margin-bottom:1rem">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                  <input type="search" class="form-control border-start-0" placeholder="Rechercher..." aria-label="Recherche"/>
+                </div>
+              </div>
+            </section>
+<section class="app-zone" data-zone="Content">
+
+
+              <!-- Content (banners + form + liste + export) -->
+
+
+              <!-- Banner Memoriser -->
+            <div class="org-memorise-banner mb-3" id="org-memorise-banner">
+              <i class="bi bi-shuffle text-info fs-5 flex-shrink-0"></i>
+              <div>
+                <strong>Mémoriser l'ordre</strong>
+                <div class="small text-muted">
+                  Les étapes sont mélangées — glisse-les dans le bon ordre du parcours patient.
+                  Les étapes déplacées restent marquées en jaune.
+                  Clique sur <strong>Voir la solution</strong> pour découvrir tes erreurs étape par étape.
+                </div>
+              </div>
+            </div>
+
+            <!-- Score banner -->
+            <div class="org-score-banner mb-3" id="org-score-banner"></div>
+
+            <!-- Formulaire ajout (app-card) -->
+            <div class="app-card add-phase-form mb-4" id="addForm">
+              <div class="app-card-header d-flex align-items-center gap-2">
+                <i class="bi bi-plus-circle text-primary"></i>
+                <strong>Ajouter une étape</strong>
+              </div>
+              <div class="app-card-body">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold">Titre *</label>
+                    <input type="text" id="newPhaseTitle" class="form-control"
+                           placeholder="Ex : Vérification matériel spécifique">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold">Description</label>
+                    <input type="text" id="newPhaseDesc" class="form-control"
+                           placeholder="Ex : Contrôle du garrot pneumatique">
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label fw-semibold">Timing</label>
+                    <input type="text" id="newPhaseTiming" class="form-control"
+                           placeholder="Ex : H+10min">
+                  </div>
+                  <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button class="btn btn-module btn-sm" id="btnAddPhase">
+                      <i class="bi bi-check-lg me-1"></i>Ajouter
+                    </button>
+                    <button class="btn btn-outline-secondary" id="btnCancelAdd">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Liste etapes — 3 etats async -->
+            <div id="phasesList" class="mb-4">
+
+              <div id="stateLoading" class="text-center py-5 text-muted">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                Chargement du parcours…
+              </div>
+
+              <div id="stateEmpty" class="app-empty d-none">
+                <i class="bi bi-diagram-3"></i>
+                <p style="font-size:.95rem;font-weight:500;margin:.75rem 0 .25rem">Aucune étape dans ce parcours.</p>
+                <small style="color:var(--app-text-muted)">Un administrateur peut en ajouter via "Ajouter".</small>
+              </div>
+
+              <div id="stateError" class="d-none alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Erreur : <span id="stateErrorMsg"></span>
+              </div>
+
+              <div id="stateContent" class="d-flex flex-column gap-2 d-none"></div>
+
+            </div>
+
+            <!-- Export box (app-card) -->
+            <div class="app-card export-box" id="exportBox">
+              <div class="app-card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-code-slash me-2 text-primary"></i><strong>Export</strong></span>
+                <button class="btn btn-sm btn-outline-secondary" id="btnCloseExport">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+              <div class="app-card-body">
+                <textarea id="exportContent" class="form-control font-monospace" rows="12" readonly></textarea>
+                <div class="mt-2">
+                  <button class="btn btn-outline-secondary btn-sm" id="btnCopyExport">
+                    <i class="bi bi-clipboard me-1"></i>Copier
+                  </button>
+                </div>
+              </div>
+            </div>
+
+
+            </section>
+
+          </div><!-- /app-content -->
+
+          <footer class="app-footer">
+            <small>&copy; 2026 <span class="app-nom"></span></small>
+          </footer>
+
+        </main>
+      </div><!-- /app-layout -->
+    </div><!-- /wrapper_content -->
+
+  </div><!-- /wrapper -->
+
+  <!-- ═══════ MODALES (hors #wrapper) ═══════ -->
+
+  <!-- MODAL EDITION -->
+  <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-md-down">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-pencil text-primary me-2"></i>Modifier la phase</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-header modal-header-module">
+          <h5 class="modal-title" id="modalEditLabel"><i class="bi bi-pencil me-2"></i>Modifier l'étape</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="editIndex">
+          <input type="hidden" id="editId">
           <div class="mb-3">
             <label class="form-label fw-semibold">Titre *</label>
             <input type="text" id="editTitle" class="form-control">
@@ -140,10 +260,14 @@
             <label class="form-label fw-semibold">Description</label>
             <input type="text" id="editDesc" class="form-control">
           </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Timing</label>
+            <input type="text" id="editTiming" class="form-control" placeholder="Ex : H-30min">
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          <button type="button" class="btn btn-primary" id="btnSaveEdit">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-module" id="btnSaveEdit">
             <i class="bi bi-check-lg me-1"></i>Enregistrer
           </button>
         </div>
@@ -163,266 +287,16 @@
     </div>
   </div>
 
-  <!-- ── SCRIPTS — ordre obligatoire (CHANTIER BLOC E) ──────────── -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/bdb-ui.js"></script>
+  <script src="../../js/bdb-invite-guard.js"></script>
   <script src="../../js/bdb-shell.js"></script>
-
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // ── bdb-shell.js gère l'auth et window.bdbUser
-    // ── Ce module n'utilise pas window.bdbUser (pas de contenu admin-only)
-
-    // ── État ──
-    let phases = [
-      { id: 0,  title: "Préparation organisationnelle",    desc: "J-1 à H-2h | Hors périmètre salle" },
-      { id: 1,  title: "Accueil patient au bloc",          desc: "H-30min | Sas entrée/Box accueil" },
-      { id: 2,  title: "Transfert table induction",        desc: "H-20min | Vers salle induction" },
-      { id: 3,  title: "Induction anesthésie",             desc: "H-10min | Salle induction/opération" },
-      { id: 4,  title: "Transfert table opératoire",       desc: "H-5min | Si salle induction séparée" },
-      { id: 5,  title: "Installation opératoire",          desc: "H0 | Positionnement patient table" },
-      { id: 6,  title: "Préparation champ opératoire",     desc: "H+5min | Badigeonnage antiseptique" },
-      { id: 7,  title: "Préparation table instrumentiste", desc: "H+10min | Ouverture boîtes stériles" },
-      { id: 8,  title: "Checklist Time Out HAS",           desc: "H+15min | AVANT INCISION obligatoire" },
-      { id: 9,  title: "Temps opératoire",                 desc: "H+20min | Intervention chirurgicale" },
-      { id: 10, title: "Checklist Sign Out HAS",           desc: "Fin intervention | Comptage/traçabilité" },
-      { id: 11, title: "Pansement & immobilisation",       desc: "Après fermeture | Pansement stérile" },
-      { id: 12, title: "Réveil & transfert SSPI",          desc: "Sortie salle | Surveillance post-op" },
-      { id: 13, title: "Bio-nettoyage salle",              desc: "Après sortie patient | Remise en état" }
-    ];
-
-    const DEFAULT_PHASES = JSON.parse(JSON.stringify(phases));
-    let modifCount = 0;
-    let draggedIndex = null;
-    let touchStartY = 0;
-    let touchElement = null;
-
-    // ── Refs ──
-    const list       = document.getElementById('phasesList');
-    const badgeTotal = document.getElementById('badgeTotal');
-    const badgeModifs = document.getElementById('badgeModifs');
-    const toast      = new bootstrap.Toast(document.getElementById('toastInfo'));
-    const modalEdit  = new bootstrap.Modal(document.getElementById('modalEdit'));
-
-    function showToast(msg) {
-      document.getElementById('toastMsg').textContent = msg;
-      toast.show();
-    }
-
-    function markModif() {
-      modifCount++;
-      badgeModifs.textContent = modifCount + ' modif.';
-      badgeModifs.classList.remove('d-none');
-    }
-
-    // ── Render ──
-    function render() {
-      list.innerHTML = '';
-      phases.forEach((phase, index) => {
-        const item = document.createElement('div');
-        item.className = 'phase-item card shadow-sm p-3 d-flex flex-row align-items-center gap-3';
-        item.draggable = true;
-        item.dataset.index = index;
-
-        item.innerHTML = `
-          <i class="bi bi-grip-vertical text-muted org-grip"></i>
-          <span class="phase-num">${String(index).padStart(2,'0')}</span>
-          <div class="flex-grow-1">
-            <div class="fw-semibold">${phase.title}</div>
-            <small class="text-muted">${phase.desc}</small>
-          </div>
-          <div class="d-flex gap-1">
-            <button class="btn btn-outline-secondary btn-sm btn-up" title="Monter"><i class="bi bi-chevron-up"></i></button>
-            <button class="btn btn-outline-secondary btn-sm btn-down" title="Descendre"><i class="bi bi-chevron-down"></i></button>
-            <button class="btn btn-outline-primary btn-sm btn-edit" title="Modifier"><i class="bi bi-pencil"></i></button>
-            <button class="btn btn-outline-danger btn-sm btn-del" title="Supprimer"><i class="bi bi-trash"></i></button>
-          </div>
-        `;
-
-        // Drag events
-        item.addEventListener('dragstart', () => { draggedIndex = index; item.classList.add('dragging'); });
-        item.addEventListener('dragend',   () => item.classList.remove('dragging'));
-        item.addEventListener('dragover',  e => e.preventDefault());
-        item.addEventListener('drop', e => {
-          e.preventDefault();
-          if (draggedIndex !== null && draggedIndex !== index) {
-            const [moved] = phases.splice(draggedIndex, 1);
-            phases.splice(index, 0, moved);
-            markModif();
-            render();
-          }
-          draggedIndex = null;
-        });
-
-        // Touch mobile
-        item.addEventListener('touchstart', handleTouchStart, {passive: true});
-        item.addEventListener('touchmove',  handleTouchMove,  {passive: false});
-        item.addEventListener('touchend',   handleTouchEnd);
-
-        // Boutons
-        item.querySelector('.btn-up').addEventListener('click', () => {
-          if (index === 0) return;
-          [phases[index], phases[index-1]] = [phases[index-1], phases[index]];
-          markModif(); render();
-        });
-        item.querySelector('.btn-down').addEventListener('click', () => {
-          if (index === phases.length - 1) return;
-          [phases[index], phases[index+1]] = [phases[index+1], phases[index]];
-          markModif(); render();
-        });
-        item.querySelector('.btn-edit').addEventListener('click', () => {
-          document.getElementById('editIndex').value = index;
-          document.getElementById('editTitle').value  = phase.title;
-          document.getElementById('editDesc').value   = phase.desc;
-          modalEdit.show();
-        });
-        item.querySelector('.btn-del').addEventListener('click', () => {
-          if (confirm(`Supprimer "${phase.title}" ?`)) {
-            phases.splice(index, 1);
-            markModif(); render();
-          }
-        });
-
-        list.appendChild(item);
-      });
-
-      badgeTotal.textContent = phases.length + ' phases';
-    }
-
-
-    // ── Touch mobile (drag vertical) ──────────────────────────────
-    function handleTouchStart(e) {
-      touchElement = this;
-      touchStartY  = e.touches[0].clientY;
-      this.classList.add('dragging');
-    }
-
-    function handleTouchMove(e) {
-      if (!touchElement) return;
-      e.preventDefault();
-      const touchY = e.touches[0].clientY;
-      touchElement.style.transform = `translateY(${touchY - touchStartY}px)`;
-    }
-
-    function handleTouchEnd(e) {
-      if (!touchElement) return;
-      touchElement.classList.remove('dragging');
-      touchElement.style.transform = '';
-      const deltaY = e.changedTouches[0].clientY - touchStartY;
-      const steps  = Math.round(deltaY / (touchElement.offsetHeight + 10));
-      if (steps !== 0) {
-        const cur = parseInt(touchElement.dataset.index);
-        const nxt = Math.max(0, Math.min(phases.length - 1, cur + steps));
-        if (nxt !== cur) {
-          const [moved] = phases.splice(cur, 1);
-          phases.splice(nxt, 0, moved);
-          markModif(); render();
-        }
-      }
-      touchElement = null;
-    }
-
-    // ── Actions ──
-    document.getElementById('btnToggleAdd').addEventListener('click', () => {
-      document.getElementById('addForm').classList.toggle('active');
-      document.getElementById('newPhaseTitle').focus();
-    });
-
-    document.getElementById('btnCancelAdd').addEventListener('click', () => {
-      document.getElementById('addForm').classList.remove('active');
-    });
-
-    document.getElementById('btnAddPhase').addEventListener('click', () => {
-      const title = document.getElementById('newPhaseTitle').value.trim();
-      const desc  = document.getElementById('newPhaseDesc').value.trim();
-      if (!title) { showToast('Le titre est obligatoire'); return; }
-      phases.push({ id: Date.now(), title, desc: desc || 'Aucune description' });
-      document.getElementById('newPhaseTitle').value = '';
-      document.getElementById('newPhaseDesc').value  = '';
-      document.getElementById('addForm').classList.remove('active');
-      markModif(); render();
-      showToast('Phase ajoutée');
-    });
-
-    document.getElementById('btnSaveEdit').addEventListener('click', () => {
-      const idx   = parseInt(document.getElementById('editIndex').value);
-      const title = document.getElementById('editTitle').value.trim();
-      if (!title) { showToast('Le titre est obligatoire'); return; }
-      phases[idx].title = title;
-      phases[idx].desc  = document.getElementById('editDesc').value.trim() || 'Aucune description';
-      modalEdit.hide();
-      markModif(); render();
-      showToast('Phase modifiée');
-    });
-
-    document.getElementById('btnReset').addEventListener('click', () => {
-      if (confirm('Réinitialiser au parcours par défaut ? (Perte des modifications)')) {
-        phases     = JSON.parse(JSON.stringify(DEFAULT_PHASES));
-        modifCount = 0;
-        badgeModifs.classList.add('d-none');
-        render();
-        showToast('Réinitialisé');
-      }
-    });
-
-    document.getElementById('btnExportJSON').addEventListener('click', () => {
-      const data = {
-        version:      "1.0.0",
-        date_export:  new Date().toISOString(),
-        total_phases: phases.length,
-        phases:       phases.map((p, i) => ({ ordre: i, id: p.id, titre: p.title, description: p.desc }))
-      };
-      document.getElementById('exportContent').value = JSON.stringify(data, null, 2);
-      document.getElementById('exportBox').classList.add('active');
-    });
-
-    document.getElementById('btnExportMD').addEventListener('click', () => {
-      let md = `# PARCOURS PATIENT — Bible de Bloc\n\n**Date export** : ${new Date().toLocaleDateString('fr-FR')}\n**Total phases** : ${phases.length}\n\n---\n\n`;
-      phases.forEach((p, i) => { md += `## ${i}. ${p.title}\n\n${p.desc}\n\n---\n\n`; });
-      document.getElementById('exportContent').value = md;
-      document.getElementById('exportBox').classList.add('active');
-    });
-
-    document.getElementById('btnCloseExport').addEventListener('click', () => {
-      document.getElementById('exportBox').classList.remove('active');
-    });
-
-    document.getElementById('btnCopyExport').addEventListener('click', () => {
-      const ta = document.getElementById('exportContent');
-      ta.select();
-      document.execCommand('copy');
-      showToast('Copié dans le presse-papier');
-    });
-
-    document.getElementById('fileImport').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        try {
-          const data = JSON.parse(ev.target.result);
-          if (data.phases && Array.isArray(data.phases)) {
-            phases = data.phases.map(p => ({ id: p.id, title: p.titre, desc: p.description }));
-            markModif(); render();
-            showToast('Import réussi — ' + phases.length + ' phases');
-          } else {
-            showToast('Format JSON invalide');
-          }
-        } catch (err) {
-          showToast('Erreur lecture : ' + err.message);
-        }
-      };
-      reader.readAsText(file);
-      e.target.value = '';
-    });
-
-    // Init tooltips
-    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-
-    render();
-  });
-  </script>
+  <script src="../../js/bdb-demo.js"></script>
+  <script src="organisateur-app.js"></script>
 
 </body>
 </html>

@@ -1,24 +1,22 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
+<!-- DBM | Surface: APP-RACINE | Auth: login/portail | Shell: non -->
 <html lang="fr" data-bs-theme="light">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Connexion | Bible de Bloc</title>
+  <script src="js/bdb-pwa.js"></script>
+  <title>Connexion | Des Blocs & Moi</title>
 
   <!-- 1. Framework -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
-
-  <!-- 2. CDS tokens -->
-  <link href="https://cdn.jsdelivr.net/gh/menywise/BDB@latest/theme-base.css" rel="stylesheet"/>
-
-  <!-- 3. CDS overrides globaux -->
-  <link href="css/cds-overrides.css" rel="stylesheet"/>
-
-  <!-- 4. CSS spécifique login -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/><link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <!-- DBM theme (remplace theme-base + cds-overrides) -->
+  <link href="./css/dbm-theme.css" rel="stylesheet"/>
+  <link href="./css/bdb-ui-kit.css" rel="stylesheet"/><!-- 4. CSS spécifique login -->
   <link href="css/login-ui.css" rel="stylesheet"/>
+
+  <!-- PWA -->
 </head>
-<body class="login-bg">
+<body>
 
 <!-- ═══════════════════════════════════════════════════
      CARD PRINCIPALE
@@ -31,7 +29,7 @@
       <div class="login-icon-wrap">
         <i class="bi bi-clipboard2-pulse fs-3 text-white"></i>
       </div>
-      <h4 class="fw-bold mb-1">Bible de Bloc</h4>
+      <h4 class="fw-bold mb-1">Des Blocs & Moi</h4>
       <p class="text-muted small mb-0">Bloc ortho-neurochirurgie</p>
     </div>
 
@@ -60,7 +58,7 @@
     <div id="panelLogin" role="tabpanel" aria-labelledby="tabLoginBtn">
       <div class="mb-3">
         <label class="form-label" for="loginEmail">Email</label>
-        <input type="email" class="form-control" id="loginEmail"
+        <input type="email" autocomplete="email" class="form-control" id="loginEmail"
                placeholder="votre@email.com" autocomplete="email"/>
       </div>
       <div class="mb-3">
@@ -68,19 +66,29 @@
           <label class="form-label mb-0" for="loginPassword">Mot de passe</label>
           <button class="btn-forgot" id="btnForgot" type="button">Mot de passe oublié ?</button>
         </div>
-        <div class="cds-eye-wrap">
-          <input type="password" class="form-control" id="loginPassword"
+        <div class="input-group">
+          <input type="password" autocomplete="current-password" class="form-control" id="loginPassword"
                  placeholder="••••••••" autocomplete="current-password"/>
-          <button class="cds-btn-eye" id="eyeLoginBtn" type="button"
+          <button class="btn btn-outline-secondary" id="eyeLoginBtn" type="button"
                   aria-label="Afficher / masquer le mot de passe">
             <i class="bi bi-eye" id="eyeLoginIcon"></i>
           </button>
         </div>
       </div>
-      <button id="btnLogin" class="btn btn-primary w-100 mb-3" type="button">
+      <button id="btnLogin" class="btn btn-module w-100 mb-3" type="button">
         <span id="btnLoginText">Se connecter</span>
         <span id="btnLoginSpinner" class="spinner-border spinner-border-sm ms-2 d-none"
               role="status" aria-hidden="true"></span>
+      </button>
+      <hr class="my-3">
+      <button id="bdb-btn-google" class="btn btn-outline-secondary w-100" type="button">
+        <svg class="me-2" width="18" height="18" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.84l6.08-6.08C34.46 3.1 29.5 1 24 1 14.82 1 7.07 6.48 3.73 14.22l7.08 5.5C12.5 13.67 17.77 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.52 24.5c0-1.64-.15-3.22-.42-4.74H24v8.98h12.7c-.55 2.94-2.2 5.43-4.68 7.1l7.18 5.58C43.36 37.26 46.52 31.36 46.52 24.5z"/>
+          <path fill="#FBBC05" d="M10.81 28.28A14.6 14.6 0 0 1 9.5 24c0-1.48.25-2.91.69-4.26l-7.08-5.5A23.93 23.93 0 0 0 0 24c0 3.87.92 7.53 2.54 10.77l8.27-6.49z"/>
+          <path fill="#34A853" d="M24 47c5.5 0 10.12-1.82 13.5-4.94l-7.18-5.58c-1.82 1.22-4.15 1.94-6.32 1.94-6.23 0-11.5-4.17-13.19-9.78l-8.27 6.49C7.07 41.52 14.82 47 24 47z"/>
+        </svg>
+        Continuer avec Google
       </button>
     </div>
 
@@ -100,10 +108,10 @@
       </p>
       <div class="mb-4">
         <label class="form-label" for="forgotEmail">Email</label>
-        <input type="email" class="form-control" id="forgotEmail"
+        <input type="email" autocomplete="email" class="form-control" id="forgotEmail"
                placeholder="votre@email.com" autocomplete="email"/>
       </div>
-      <button id="btnSendReset" class="btn btn-primary w-100" type="button">
+      <button id="btnSendReset" class="btn btn-module w-100" type="button">
         <span id="btnSendResetText">Envoyer le lien</span>
         <span id="btnSendResetSpinner" class="spinner-border spinner-border-sm ms-2 d-none"
               role="status" aria-hidden="true"></span>
@@ -125,31 +133,26 @@
       </div>
       <div class="mb-3">
         <label class="form-label" for="regFonction">Fonction</label>
-        <select class="form-select" id="regFonction">
-          <option value="infirmier">Infirmier(ère)</option>
-          <option value="medecin">Médecin</option>
-          <option value="cadre">Cadre</option>
-          <option value="aide-soignant">Aide-soignant(e)</option>
-        </select>
+        <select class="form-select" id="regFonction"></select>
       </div>
       <div class="mb-3">
         <label class="form-label" for="regEmail">Email</label>
-        <input type="email" class="form-control" id="regEmail"
+        <input type="email" autocomplete="email" class="form-control" id="regEmail"
                placeholder="votre@email.com" autocomplete="email"/>
       </div>
       <div class="mb-4">
         <label class="form-label" for="regPassword">Mot de passe</label>
-        <div class="cds-eye-wrap">
-          <input type="password" class="form-control" id="regPassword"
+        <div class="input-group">
+          <input type="password" autocomplete="current-password" class="form-control" id="regPassword"
                  placeholder="••••••••" autocomplete="new-password"/>
-          <button class="cds-btn-eye" id="eyeRegisterBtn" type="button"
+          <button class="btn btn-outline-secondary" id="eyeRegisterBtn" type="button"
                   aria-label="Afficher / masquer le mot de passe">
             <i class="bi bi-eye" id="eyeRegisterIcon"></i>
           </button>
         </div>
-        <p class="password-hint">Minimum 8 caractères</p>
+        <div id="regPasswordFeedback"></div>
       </div>
-      <button id="btnRegister" class="btn btn-primary w-100" type="button">
+      <button id="btnRegister" class="btn btn-module w-100" type="button">
         <span id="btnRegisterText">S'inscrire</span>
         <span id="btnRegisterSpinner" class="spinner-border spinner-border-sm ms-2 d-none"
               role="status" aria-hidden="true"></span>
@@ -168,12 +171,31 @@
 </div><!-- /card -->
 
 <!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="js/supabase-client.js"></script>
+<script src="js/bdb-demo.js"></script>
+<script src="js/bdb-password-policy.js"></script>
+<script src="js/bdb-fonctions.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  window.bdbFonctions.populate(document.getElementById('regFonction'), { placeholder: true, grouped: true });
+
+  // ── Return URL (pattern redirect post-login) ──────────────────────────
+  // Lit ?redirect= depuis l'URL. Sécurité : n'accepte que les chemins relatifs
+  // internes à BDB (commence par / ou modules/). Jamais d'URL externe.
+  function _getReturnUrl() {
+    var params = new URLSearchParams(window.location.search);
+    var raw = params.get('redirect');
+    if (!raw) return 'index.html';
+    var decoded = decodeURIComponent(raw);
+    // Sécurité anti-open-redirect : chemin relatif interne uniquement
+    // Bloque : URLs absolues (http://), protocol-relative (//), javascript:
+    if (decoded.startsWith('//') || decoded.includes(':')) return 'index.html';
+    if (decoded.startsWith('/') || decoded.startsWith('modules/')) return decoded;
+    return 'index.html';
+  }
 
   // ── Helpers UI ───────────────────────────────────────────────────────
   function showAlert(msg, type = 'danger') {
@@ -223,6 +245,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   bindEyeToggle('loginPassword',   'eyeLoginIcon',    'eyeLoginBtn');
   bindEyeToggle('regPassword',     'eyeRegisterIcon', 'eyeRegisterBtn');
+
+  const regFeedbackEl = document.getElementById('regPasswordFeedback');
+  document.getElementById('regPassword').addEventListener('input', function () {
+    window.bdbPasswordPolicy.renderFeedback(regFeedbackEl, this.value);
+  });
 
   // ── Onglets ──────────────────────────────────────────────────────────
   function showPanel(panel) {
@@ -292,15 +319,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!email)               { showAlert('Email requis.'); return; }
     if (!email.includes('@')) { showAlert('Email invalide.'); return; }
     if (!password)            { showAlert('Mot de passe requis.'); return; }
-    if (password.length < 8)  { showAlert('Le mot de passe doit faire au moins 8 caractères.'); return; }
-
     setLoading('btnLogin', 'btnLoginText', 'btnLoginSpinner', true, 'Connexion…');
 
-    const { data, error } = await window.bdb.auth.signInWithPassword({ email, password });
+    const { data, error } = await window.bdb.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
 
     if (error) {
       showAlert(translateError(error.message));
       setLoading('btnLogin', 'btnLoginText', 'btnLoginSpinner', false, 'Se connecter');
+      return;
+    }
+
+    if (data.weakPassword) {
+      window.location.href = 'reset-password.html?reason=weak';
       return;
     }
 
@@ -316,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    window.location.href = 'index.html';
+    window.location.href = _getReturnUrl();
   }
 
   // ── Inscription ──────────────────────────────────────────────────────
@@ -331,7 +364,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!prenom || prenom.length < 2)   { showAlert('Le prénom doit faire au moins 2 caractères.'); return; }
     if (!nom    || nom.length < 2)      { showAlert('Le nom doit faire au moins 2 caractères.'); return; }
     if (!email  || !email.includes('@')){ showAlert('Email invalide.'); return; }
-    if (password.length < 8)            { showAlert('Le mot de passe doit faire au moins 8 caractères.'); return; }
+    const check = window.bdbPasswordPolicy.validate(password);
+    if (!check.valid) {
+      window.bdbPasswordPolicy.renderFeedback(regFeedbackEl, password);
+      showAlert('Le mot de passe ne respecte pas toutes les exigences.');
+      return;
+    }
 
     setLoading('btnRegister', 'btnRegisterText', 'btnRegisterSpinner', true, 'Inscription…');
 
@@ -341,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { error } = await window.bdb.auth.signUp({
       email, password,
       options: {
-        emailRedirectTo: window.location.origin + '/index.html',
+        emailRedirectTo: window.location.origin + 'index.html',
         data: { name, initials, nom, prenom, fonction },
       },
     });
@@ -357,32 +395,86 @@ document.addEventListener('DOMContentLoaded', () => {
     ['regEmail', 'regPassword', 'regPrenom', 'regNom'].forEach(id => {
       document.getElementById(id).value = '';
     });
+    regFeedbackEl.innerHTML = '';
   }
 
-  // ── Mode démo ────────────────────────────────────────────────────────
-  function activateDemoMode() {
-    sessionStorage.setItem('demo_mode', 'true');
-    window.location.href = 'index.html';
-  }
-
-  document.getElementById('btnDemo').addEventListener('click', activateDemoMode);
+  // ── Mode démo — connexion Supabase réelle (bdb-demo.js) ─────────────
+  document.getElementById('btnDemo').addEventListener('click', function () {
+    if (typeof window.bdbEnterDemo === 'function') {
+      window.bdbEnterDemo();
+    }
+  });
 
   // Ctrl+Shift+D — démo
-  // Ctrl+Shift+A — admin bootstrap (discret, pas affiché)
   document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'D') {
       e.preventDefault();
-      activateDemoMode();
+      if (typeof window.bdbEnterDemo === 'function') window.bdbEnterDemo();
     }
-    if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'A') {
-      e.preventDefault();
-      window.location.href = 'admin-bootstrap.html';
+  });
+
+  // ── onAuthStateChange — validation membres OAuth Google ──────────────
+  // Déclenché quand Supabase traite le callback OAuth (SIGNED_IN).
+  // Les connexions email/password (handleLogin) ont leur propre flux —
+  // on les ignore ici via app_metadata.provider.
+  //
+  // Étape 1 : id connu dans profiles → membre lié → accès autorisé.
+  // Étape 2 : email connu dans profiles → compte existant mais Google
+  //           non encore lié → éjection + message explicatif.
+  // Étape 3 : inconnu total → éjection.
+  window.bdb.auth.onAuthStateChange(async (event, session) => {
+    if (event !== 'SIGNED_IN' || !session) return;
+
+    // Filtre : uniquement les sessions OAuth Google
+    const provider = session.user?.app_metadata?.provider;
+    if (provider !== 'google') return;
+
+    // Étape 1 — L'UUID auth existe dans profiles ?
+    const { data: byId } = await window.bdb
+      .from('profiles')
+      .select('id')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    if (byId) {
+      window.location.href = _getReturnUrl();
+      return;
+    }
+
+    // Étape 2 — L'email existe dans profiles (compte BDB non lié à Google) ?
+    const { data: byEmail } = await window.bdb
+      .from('profiles')
+      .select('id')
+      .eq('email', session.user.email)
+      .maybeSingle();
+
+    await window.bdb.auth.signOut();
+
+    if (byEmail) {
+      window.location.href = 'unauthorized.html?reason=email-non-lie';
+    } else {
+      // Étape 3 — Aucune correspondance : intrus
+      window.location.href = 'unauthorized.html?reason=intrus';
     }
   });
 
   // ── Câblage boutons submit ────────────────────────────────────────────
   document.getElementById('btnLogin').addEventListener('click', handleLogin);
   document.getElementById('btnRegister').addEventListener('click', handleRegister);
+
+  // ── OAuth Google ──────────────────────────────────────────────────────
+  // window.bdb = client unique (INTERDIT-A3 — jamais de second createClient).
+  // redirectTo : retour sur index.html après authentification Google.
+  document.getElementById('bdb-btn-google')?.addEventListener('click', async () => {
+    await window.bdb.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // redirectTo pointe sur login.html — onAuthStateChange valide
+        // le membre avant toute redirection vers l'app.
+        redirectTo: window.location.origin + 'login.html'
+      }
+    });
+  });
 
   // Enter sur les champs password → submit
   document.getElementById('loginPassword').addEventListener('keydown', e => {
@@ -396,10 +488,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Init : si déjà connecté → index ──────────────────────────────────
-  (async () => {
-    const session = await window.bdbGetSession();
-    if (session) { window.location.href = 'index.html'; }
-  })();
+  // Désactivé pendant le callback OAuth : onAuthStateChange gère ce cas.
+  // Détection : Supabase pose #access_token (implicit) ou ?code= (PKCE)
+  // dans l'URL de retour.
+  var _isOAuthCallback = window.location.hash.includes('access_token')
+    || new URLSearchParams(window.location.search).has('code');
+
+  if (!_isOAuthCallback) {
+    (async () => {
+      const session = await window.bdbGetSession();
+      if (session) { window.location.href = _getReturnUrl(); }
+    })();
+  }
 
 });
 </script>

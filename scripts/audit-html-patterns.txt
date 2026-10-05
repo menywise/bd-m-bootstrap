@@ -1,0 +1,820 @@
+======================================================================
+AUDIT PATTERNS HTML BDB - 2026-04-07 20:12
+Racine : C:\DEV\BIBLE_DE_BLOC
+======================================================================
+
+Fichiers HTML trouves : 55
+----------------------------------------------------------------------
+
+*** 00_GOUVERNANCE\_artefacts\index_pedagogie_prompt.html ***
+  SHELL    : absent / standalone
+  CDN      : hash absent
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : nav-tabs
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : onclick= (1) [VIOLATION]
+  BADGES   : non detecte
+  STYLE=   : 5 total / 0 justifies / 5 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: ABSENT [DEVIATION]
+
+*** 403.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : aucun
+  NAV      : aucune
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** 404.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client
+  NAV      : aucune
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 2 total / 0 justifies / 2 suspects
+  ESCHTML  : absent / 3 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** atelier\ccam.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : CCAM
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** atelier\ccam-validator.html ***
+  SHELL    : absent / standalone
+  CDN      : hash absent
+  JS-CHAIN : aucun
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 4 total / 0 justifies / 4 suspects
+  ESCHTML  : absent / 3 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: ABSENT [DEVIATION]
+
+*** atelier\compat.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 9 total / 0 justifies / 9 suspects
+  ESCHTML  : 5 [OK]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** atelier\diagnostic.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Diagnostic
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : bg-*-subtle (1) [BS5.3 OK]
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** atelier\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Atelier
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** atelier\memo.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Mémo
+  CDN      : @latest PRESENT (2) [VIOLATION]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : onclick= (1) [VIOLATION]
+  BADGES   : non detecte
+  STYLE=   : 2 total / 0 justifies / 2 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** atelier\overview.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Overview BDB
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** atelier\session-ia.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Session IA
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** cockpit.html ***
+  SHELL    : absent / standalone
+  CDN      : @latest PRESENT (1) [VIOLATION]
+  JS-CHAIN : aucun
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 2 total / 0 justifies / 2 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** index.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > invite-guard
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 8 total / 0 justifies / 8 suspects
+  ESCHTML  : absent / 4 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** login.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-fonctions
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : absent / 2 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\admin\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Administration
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell > bdb-fonctions > invite-guard > utils.js [SUPPRIME] > storage.js [SUPPRIME]
+  NAV      : nav-tabs + nav-pills
+  BTN-ADD  : btn-primary OK | btn-danger [COULEUR INCORRECTE] | ms-md-auto [toolbar OK]
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 1 total / 0 justifies / 1 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\anatomie\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Anatomie
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\annuaire\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Annuaire
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\arsenal\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Arsenal
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell > invite-guard
+  NAV      : nav-tabs
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 11 total / 0 justifies / 11 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\carnet-bord\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Carnet de Bord
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 12 total / 0 justifies / 12 suspects
+  ESCHTML  : absent / 14 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\collab\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : CollabKit
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell > invite-guard
+  NAV      : nav-tabs + nav-pills
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\cours\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Cours
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell > invite-guard
+  NAV      : aucune
+  BTN-ADD  : btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\disc\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : DISC Engine
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : btn-primary OK | btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : btn-group [OK]
+  BADGES   : bg-*-subtle (15) [BS5.3 OK]
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\dork\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Dork Builder
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\faq\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : FAQ & Aide
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 6 total / 1 justifies / 5 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\fiches\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Fiches d'intervention
+  CDN      : @latest PRESENT (1) [VIOLATION]
+  JS-CHAIN : supabase-client > bdb-shell > invite-guard
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\glossaire\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Glossaire Chirurgical
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell > invite-guard
+  NAV      : nav-tabs + nav-pills
+  BTN-ADD  : btn-primary OK | btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : btn-group [OK]
+  BADGES   : bg-*-subtle (1) [BS5.3 OK]
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\installation\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Installation patient
+  CDN      : @latest PRESENT (1) [VIOLATION]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\medacta-coste\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Implants Medacta — Dr COSTE Cédric
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs + nav-pills
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : non detecte
+  BADGES   : bg-*-subtle (1) [BS5.3 OK]
+  STYLE=   : 6 total / 0 justifies / 6 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\objectifs\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Intégration IDE
+  CDN      : @latest PRESENT (1) [VIOLATION]
+  JS-CHAIN : supabase-client > bdb-shell > invite-guard
+  NAV      : nav-tabs + nav-pills
+  BTN-ADD  : btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : btn-group [OK]
+  BADGES   : bg-*-subtle (10) [BS5.3 OK]
+  STYLE=   : 6 total / 0 justifies / 6 suspects
+  ESCHTML  : absent / 19 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\organisateur\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Organisateur
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell > invite-guard
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\paxis\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Paxis
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : 4 [OK]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\planning\analytics.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Analyse multi-périodes
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : non detecte
+  ACTIONS  : btn-group [OK]
+  BADGES   : bg-*-subtle (7) [BS5.3 OK]
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\planning\export.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Planning — Export
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\planning\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Planning
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : bg-*-subtle (6) [BS5.3 OK]
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\planning\planning.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Planning — Saisie
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : btn-group [OK]
+  BADGES   : bg-*-subtle (3) [BS5.3 OK]
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\preferences\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Préférences chirurgiens
+  CDN      : @latest PRESENT (1) [VIOLATION]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\profile\index.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-fonctions
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : 5 [OK]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\accessibilite.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\adoption.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\audiences.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > utils.js [SUPPRIME]
+  NAV      : nav-tabs
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 1 total / 0 justifies / 1 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\faq.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 4 total / 0 justifies / 4 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\fonctionnalites.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\glossaire.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : btn-primary OK | btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : onclick= (1) [VIOLATION]
+  BADGES   : non detecte
+  STYLE=   : 1 total / 0 justifies / 1 suspects
+  ESCHTML  : 12 [OK]
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+
+*** modules\site\index.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : onclick= (1) [VIOLATION]
+  BADGES   : non detecte
+  STYLE=   : 1 total / 0 justifies / 1 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\pas-app.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\risques.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\site\vision.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : utils.js [SUPPRIME]
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** modules\supervision\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Supervision
+  CDN      : @latest PRESENT (1) [VIOLATION]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 36 total / 0 justifies / 36 suspects
+  ESCHTML  : non applicable
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\template-vierge\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : ① [TITRE_MODULE]
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : btn-primary OK
+  ACTIONS  : data-action [OK] | onclick= (4) [VIOLATION]
+  BADGES   : non detecte
+  STYLE=   : 2 total / 0 justifies / 2 suspects
+  ESCHTML  : 8 [OK]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\thesaurus\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Thésaurus Médical
+  CDN      : @latest PRESENT (2) [VIOLATION]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : nav-tabs + nav-pills
+  BTN-ADD  : btn-primary OK | btn-danger [COULEUR INCORRECTE]
+  ACTIONS  : btn-group [OK]
+  BADGES   : bg-*-subtle (3) [BS5.3 OK]
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** modules\thesaurus\rapprochement_fiches.html ***
+  SHELL    : absent / standalone
+  CDN      : hash absent
+  JS-CHAIN : aucun
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : onclick= (3) [VIOLATION]
+  BADGES   : non detecte
+  STYLE=   : 6 total / 0 justifies / 6 suspects
+  ESCHTML  : 9 [OK]
+  SEARCH   : presente
+  OVERRIDES: ABSENT [DEVIATION]
+
+*** modules\transmissions\index.html ***
+  SHELL    : bdb-shell.js [OK]
+  MODULE   : Transmissions
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > bdb-shell
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 2 total / 1 justifies / 1 suspects
+  ESCHTML  : non applicable
+  SEARCH   : presente
+  OVERRIDES: present [OK]
+  E1-CHECK : elements avant bdb-shell [VIOLATION INTERDIT-E1]
+
+*** pending.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client > invite-guard
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 0 total / 0 justifies / 0 suspects
+  ESCHTML  : absent / 2 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** reset-password.html ***
+  SHELL    : absent / standalone
+  CDN      : hash fixe [OK]
+  JS-CHAIN : supabase-client
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 1 total / 0 justifies / 1 suspects
+  ESCHTML  : absent / 1 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: present [OK]
+
+*** unauthorized.html ***
+  SHELL    : absent / standalone
+  CDN      : hash absent
+  JS-CHAIN : aucun
+  NAV      : aucune
+  BTN-ADD  : non detecte
+  ACTIONS  : non detecte
+  BADGES   : non detecte
+  STYLE=   : 1 total / 0 justifies / 1 suspects
+  ESCHTML  : absent / 1 innerHTML [VERIFIER]
+  SEARCH   : absente
+  OVERRIDES: ABSENT [DEVIATION]
+
+======================================================================
+SYNTHESE
+======================================================================
+
+  Fichiers analyses         : 55
+
+  [ARCHITECTURE]
+  bdb-shell.js              : 32 / 55
+  offcanvas manuel          : 0   [deviations]
+  cds-overrides.css         : 51 / 55
+
+  [CDN]
+  hash fixe a75daa0         : 51 / 55
+  @latest violation         : 8   [VIOLATIONS]
+  utils/storage supprimes   : 12    [VIOLATIONS]
+
+  [NAVIGATION]
+  nav-tabs                  : 18
+  nav-pills                 : 6
+  type=search               : 16
+
+  [PATTERNS UI]
+  btn-group btn-group-sm    : 6 [cible CRUD]
+  badge-soft-* custom       : 0 [a remplacer]
+  bg-*-subtle BS5.3         : 9
+  escHtml present           : 6
+
+  [JS]
+  onclick= violations       : 6   [VIOLATIONS JS-01]
+
+======================================================================
+Rapport : 2026-04-07 20:12:21
+======================================================================

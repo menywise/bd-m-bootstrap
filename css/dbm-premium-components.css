@@ -1,0 +1,20 @@
+/* ============================================================
+   DBM - dbm-premium-components.css - REVERSE _deltas
+   ============================================================
+   STATUT  : OBSOLETE - HORS CONV-CHAIN-E V5
+   DATE    : 2026-05-08 (cloture session #115)
+   RAISON  : Cree session #115 phase 1 par boulimie de production,
+             SANS lecture prealable des 5 socles + Carnet V2.
+             N'est dans la chaine CSS canonique CONV-CHAIN-E V5.
+             Aucune page de l'app ne le charge.
+
+   ARCHIVE : css/_deltas/dbm-premium-components_S115_HORS_CANON.css
+
+   ACTION  : Ne plus charger ce fichier. Si necessite premium,
+             passer par cds-overrides.css (couche premium officielle)
+             ou dbm-module-color.css (pattern couleur module).
+
+   DECISION : D-2026-05-08-S115-CLOTURE-ALIGN
+   ============================================================ */
+
+/* Aucune regle CSS active. Voir archive _deltas/. */

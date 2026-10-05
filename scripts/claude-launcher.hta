@@ -1,0 +1,57 @@
+<html>
+<head>
+<title>BDB - Claude Code Launcher</title>
+<HTA:APPLICATION
+  ID="BDBClaudeLauncher"
+  APPLICATIONNAME="BDB Claude Code"
+  BORDER="dialog"
+  BORDERSTYLE="raised"
+  CAPTION="yes"
+  ICON=""
+  MAXIMIZEBUTTON="no"
+  MINIMIZEBUTTON="yes"
+  SINGLEINSTANCE="yes"
+  SYSMENU="yes"
+  VERSION="1.0.0"
+  WINDOWSTATE="normal"
+/>
+<style>
+  body { font-family: Segoe UI, sans-serif; background: #1e293b; color: #e2e8f0; margin: 0; padding: 20px; user-select: none; }
+  h1 { font-size: 16px; font-weight: 600; margin: 0 0 6px; color: #fff; }
+  .sub { font-size: 11px; color: #94a3b8; margin-bottom: 20px; }
+  .btn { display: block; width: 100%; padding: 14px; margin-bottom: 10px; border: 2px solid #34d399; border-radius: 6px; background: rgba(52,211,153,0.08); color: #34d399; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
+  .btn:hover { background: rgba(52,211,153,0.2); }
+  .btn-secondary { border-color: #60a5fa; color: #60a5fa; background: rgba(96,165,250,0.08); }
+  .btn-secondary:hover { background: rgba(96,165,250,0.2); }
+  .counter { font-size: 11px; color: #64748b; text-align: center; margin-top: 8px; }
+  .footer { font-size: 10px; color: #475569; text-align: center; margin-top: 16px; border-top: 1px solid #334155; padding-top: 10px; }
+</style>
+<script language="JavaScript">
+  var sessionCount = 0;
+
+  function launchClaude() {
+    var shell = new ActiveXObject("WScript.Shell");
+    sessionCount++;
+    var title = "Claude Code - BDB #" + sessionCount;
+    var cmd = 'cmd /k "title ' + title + ' && cd /d C:\\DEV\\BIBLE_DE_BLOC && claude --dangerously-skip-permissions"';
+    shell.Run(cmd, 1, false);
+    document.getElementById("counter").innerText = sessionCount + " fenetre(s) ouverte(s)";
+  }
+
+  function launchCockpit() {
+    var shell = new ActiveXObject("WScript.Shell");
+    shell.Run('cmd /c start "" "C:\\DEV\\BIBLE_DE_BLOC\\cockpit.html"', 0, false);
+  }
+
+  window.resizeTo(340, 280);
+</script>
+</head>
+<body>
+  <h1>BDB - Claude Code</h1>
+  <div class="sub">Chaque clic = nouvelle fenetre autonome</div>
+  <button class="btn" onclick="launchClaude()">Ouvrir Claude Code</button>
+  <button class="btn btn-secondary" onclick="launchCockpit()">Cockpit BDB</button>
+  <div class="counter" id="counter"></div>
+  <div class="footer">C:\DEV\BIBLE_DE_BLOC -- --dangerously-skip-permissions</div>
+</body>
+</html>

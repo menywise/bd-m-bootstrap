@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Template Module | Des Blocs &amp; Moi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="../../css/dbm-theme.css" rel="stylesheet"/>
+  <style>
+    /* ══════════════════════════════════════════════════════
+       ZONE LABELS — dev/design helper
+       Chaque zone porte un nom visible pour la communication.
+       En production : supprimer cette <style> ou ajouter
+       .app-zone::before { display: none }
+       ══════════════════════════════════════════════════════ */
+    .app-zone {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    .app-zone::before {
+      content: attr(data-zone);
+      position: absolute;
+      top: -.6rem;
+      left: .75rem;
+      font-size: .6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #6f42c1;
+      background: #f3f4f8;
+      padding: 0 .4rem;
+      border-radius: .2rem;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .app-zone--outline {
+      border: 1px dashed #c4b5fd;
+      border-radius: .5rem;
+      padding: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- WCAG AA : skip link -->
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
+
+
+<!-- ════════════ SIDEBAR ════════════ -->
+<nav class="app-sidebar" id="sidebar" aria-label="Navigation principale">
+
+  <div class="app-sidebar-brand">
+    <i class="bi bi-heart-pulse" style="font-size:1.2rem"></i>
+    Des Blocs &amp; Moi
+  </div>
+
+  <div class="app-sidebar-nav">
+    <div class="app-sidebar-section">Consulter</div>
+    <a href="#" class="app-sidebar-link active">
+      <i class="bi bi-book"></i> Glossaire
+    </a>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-list-check"></i> Protocoles
+    </a>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-file-earmark-text"></i> Fiches
+    </a>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-body-text"></i> Anatomie
+    </a>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-box-seam"></i> Arsenal
+    </a>
+
+    <div class="app-sidebar-section" style="margin-top:.75rem">Organiser</div>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-calendar3"></i> Planning
+    </a>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-clipboard2-check"></i> Transmissions
+    </a>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-sliders2"></i> Preferences
+    </a>
+
+    <div class="app-sidebar-section" style="margin-top:.75rem">Progresser</div>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-mortarboard"></i> Cours
+    </a>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-journal-bookmark"></i> Carnet de bord
+    </a>
+    <a href="#" class="app-sidebar-link">
+      <i class="bi bi-bullseye"></i> Objectifs
+    </a>
+  </div>
+
+  <div class="app-sidebar-footer">
+    v2.0 &middot; Ortho &middot; Chenieux
+  </div>
+</nav>
+
+<div class="app-sidebar-overlay" id="sidebarOverlay"></div>
+
+
+<!-- ════════════ HEADER ════════════ -->
+<header class="app-header" role="banner">
+  <button class="app-header-toggle" id="sidebarToggle"
+          aria-label="Ouvrir ou fermer le menu" aria-expanded="true">
+    <i class="bi bi-list"></i>
+  </button>
+
+  <div class="app-header-search">
+    <i class="bi bi-search"></i>
+    <input type="search" placeholder="Rechercher dans Des Blocs &amp; Moi..."
+           aria-label="Recherche globale" id="globalSearch">
+  </div>
+
+  <div class="app-header-spacer"></div>
+
+  <button class="app-header-toggle" aria-label="Notifications">
+    <i class="bi bi-bell"></i>
+  </button>
+
+  <div class="app-avatar" title="Sabine D." aria-label="Profil de Sabine D.">SD</div>
+</header>
+
+
+<!-- ════════════ MAIN ════════════ -->
+<div class="app-layout">
+  <main class="app-main" id="main-content">
+    <div class="app-content">
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Breadcrumb
+           Fil d'Ariane. Supprimable sans casser la page.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Breadcrumb">
+        <nav class="app-breadcrumb" aria-label="Fil d'Ariane">
+          <a href="#">Accueil</a>
+          <span class="app-breadcrumb-sep"><i class="bi bi-chevron-right"></i></span>
+          <span>Glossaire</span>
+        </nav>
+      </section>
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Page Title (Bandeau colore module)
+           Bandeau gradient avec couleur du group_color (issue de
+           app_groups.color en DB). Inclut h1 + sous-titre + bouton
+           action principal optionnel. Doctrine D-2026-05-05-S117-XX :
+           tout module DBM doit afficher ce bandeau colore identifie.
+           Couleurs par group :
+             bloc          #0d6efd (bleu)
+             equipe        #198754 (vert)
+             savoir        #6610f2 (indigo)
+             pilotage      #dc3545 (rouge)
+             espace_perso  #fd7e14 (orange)
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Page Title">
+        <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-3">
+          <div class="flex-grow-1 me-2">
+            <!-- Bandeau colore module — couleur pastel = group_color (palette pastel doux) -->
+            <div class="p-4 rounded shadow-sm"
+                 style="background:linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);color:#1e3a8a">
+              <h1 class="mb-2 fw-bold"><i class="bi bi-book me-2"></i>Glossaire chirurgical</h1>
+              <p class="mb-0" style="opacity:0.75">567 termes &middot; Derniere mise a jour : 03/05/2026</p>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm flex-shrink-0" style="gap:.35rem;display:inline-flex;align-items:center">
+            <i class="bi bi-plus-lg"></i> Nouveau terme
+          </button>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: KPIs
+           Compteurs synthese. 4 colonnes desktop, 2 mobile.
+           Supprimable sans casser la page.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="KPIs">
+        <div class="row g-3">
+          <div class="col-6 col-lg-3">
+            <div class="app-kpi">
+              <div class="app-kpi-value text-primary">567</div>
+              <div class="app-kpi-label">Termes</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="app-kpi">
+              <div class="app-kpi-value" style="color:#198754">8</div>
+              <div class="app-kpi-label">Categories</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="app-kpi">
+              <div class="app-kpi-value" style="color:#6f42c1">42</div>
+              <div class="app-kpi-label">Eponymes</div>
+            </div>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="app-kpi">
+              <div class="app-kpi-value" style="color:#fd7e14">89%</div>
+              <div class="app-kpi-label">Avec definition</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Filters (standalone)
+           Barre de filtres hors card. Fond + bordure propre.
+           CSS module requis :
+             .[module]-search-bar {
+               background: var(--bs-body-bg);
+               border: 1px solid var(--bs-border-color);
+               border-radius: .5rem;
+             }
+           Supprimable sans casser la page.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Filters">
+        <div style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;padding:.75rem 1rem">
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-5">
+              <label class="form-label small fw-semibold text-muted mb-1">
+                <i class="bi bi-search me-1"></i>Recherche
+              </label>
+              <div class="input-group input-group-sm">
+                <input type="search" class="form-control" placeholder="Rechercher..." autocomplete="off"/>
+                <button class="btn btn-outline-secondary" type="button" aria-label="Effacer">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label small fw-semibold text-muted mb-1">Type</label>
+              <select class="form-select form-select-sm"><option value="">Tous</option></select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label small fw-semibold text-muted mb-1">Zone</label>
+              <select class="form-select form-select-sm"><option value="">Toutes</option></select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label small fw-semibold text-muted mb-1">Pareto</label>
+              <select class="form-select form-select-sm"><option value="">Tous</option></select>
+            </div>
+            <div class="col-6 col-md-1 d-flex align-items-end">
+              <button class="btn btn-outline-secondary btn-sm w-100" type="button" title="Reset">
+                <i class="bi bi-arrow-counterclockwise"></i>
+              </button>
+            </div>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
+            <small class="text-muted"><span class="fw-semibold text-dark">42</span> resultat(s)</small>
+            <button class="btn btn-xs btn-outline-secondary" type="button">
+              <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Data Card
+           Card contenant tabs + filtres inline + table + pagination.
+           Onglet 3 montre le pattern SOUS-MENU (nav-pills dans tab-pane).
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Data Card">
+        <div class="app-card">
+
+          <!-- Sous-zone: Tabs (header) -->
+          <div class="app-card-header" style="padding-bottom:0">
+            <ul class="nav bdb-tabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="dcTab1" data-bs-toggle="tab" data-bs-target="#dcPane1" type="button" role="tab" aria-selected="true">Tous les termes</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="dcTab2" data-bs-toggle="tab" data-bs-target="#dcPane2" type="button" role="tab" aria-selected="false">Recemment ajoutes</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="dcTab3" data-bs-toggle="tab" data-bs-target="#dcPane3" type="button" role="tab" aria-selected="false">
+                  <i class="bi bi-diagram-3 me-1"></i>Referentiel
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Sous-zone: Tab content -->
+          <div class="app-card-body" style="padding:0">
+            <div class="tab-content">
+
+              <!-- TAB PANE 1 — Table simple + filtres inline + pagination -->
+              <div class="tab-pane fade show active" id="dcPane1" role="tabpanel">
+                <!-- Filtres inline -->
+                <div class="d-flex flex-wrap gap-2 align-items-center px-3 py-3">
+                  <div style="position:relative;flex:1;min-width:180px;max-width:320px">
+                    <i class="bi bi-search" style="position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:var(--app-text-muted);font-size:.8rem"></i>
+                    <input type="search" class="form-control form-control-sm" style="padding-left:2rem"
+                           placeholder="Filtrer les termes..." aria-label="Filtrer les termes">
+                  </div>
+                  <select class="form-select form-select-sm" style="width:auto;min-width:140px" aria-label="Categorie">
+                    <option value="">Toutes categories</option>
+                    <option>Technique</option>
+                    <option>Materiel</option>
+                    <option>Anatomie</option>
+                  </select>
+                </div>
+                <!-- Table -->
+                <div style="overflow-x:auto">
+                  <table class="app-table" id="demoTable">
+                    <thead>
+                      <tr>
+                        <th style="width:28%">Terme</th>
+                        <th class="col-hide-mobile" style="width:38%">Definition</th>
+                        <th style="width:14%">Categorie</th>
+                        <th class="col-hide-mobile" style="width:10%">Variantes</th>
+                        <th style="width:10%;text-align:right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="demoBody">
+                      <!-- JS generated -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- TAB PANE 2 — Contenu simple (placeholder) -->
+              <div class="tab-pane fade" id="dcPane2" role="tabpanel">
+                <div class="app-empty">
+                  <i class="bi bi-clock-history"></i>
+                  <p style="font-size:.85rem">Aucun terme ajoute recemment.</p>
+                </div>
+              </div>
+
+              <!-- TAB PANE 3 — Avec SOUS-MENU nav-pills (pattern CCAM OT) -->
+              <div class="tab-pane fade" id="dcPane3" role="tabpanel">
+
+                <!-- Sous-navigation pills interne au tab-pane -->
+                <ul class="nav nav-pills px-3 pt-3 mb-3" id="dcSubPills" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#dcSub1" type="button" role="tab" aria-selected="true">
+                      <i class="bi bi-list-check me-1"></i>Vue A
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#dcSub2" type="button" role="tab" aria-selected="false">
+                      <i class="bi bi-book me-1"></i>Vue B
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#dcSub3" type="button" role="tab" aria-selected="false">
+                      <i class="bi bi-clipboard-data me-1"></i>Vue C
+                    </button>
+                  </li>
+                </ul>
+
+                <!-- Contenu des sous-vues -->
+                <div class="tab-content">
+                  <div class="tab-pane fade show active px-3 pb-3" id="dcSub1" role="tabpanel">
+                    <p style="font-size:.85rem;color:var(--app-text-muted)" class="mb-0">Contenu de la sous-vue A (ex: protocoles lies).</p>
+                  </div>
+                  <div class="tab-pane fade px-3 pb-3" id="dcSub2" role="tabpanel">
+                    <p style="font-size:.85rem;color:var(--app-text-muted)" class="mb-0">Contenu de la sous-vue B (ex: referentiel).</p>
+                  </div>
+                  <div class="tab-pane fade px-3 pb-3" id="dcSub3" role="tabpanel">
+                    <p style="font-size:.85rem;color:var(--app-text-muted)" class="mb-0">Contenu de la sous-vue C (ex: couverture).</p>
+                  </div>
+                </div>
+
+              </div><!-- /tab-pane 3 -->
+
+            </div><!-- /tab-content -->
+          </div><!-- /app-card-body -->
+
+          <!-- Sous-zone: Pagination DBM (natif) -->
+          <div class="app-card-footer">
+            <span style="font-size:.8rem;color:var(--app-text-muted)">
+              1 - 10 sur 567 termes
+            </span>
+            <div class="app-pagination">
+              <button class="app-page-btn" disabled aria-label="Page precedente"><i class="bi bi-chevron-left"></i></button>
+              <button class="app-page-btn active">1</button>
+              <button class="app-page-btn">2</button>
+              <button class="app-page-btn">3</button>
+              <span style="padding:0 .25rem;color:var(--app-text-muted)">...</span>
+              <button class="app-page-btn">57</button>
+              <button class="app-page-btn" aria-label="Page suivante"><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Pagination BS (alternative)
+           Quand le JS genere du markup Bootstrap natif
+           (<li class="page-item"><button class="page-link">).
+           Preferer app-pagination DBM pour les nouveaux modules.
+           Supprimable sans casser la page.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Pagination BS">
+        <div class="d-flex align-items-center justify-content-between">
+          <span style="font-size:.8rem;color:var(--app-text-muted)">Page 1 / 8</span>
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item disabled"><button class="page-link">&laquo;</button></li>
+              <li class="page-item active"><button class="page-link">1</button></li>
+              <li class="page-item"><button class="page-link">2</button></li>
+              <li class="page-item"><button class="page-link">3</button></li>
+              <li class="page-item"><button class="page-link">&raquo;</button></li>
+            </ul>
+          </nav>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: 3 Etats DOM
+           Loading / Empty / Error — pattern obligatoire (C.9).
+           Supprimable sans casser la page.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="3 Etats DOM">
+        <!-- Etat 1 : Loading -->
+        <div class="app-card mb-3">
+          <div class="app-card-body text-center py-4 text-muted">
+            <div class="spinner-border spinner-border-sm me-2" role="status"></div>Chargement...
+          </div>
+        </div>
+        <!-- Etat 2 : Empty -->
+        <div class="app-card mb-3">
+          <div class="app-empty">
+            <i class="bi bi-inbox"></i>
+            <p style="font-size:.85rem">Aucun resultat pour ces criteres.</p>
+          </div>
+        </div>
+        <!-- Etat 3 : Error -->
+        <div class="app-card">
+          <div class="app-empty">
+            <i class="bi bi-exclamation-triangle" style="color:var(--app-danger,#dc3545)"></i>
+            <p style="color:var(--app-danger,#dc3545);font-size:.85rem">Erreur de chargement. Verifiez votre connexion.</p>
+            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-arrow-clockwise me-1"></i>Reessayer</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Alert / Info
+           Messages d'alerte, regles metier, notes admin.
+           Supprimable sans casser la page.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Alert">
+        <div class="alert alert-warning border-0" style="border-left:4px solid #f59e0b !important" role="alert">
+          <i class="bi bi-shield-exclamation me-2"></i>
+          <strong>Regles immuables :</strong> Ce champ est sacre. Non modifiable apres creation.
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Sortable Table
+           Table avec tri par colonne + pagination.
+           Pas de scroll vertical — TOUJOURS paginer.
+           Classe tri : app-sort-btn (dbm-theme §21).
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Sortable Table">
+        <div class="app-card">
+          <div class="app-card-header">
+            <div><strong style="font-size:.95rem">Protocoles</strong></div>
+            <span class="text-muted" style="font-size:.8rem">342 resultats</span>
+          </div>
+          <div class="app-card-body" style="padding:0">
+            <div style="overflow-x:auto">
+              <table class="app-table">
+                <thead>
+                  <tr>
+                    <th><button class="app-sort-btn" data-sort="libelle" aria-sort="ascending">Libelle <i class="bi bi-chevron-up"></i></button></th>
+                    <th><button class="app-sort-btn" data-sort="specialite">Specialite <i class="bi bi-chevron-expand"></i></button></th>
+                    <th><button class="app-sort-btn" data-sort="freq">Frequence <i class="bi bi-chevron-expand"></i></button></th>
+                    <th style="text-align:right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Arthroscopie du genou</strong></td>
+                    <td><span class="app-badge app-badge-blue">Ortho</span></td>
+                    <td>127</td>
+                    <td style="text-align:right">
+                      <div style="display:flex;gap:4px;justify-content:flex-end">
+                        <a class="app-icon-btn" title="Voir" role="button"><i class="bi bi-eye"></i></a>
+                        <a class="app-icon-btn" title="Modifier" role="button"><i class="bi bi-pencil"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>PTH voie anterieure</strong></td>
+                    <td><span class="app-badge app-badge-green">Ortho</span></td>
+                    <td>98</td>
+                    <td style="text-align:right">
+                      <div style="display:flex;gap:4px;justify-content:flex-end">
+                        <a class="app-icon-btn" title="Voir" role="button"><i class="bi bi-eye"></i></a>
+                        <a class="app-icon-btn" title="Modifier" role="button"><i class="bi bi-pencil"></i></a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="app-card-footer">
+            <span style="font-size:.8rem;color:var(--app-text-muted)">1 - 25 sur 342</span>
+            <div class="app-pagination">
+              <button class="app-page-btn" disabled aria-label="Page precedente"><i class="bi bi-chevron-left"></i></button>
+              <button class="app-page-btn active">1</button>
+              <button class="app-page-btn">2</button>
+              <button class="app-page-btn">3</button>
+              <span style="padding:0 .25rem;color:var(--app-text-muted)">...</span>
+              <button class="app-page-btn">14</button>
+              <button class="app-page-btn" aria-label="Page suivante"><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Detail Section
+           Bloc detail structure — dans offcanvas ou page.
+           Classes : app-detail-section, app-detail-section-title,
+           app-detail-label, app-detail-value (dbm-theme §23).
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Detail Section">
+        <div class="app-detail-section">
+          <div class="app-detail-section-title">Informations generales</div>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="app-detail-label">Code CCAM</div>
+              <div class="app-detail-value">NFKA010</div>
+            </div>
+            <div class="col-sm-6">
+              <div class="app-detail-label">Specialite</div>
+              <div class="app-detail-value"><span class="app-badge app-badge-blue">Orthopedie</span></div>
+            </div>
+            <div class="col-12">
+              <div class="app-detail-label">Description</div>
+              <div class="app-detail-value">Arthroscopie du genou avec meniscectomie partielle.</div>
+            </div>
+          </div>
+        </div>
+        <div class="app-detail-section">
+          <div class="app-detail-section-title">Materiel requis</div>
+          <div class="app-detail-label">Ancillaires</div>
+          <div class="app-detail-value">Colonne arthro, optique 30°, instruments de meniscectomie</div>
+          <div class="app-detail-label">DMI</div>
+          <div class="app-detail-value">Aucun</div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Drop Zone
+           Upload / drag & drop fichier.
+           Classe : app-drop-zone (dbm-theme §25).
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Drop Zone">
+        <div class="app-drop-zone" role="button" tabindex="0" aria-label="Deposer un fichier">
+          <i class="bi bi-cloud-upload"></i>
+          <p style="margin:.25rem 0 0;font-size:.85rem">Deposer un fichier ici ou <strong>parcourir</strong></p>
+          <small class="text-muted">Formats acceptes : PDF, CSV, XLSX (max 10 Mo)</small>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Offcanvas (BS 5.3.3 natif)
+           Panel lateral de detail. Bouton declencheur + panel.
+           Overrides : dbm-theme §26.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Offcanvas">
+        <button class="btn btn-xs btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#demoOffcanvas" aria-controls="demoOffcanvas">
+          <i class="bi bi-layout-sidebar-reverse me-1"></i>Ouvrir le panneau de detail
+        </button>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Accordion (BS 5.3.3 natif)
+           Sections depliables — ex: regroupement par zone anatomique.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Accordion">
+        <div class="accordion" id="demoAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#accOne" aria-expanded="true" aria-controls="accOne">
+                <i class="bi bi-geo-alt me-2"></i>Membre superieur
+              </button>
+            </h2>
+            <div id="accOne" class="accordion-collapse collapse show" data-bs-parent="#demoAccordion">
+              <div class="accordion-body" style="font-size:.85rem">
+                Epaule, coude, poignet, main — 42 protocoles.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accTwo" aria-expanded="false" aria-controls="accTwo">
+                <i class="bi bi-geo-alt me-2"></i>Membre inferieur
+              </button>
+            </h2>
+            <div id="accTwo" class="accordion-collapse collapse" data-bs-parent="#demoAccordion">
+              <div class="accordion-body" style="font-size:.85rem">
+                Hanche, genou, cheville, pied — 67 protocoles.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Modal (BS 5.3.3 natif)
+           Confirmation / edition / apercu. Bouton + dialog.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Modal">
+        <button class="btn btn-xs btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#demoModal">
+          <i class="bi bi-trash me-1"></i>Supprimer (demo modale)
+        </button>
+      </section>
+
+      <!-- ─────────────────────────────────────────────────
+           ZONE: Toast (BS 5.3.3 natif)
+           Notification temporaire. Declenchement JS.
+           Overrides : dbm-theme §27.
+           ───────────────────────────────────────────────── -->
+      <section class="app-zone" data-zone="Toast">
+        <button class="btn btn-xs btn-outline-primary" type="button" id="demoToastBtn">
+          <i class="bi bi-bell me-1"></i>Afficher un toast (demo)
+        </button>
+      </section>
+
+    </div><!-- /app-content -->
+
+    <!-- ─────────────────────────────────────────────────
+         ZONE: Footer
+         Pied de page. Toujours present.
+         ───────────────────────────────────────────────── -->
+    <footer class="app-footer">
+      <span>&copy; 2026 Des Blocs &amp; Moi</span>
+      <div class="d-flex gap-3">
+        <a href="#">Aide</a>
+        <a href="#">Accessibilite</a>
+        <a href="#">Mentions legales</a>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     BODY-LEVEL COMPONENTS (BS 5.3.3 natifs)
+     Offcanvas, Modal, Toast — hors #wrapper pour z-index correct.
+     ═══════════════════════════════════════════════════════════ -->
+
+<!-- Offcanvas (detail panel) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="demoOffcanvas" aria-labelledby="demoOffcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="demoOffcanvasLabel">
+      <i class="bi bi-file-earmark-medical me-2"></i>Detail protocole
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div style="padding:1rem">
+      <div class="app-detail-section">
+        <div class="app-detail-section-title">Protocole</div>
+        <div class="app-detail-label">Libelle</div>
+        <div class="app-detail-value">Arthroscopie du genou — meniscectomie partielle</div>
+        <div class="app-detail-label">Code CCAM</div>
+        <div class="app-detail-value">NFKA010</div>
+      </div>
+      <div class="app-detail-section">
+        <div class="app-detail-section-title">Installation patient</div>
+        <div class="app-detail-label">Position</div>
+        <div class="app-detail-value">Decubitus dorsal, genou flechi</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal (confirmation) -->
+<div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="demoModalLabel">
+          <i class="bi bi-exclamation-triangle text-danger me-2"></i>Confirmer la suppression
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:.9rem;margin:0">Cette action est irreversible. Le protocole sera definitivement supprime.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-sm btn-danger"><i class="bi bi-trash me-1"></i>Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container (top-right) -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:1090" aria-live="polite">
+  <div class="toast" id="demoToast" role="alert" aria-atomic="true">
+    <div class="toast-header">
+      <i class="bi bi-check-circle-fill text-success me-2"></i>
+      <strong class="me-auto">Succes</strong>
+      <small class="text-muted">A l'instant</small>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Fermer"></button>
+    </div>
+    <div class="toast-body" style="font-size:.85rem">
+      Le protocole a ete sauvegarde avec succes.
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/bdb-modal-a11y.js"></script>
+<script>
+(function() {
+  // ── Sidebar toggle ──
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebarOverlay');
+  var toggle = document.getElementById('sidebarToggle');
+  var isDesktop = function() { return window.innerWidth >= 992; };
+
+  function closeSidebar() {
+    if (isDesktop()) {
+      document.body.classList.add('sidebar-closed');
+      sidebar.classList.add('collapsed');
+    } else {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  function openSidebar() {
+    if (isDesktop()) {
+      document.body.classList.remove('sidebar-closed');
+      sidebar.classList.remove('collapsed');
+    } else {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+    }
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  toggle.addEventListener('click', function() {
+    var expanded = toggle.getAttribute('aria-expanded') === 'true';
+    if (expanded) closeSidebar(); else openSidebar();
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+
+  window.addEventListener('resize', function() {
+    if (isDesktop()) {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      if (!document.body.classList.contains('sidebar-closed')) {
+        sidebar.classList.remove('collapsed');
+      }
+    }
+  });
+
+  // ── Demo data ──
+  var termes = [
+    { terme: 'Arthroscopie', def: 'Technique mini-invasive d\'exploration articulaire.', cat: 'Technique', badge: 'app-badge-green', variantes: 3 },
+    { terme: 'Bankart', def: 'Desinsertion du bourrelet glenoidal antero-inferieur.', cat: 'Eponyme', badge: 'app-badge-purple', variantes: 1 },
+    { terme: 'Broche de Kirschner', def: 'Tige metallique fine pour fixation osseuse.', cat: 'Materiel', badge: 'app-badge-amber', variantes: 2 },
+    { terme: 'Decubitus dorsal', def: 'Position du patient couche sur le dos.', cat: 'Anatomie', badge: 'app-badge-blue', variantes: 2 },
+    { terme: 'FESF', def: 'Fracture de l\'extremite superieure du femur.', cat: 'Abreviation', badge: 'app-badge-blue', variantes: 1 },
+  ];
+
+  var tbody = document.getElementById('demoBody');
+  if (tbody) {
+    tbody.innerHTML = termes.map(function(t) {
+      var varBadge = t.variantes > 0
+        ? '<span class="app-badge app-badge-gray">' + t.variantes + '</span>'
+        : '<span style="color:var(--app-text-muted)">—</span>';
+      return '<tr>'
+        + '<td><strong>' + t.terme + '</strong></td>'
+        + '<td class="col-hide-mobile" style="color:var(--app-text-muted)">' + t.def + '</td>'
+        + '<td><span class="app-badge ' + t.badge + '">' + t.cat + '</span></td>'
+        + '<td class="col-hide-mobile" style="text-align:center">' + varBadge + '</td>'
+        + '<td style="text-align:right">'
+        + '<div style="display:flex;gap:4px;justify-content:flex-end">'
+        + '<a class="app-icon-btn" title="Voir" role="button"><i class="bi bi-eye"></i></a>'
+        + '<a class="app-icon-btn" title="Modifier" role="button"><i class="bi bi-pencil"></i></a>'
+        + '</div></td></tr>';
+    }).join('');
+  }
+
+  // ── Toast demo trigger ──
+  var toastBtn = document.getElementById('demoToastBtn');
+  var toastEl = document.getElementById('demoToast');
+  if (toastBtn && toastEl) {
+    toastBtn.addEventListener('click', function() {
+      var toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+      toast.show();
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

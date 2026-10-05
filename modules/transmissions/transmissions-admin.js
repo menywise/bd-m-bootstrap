@@ -1,0 +1,337 @@
+/* =========================================================
+   transmissions-admin.js — Administration Transmissions
+   BDB Admin Backend V1.0.0
+
+   ⚠ COLONNES CRITIQUES : title (pas titre), content (pas contenu),
+                           user_id (pas author_id)
+
+   Posture admin : MODÉRATION uniquement.
+   L'admin voit tout, peut supprimer, n'édite pas le contenu des autres.
+
+   Dépendances globales :
+     window.bdb · window.bdbUser · window.bdbShellReady · DOMPurify
+   ========================================================= */
+
+/* ── État module ─────────────────────────────────────────── */
+let _categories      = [];
+let _statsLoaded     = false;
+let _currentDeleteId = null;
+
+/* ── Utility : bascule les états d'un préfixe ───────────── */
+function showAdminState(prefix, state) {
+  for (const s of ['loading', 'empty', 'error', 'table', 'content', 'list']) {
+    const el = document.getElementById(`${prefix}-${s}`);
+    if (el) el.classList.toggle('d-none', s !== state);
+  }
+}
+
+function showAdminError(prefix, msg) {
+  showAdminState(prefix, 'error');
+  const el = document.getElementById(`${prefix}-error-msg`);
+  if (el) el.textContent = msg;
+}
+
+/* =========================================================
+   GUARD + INIT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', async () => {
+  await window.bdbShellReady;
+  if (!window.bdbUser?.isAdmin) {
+    location.href = '../../index.html';
+    return;
+  }
+  await initTransAdmin();
+});
+
+async function initTransAdmin() {
+  await loadTransCategories();
+  await loadTransList();
+
+  /* Filtres */
+  document.getElementById('filter-trans-status')
+    ?.addEventListener('change', loadTransList);
+  document.getElementById('filter-trans-cat')
+    ?.addEventListener('change', loadTransList);
+  document.getElementById('filter-trans-search')
+    ?.addEventListener('input', debounce(loadTransList, 400));
+
+  /* Retry */
+  document.getElementById('btn-trans-list-retry')
+    ?.addEventListener('click', loadTransList);
+
+  /* Délégation liste */
+  document.getElementById('trans-list-tbody')
+    ?.addEventListener('click', handleTransAction);
+
+  /* Suppression dans modale */
+  document.getElementById('btn-trans-delete-confirm')
+    ?.addEventListener('click', deleteTransmission);
+
+  /* Lazy load stats */
+  document.getElementById('tab-trans-stats')
+    ?.addEventListener('shown.bs.tab', () => {
+      if (!_statsLoaded) loadTransStats();
+    });
+
+  /* Export */
+  document.getElementById('btn-trans-export-csv')
+    ?.addEventListener('click', exportTransCSV);
+}
+
+/* =========================================================
+   CATÉGORIES
+   ========================================================= */
+async function loadTransCategories() {
+  try {
+    const { data: ct } = await window.bdb
+      .from('content_types').select('id').eq('code', 'transmissions').single();
+    if (!ct) return;
+
+    const { data: cats, error } = await window.bdb
+      .from('categories')
+      .select('id, label, color')
+      .eq('content_type_id', ct.id)
+      .order('label');
+    if (error) throw error;
+
+    _categories = cats || [];
+
+    const select = document.getElementById('filter-trans-cat');
+    if (select) {
+      /* Conserver l'option "Toutes catégories" déjà dans le HTML */
+      _categories.forEach(c => {
+        select.add(new Option(c.label, c.id));
+      });
+    }
+  } catch (err) {
+  }
+}
+
+/* =========================================================
+   LISTE
+   ========================================================= */
+async function loadTransList() {
+  showAdminState('trans-list', 'loading');
+  try {
+    const status = document.getElementById('filter-trans-status')?.value;
+    const catId  = document.getElementById('filter-trans-cat')?.value;
+    const search = document.getElementById('filter-trans-search')?.value?.trim();
+
+    /* ⚠ Colonnes anglais : title (pas titre)
+       ⚠ PAS de filtre user_id — admin voit TOUT */
+    let q = window.bdb
+      .from('transmissions')
+      .select('id, title, status, type, is_dev, created_at, user_id, category_id')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (status) q = q.eq('status', status);
+    if (catId)  q = q.eq('category_id', catId);
+    if (search) q = q.ilike('title', `%${search}%`);
+
+    const { data, error } = await q;
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      showAdminState('trans-list', 'empty');
+      return;
+    }
+
+    renderTransList(data);
+    showAdminState('trans-list', 'table');
+  } catch (err) {
+    showAdminError('trans-list', 'Le chargement n\'a pu aboutir — réessayez dans un instant.');
+  }
+}
+
+function renderTransList(transmissions) {
+  const tbody = document.getElementById('trans-list-tbody');
+  if (!tbody) return;
+
+  const catMap = Object.fromEntries(_categories.map(c => [c.id, c.label]));
+
+  tbody.innerHTML = transmissions.map(t => {
+    const dateStr = t.created_at
+      ? new Date(t.created_at).toLocaleDateString('fr-FR')
+      : '—';
+    const statusBadge = t.status === 'published'
+      ? '<span class="badge bg-success">Publiée</span>'
+      : '<span class="badge bg-secondary">Brouillon</span>';
+    /* ⚠ user_id : UUID pseudonymisé — afficher seulement les 8 premiers chars */
+    const authorShort = t.user_id
+      ? escHtml(t.user_id.slice(0, 8)) + '…'
+      : '—';
+
+    return `<tr data-trans-id="${escHtml(t.id)}">
+      <td class="fw-medium">${escHtml(t.title || '—')}</td>
+      <td class="text-muted small font-monospace">${authorShort}</td>
+      <td>${escHtml(catMap[t.category_id] || '—')}</td>
+      <td>${statusBadge}</td>
+      <td class="text-muted small">${escHtml(dateStr)}</td>
+      <td>
+        <button class="btn btn-xs btn-outline-primary" data-action="preview"
+                title="Prévisualiser"><i class="bi bi-eye"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function handleTransAction(e) {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const row = btn.closest('[data-trans-id]');
+  if (!row) return;
+  const id = row.dataset.transId;
+  if (btn.dataset.action === 'preview') await openTransPreview(id);
+}
+
+/* =========================================================
+   PRÉVISUALISATION + SUPPRESSION
+   ========================================================= */
+async function openTransPreview(id) {
+  try {
+    /* ⚠ Colonnes anglais : title, content */
+    const { data, error } = await window.bdb
+      .from('transmissions')
+      .select('id, title, content, status, created_at, user_id')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+
+    _currentDeleteId = id;
+
+    const titleEl   = document.getElementById('modal-trans-preview-title');
+    const contentEl = document.getElementById('modal-trans-preview-content');
+
+    if (titleEl) titleEl.textContent = data.title || 'Sans titre';
+    if (contentEl) {
+      /* DOMPurify exception autorisée (INTERDIT-C6) : HTML Quill, lecture admin seule */
+      contentEl.innerHTML = data.content
+        ? DOMPurify.sanitize(data.content)
+        : '<em class="text-muted">Aucun contenu</em>';
+    }
+
+    bootstrap.Modal.getOrCreateInstance(
+      document.getElementById('modal-trans-preview')
+    ).show();
+  } catch (err) {
+    bdbToast('Impossible de charger la transmission.');
+  }
+}
+
+async function deleteTransmission() {
+  if (!_currentDeleteId) return;
+  if (!confirm('Supprimer définitivement cette transmission ? Cette action est irréversible.')) return;
+
+  try {
+    const { error } = await window.bdb
+      .from('transmissions')
+      .delete()
+      .eq('id', _currentDeleteId)
+      .select();
+    if (error) throw error;
+
+    bootstrap.Modal.getInstance(
+      document.getElementById('modal-trans-preview')
+    )?.hide();
+
+    _currentDeleteId = null;
+    bdbToast('Transmission supprimée.');
+    await loadTransList();
+    if (_statsLoaded) { _statsLoaded = false; loadTransStats(); }
+  } catch (err) {
+    bdbToast('Erreur : ' + err.message);
+  }
+}
+
+/* =========================================================
+   STATS
+   ========================================================= */
+async function loadTransStats() {
+  showAdminState('trans-stats', 'loading');
+  try {
+    const [
+      { count: total,     error: e1 },
+      { count: published, error: e2 },
+      { count: draft,     error: e3 },
+      { count: isDev,     error: e4 },
+    ] = await Promise.all([
+      window.bdb.from('transmissions').select('*', { count: 'exact', head: true }),
+      window.bdb.from('transmissions').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+      window.bdb.from('transmissions').select('*', { count: 'exact', head: true }).eq('status', 'draft'),
+      window.bdb.from('transmissions').select('*', { count: 'exact', head: true }).eq('is_dev', true),
+    ]);
+
+    if (e1 || e2 || e3 || e4) throw e1 || e2 || e3 || e4;
+
+    document.getElementById('kpi-trans-total').textContent     = total     ?? '—';
+    document.getElementById('kpi-trans-published').textContent = published ?? '—';
+    document.getElementById('kpi-trans-draft').textContent     = draft     ?? '—';
+    document.getElementById('kpi-trans-dev').textContent       = isDev     ?? '—';
+
+    showAdminState('trans-stats', 'content');
+    _statsLoaded = true;
+  } catch (err) {
+    showAdminError('trans-stats', 'Le chargement n\'a pu aboutir — réessayez dans un instant.');
+  }
+}
+
+/* =========================================================
+   EXPORT CSV (sans content — RGPD)
+   ========================================================= */
+async function exportTransCSV() {
+  try {
+    /* ⚠ title (anglais), PAS de content (RGPD) */
+    const { data, error } = await window.bdb
+      .from('transmissions')
+      .select('id, title, status, type, is_dev, created_at, user_id, category_id')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+
+    const catMap = Object.fromEntries(_categories.map(c => [c.id, c.label]));
+
+    const rows = [
+      ['ID', 'Titre', 'Statut', 'Type', 'Catégorie', 'Auteur (UUID)', 'Créée le'],
+      ...(data || []).map(t => [
+        t.id,
+        t.title         || '',
+        t.status        || '',
+        t.type          || '',
+        catMap[t.category_id] || '',
+        t.user_id       || '',
+        t.created_at?.slice(0, 10) || '',
+      ]),
+    ];
+
+    const csv = rows
+      .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(';'))
+      .join('\r\n');
+
+    /* BOM UTF-8 pour Excel */
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+    const a    = Object.assign(document.createElement('a'), {
+      href    : url,
+      download: `transmissions_export_${new Date().toISOString().slice(0, 10)}.csv`,
+    });
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    bdbToast('Export CSV lancé.');
+  } catch (err) {
+    bdbToast('Erreur export : ' + err.message);
+  }
+}
+
+/* =========================================================
+   DEBOUNCE
+   ========================================================= */
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
